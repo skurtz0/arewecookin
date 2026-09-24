@@ -4,6 +4,6 @@
 - [x] Task 4: Implement lib/repositories/recipe_repository.dart with infinite scroll pagination (limit & startAfter), search queries, and pantry matching logic.
 - [x] Task 5: Build Discover Screen (lib/screens/discover_screen.dart) supporting lazy-loading 10k recipes, search bar, and category filters.
 - [x] Task 6: Build Pantry Matching Screen (lib/screens/pantry_screen.dart) with multi-select ingredient chips and match percentage calculation.
-- [ ] Task 7: Build Recipe Detail Screen (lib/screens/recipe_detail_screen.dart) with ingredient readiness checklist and start cooking CTA.
+- [x] Task 7: Build Recipe Detail Screen (lib/screens/recipe_detail_screen.dart) with ingredient readiness checklist and start cooking CTA.
 - [ ] Task 8: Build Step-by-Step Cooking Wizard Screen (lib/screens/cooking_mode_screen.dart) with PageView, timer, utensil icons, and expandable pro-tips.
 - [ ] Task 9: Assemble main navigation shell with BottomNavigationBar, run 'flutter analyze' and fix all warnings.
