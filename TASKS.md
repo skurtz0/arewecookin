@@ -6,4 +6,4 @@
 - [x] Task 6: Build Pantry Matching Screen (lib/screens/pantry_screen.dart) with multi-select ingredient chips and match percentage calculation.
 - [x] Task 7: Build Recipe Detail Screen (lib/screens/recipe_detail_screen.dart) with ingredient readiness checklist and start cooking CTA.
 - [x] Task 8: Build Step-by-Step Cooking Wizard Screen (lib/screens/cooking_mode_screen.dart) with PageView, timer, utensil icons, and expandable pro-tips.
-- [ ] Task 9: Assemble main navigation shell with BottomNavigationBar, run 'flutter analyze' and fix all warnings.
+- [x] Task 9: Assemble main navigation shell with BottomNavigationBar, run 'flutter analyze' and fix all warnings.

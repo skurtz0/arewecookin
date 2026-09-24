@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
+import 'screens/main_navigation_screen.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -35,14 +36,7 @@ class AreWeCookinApp extends StatelessWidget {
           elevation: 0,
         ),
       ),
-      home: const Scaffold(
-        body: Center(
-          child: Text(
-            'AreWeCookin 🍳',
-            style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-          ),
-        ),
-      ),
+      home: const MainNavigationScreen(),
     );
   }
 }
