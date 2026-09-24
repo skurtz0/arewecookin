@@ -1,0 +1,30 @@
+{
+  "project_info": {
+    "project_number": "472789077581",
+    "firebase_url": "https://arewecookin-default-rtdb.europe-west1.firebasedatabase.app",
+    "project_id": "arewecookin",
+    "storage_bucket": "arewecookin.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:472789077581:android:7e54c577d178feba5d5604",
+        "android_client_info": {
+          "package_name": "com.example.arewecookin"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC0fMFrBIRuICTukwV41Lw_JYTFS-b0nu0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
