@@ -36,7 +36,6 @@ dependencies:
   cupertino_icons: ^1.0.8
   flutter_riverpod: ^3.4.3
   flutter_svg: ^2.3.0
-  lucide_icons: ^0.257.0
   firebase_core: ^4.15.0
   cloud_firestore: ^6.10.0
 
