@@ -1,4 +1,4 @@
-- [ ] Task 1: Setup lib/main.dart with Firebase initialization and Riverpod ProviderScope.
+- [x] Task 1: Setup lib/main.dart with Firebase initialization and Riverpod ProviderScope.
 - [ ] Task 2: Create Data Models in lib/models/ (Recipe, Ingredient, CookingStep, Substitution) with Firestore serialization.
 - [ ] Task 3: Create scripts/bulk_seeder.dart capable of generating and batch-writing 10,000 realistic categorized recipes with pro-tips and tool icons into Firestore using WriteBatch (in 500 chunks).
 - [ ] Task 4: Implement lib/repositories/recipe_repository.dart with infinite scroll pagination (limit & startAfter), search queries, and pantry matching logic.
