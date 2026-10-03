@@ -1,168 +1,193 @@
+import 'translations_data.dart';
+
 class AppStrings {
   final String locale;
+  final Map<String, String> _strings;
 
-  const AppStrings(this.locale);
+  AppStrings(this.locale) : _strings = _resolveMap(locale);
 
-  bool get isTurkish => locale == 'tr';
+  static Map<String, String> _resolveMap(String loc) {
+    // 1. Exact match (e.g. 'zh_CN', 'pt_BR', 'en', 'tr')
+    if (appTranslations.containsKey(loc)) {
+      return appTranslations[loc]!;
+    }
+
+    // 2. Normalized match (replace hyphen with underscore, case-insensitive)
+    final clean = loc.replaceAll('-', '_');
+    for (final entry in appTranslations.entries) {
+      if (entry.key.toLowerCase() == clean.toLowerCase()) {
+        return entry.value;
+      }
+    }
+
+    // 3. Fallback to base language code (e.g. 'en_US' -> 'en', 'tr_TR' -> 'tr')
+    final langPart = clean.split('_').first.toLowerCase();
+    for (final entry in appTranslations.entries) {
+      if (entry.key.toLowerCase() == langPart) {
+        return entry.value;
+      }
+    }
+
+    // 4. Default fallback: English
+    return appTranslations['en']!;
+  }
+
+  String _get(String key, [String? fallback]) {
+    return _strings[key] ?? appTranslations['en']?[key] ?? fallback ?? key;
+  }
+
+  bool get isTurkish => locale.toLowerCase().startsWith('tr');
+  bool get isRtl => locale.toLowerCase().startsWith('ar');
 
   // Navigation
-  String get tabDiscover => isTurkish ? 'Keşfet' : 'Discover';
-  String get tabPantry => isTurkish ? 'Kilerim' : 'Pantry';
-  String get tabAccount => isTurkish ? 'Hesabım' : 'Account';
+  String get tabDiscover => _get('tabDiscover', 'Discover');
+  String get tabPantry => _get('tabPantry', 'Pantry');
+  String get tabAccount => _get('tabAccount', 'Account');
 
   // App Header
-  String get appTitle => 'AreWeCookin';
-  String get appSubtitle => isTurkish ? '10.000+ Acemi Dostu Tarif' : '10,000+ Beginner-Friendly Recipes';
+  String get appTitle => _get('appTitle', 'AreWeCookin');
+  String get appSubtitle => _get('appSubtitle', '10,000+ Beginner-Friendly Recipes');
 
   // Search
-  String get searchPlaceholder => isTurkish
-      ? '10.000+ tarif ara (örn: çorba, kek, pirzola)...'
-      : 'Search 10,000+ recipes (e.g. soup, cake)...';
+  String get searchPlaceholder => _get('searchPlaceholder', 'Search 10,000+ recipes (e.g. soup, pasta, steak)...');
 
   // Cuisines Header & Names
-  String get worldCuisines => isTurkish ? 'Dünya Mutfakları' : 'World Cuisines';
-  String get cuisineAll => isTurkish ? 'Tümü' : 'All';
-  String get cuisineTurkish => isTurkish ? 'Türk Mutfağı' : 'Turkish';
-  String get cuisineItalian => isTurkish ? 'İtalyan' : 'Italian';
-  String get cuisineAsian => isTurkish ? 'Asya & Uzak Doğu' : 'Asian';
-  String get cuisineMexican => isTurkish ? 'Meksika' : 'Mexican';
-  String get cuisineMediterranean => isTurkish ? 'Akdeniz' : 'Mediterranean';
-  String get cuisineFrenchWorld => isTurkish ? 'Fransız & Dünya' : 'French & World';
-  String get cuisineStreet => isTurkish ? 'Pratik & Sokak' : 'Street & Quick';
+  String get worldCuisines => _get('worldCuisines', 'World Cuisines');
+  String get cuisineAll => _get('cuisineAll', 'All');
+  String get cuisineTurkish => _get('cuisineTurkish', 'Turkish');
+  String get cuisineItalian => _get('cuisineItalian', 'Italian');
+  String get cuisineAsian => _get('cuisineAsian', 'Asian & Far East');
+  String get cuisineMexican => _get('cuisineMexican', 'Mexican');
+  String get cuisineMediterranean => _get('cuisineMediterranean', 'Mediterranean');
+  String get cuisineFrenchWorld => _get('cuisineFrenchWorld', 'French & World');
+  String get cuisineStreet => _get('cuisineStreet', 'Street & Quick');
 
   // Categories
-  String get catAll => isTurkish ? 'Tümü' : 'All';
-  String get catMain => isTurkish ? 'Ana Yemek' : 'Main Dish';
-  String get catDessert => isTurkish ? 'Tatlı' : 'Dessert';
-  String get catSoup => isTurkish ? 'Çorba' : 'Soup';
-  String get catBreakfast => isTurkish ? 'Kahvaltılık' : 'Breakfast';
-  String get catQuick => isTurkish ? 'Pratik' : 'Quick & Easy';
-  String get catBakery => isTurkish ? 'Hamur İşi' : 'Pastry & Bakery';
-  String get catSalad => isTurkish ? 'Salata' : 'Salad';
-  String get catVegan => isTurkish ? 'Vegan' : 'Vegan';
+  String get catAll => _get('catAll', 'All');
+  String get catMain => _get('catMain', 'Main Dish');
+  String get catDessert => _get('catDessert', 'Dessert');
+  String get catSoup => _get('catSoup', 'Soup');
+  String get catBreakfast => _get('catBreakfast', 'Breakfast');
+  String get catQuick => _get('catQuick', 'Quick & Easy');
+  String get catBakery => _get('catBakery', 'Pastry & Bakery');
+  String get catSalad => _get('catSalad', 'Salad');
+  String get catVegan => _get('catVegan', 'Vegan');
 
   // Recipe Details
-  String get minutes => isTurkish ? 'dk' : 'min';
-  String get servings => isTurkish ? 'Kişilik' : 'Servings';
-  String get ingredients => isTurkish ? 'Malzeme' : 'Ingredients';
-  String get prepTime => isTurkish ? 'Hazırlık' : 'Prep Time';
-  String get cookTime => isTurkish ? 'Pişirme' : 'Cook Time';
-  String get totalTime => isTurkish ? 'Toplam Süre' : 'Total Time';
-  String get difficulty => isTurkish ? 'Zorluk' : 'Difficulty';
-  String get diffEasy => isTurkish ? 'Kolay' : 'Easy';
-  String get diffMedium => isTurkish ? 'Orta' : 'Medium';
-  String get diffHard => isTurkish ? 'Zor' : 'Hard';
-  String get ingredientsTitle => isTurkish ? 'Gerekli Malzemeler' : 'Required Ingredients';
-  String get stepsTitle => isTurkish ? 'Pişirme Adımları' : 'Cooking Steps';
-  String get substitutionsTitle => isTurkish ? 'Akıllı Malzeme Değişimleri' : 'Smart Ingredient Substitutions';
-  String get startCooking => isTurkish ? 'Pişirme Modunu Başlat' : 'Start Cooking Mode';
-  String get proTip => isTurkish ? 'Şefin Püf Noktası' : "Chef's Pro-Tip";
-  String get step => isTurkish ? 'Adım' : 'Step';
-  String get startTimer => isTurkish ? 'Sayacı Başlat' : 'Start Timer';
-  String get pauseTimer => isTurkish ? 'Durdur' : 'Pause';
-  String get resetTimer => isTurkish ? 'Sıfırla' : 'Reset';
-  String get finishCooking => isTurkish ? 'Pişirmeyi Tamamla' : 'Finish Cooking';
-  String get congratulations => isTurkish ? 'Tebrikler Şef!' : 'Congratulations Chef!';
+  String get minutes => _get('minutes', 'min');
+  String get servings => _get('servings', 'Servings');
+  String get ingredients => _get('ingredients', 'Ingredients');
+  String get prepTime => _get('prepTime', 'Prep Time');
+  String get cookTime => _get('cookTime', 'Cook Time');
+  String get totalTime => _get('totalTime', 'Total Time');
+  String get difficulty => _get('difficulty', 'Difficulty');
+  String get diffEasy => _get('diffEasy', 'Easy');
+  String get diffMedium => _get('diffMedium', 'Medium');
+  String get diffHard => _get('diffHard', 'Hard');
+  String get ingredientsTitle => _get('ingredientsTitle', 'Required Ingredients');
+  String get stepsTitle => _get('stepsTitle', 'Cooking Steps');
+  String get substitutionsTitle => _get('substitutionsTitle', 'Smart Ingredient Substitutions');
+  String get startCooking => _get('startCooking', 'Start Cooking Mode');
+  String get proTip => _get('proTip', "Chef's Pro-Tip");
+  String get step => _get('step', 'Step');
+  String get startTimer => _get('startTimer', 'Start Timer');
+  String get pauseTimer => _get('pauseTimer', 'Pause');
+  String get resetTimer => _get('resetTimer', 'Reset');
+  String get finishCooking => _get('finishCooking', 'Finish Cooking');
+  String get congratulations => _get('congratulations', 'Congratulations Chef!');
 
   // Pantry Screen
-  String get smartPantry => isTurkish ? 'Akıllı Kiler' : 'Smart Pantry';
-  String get pantrySubtitle => isTurkish
-      ? 'Dolabındaki malzemeleri seç, sana en uygun yemekleri bulalım.'
-      : 'Select items in your kitchen, we will find matching recipes.';
-  String get whichCuisineQuestion => isTurkish ? 'Hangi Mutfakta Yemek Pişireceksiniz?' : 'Which cuisine are you cooking today?';
-  String get matchingRecipes => isTurkish ? 'Eşleşen Tarifler' : 'Matching Recipes';
-  String get matchRate => isTurkish ? 'Eşleşme' : 'Match';
-  String get clearAll => isTurkish ? 'Temizle' : 'Clear All';
-  String get noRecipesFound => isTurkish ? 'Eşleşen tarif bulunamadı' : 'No matching recipes found';
+  String get smartPantry => _get('smartPantry', 'Smart Pantry');
+  String get pantrySubtitle => _get('pantrySubtitle', 'Select items in your kitchen, we will find matching recipes.');
+  String get whichCuisineQuestion => _get('whichCuisineQuestion', 'Which cuisine are you cooking today?');
+  String get matchingRecipes => _get('matchingRecipes', 'Matching Recipes');
+  String get matchRate => _get('matchRate', 'Match');
+  String get clearAll => _get('clearAll', 'Clear All');
+  String get noRecipesFound => _get('noRecipesFound', 'No matching recipes found');
 
   // Account & Auth
-  String get myAccount => isTurkish ? 'Hesabım' : 'My Account';
-  String get loginPrompt => isTurkish ? 'Favorilerini ve kilerini kaydetmek için giriş yap.' : 'Sign in to sync your favorites and pantry.';
-  String get googleAutoLogin => isTurkish ? 'Google ile Otomatik Giriş' : 'Continue with Google';
-  String get orEmail => isTurkish ? 'veya e-posta ile' : 'or with email';
-  String get signIn => isTurkish ? 'Giriş Yap' : 'Sign In';
-  String get signUp => isTurkish ? 'Kayıt Ol' : 'Sign Up';
-  String get email => isTurkish ? 'E-posta Adresi' : 'Email Address';
-  String get password => isTurkish ? 'Şifre' : 'Password';
-  String get fullName => isTurkish ? 'Ad Soyad' : 'Full Name';
-  String get signOut => isTurkish ? 'Çıkış Yap' : 'Sign Out';
-  String get languageSelection => isTurkish ? 'Uygulama Dili' : 'App Language';
-  String get welcomeUser => isTurkish ? 'Hoş Geldiniz' : 'Welcome';
-  String get guestUser => isTurkish ? 'Misafir Kullanıcı' : 'Guest Cook';
-  String get savedRecipes => isTurkish ? 'Favoriler' : 'Favorites';
-  String get cookedDishes => isTurkish ? 'Pişirilenler' : 'Cooked';
-  String get accountSecurity => isTurkish ? 'Hesap & Güvenlik' : 'Account & Security';
-  String get appPreferences => isTurkish ? 'Tercihler' : 'Preferences';
-  String get invalidEmail => isTurkish ? 'Geçerli bir e-posta adresi girin' : 'Please enter a valid email';
-  String get passwordLength => isTurkish ? 'Şifre en az 6 karakter olmalı' : 'Password must be at least 6 characters';
-  String get enterName => isTurkish ? 'Lütfen adınızı girin' : 'Please enter your name';
+  String get myAccount => _get('myAccount', 'My Account');
+  String get loginPrompt => _get('loginPrompt', 'Sign in to sync your favorites and pantry.');
+  String get googleAutoLogin => _get('googleAutoLogin', 'Continue with Google');
+  String get orEmail => _get('orEmail', 'or with email');
+  String get signIn => _get('signIn', 'Sign In');
+  String get signUp => _get('signUp', 'Sign Up');
+  String get email => _get('email', 'Email Address');
+  String get password => _get('password', 'Password');
+  String get fullName => _get('fullName', 'Full Name');
+  String get signOut => _get('signOut', 'Sign Out');
+  String get languageSelection => _get('languageSelection', 'App Language');
+  String get welcomeUser => _get('welcomeUser', 'Welcome');
+  String get guestUser => _get('guestUser', 'Guest Cook');
+  String get savedRecipes => _get('savedRecipes', 'Favorites');
+  String get cookedDishes => _get('cookedDishes', 'Cooked');
+  String get accountSecurity => _get('accountSecurity', 'Account & Security');
+  String get appPreferences => _get('appPreferences', 'Preferences');
+  String get invalidEmail => _get('invalidEmail', 'Please enter a valid email');
+  String get passwordLength => _get('passwordLength', 'Password must be at least 6 characters');
+  String get enterName => _get('enterName', 'Please enter your name');
 
   // Splash
-  String get splashTagline => isTurkish ? 'Bugün ne pişiriyoruz?' : 'What are we cookin\' today?';
-  String get splashLoading => isTurkish ? 'Mutfak hazırlanıyor...' : 'Preparing the kitchen...';
+  String get splashTagline => _get('splashTagline', "What are we cookin' today?");
+  String get splashLoading => _get('splashLoading', 'Preparing the kitchen...');
 
   // Phone Auth
-  String get phoneAuth => isTurkish ? 'Telefon ile Giriş' : 'Phone Sign In';
-  String get phoneNumber => isTurkish ? 'Telefon Numarası' : 'Phone Number';
-  String get enterPhoneNumber => isTurkish ? 'Telefon numaranızı girin (+90...)' : 'Enter phone number (+1...)';
-  String get sendOtp => isTurkish ? 'Doğrulama Kodu Gönder' : 'Send Verification Code';
-  String get verificationCode => isTurkish ? 'Doğrulama Kodu' : 'Verification Code';
-  String get enterOtp => isTurkish ? '6 haneli SMS kodunu girin' : 'Enter 6-digit SMS code';
-  String get verifyOtp => isTurkish ? 'Kodu Onayla ve Giriş Yap' : 'Verify & Sign In';
-  String get invalidPhone => isTurkish ? 'Geçerli bir telefon numarası girin' : 'Enter a valid phone number';
-  String get invalidOtp => isTurkish ? 'Lütfen 6 haneli kodu eksiksiz girin' : 'Please enter the 6-digit code';
+  String get phoneAuth => _get('phoneAuth', 'Phone Sign In');
+  String get phoneNumber => _get('phoneNumber', 'Phone Number');
+  String get enterPhoneNumber => _get('enterPhoneNumber', 'Enter phone number (+1...)');
+  String get sendOtp => _get('sendOtp', 'Send Verification Code');
+  String get verificationCode => _get('verificationCode', 'Verification Code');
+  String get enterOtp => _get('enterOtp', 'Enter 6-digit SMS code');
+  String get verifyOtp => _get('verifyOtp', 'Verify & Sign In');
+  String get invalidPhone => _get('invalidPhone', 'Enter a valid phone number');
+  String get invalidOtp => _get('invalidOtp', 'Please enter the 6-digit code');
 
   // Account Management & Security
-  String get changePassword => isTurkish ? 'Şifre Değiştir' : 'Change Password';
-  String get newPassword => isTurkish ? 'Yeni Şifre' : 'New Password';
-  String get changeEmail => isTurkish ? 'E-posta Değiştir' : 'Change Email';
-  String get newEmail => isTurkish ? 'Yeni E-posta Adresi' : 'New Email Address';
-  String get deleteAccount => isTurkish ? 'Hesabı Sil' : 'Delete Account';
-  String get deleteAccountTitle => isTurkish ? 'Hesabınızı Silmek İstiyor Musunuz?' : 'Delete Your Account?';
-  String get deleteAccountConfirm => isTurkish
-      ? 'Hesabınız ve tüm kaydedilen tarifleriniz kalıcı olarak silinecektir. Bu işlem geri alınamaz!'
-      : 'Your account and all saved recipes will be permanently deleted. This action cannot be undone!';
-  String get deleteAccountAction => isTurkish ? 'Evet, Hesabımı Sil' : 'Yes, Delete Account';
-  String get cancel => isTurkish ? 'İptal' : 'Cancel';
-  String get saveChanges => isTurkish ? 'Kaydet' : 'Save';
-  String get editProfile => isTurkish ? 'Profili Düzenle' : 'Edit Profile';
-  String get updateName => isTurkish ? 'İsim Değiştir' : 'Change Name';
-  String get profileUpdated => isTurkish ? 'Profil başarıyla güncellendi.' : 'Profile updated successfully.';
-  String get passwordUpdated => isTurkish ? 'Şifreniz başarıyla güncellendi.' : 'Password updated successfully.';
-  String get emailUpdated => isTurkish ? 'E-posta adresiniz güncellendi.' : 'Email address updated.';
-  String get accountDeleted => isTurkish ? 'Hesabınız başarıyla silindi.' : 'Account deleted successfully.';
+  String get changePassword => _get('changePassword', 'Change Password');
+  String get newPassword => _get('newPassword', 'New Password');
+  String get changeEmail => _get('changeEmail', 'Change Email');
+  String get newEmail => _get('newEmail', 'New Email Address');
+  String get deleteAccount => _get('deleteAccount', 'Delete Account');
+  String get deleteAccountTitle => _get('deleteAccountTitle', 'Delete Your Account?');
+  String get deleteAccountConfirm => _get('deleteAccountConfirm', 'Your account and all saved recipes will be permanently deleted. This action cannot be undone!');
+  String get deleteAccountAction => _get('deleteAccountAction', 'Yes, Delete Account');
+  String get cancel => _get('cancel', 'Cancel');
+  String get saveChanges => _get('saveChanges', 'Save');
+  String get editProfile => _get('editProfile', 'Edit Profile');
+  String get updateName => _get('updateName', 'Change Name');
+  String get profileUpdated => _get('profileUpdated', 'Profile updated successfully.');
+  String get passwordUpdated => _get('passwordUpdated', 'Password updated successfully.');
+  String get emailUpdated => _get('emailUpdated', 'Email address updated.');
+  String get accountDeleted => _get('accountDeleted', 'Account deleted successfully.');
 
   // Add Recipe & Recipe Management
-  String get addRecipe => isTurkish ? 'Tarif Ekle' : 'Add Recipe';
-  String get newRecipe => isTurkish ? 'Yeni Tarif Paylaş' : 'Share New Recipe';
-  String get recipeTitle => isTurkish ? 'Tarif Adı' : 'Recipe Title';
-  String get enterRecipeTitle => isTurkish ? 'Örn: Anne Usulü Mercimek Çorbası' : 'e.g. Grandma\'s Lentil Soup';
-  String get recipeCategory => isTurkish ? 'Kategori' : 'Category';
-  String get recipeCuisine => isTurkish ? 'Mutfak' : 'Cuisine';
-  String get prepTimeMinutes => isTurkish ? 'Hazırlık (dk)' : 'Prep (min)';
-  String get cookTimeMinutes => isTurkish ? 'Pişirme (dk)' : 'Cook (min)';
-  String get servingsCount => isTurkish ? 'Porsiyon' : 'Servings';
-  String get imageUrlOptional => isTurkish ? 'Fotoğraf URL (İsteğe Bağlı)' : 'Image URL (Optional)';
-  String get addIngredient => isTurkish ? 'Malzeme Ekle' : 'Add Ingredient';
-  String get ingredientName => isTurkish ? 'Malzeme adı (örn: Zeytinyağı)' : 'Ingredient name (e.g. Olive oil)';
-  String get ingredientAmount => isTurkish ? 'Miktar (örn: 2)' : 'Amount (e.g. 2)';
-  String get ingredientUnit => isTurkish ? 'Birim (kaşık, bardak, gr)' : 'Unit (tbsp, cup, g)';
-  String get addStep => isTurkish ? 'Adım Ekle' : 'Add Step';
-  String get stepInstruction => isTurkish ? 'Adım açıklaması / talimatı...' : 'Step instructions...';
-  String get stepTimerOptional => isTurkish ? 'Zamanlayıcı (dk, isteğe bağlı)' : 'Timer (min, optional)';
-  String get publishRecipe => isTurkish ? 'Tarifi Yayınla' : 'Publish Recipe';
-  String get recipePublishedSuccess => isTurkish ? 'Tarifiniz başarıyla yayınlandı!' : 'Your recipe has been published!';
-  String get loginRequiredToPublish => isTurkish ? 'Tarif Eklemek İçin Giriş Yapın' : 'Sign In to Add Recipes';
-  String get loginToPublishMsg => isTurkish
-      ? 'Kendi lezzetli tariflerinizi toplulukla paylaşmak için lütfen giriş yapın veya kayıt olun.'
-      : 'Please sign in or create an account to share your recipes with the community.';
-  String get mySavedRecipes => isTurkish ? 'Kaydettiğim Tarifler' : 'Saved Recipes';
-  String get myCreatedRecipes => isTurkish ? 'Eklediğim Tarifler' : 'My Recipes';
-  String get noSavedRecipesYet => isTurkish ? 'Henüz kaydedilmiş bir tarifiniz yok.' : 'No saved recipes yet.';
-  String get noCreatedRecipesYet => isTurkish ? 'Henüz eklediğiniz bir tarif yok. İlk tarifinizi hemen paylaşın!' : 'You haven\'t added any recipes yet. Share your first recipe!';
-  String get exploreRecipes => isTurkish ? 'Tarifleri Keşfet' : 'Explore Recipes';
-  String get removeFavorite => isTurkish ? 'Favorilerden Çıkar' : 'Remove Favorite';
-  String get addedToFavorites => isTurkish ? 'Tarif favorilerinize eklendi!' : 'Recipe added to favorites!';
-  String get removedFromFavorites => isTurkish ? 'Tarif favorilerden çıkarıldı.' : 'Recipe removed from favorites.';
+  String get addRecipe => _get('addRecipe', 'Add Recipe');
+  String get newRecipe => _get('newRecipe', 'Share New Recipe');
+  String get recipeTitle => _get('recipeTitle', 'Recipe Title');
+  String get enterRecipeTitle => _get('enterRecipeTitle', "e.g. Grandma's Lentil Soup");
+  String get recipeCategory => _get('recipeCategory', 'Category');
+  String get recipeCuisine => _get('recipeCuisine', 'Cuisine');
+  String get prepTimeMinutes => _get('prepTimeMinutes', 'Prep (min)');
+  String get cookTimeMinutes => _get('cookTimeMinutes', 'Cook (min)');
+  String get servingsCount => _get('servingsCount', 'Servings');
+  String get imageUrlOptional => _get('imageUrlOptional', 'Image URL (Optional)');
+  String get addIngredient => _get('addIngredient', 'Add Ingredient');
+  String get ingredientName => _get('ingredientName', 'Ingredient name (e.g. Olive oil)');
+  String get ingredientAmount => _get('ingredientAmount', 'Amount (e.g. 2)');
+  String get ingredientUnit => _get('ingredientUnit', 'Unit (tbsp, cup, g)');
+  String get addStep => _get('addStep', 'Add Step');
+  String get stepInstruction => _get('stepInstruction', 'Step instructions...');
+  String get stepTimerOptional => _get('stepTimerOptional', 'Timer (min, optional)');
+  String get publishRecipe => _get('publishRecipe', 'Publish Recipe');
+  String get recipePublishedSuccess => _get('recipePublishedSuccess', 'Your recipe has been published!');
+  String get loginRequiredToPublish => _get('loginRequiredToPublish', 'Sign In to Add Recipes');
+  String get loginToPublishMsg => _get('loginToPublishMsg', 'Please sign in or create an account to share your recipes with the community.');
+  String get mySavedRecipes => _get('mySavedRecipes', 'Saved Recipes');
+  String get myCreatedRecipes => _get('myCreatedRecipes', 'My Recipes');
+  String get noSavedRecipesYet => _get('noSavedRecipesYet', 'No saved recipes yet.');
+  String get noCreatedRecipesYet => _get('noCreatedRecipesYet', "You haven't added any recipes yet. Share your first recipe!");
+  String get exploreRecipes => _get('exploreRecipes', 'Explore Recipes');
+  String get removeFavorite => _get('removeFavorite', 'Remove Favorite');
+  String get addedToFavorites => _get('addedToFavorites', 'Recipe added to favorites!');
+  String get removedFromFavorites => _get('removedFromFavorites', 'Recipe removed from favorites.');
 }
-

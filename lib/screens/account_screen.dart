@@ -382,8 +382,153 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
             isSelected: currentLang == 'en',
             onTap: () => ref.read(localeProvider.notifier).setLocale('en'),
           ),
+          InkWell(
+            onTap: () => _showLanguagePickerModal(context),
+            borderRadius: BorderRadius.circular(16),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Icon(Icons.language_rounded, size: 16, color: Color(0xFF64748B)),
+                  const SizedBox(width: 4),
+                  Text(
+                    '20+',
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.grey.shade700,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
         ],
       ),
+    );
+  }
+
+  void _showLanguagePickerModal(BuildContext context) {
+    final currentLocale = ref.read(localeProvider);
+    final currentLangObj = AppLanguages.findByLocale(currentLocale);
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      builder: (ctx) {
+        return DraggableScrollableSheet(
+          initialChildSize: 0.75,
+          minChildSize: 0.5,
+          maxChildSize: 0.9,
+          expand: false,
+          builder: (context, scrollController) {
+            return Column(
+              children: [
+                const SizedBox(height: 12),
+                Container(
+                  width: 40,
+                  height: 4,
+                  decoration: BoxDecoration(
+                    color: Colors.grey.shade300,
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+                  child: Row(
+                    children: [
+                      const Icon(Icons.language_rounded, color: Color(0xFFFF5722), size: 24),
+                      const SizedBox(width: 10),
+                      const Text(
+                        'Select Language / Dil Seçimi',
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: Color(0xFF1E293B),
+                        ),
+                      ),
+                      const Spacer(),
+                      IconButton(
+                        icon: const Icon(Icons.close_rounded),
+                        onPressed: () => Navigator.pop(context),
+                      ),
+                    ],
+                  ),
+                ),
+                const Divider(height: 1),
+                Expanded(
+                  child: ListView.separated(
+                    controller: scrollController,
+                    itemCount: AppLanguages.all.length,
+                    separatorBuilder: (_, _) => Divider(height: 1, color: Colors.grey.shade100),
+                    itemBuilder: (context, index) {
+                      final item = AppLanguages.all[index];
+                      final isSelected = currentLangObj?.code == item.code;
+
+                      return ListTile(
+                        leading: Text(
+                          item.flag,
+                          style: const TextStyle(fontSize: 26),
+                        ),
+                        title: Row(
+                          children: [
+                            Text(
+                              item.nativeName,
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
+                                color: isSelected ? const Color(0xFFFF5722) : const Color(0xFF1E293B),
+                              ),
+                            ),
+                            if (item.isRtl) ...[
+                              const SizedBox(width: 8),
+                              Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                decoration: BoxDecoration(
+                                  color: Colors.orange.shade50,
+                                  borderRadius: BorderRadius.circular(4),
+                                  border: Border.all(color: Colors.orange.shade200),
+                                ),
+                                child: Text(
+                                  'RTL',
+                                  style: TextStyle(
+                                    fontSize: 10,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.orange.shade800,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ],
+                        ),
+                        subtitle: Text(
+                          item.name,
+                          style: TextStyle(
+                            fontSize: 13,
+                            color: Colors.grey.shade600,
+                          ),
+                        ),
+                        trailing: isSelected
+                            ? const Icon(Icons.check_circle_rounded, color: Color(0xFFFF5722))
+                            : null,
+                        onTap: () {
+                          ref.read(localeProvider.notifier).setLocale(item.code);
+                          Navigator.pop(context);
+                        },
+                      );
+                    },
+                  ),
+                ),
+              ],
+            );
+          },
+        );
+      },
     );
   }
 
@@ -396,16 +541,16 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
     final isGoogle = user.authProvider == 'google';
     final isPhone = user.authProvider == 'phone';
 
-    String providerLabel = 'Doğrulanmış Aşçı';
+    String providerLabel = strings.isTurkish ? 'Doğrulanmış Aşçı' : 'Verified Cook';
     IconData providerIcon = Icons.verified_user_rounded;
     Color providerColor = const Color(0xFFFF5722);
 
     if (isGoogle) {
-      providerLabel = 'Google Hesabı';
+      providerLabel = strings.isTurkish ? 'Google Hesabı' : 'Google Account';
       providerIcon = Icons.g_mobiledata_rounded;
       providerColor = Colors.blue.shade700;
     } else if (isPhone) {
-      providerLabel = 'Telefon Doğrulamalı';
+      providerLabel = strings.isTurkish ? 'Telefon Doğrulamalı' : 'Verified Cook';
       providerIcon = Icons.phone_android_rounded;
       providerColor = Colors.green.shade700;
     }
@@ -994,7 +1139,7 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
             children: [
               Expanded(
                 child: _MethodSelector(
-                  title: 'E-posta',
+                  title: strings.isTurkish ? 'E-posta' : 'Email',
                   icon: Icons.email_outlined,
                   isSelected: _selectedAuthMethod == _AuthMethod.email,
                   onTap: () =>
@@ -1004,7 +1149,7 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
               const SizedBox(width: 10),
               Expanded(
                 child: _MethodSelector(
-                  title: 'Telefon',
+                  title: strings.isTurkish ? 'Telefon' : 'Phone',
                   icon: Icons.phone_android_rounded,
                   isSelected: _selectedAuthMethod == _AuthMethod.phone,
                   onTap: () =>
@@ -1309,10 +1454,11 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
                 style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
               ),
               subtitle: Text(
-                currentLang == 'tr' ? 'Türkçe 🇹🇷' : 'English 🇬🇧',
+                '${AppLanguages.findByLocale(ref.watch(localeProvider))?.nativeName ?? currentLang} ${AppLanguages.findByLocale(ref.watch(localeProvider))?.flag ?? ''}',
                 style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
               ),
               trailing: _buildLanguageToggle(currentLang),
+              onTap: () => _showLanguagePickerModal(context),
             ),
             const Divider(),
             ListTile(

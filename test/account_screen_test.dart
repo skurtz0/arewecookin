@@ -10,9 +10,11 @@ void main() {
       final binding = TestWidgetsFlutterBinding.ensureInitialized();
       binding.platformDispatcher.views.first.physicalSize = const Size(1000, 2400);
       binding.platformDispatcher.views.first.devicePixelRatio = 1.0;
+      binding.platformDispatcher.localesTestValue = const [Locale('tr')];
     });
 
     testWidgets('renders account screen with Google one-tap, email form, and language toggle', (tester) async {
+      tester.platformDispatcher.localesTestValue = const [Locale('tr')];
       await tester.pumpWidget(
         const ProviderScope(
           child: MaterialApp(

@@ -76,7 +76,7 @@ void main() {
       await tester.pump(const Duration(milliseconds: 100));
 
       // Verify cuisine selector header at top
-      expect(find.text('Dünya Mutfakları'), findsOneWidget);
+      expect(find.text('World Cuisines'), findsOneWidget);
 
       // Verify cuisine filter options exist
       expect(find.text('🌍 Tümü'), findsOneWidget);
@@ -123,7 +123,7 @@ void main() {
 
       // At top, title and cuisine selector are fully visible
       expect(find.text('AreWeCookin'), findsOneWidget);
-      expect(find.text('Dünya Mutfakları'), findsOneWidget);
+      expect(find.text('World Cuisines'), findsOneWidget);
 
       // Drag up (scrolling down into recipes)
       await tester.drag(find.byType(CustomScrollView), const Offset(0, -600));
@@ -131,7 +131,7 @@ void main() {
 
       // Top panel has scrolled out of view and is completely hidden
       expect(find.text('AreWeCookin'), findsNothing);
-      expect(find.text('Dünya Mutfakları'), findsNothing);
+      expect(find.text('World Cuisines'), findsNothing);
 
       // Drag down (scrolling back up)
       await tester.drag(find.byType(CustomScrollView), const Offset(0, 400));
@@ -139,7 +139,7 @@ void main() {
 
       // Top panel snaps back into view
       expect(find.text('AreWeCookin'), findsOneWidget);
-      expect(find.text('Dünya Mutfakları'), findsOneWidget);
+      expect(find.text('World Cuisines'), findsOneWidget);
     });
 
     testWidgets('tapping Discover button again while on Discover tab scrolls to top', (tester) async {
@@ -166,8 +166,8 @@ void main() {
       final scrollable = tester.state<ScrollableState>(find.byType(Scrollable).first);
       expect(scrollable.position.pixels, greaterThan(300));
 
-      // Re-tap Keşfet (Discover) tab
-      final kesfetTab = find.text('Keşfet');
+      // Re-tap Discover tab
+      final kesfetTab = find.text('Discover');
       await tester.tap(kesfetTab);
       await tester.pumpAndSettle();
 

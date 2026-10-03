@@ -473,7 +473,7 @@ class _AddRecipeScreenState extends ConsumerState<AddRecipeScreen> {
                         child: TextFormField(
                           controller: _ingredients[i].nameController,
                           decoration: InputDecoration(
-                            hintText: 'Malzeme adı',
+                            hintText: strings.ingredientName,
                             border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
                             contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
                           ),
@@ -531,7 +531,7 @@ class _AddRecipeScreenState extends ConsumerState<AddRecipeScreen> {
                             ),
                             const SizedBox(width: 8),
                             Text(
-                              'Adım ${i + 1}',
+                              '${strings.step} ${i + 1}',
                               style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
                             ),
                             const Spacer(),
@@ -563,7 +563,7 @@ class _AddRecipeScreenState extends ConsumerState<AddRecipeScreen> {
                                 controller: _steps[i].timerController,
                                 keyboardType: TextInputType.number,
                                 decoration: InputDecoration(
-                                  hintText: 'Süre (dk, opsiyonel)',
+                                  hintText: strings.stepTimerOptional,
                                   border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
                                   contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
                                 ),

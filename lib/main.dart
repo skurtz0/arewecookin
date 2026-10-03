@@ -34,10 +34,10 @@ class AreWeCookinApp extends ConsumerWidget {
       title: 'AreWeCookin',
       debugShowCheckedModeBanner: false,
       locale: locale,
-      supportedLocales: const [
-        Locale('tr'),
-        Locale('en'),
-      ],
+      supportedLocales: AppLanguages.supportedLocales,
+      localeResolutionCallback: (deviceLocale, supportedLocales) {
+        return AppLanguages.resolveLocale(deviceLocale);
+      },
       localizationsDelegates: const [
         GlobalMaterialLocalizations.delegate,
         GlobalWidgetsLocalizations.delegate,

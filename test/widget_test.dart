@@ -6,7 +6,7 @@ import 'package:arewecookin/screens/discover_screen.dart';
 import 'package:arewecookin/screens/pantry_screen.dart';
 
 void main() {
-  testWidgets('App renders main navigation shell and switches tabs', (WidgetTester tester) async {
+  testWidgets('App renders main navigation shell in default English and switches tabs', (WidgetTester tester) async {
     tester.view.physicalSize = const Size(1000, 2000);
     tester.view.devicePixelRatio = 1.0;
     addTearDown(tester.view.resetPhysicalSize);
@@ -21,34 +21,33 @@ void main() {
     await tester.pump(const Duration(milliseconds: 2600));
     await tester.pumpAndSettle();
 
-    // Verify Navigation bar tabs
+    // Verify Navigation bar tabs in default English
     expect(find.byType(DiscoverScreen), findsOneWidget);
     expect(find.text('AreWeCookin'), findsOneWidget);
-    expect(find.text('Keşfet'), findsOneWidget);
-    expect(find.text('Kilerim'), findsOneWidget);
-    expect(find.text('Hesabım'), findsOneWidget);
+    expect(find.text('Discover'), findsOneWidget);
+    expect(find.text('Pantry'), findsOneWidget);
+    expect(find.text('Account'), findsOneWidget);
 
-    // Tap on Kilerim tab
-    final kilerTab = find.text('Kilerim');
-    await tester.tap(kilerTab);
+    // Tap on Pantry tab
+    final pantryTab = find.text('Pantry');
+    await tester.tap(pantryTab);
     await tester.pumpAndSettle();
 
     // Verify Pantry Screen is visible and active
     expect(find.byType(PantryScreen), findsOneWidget);
-    expect(find.text('Akıllı Kiler'), findsOneWidget);
 
-    // Tap on Hesabım tab
-    final hesapTab = find.text('Hesabım');
-    await tester.tap(hesapTab);
+    // Tap on Account tab
+    final accountTab = find.text('Account');
+    await tester.tap(accountTab);
     await tester.pumpAndSettle();
 
     // Verify Account Screen is visible with Google login and preferences
-    expect(find.text('Google ile Otomatik Giriş'), findsOneWidget);
-    expect(find.text('Giriş Yap'), findsWidgets);
+    expect(find.text('Continue with Google'), findsOneWidget);
+    expect(find.text('Sign In'), findsWidgets);
 
-    // Tap back to Keşfet tab
-    final kesfetTab = find.text('Keşfet');
-    await tester.tap(kesfetTab);
+    // Tap back to Discover tab
+    final discoverTab = find.text('Discover');
+    await tester.tap(discoverTab);
     await tester.pumpAndSettle();
 
     expect(find.byType(DiscoverScreen), findsOneWidget);

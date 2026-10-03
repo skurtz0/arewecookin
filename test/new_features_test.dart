@@ -29,7 +29,7 @@ void main() {
 
       await tester.pump(const Duration(milliseconds: 300));
 
-      expect(find.text('Bugün ne pişiriyoruz?'), findsOneWidget);
+      expect(find.text("What are we cookin' today?"), findsOneWidget);
       expect(find.byType(CircularProgressIndicator), findsOneWidget);
 
       await tester.pump(const Duration(milliseconds: 2500));
@@ -57,31 +57,31 @@ void main() {
 
       await tester.pumpAndSettle();
 
-      expect(find.text('Yeni Tarif Paylaş'), findsOneWidget);
-      expect(find.text('Tarif Adı'), findsOneWidget);
-      expect(find.text('Gerekli Malzemeler'), findsOneWidget);
-      expect(find.text('Pişirme Adımları'), findsOneWidget);
+      expect(find.text('Share New Recipe'), findsOneWidget);
+      expect(find.text('Recipe Title'), findsOneWidget);
+      expect(find.text('Required Ingredients'), findsOneWidget);
+      expect(find.text('Cooking Steps'), findsOneWidget);
 
       // Enter recipe title
       await tester.enterText(
-        find.widgetWithText(TextFormField, 'Tarif Adı'),
+        find.widgetWithText(TextFormField, 'Recipe Title'),
         'Özel Menemen',
       );
 
       // Enter first ingredient
       await tester.enterText(
-        find.widgetWithText(TextFormField, 'Malzeme adı').first,
+        find.widgetWithText(TextFormField, 'Ingredient name (e.g. Olive oil)').first,
         'Domates',
       );
 
       // Enter first step instruction
       await tester.enterText(
-        find.widgetWithText(TextFormField, 'Adım açıklaması / talimatı...').first,
+        find.widgetWithText(TextFormField, 'Step instructions...').first,
         'Domatesleri küp küp doğrayıp tavada soteleyin.',
       );
 
       // Tap publish
-      await tester.tap(find.text('Tarifi Yayınla').first);
+      await tester.tap(find.text('Publish Recipe').first);
       await tester.pumpAndSettle();
 
       // Verify custom recipe was added
@@ -106,31 +106,31 @@ void main() {
 
       await tester.pumpAndSettle();
 
-      // Switch to Telefon auth method
-      final phoneTab = find.text('Telefon');
+      // Switch to Phone auth method
+      final phoneTab = find.text('Phone');
       expect(phoneTab, findsOneWidget);
       await tester.tap(phoneTab);
       await tester.pumpAndSettle();
 
-      expect(find.text('Doğrulama Kodu Gönder'), findsOneWidget);
+      expect(find.text('Send Verification Code'), findsOneWidget);
 
       // Enter phone number
       await tester.enterText(find.byType(TextFormField).first, '+905551234567');
-      await tester.tap(find.text('Doğrulama Kodu Gönder'));
+      await tester.tap(find.text('Send Verification Code'));
       await tester.pumpAndSettle();
 
       // Verify OTP screen
-      expect(find.text('Kodu Onayla ve Giriş Yap'), findsOneWidget);
+      expect(find.text('Verify & Sign In'), findsOneWidget);
 
       // Enter 6 digit code
       await tester.enterText(find.byType(TextFormField).first, '123456');
-      await tester.tap(find.text('Kodu Onayla ve Giriş Yap'));
+      await tester.tap(find.text('Verify & Sign In'));
       await tester.pumpAndSettle();
 
       // Verify logged in view
-      expect(find.text('Telefon Doğrulamalı'), findsOneWidget);
-      expect(find.text('Kaydettiğim Tarifler (0)'), findsOneWidget);
-      expect(find.text('Eklediğim Tarifler (0)'), findsOneWidget);
+      expect(find.text('Verified Cook'), findsOneWidget);
+      expect(find.text('Saved Recipes (0)'), findsOneWidget);
+      expect(find.text('My Recipes (0)'), findsOneWidget);
     });
 
     test('auth provider handles changePassword, changeEmail, and deleteAccount', () async {
