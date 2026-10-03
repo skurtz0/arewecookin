@@ -11,6 +11,7 @@ class DiscoverState {
   final DocumentSnapshot<Map<String, dynamic>>? lastDocument;
   final int nextOffset;
   final String selectedCategory;
+  final String selectedCuisine;
   final String searchQuery;
   final String? errorMessage;
 
@@ -22,6 +23,7 @@ class DiscoverState {
     this.lastDocument,
     this.nextOffset = 0,
     this.selectedCategory = 'Tümü',
+    this.selectedCuisine = 'Tümü',
     this.searchQuery = '',
     this.errorMessage,
   });
@@ -34,6 +36,7 @@ class DiscoverState {
     DocumentSnapshot<Map<String, dynamic>>? lastDocument,
     int? nextOffset,
     String? selectedCategory,
+    String? selectedCuisine,
     String? searchQuery,
     String? errorMessage,
   }) {
@@ -45,6 +48,7 @@ class DiscoverState {
       lastDocument: lastDocument ?? this.lastDocument,
       nextOffset: nextOffset ?? this.nextOffset,
       selectedCategory: selectedCategory ?? this.selectedCategory,
+      selectedCuisine: selectedCuisine ?? this.selectedCuisine,
       searchQuery: searchQuery ?? this.searchQuery,
       errorMessage: errorMessage,
     );
@@ -75,6 +79,7 @@ class DiscoverNotifier extends Notifier<DiscoverState> {
         limit: 20,
         offset: 0,
         category: state.selectedCategory == 'Tümü' ? null : state.selectedCategory,
+        cuisine: state.selectedCuisine == 'Tümü' ? null : state.selectedCuisine,
         searchQuery: state.searchQuery.isEmpty ? null : state.searchQuery,
       );
 
@@ -104,6 +109,7 @@ class DiscoverNotifier extends Notifier<DiscoverState> {
         startAfter: state.lastDocument,
         offset: state.nextOffset,
         category: state.selectedCategory == 'Tümü' ? null : state.selectedCategory,
+        cuisine: state.selectedCuisine == 'Tümü' ? null : state.selectedCuisine,
         searchQuery: state.searchQuery.isEmpty ? null : state.searchQuery,
       );
 
@@ -124,6 +130,12 @@ class DiscoverNotifier extends Notifier<DiscoverState> {
     }
   }
 
+  void setCuisine(String cuisine) {
+    if (state.selectedCuisine == cuisine) return;
+    state = state.copyWith(selectedCuisine: cuisine);
+    loadInitial();
+  }
+
   void setCategory(String category) {
     if (state.selectedCategory == category) return;
     state = state.copyWith(selectedCategory: category);
@@ -137,3 +149,17 @@ class DiscoverNotifier extends Notifier<DiscoverState> {
 }
 
 final discoverProvider = NotifierProvider<DiscoverNotifier, DiscoverState>(DiscoverNotifier.new);
+
+/// Notifier to trigger scroll-to-top on the Discover tab
+class DiscoverScrollToTopNotifier extends Notifier<int> {
+  @override
+  int build() => 0;
+
+  void trigger() {
+    state++;
+  }
+}
+
+final discoverScrollToTopProvider = NotifierProvider<DiscoverScrollToTopNotifier, int>(
+  DiscoverScrollToTopNotifier.new,
+);

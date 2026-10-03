@@ -24,17 +24,21 @@ class RecipeRepository {
   RecipeRepository({this.firestore});
 
   /// Fetches recipes with infinite-scroll pagination (limit & startAfterDocument).
-  /// Supports category filtering and title search.
+  /// Supports category, cuisine filtering and title search.
   Future<PaginatedRecipes> getRecipes({
     int limit = 20,
     DocumentSnapshot<Map<String, dynamic>>? startAfter,
     int offset = 0,
     String? category,
+    String? cuisine,
     String? searchQuery,
   }) async {
     final cleanCategory = (category == null || category == 'Tümü' || category.trim().isEmpty)
         ? null
         : category.trim();
+    final cleanCuisine = (cuisine == null || cuisine == 'Tümü' || cuisine.trim().isEmpty)
+        ? null
+        : cuisine.trim();
     final cleanQuery = searchQuery?.trim().toLowerCase();
 
     final db = firestore;
@@ -44,6 +48,10 @@ class RecipeRepository {
 
         if (cleanCategory != null) {
           query = query.where('category', isEqualTo: cleanCategory);
+        }
+
+        if (cleanCuisine != null) {
+          query = query.where('cuisine', isEqualTo: cleanCuisine);
         }
 
         query = query.orderBy('id');
@@ -86,14 +94,16 @@ class RecipeRepository {
       limit: limit,
       offset: offset,
       category: cleanCategory,
+      cuisine: cleanCuisine,
       searchQuery: cleanQuery,
     );
   }
 
-  /// Match recipes based on user pantry ingredients.
+  /// Match recipes based on user pantry ingredients and optional cuisine filter.
   /// Uses arrayContainsAny in Firestore (or local match), and calculates match percentage.
   Future<List<Recipe>> matchRecipesByPantry({
     required List<String> userIngredientKeys,
+    String? cuisine,
     int limit = 50,
   }) async {
     if (userIngredientKeys.isEmpty) return [];
@@ -105,6 +115,10 @@ class RecipeRepository {
 
     if (normalizedUserKeys.isEmpty) return [];
 
+    final cleanCuisine = (cuisine == null || cuisine == 'Tümü' || cuisine.trim().isEmpty)
+        ? null
+        : cuisine.trim();
+
     List<Recipe> candidateRecipes = [];
 
     final db = firestore;
@@ -112,11 +126,15 @@ class RecipeRepository {
       try {
         // Firestore arrayContainsAny supports max 30 elements
         final queryKeys = normalizedUserKeys.take(30).toList();
-        final querySnapshot = await db
+        Query<Map<String, dynamic>> query = db
             .collection('recipes')
-            .where('ingredientKeys', arrayContainsAny: queryKeys)
-            .limit(limit * 2)
-            .get();
+            .where('ingredientKeys', arrayContainsAny: queryKeys);
+
+        if (cleanCuisine != null) {
+          query = query.where('cuisine', isEqualTo: cleanCuisine);
+        }
+
+        final querySnapshot = await query.limit(limit * 2).get();
 
         if (querySnapshot.docs.isNotEmpty) {
           candidateRecipes = querySnapshot.docs
@@ -129,24 +147,49 @@ class RecipeRepository {
     }
 
     if (candidateRecipes.isEmpty) {
-      // Search across a slice of 500 recipes from the 10,000 dataset for matches
-      for (int i = 0; i < 500; i++) {
+      // Evaluate the universe of base dishes in the deterministic dataset
+      for (int i = 0; i < 256; i++) {
         final r = RecipeGenerator.generate(i);
+        if (cleanCuisine != null && r.cuisine != cleanCuisine) {
+          continue;
+        }
         if (r.ingredientKeys.any((k) => normalizedUserKeys.contains(k))) {
           candidateRecipes.add(r);
         }
       }
     }
 
-    // Client-side Riverpod match percentage calculation and sorting
-    final scored = candidateRecipes.map((recipe) {
+    // STRICT DEDUPLICATION: Every dish appears AT MOST ONCE.
+    // If multiple variants of the same dish exist (from Firestore or generator),
+    // collapse them by cleanTitle so users never see repeated dishes in Akıllı Kiler!
+    final Map<String, Recipe> uniqueRecipes = {};
+    for (final recipe in candidateRecipes) {
+      final key = recipe.cleanTitle.toLowerCase().trim();
+      if (!uniqueRecipes.containsKey(key)) {
+        uniqueRecipes[key] = recipe;
+      }
+    }
+
+    // Client-side Riverpod match percentage calculation and smart sorting
+    final scored = uniqueRecipes.values.map((recipe) {
       final score = recipe.calculateMatchScore(normalizedUserKeys);
-      return MapEntry(recipe, score);
-    }).where((entry) => entry.value > 0).toList();
+      final missingCount = recipe.getMissingKeys(normalizedUserKeys).length;
+      return (recipe: recipe, score: score, missingCount: missingCount);
+    }).where((entry) => entry.score > 0).toList();
 
-    scored.sort((a, b) => b.value.compareTo(a.value));
+    // Sort:
+    // 1. Higher score first (100% matches rank at the top)
+    // 2. Fewer missing ingredients first
+    // 3. Shorter total cook time as tie-breaker
+    scored.sort((a, b) {
+      final cmpScore = b.score.compareTo(a.score);
+      if (cmpScore != 0) return cmpScore;
+      final cmpMissing = a.missingCount.compareTo(b.missingCount);
+      if (cmpMissing != 0) return cmpMissing;
+      return a.recipe.totalTime.compareTo(b.recipe.totalTime);
+    });
 
-    return scored.take(limit).map((e) => e.key).toList();
+    return scored.take(limit).map((e) => e.recipe).toList();
   }
 
   /// Get a single recipe by its ID
@@ -177,6 +220,7 @@ class RecipeRepository {
     required int limit,
     required int offset,
     String? category,
+    String? cuisine,
     String? searchQuery,
   }) {
     final List<Recipe> matching = [];
@@ -187,6 +231,10 @@ class RecipeRepository {
       currentIndex++;
 
       if (category != null && recipe.category != category) {
+        continue;
+      }
+
+      if (cuisine != null && recipe.cuisine != cuisine) {
         continue;
       }
 

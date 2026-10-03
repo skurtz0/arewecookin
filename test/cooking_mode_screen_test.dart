@@ -115,5 +115,64 @@ void main() {
       await tester.tap(returnButton);
       await tester.pumpAndSettle();
     });
+
+    testWidgets('displays step ingredients and full ingredients bottom sheet in cooking mode', (tester) async {
+      const detailedRecipe = Recipe(
+        id: 'rec_00099',
+        title: 'Güveçte Kuru Fasulye',
+        category: 'Ana Yemek',
+        prepTime: 15,
+        cookTime: 45,
+        difficulty: 'Orta',
+        ingredientKeys: ['fasulye', 'sogan', 'tereyagi'],
+        ingredients: [
+          Ingredient(name: 'Kuru Fasulye', amount: '2', unit: 'su bardağı'),
+          Ingredient(name: 'Kuru Soğan', amount: '1', unit: 'adet'),
+          Ingredient(name: 'Tereyağı', amount: '2', unit: 'yemek kaşığı'),
+        ],
+        substitutions: [],
+        steps: [
+          CookingStep(
+            order: 1,
+            title: 'Bakliyat Süzme & Doğrama',
+            instruction: 'Fasulyeleri süzün ve soğanı yemeklik doğrayın.',
+            toolIcon: 'knife',
+            timerSeconds: 300,
+            proTip: 'Karbonat gazını alır.',
+            stepIngredients: ['2 su bardağı Kuru Fasulye', '1 adet Kuru Soğan'],
+          ),
+        ],
+      );
+
+      await tester.pumpWidget(
+        const MaterialApp(
+          home: CookingModeScreen(recipe: detailedRecipe),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      // Verify step ingredients card is rendered
+      expect(find.text('Bu Adımda Kullanılacak Malzemeler:'), findsOneWidget);
+      expect(find.text('2 su bardağı Kuru Fasulye'), findsOneWidget);
+      expect(find.text('1 adet Kuru Soğan'), findsOneWidget);
+
+      // Verify Malzemeler button in AppBar
+      final allIngredientsButton = find.text('Malzemeler (3)');
+      expect(allIngredientsButton, findsOneWidget);
+
+      // Tap Malzemeler button -> opens bottom sheet
+      await tester.tap(allIngredientsButton);
+      await tester.pumpAndSettle();
+
+      // Verify bottom sheet content
+      expect(find.text('Tarifin Tüm Malzemeleri'), findsOneWidget);
+      expect(find.text('2 su bardağı Kuru Fasulye'), findsWidgets);
+      expect(find.text('2 yemek kaşığı Tereyağı'), findsOneWidget);
+
+      // Tap on an ingredient to toggle checked state
+      await tester.tap(find.text('2 yemek kaşığı Tereyağı'));
+      await tester.pump();
+      expect(find.text('1/3 Hazır'), findsOneWidget);
+    });
   });
 }

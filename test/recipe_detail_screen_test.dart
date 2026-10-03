@@ -76,6 +76,7 @@ void main() {
       // Test ingredient checklist toggle
       expect(find.text('0 / 3 hazır (0%)'), findsOneWidget);
       final firstIngredient = find.text('Kuru Fasulye');
+      await tester.ensureVisible(firstIngredient);
       await tester.tap(firstIngredient);
       await tester.pumpAndSettle();
 
@@ -83,6 +84,7 @@ void main() {
 
       // Test "Tümünü Seç"
       final toggleAll = find.text('Tümünü Seç');
+      await tester.ensureVisible(toggleAll);
       await tester.tap(toggleAll);
       await tester.pumpAndSettle();
       expect(find.text('3 / 3 hazır (100%)'), findsOneWidget);

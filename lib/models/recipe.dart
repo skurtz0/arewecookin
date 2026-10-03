@@ -7,6 +7,8 @@ class Recipe {
   final String id;
   final String title;
   final String category;
+  final String cuisine;
+  final String? baseDish;
   final int prepTime;
   final int cookTime;
   final String difficulty;
@@ -21,6 +23,8 @@ class Recipe {
     required this.id,
     required this.title,
     required this.category,
+    this.cuisine = 'Türk Mutfağı',
+    this.baseDish,
     required this.prepTime,
     required this.cookTime,
     required this.difficulty,
@@ -34,11 +38,22 @@ class Recipe {
 
   int get totalTime => prepTime + cookTime;
 
+  /// Returns a clean, authentic dish title without procedural numbers or suffixes
+  String get cleanTitle {
+    if (baseDish != null && baseDish!.trim().isNotEmpty) {
+      return baseDish!.trim();
+    }
+    final cleaned = title.replaceAll(RegExp(r'\s*#\d+'), '').trim();
+    return cleaned.isNotEmpty ? cleaned : title;
+  }
+
   Map<String, dynamic> toMap() {
     return {
       'id': id,
       'title': title,
       'category': category,
+      'cuisine': cuisine,
+      if (baseDish != null) 'baseDish': baseDish,
       'prepTime': prepTime,
       'cookTime': cookTime,
       'difficulty': difficulty,
@@ -85,6 +100,8 @@ class Recipe {
       id: docId ?? map['id'] as String? ?? '',
       title: map['title'] as String? ?? '',
       category: map['category'] as String? ?? 'Genel',
+      cuisine: map['cuisine'] as String? ?? 'Türk Mutfağı',
+      baseDish: map['baseDish'] as String?,
       prepTime: (map['prepTime'] as num?)?.toInt() ?? 0,
       cookTime: (map['cookTime'] as num?)?.toInt() ?? 0,
       difficulty: map['difficulty'] as String? ?? 'Kolay',
@@ -106,6 +123,8 @@ class Recipe {
     String? id,
     String? title,
     String? category,
+    String? cuisine,
+    String? baseDish,
     int? prepTime,
     int? cookTime,
     String? difficulty,
@@ -120,6 +139,8 @@ class Recipe {
       id: id ?? this.id,
       title: title ?? this.title,
       category: category ?? this.category,
+      cuisine: cuisine ?? this.cuisine,
+      baseDish: baseDish ?? this.baseDish,
       prepTime: prepTime ?? this.prepTime,
       cookTime: cookTime ?? this.cookTime,
       difficulty: difficulty ?? this.difficulty,

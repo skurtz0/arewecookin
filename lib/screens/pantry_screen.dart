@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/models.dart';
 import '../providers/pantry_provider.dart';
 import '../utils/cooking_icons.dart';
+import '../widgets/recipe_image.dart';
 import 'recipe_detail_screen.dart';
 
 class PantryScreen extends ConsumerStatefulWidget {
@@ -15,6 +16,17 @@ class PantryScreen extends ConsumerStatefulWidget {
 class _PantryScreenState extends ConsumerState<PantryScreen> {
   final TextEditingController _customIngredientController = TextEditingController();
 
+  static const List<Map<String, String>> cuisineFilters = [
+    {'id': 'Tümü', 'label': '🌍 Tümü'},
+    {'id': 'Türk Mutfağı', 'label': '🇹🇷 Türk Mutfağı'},
+    {'id': 'İtalyan Mutfağı', 'label': '🇮🇹 İtalyan'},
+    {'id': 'Asya & Uzak Doğu', 'label': '🥢 Asya & Uzak Doğu'},
+    {'id': 'Meksika Mutfağı', 'label': '🇲🇽 Meksika'},
+    {'id': 'Akdeniz Mutfağı', 'label': '🫒 Akdeniz'},
+    {'id': 'Fransız & Dünya', 'label': '🇫🇷 Dünya / Tatlı'},
+    {'id': 'Pratik & Sokak', 'label': '⚡ Pratik & Sokak'},
+  ];
+
   static const Map<String, List<Map<String, String>>> stapleCategories = {
     'Temel Malzemeler': [
       {'key': 'un', 'label': 'Un 🌾'},
@@ -22,12 +34,27 @@ class _PantryScreenState extends ConsumerState<PantryScreen> {
       {'key': 'tuz', 'label': 'Tuz 🧂'},
       {'key': 'zeytinyagi', 'label': 'Zeytinyağı 🫒'},
       {'key': 'tereyagi', 'label': 'Tereyağı 🧈'},
+      {'key': 'pirinc', 'label': 'Pirinç 🍚'},
+      {'key': 'makarna', 'label': 'Makarna 🍝'},
+      {'key': 'fasulye', 'label': 'Kuru Fasulye 🫘'},
+      {'key': 'nohut', 'label': 'Nohut 🍲'},
+      {'key': 'mercimek', 'label': 'Mercimek 🥣'},
+      {'key': 'bulgur', 'label': 'Bulgur 🌾'},
+      {'key': 'irmik', 'label': 'İrmik 🥣'},
     ],
     'Süt & Kahvaltılık': [
       {'key': 'yumurta', 'label': 'Yumurta 🥚'},
       {'key': 'sut', 'label': 'Süt 🥛'},
-      {'key': 'peynir', 'label': 'Peynir 🧀'},
+      {'key': 'peynir', 'label': 'Peynir / Kaşar 🧀'},
       {'key': 'yogurt', 'label': 'Yoğurt 🥣'},
+    ],
+    'Et & Balık': [
+      {'key': 'kiyma', 'label': 'Kıyma 🥩'},
+      {'key': 'tavuk', 'label': 'Tavuk 🍗'},
+      {'key': 'et', 'label': 'Kuşbaşı Et 🍖'},
+      {'key': 'balik', 'label': 'Balık / Somon 🐟'},
+      {'key': 'sucuk', 'label': 'Sucuk 🌭'},
+      {'key': 'ton baligi', 'label': 'Ton Balığı 🥫'},
     ],
     'Sebze & Taze': [
       {'key': 'domates', 'label': 'Domates 🍅'},
@@ -35,14 +62,21 @@ class _PantryScreenState extends ConsumerState<PantryScreen> {
       {'key': 'sogan', 'label': 'Soğan 🧅'},
       {'key': 'sarimsak', 'label': 'Sarımsak 🧄'},
       {'key': 'patates', 'label': 'Patates 🥔'},
+      {'key': 'patlican', 'label': 'Patlıcan 🍆'},
+      {'key': 'mantar', 'label': 'Mantar 🍄'},
+      {'key': 'havuc', 'label': 'Havuç 🥕'},
+      {'key': 'limon', 'label': 'Limon 🍋'},
+      {'key': 'yesillik', 'label': 'Taze Yeşillik 🌿'},
+      {'key': 'baharat', 'label': 'Baharatlar ✨'},
     ],
-    'Et & Bakliyat': [
-      {'key': 'kiyma', 'label': 'Kıyma 🥩'},
-      {'key': 'tavuk', 'label': 'Tavuk 🍗'},
-      {'key': 'mercimek', 'label': 'Mercimek 🍲'},
-      {'key': 'pirinc', 'label': 'Pirinç 🍚'},
-      {'key': 'makarna', 'label': 'Makarna 🍝'},
-      {'key': 'baharat', 'label': 'Baharatlar 🌿'},
+    'Dünya & Özel Malzemeler': [
+      {'key': 'lavas', 'label': 'Lavaş / Tortilla 🌯'},
+      {'key': 'noodle', 'label': 'Noodle 🍜'},
+      {'key': 'avokado', 'label': 'Avokado 🥑'},
+      {'key': 'tofu', 'label': 'Tofu 🥢'},
+      {'key': 'kakao', 'label': 'Kakao / Çikolata 🍫'},
+      {'key': 'ceviz', 'label': 'Ceviz 🌰'},
+      {'key': 'yufka', 'label': 'Yufka 🫓'},
     ],
   };
 
@@ -86,33 +120,42 @@ class _PantryScreenState extends ConsumerState<PantryScreen> {
               ),
             ),
             const SizedBox(width: 12),
-            const Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Akıllı Kiler',
-                  style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                    color: Color(0xFF1E293B),
+            const Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Akıllı Kiler',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: Color(0xFF1E293B),
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                   ),
-                ),
-                Text(
-                  'Dolaptaki Malzemelerle Pişir',
-                  style: TextStyle(fontSize: 12, color: Color(0xFF64748B)),
-                ),
-              ],
+                  Text(
+                    'Dolaptaki Malzemelerle Pişir',
+                    style: TextStyle(fontSize: 12, color: Color(0xFF64748B)),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ],
+              ),
             ),
           ],
         ),
         actions: [
           if (pantryState.selectedKeys.isNotEmpty)
-            TextButton.icon(
-              onPressed: () => ref.read(pantryProvider.notifier).clearAll(),
-              icon: const Icon(Icons.delete_outline_rounded, size: 18, color: Colors.red),
-              label: const Text(
-                'Temizle',
-                style: TextStyle(color: Colors.red, fontWeight: FontWeight.w600),
+            Padding(
+              padding: const EdgeInsets.only(right: 8),
+              child: TextButton.icon(
+                onPressed: () => ref.read(pantryProvider.notifier).clearAll(),
+                icon: const Icon(Icons.delete_outline_rounded, size: 18, color: Colors.red),
+                label: const Text(
+                  'Temizle',
+                  style: TextStyle(color: Colors.red, fontWeight: FontWeight.w600),
+                ),
               ),
             ),
         ],
@@ -158,8 +201,85 @@ class _PantryScreenState extends ConsumerState<PantryScreen> {
                   ),
                   const SizedBox(height: 6),
                   const Text(
-                    'Aşağıdaki malzemelerden elinizde olanlara dokunun. 10.000+ tarif arasından anlık uyum skoru hesaplanacaktır.',
+                    'Elinizdeki malzemeleri seçin veya ekleyin. İstediğiniz mutfağı filtreleyerek anında 100% uyumlu tarifleri keşfedin.',
                     style: TextStyle(color: Colors.white70, fontSize: 13, height: 1.4),
+                  ),
+                ],
+              ),
+            ),
+          ),
+
+          // Cuisine Selector Section
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(16, 6, 16, 10),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      const Icon(Icons.restaurant_menu_rounded, size: 18, color: Color(0xFF065F46)),
+                      const SizedBox(width: 6),
+                      const Text(
+                        'Hangi Mutfakta Yemek Pişireceksiniz?',
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.bold,
+                          color: Color(0xFF1E293B),
+                        ),
+                      ),
+                      const Spacer(),
+                      if (pantryState.selectedCuisine != 'Tümü')
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFD1FAE5),
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          child: Text(
+                            pantryState.selectedCuisine,
+                            style: const TextStyle(
+                              fontSize: 11,
+                              fontWeight: FontWeight.bold,
+                              color: Color(0xFF065F46),
+                            ),
+                          ),
+                        ),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    child: Row(
+                      children: cuisineFilters.map((c) {
+                        final isSelected = pantryState.selectedCuisine == c['id'];
+                        return Padding(
+                          padding: const EdgeInsets.only(right: 8),
+                          child: FilterChip(
+                            label: Text(c['label']!),
+                            selected: isSelected,
+                            onSelected: (_) {
+                              ref.read(pantryProvider.notifier).setCuisine(c['id']!);
+                            },
+                            selectedColor: const Color(0xFF059669),
+                            checkmarkColor: Colors.white,
+                            labelStyle: TextStyle(
+                              color: isSelected ? Colors.white : const Color(0xFF1E293B),
+                              fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
+                              fontSize: 13,
+                            ),
+                            backgroundColor: Colors.white,
+                            side: BorderSide(
+                              color: isSelected ? const Color(0xFF059669) : Colors.grey.shade300,
+                              width: isSelected ? 1.5 : 1,
+                            ),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(20),
+                            ),
+                          ),
+                        );
+                      }).toList(),
+                    ),
                   ),
                 ],
               ),
@@ -169,7 +289,7 @@ class _PantryScreenState extends ConsumerState<PantryScreen> {
           // Custom Ingredient Input
           SliverToBoxAdapter(
             child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
               child: Row(
                 children: [
                   Expanded(
@@ -177,7 +297,7 @@ class _PantryScreenState extends ConsumerState<PantryScreen> {
                       controller: _customIngredientController,
                       onSubmitted: (_) => _handleAddCustom(),
                       decoration: InputDecoration(
-                        hintText: 'Farklı malzeme ekle (örn: mantar, zencefil)...',
+                        hintText: 'Farklı malzeme ekle (örn: mantar, patlıcan, sucuk)...',
                         hintStyle: TextStyle(color: Colors.grey.shade400, fontSize: 13),
                         filled: true,
                         fillColor: Colors.white,
@@ -204,7 +324,10 @@ class _PantryScreenState extends ConsumerState<PantryScreen> {
                         borderRadius: BorderRadius.circular(12),
                       ),
                     ),
-                    child: const Text('Ekle'),
+                    child: const FittedBox(
+                      fit: BoxFit.scaleDown,
+                      child: Text('Ekle', style: TextStyle(fontWeight: FontWeight.bold)),
+                    ),
                   ),
                 ],
               ),
@@ -214,7 +337,7 @@ class _PantryScreenState extends ConsumerState<PantryScreen> {
           // Ingredient Pool Categories
           SliverToBoxAdapter(
             child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: stapleCategories.entries.map((category) {
@@ -271,7 +394,7 @@ class _PantryScreenState extends ConsumerState<PantryScreen> {
             ),
           ),
 
-          // Section Title: Matched Recipes
+          // Section Title: Matched Recipes with Full-match toggle
           SliverToBoxAdapter(
             child: Padding(
               padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
@@ -301,6 +424,47 @@ class _PantryScreenState extends ConsumerState<PantryScreen> {
                       ),
                     ),
                   ),
+                  const Spacer(),
+                  if (pantryState.selectedKeys.isNotEmpty)
+                    InkWell(
+                      onTap: () => ref.read(pantryProvider.notifier).toggleOnlyFullMatches(),
+                      borderRadius: BorderRadius.circular(20),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                        decoration: BoxDecoration(
+                          color: pantryState.onlyFullMatches
+                              ? const Color(0xFF059669)
+                              : Colors.white,
+                          borderRadius: BorderRadius.circular(20),
+                          border: Border.all(
+                            color: pantryState.onlyFullMatches
+                                ? const Color(0xFF059669)
+                                : Colors.grey.shade300,
+                          ),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(
+                              pantryState.onlyFullMatches
+                                  ? Icons.check_circle_rounded
+                                  : Icons.filter_alt_outlined,
+                              size: 13,
+                              color: pantryState.onlyFullMatches ? Colors.white : Colors.grey.shade700,
+                            ),
+                            const SizedBox(width: 4),
+                            Text(
+                              'Sadece %100 Hazır',
+                              style: TextStyle(
+                                fontSize: 11,
+                                fontWeight: FontWeight.bold,
+                                color: pantryState.onlyFullMatches ? Colors.white : Colors.grey.shade700,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
                 ],
               ),
             ),
@@ -341,7 +505,7 @@ class _PantryScreenState extends ConsumerState<PantryScreen> {
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      'Yukarıdan en az 1-2 malzeme seçin. Elinizdeki malzemelere en yakın tarifleri anında sıralayalım.',
+                      'Yukarıdan elinizdeki malzemeleri seçin. Mutfak tercihinize göre anında en uygun yemekler sıralanacaktır.',
                       textAlign: TextAlign.center,
                       style: TextStyle(fontSize: 13, color: Colors.grey.shade600),
                     ),
@@ -351,13 +515,33 @@ class _PantryScreenState extends ConsumerState<PantryScreen> {
             )
           else if (pantryState.matchedRecipes.isEmpty)
             SliverToBoxAdapter(
-              child: Padding(
-                padding: const EdgeInsets.all(32),
-                child: Center(
-                  child: Text(
-                    'Seçili malzemelerle eşleşen tarif bulunamadı.',
-                    style: TextStyle(color: Colors.grey.shade600),
-                  ),
+              child: Container(
+                margin: const EdgeInsets.all(24),
+                padding: const EdgeInsets.all(28),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(color: Colors.grey.shade200),
+                ),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(Icons.search_off_rounded, size: 48, color: Colors.grey.shade400),
+                    const SizedBox(height: 12),
+                    Text(
+                      pantryState.selectedCuisine != 'Tümü'
+                          ? '${pantryState.selectedCuisine} kategorisinde seçili malzemelerle eşleşen tarif bulunamadı.'
+                          : 'Seçili malzemelerle eşleşen tarif bulunamadı.',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(color: Colors.grey.shade700, fontWeight: FontWeight.w500),
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      'Farklı malzemeler seçebilir veya mutfak filtresini "Tümü" olarak değiştirebilirsiniz.',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(color: Colors.grey.shade500, fontSize: 12),
+                    ),
+                  ],
                 ),
               ),
             )
@@ -420,16 +604,22 @@ class _PantryRecipeCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final scoreColor = _scoreColor(matchScore);
+    final isFullMatch = missingKeys.isEmpty;
 
     return Container(
       margin: const EdgeInsets.only(bottom: 14),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.grey.shade200),
+        border: Border.all(
+          color: isFullMatch ? const Color(0xFF10B981).withValues(alpha: 0.3) : Colors.grey.shade200,
+          width: isFullMatch ? 1.5 : 1,
+        ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.02),
+            color: isFullMatch
+                ? const Color(0xFF10B981).withValues(alpha: 0.08)
+                : Colors.black.withValues(alpha: 0.03),
             blurRadius: 8,
             offset: const Offset(0, 3),
           ),
@@ -442,99 +632,180 @@ class _PantryRecipeCard extends StatelessWidget {
           borderRadius: BorderRadius.circular(16),
           onTap: onTap,
           child: Padding(
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.all(14),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Match percentage badge
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                      decoration: BoxDecoration(
-                        color: scoreColor.withValues(alpha: 0.12),
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
+                    // Dish photo thumbnail
+                    RecipeImage(
+                      imageUrl: recipe.imageUrl,
+                      category: recipe.category,
+                      width: 82,
+                      height: 82,
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    const SizedBox(width: 14),
+                    // Details column
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Icon(Icons.check_circle_rounded, size: 16, color: scoreColor),
-                          const SizedBox(width: 4),
+                          Row(
+                            children: [
+                              // Match percentage badge
+                              Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                decoration: BoxDecoration(
+                                  color: scoreColor.withValues(alpha: 0.12),
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Icon(
+                                      isFullMatch ? Icons.check_circle : Icons.pie_chart_outline_rounded,
+                                      size: 14,
+                                      color: scoreColor,
+                                    ),
+                                    const SizedBox(width: 4),
+                                    Text(
+                                      '%${matchScore.toStringAsFixed(0)} Uyum',
+                                      style: TextStyle(
+                                        color: scoreColor,
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 12,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              const SizedBox(width: 6),
+                              // Cuisine badge
+                              Flexible(
+                                child: Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
+                                  decoration: BoxDecoration(
+                                    color: const Color(0xFFF1F5F9),
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                  child: Text(
+                                    recipe.cuisine,
+                                    style: const TextStyle(
+                                      fontSize: 11,
+                                      color: Color(0xFF334155),
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ),
+                              ),
+                              const Spacer(),
+                              Icon(CookingIcons.clock, size: 12, color: Colors.grey.shade500),
+                              const SizedBox(width: 3),
+                              Text(
+                                '${recipe.totalTime} dk',
+                                style: TextStyle(fontSize: 11, color: Colors.grey.shade600),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 8),
                           Text(
-                            '%${matchScore.toStringAsFixed(0)} Uyum',
-                            style: TextStyle(
-                              color: scoreColor,
+                            recipe.cleanTitle,
+                            style: const TextStyle(
+                              fontSize: 15,
                               fontWeight: FontWeight.bold,
-                              fontSize: 13,
+                              color: Color(0xFF0F172A),
+                              height: 1.25,
                             ),
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
                           ),
                         ],
                       ),
                     ),
-                    const SizedBox(width: 8),
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
-                      decoration: BoxDecoration(
-                        color: Colors.grey.shade100,
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: Text(
-                        recipe.category,
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: Colors.grey.shade700,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                    ),
-                    const Spacer(),
-                    Row(
-                      children: [
-                        Icon(CookingIcons.clock, size: 14, color: Colors.grey.shade500),
-                        const SizedBox(width: 4),
-                        Text(
-                          '${recipe.totalTime} dk',
-                          style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
-                        ),
-                      ],
-                    ),
                   ],
                 ),
                 const SizedBox(height: 10),
-                Text(
-                  recipe.title,
-                  style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                    color: Color(0xFF0F172A),
-                  ),
-                ),
-                const SizedBox(height: 8),
 
-                // Missing ingredients info
-                if (missingKeys.isEmpty)
+                // Full match vs missing ingredients indicator
+                if (isFullMatch)
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    width: double.infinity,
+                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                     decoration: BoxDecoration(
-                      color: Colors.green.shade50,
-                      borderRadius: BorderRadius.circular(6),
+                      color: const Color(0xFFECFDF5),
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(color: const Color(0xFFA7F3D0)),
                     ),
-                    child: const Text(
-                      '🎉 Tüm malzemeler dolabınızda mevcut! Hemen pişirebilirsiniz.',
-                      style: TextStyle(fontSize: 12, color: Color(0xFF065F46), fontWeight: FontWeight.w500),
+                    child: const Row(
+                      children: [
+                        Icon(Icons.verified_rounded, size: 16, color: Color(0xFF059669)),
+                        SizedBox(width: 6),
+                        Expanded(
+                          child: Text(
+                            'Tüm malzemeler dolabınızda hazır! Hemen pişirebilirsiniz.',
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: Color(0xFF065F46),
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                   )
-                else
-                  Text(
-                    'Eksik (${missingKeys.length}): ${missingKeys.join(', ')}',
-                    style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
+                else ...[
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.only(top: 2),
+                        child: Text(
+                          'Eksik (${missingKeys.length}): ',
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: Colors.grey.shade700,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
+                      Expanded(
+                        child: Wrap(
+                          spacing: 4,
+                          runSpacing: 4,
+                          children: missingKeys.map((key) {
+                            return Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                              decoration: BoxDecoration(
+                                color: Colors.red.shade50,
+                                borderRadius: BorderRadius.circular(6),
+                                border: Border.all(color: Colors.red.shade200),
+                              ),
+                              child: Text(
+                                key,
+                                style: TextStyle(
+                                  fontSize: 11,
+                                  color: Colors.red.shade700,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            );
+                          }).toList(),
+                        ),
+                      ),
+                    ],
                   ),
+                ],
 
                 // Substitution suggestions if any missing item has a substitution
                 if (substitutions.isNotEmpty) ...[
                   const SizedBox(height: 8),
                   Container(
+                    width: double.infinity,
                     padding: const EdgeInsets.all(8),
                     decoration: BoxDecoration(
                       color: Colors.amber.shade50,

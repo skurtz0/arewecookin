@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../models/models.dart';
 import '../utils/cooking_icons.dart';
+import '../widgets/recipe_image.dart';
 import 'cooking_mode_screen.dart';
 
 class RecipeDetailScreen extends StatefulWidget {
@@ -111,6 +112,28 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            // Recipe Hero Image Banner
+            Container(
+              margin: const EdgeInsets.only(bottom: 16),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(20),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.06),
+                    blurRadius: 12,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
+              ),
+              child: RecipeImage(
+                imageUrl: recipe.imageUrl,
+                category: recipe.category,
+                height: 200,
+                width: double.infinity,
+                borderRadius: BorderRadius.circular(20),
+              ),
+            ),
+
             // Hero Info Card
             Container(
               padding: const EdgeInsets.all(20),
@@ -179,25 +202,33 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceAround,
                     children: [
-                      _StatColumn(
-                        icon: CookingIcons.clock,
-                        value: '${recipe.prepTime} dk',
-                        label: 'Hazırlık',
+                      Expanded(
+                        child: _StatColumn(
+                          icon: CookingIcons.clock,
+                          value: '${recipe.prepTime} dk',
+                          label: 'Hazırlık',
+                        ),
                       ),
-                      _StatColumn(
-                        icon: CookingIcons.fire,
-                        value: '${recipe.cookTime} dk',
-                        label: 'Pişirme',
+                      Expanded(
+                        child: _StatColumn(
+                          icon: CookingIcons.fire,
+                          value: '${recipe.cookTime} dk',
+                          label: 'Pişirme',
+                        ),
                       ),
-                      _StatColumn(
-                        icon: CookingIcons.timer,
-                        value: '${recipe.totalTime} dk',
-                        label: 'Toplam',
+                      Expanded(
+                        child: _StatColumn(
+                          icon: CookingIcons.timer,
+                          value: '${recipe.totalTime} dk',
+                          label: 'Toplam',
+                        ),
                       ),
-                      _StatColumn(
-                        icon: CookingIcons.users,
-                        value: '$_servings Kişi',
-                        label: 'Porsiyon',
+                      Expanded(
+                        child: _StatColumn(
+                          icon: CookingIcons.users,
+                          value: '$_servings Kişi',
+                          label: 'Porsiyon',
+                        ),
                       ),
                     ],
                   ),
@@ -218,9 +249,9 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
               child: Row(
                 children: [
                   const Icon(CookingIcons.users, color: Color(0xFFFF5722), size: 20),
-                  const SizedBox(width: 12),
+                  const SizedBox(width: 8),
                   const Text(
-                    'Porsiyon Miktarı:',
+                    'Porsiyon:',
                     style: TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w600,
@@ -229,6 +260,7 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
                   ),
                   const Spacer(),
                   IconButton(
+                    visualDensity: VisualDensity.compact,
                     icon: const Icon(Icons.remove_circle_outline_rounded),
                     color: _servings > 1 ? const Color(0xFFFF5722) : Colors.grey.shade300,
                     onPressed: _servings > 1
@@ -244,6 +276,7 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
                     ),
                   ),
                   IconButton(
+                    visualDensity: VisualDensity.compact,
                     icon: const Icon(Icons.add_circle_outline_rounded),
                     color: const Color(0xFFFF5722),
                     onPressed: () => setState(() => _servings++),
@@ -256,32 +289,37 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
 
             // Ingredient Readiness Checklist Header
             Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text(
-                      'Malzeme Hazırlığı (Mise en place)',
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        color: Color(0xFF1E293B),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        'Malzeme Hazırlığı',
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: Color(0xFF1E293B),
+                        ),
                       ),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      '$checkedCount / $totalIngredients hazır (${(progress * 100).toInt()}%)',
-                      style: TextStyle(
-                        fontSize: 13,
-                        color: progress == 1.0 ? Colors.green.shade700 : Colors.grey.shade600,
-                        fontWeight: FontWeight.w500,
+                      const SizedBox(height: 4),
+                      Text(
+                        '$checkedCount / $totalIngredients hazır (${(progress * 100).toInt()}%)',
+                        style: TextStyle(
+                          fontSize: 13,
+                          color: progress == 1.0 ? Colors.green.shade700 : Colors.grey.shade600,
+                          fontWeight: FontWeight.w500,
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
                 TextButton(
                   onPressed: _toggleAllIngredients,
+                  style: TextButton.styleFrom(
+                    visualDensity: VisualDensity.compact,
+                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                  ),
                   child: Text(
                     checkedCount == totalIngredients ? 'Temizle' : 'Tümünü Seç',
                     style: const TextStyle(
@@ -443,14 +481,15 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
             // Cooking Steps Preview
             const SizedBox(height: 24),
             Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Text(
-                  'Pişirme Adımları Özeti',
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    color: Color(0xFF1E293B),
+                const Expanded(
+                  child: Text(
+                    'Pişirme Adımları Özeti',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: Color(0xFF1E293B),
+                    ),
                   ),
                 ),
                 Text(
@@ -502,35 +541,109 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                Text(
-                                  step.title,
-                                  style: const TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 14,
-                                    color: Color(0xFF1E293B),
+                                Expanded(
+                                  child: Text(
+                                    step.title,
+                                    style: const TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 14,
+                                      color: Color(0xFF1E293B),
+                                    ),
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
                                   ),
                                 ),
-                                Row(
-                                  children: [
-                                    Icon(toolIcon, size: 14, color: Colors.grey.shade600),
-                                    const SizedBox(width: 4),
-                                    Text(
-                                      toolName,
-                                      style: TextStyle(fontSize: 11, color: Colors.grey.shade600),
-                                    ),
-                                  ],
+                                const SizedBox(width: 8),
+                                Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
+                                  decoration: BoxDecoration(
+                                    color: Colors.grey.shade100,
+                                    borderRadius: BorderRadius.circular(6),
+                                  ),
+                                  child: Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Icon(toolIcon, size: 13, color: Colors.grey.shade600),
+                                      const SizedBox(width: 4),
+                                      Text(
+                                        toolName,
+                                        style: TextStyle(fontSize: 11, color: Colors.grey.shade600),
+                                      ),
+                                    ],
+                                  ),
                                 ),
                               ],
                             ),
-                            const SizedBox(height: 4),
+                            const SizedBox(height: 6),
                             Text(
                               step.instruction,
-                              maxLines: 2,
-                              overflow: TextOverflow.ellipsis,
-                              style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
+                              style: const TextStyle(
+                                fontSize: 13,
+                                color: Color(0xFF334155),
+                                height: 1.45,
+                              ),
                             ),
+                            if (step.stepIngredients.isNotEmpty) ...[
+                              const SizedBox(height: 8),
+                              Wrap(
+                                spacing: 6,
+                                runSpacing: 6,
+                                children: step.stepIngredients.map((item) {
+                                  return Container(
+                                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                    decoration: BoxDecoration(
+                                      color: const Color(0xFFF1F5F9),
+                                      borderRadius: BorderRadius.circular(8),
+                                      border: Border.all(color: Colors.grey.shade200),
+                                    ),
+                                    child: Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        const Icon(Icons.check_circle_outline, size: 12, color: Color(0xFF10B981)),
+                                        const SizedBox(width: 4),
+                                        Text(
+                                          item,
+                                          style: const TextStyle(
+                                            fontSize: 11,
+                                            color: Color(0xFF475569),
+                                            fontWeight: FontWeight.w600,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  );
+                                }).toList(),
+                              ),
+                            ],
+                            if (step.proTip.isNotEmpty) ...[
+                              const SizedBox(height: 8),
+                              Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                                decoration: BoxDecoration(
+                                  color: const Color(0xFFFFFBEB),
+                                  borderRadius: BorderRadius.circular(8),
+                                  border: Border.all(color: const Color(0xFFFDE68A)),
+                                ),
+                                child: Row(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    const Icon(CookingIcons.proTip, size: 14, color: Color(0xFFD97706)),
+                                    const SizedBox(width: 8),
+                                    Expanded(
+                                      child: Text(
+                                        step.proTip,
+                                        style: const TextStyle(
+                                          fontSize: 12,
+                                          color: Color(0xFF92400E),
+                                          height: 1.35,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
                           ],
                         ),
                       ),
@@ -558,7 +671,7 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
           child: SizedBox(
             width: double.infinity,
             height: 52,
-            child: ElevatedButton.icon(
+            child: ElevatedButton(
               onPressed: () {
                 Navigator.of(context).push(
                   MaterialPageRoute(
@@ -566,11 +679,6 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
                   ),
                 );
               },
-              icon: const Icon(CookingIcons.play, size: 22),
-              label: const Text(
-                'Yapmaya Başlayalım 🍳',
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-              ),
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color(0xFFFF5722),
                 foregroundColor: Colors.white,
@@ -578,6 +686,20 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
                   borderRadius: BorderRadius.circular(16),
                 ),
                 elevation: 0,
+              ),
+              child: const FittedBox(
+                fit: BoxFit.scaleDown,
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(CookingIcons.play, size: 22),
+                    SizedBox(width: 8),
+                    Text(
+                      'Yapmaya Başlayalım 🍳',
+                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                    ),
+                  ],
+                ),
               ),
             ),
           ),

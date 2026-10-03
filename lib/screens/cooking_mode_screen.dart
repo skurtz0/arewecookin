@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import '../models/models.dart';
 import '../utils/cooking_icons.dart';
+import '../widgets/cooking_technique_animation.dart';
 
 class CookingModeScreen extends StatefulWidget {
   final Recipe recipe;
@@ -21,6 +22,129 @@ class _CookingModeScreenState extends State<CookingModeScreen> {
   int _remainingSeconds = 0;
   bool _isTimerRunning = false;
   int _totalStepSeconds = 0;
+
+  // Ingredients checklist state
+  final Set<int> _checkedIngredients = {};
+
+  void _showAllIngredientsSheet(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: const Color(0xFF1E293B),
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (ctx) {
+        return StatefulBuilder(
+          builder: (context, setSheetState) {
+            return SafeArea(
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(20, 16, 20, 20),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Center(
+                      child: Container(
+                        width: 40,
+                        height: 4,
+                        decoration: BoxDecoration(
+                          color: const Color(0xFF475569),
+                          borderRadius: BorderRadius.circular(2),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    Row(
+                      children: [
+                        const Icon(CookingIcons.pantry, color: Color(0xFFFF5722), size: 20),
+                        const SizedBox(width: 10),
+                        const Text(
+                          'Tarifin Tüm Malzemeleri',
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                          ),
+                        ),
+                        const Spacer(),
+                        Text(
+                          '${_checkedIngredients.length}/${widget.recipe.ingredients.length} Hazır',
+                          style: const TextStyle(
+                            fontSize: 13,
+                            color: Color(0xFF94A3B8),
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 16),
+                    Flexible(
+                      child: ListView.separated(
+                        shrinkWrap: true,
+                        itemCount: widget.recipe.ingredients.length,
+                        separatorBuilder: (_, _) => const SizedBox(height: 8),
+                        itemBuilder: (context, index) {
+                          final ing = widget.recipe.ingredients[index];
+                          final isChecked = _checkedIngredients.contains(index);
+
+                          return InkWell(
+                            borderRadius: BorderRadius.circular(12),
+                            onTap: () {
+                              setSheetState(() {
+                                if (isChecked) {
+                                  _checkedIngredients.remove(index);
+                                } else {
+                                  _checkedIngredients.add(index);
+                                }
+                              });
+                              setState(() {});
+                            },
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                              decoration: BoxDecoration(
+                                color: isChecked
+                                    ? const Color(0xFF0F172A)
+                                    : const Color(0xFF334155).withValues(alpha: 0.5),
+                                borderRadius: BorderRadius.circular(12),
+                                border: Border.all(
+                                  color: isChecked ? const Color(0xFF10B981) : const Color(0xFF475569),
+                                ),
+                              ),
+                              child: Row(
+                                children: [
+                                  Icon(
+                                    isChecked ? Icons.check_circle_rounded : Icons.radio_button_unchecked_rounded,
+                                    color: isChecked ? const Color(0xFF10B981) : const Color(0xFF94A3B8),
+                                    size: 20,
+                                  ),
+                                  const SizedBox(width: 12),
+                                  Expanded(
+                                    child: Text(
+                                      '${ing.amount} ${ing.unit} ${ing.name}',
+                                      style: TextStyle(
+                                        fontSize: 15,
+                                        color: isChecked ? const Color(0xFF94A3B8) : Colors.white,
+                                        decoration: isChecked ? TextDecoration.lineThrough : null,
+                                        fontWeight: isChecked ? FontWeight.normal : FontWeight.w600,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
 
   @override
   void initState() {
@@ -227,6 +351,19 @@ class _CookingModeScreenState extends State<CookingModeScreen> {
           ],
         ),
         actions: [
+          TextButton.icon(
+            onPressed: () => _showAllIngredientsSheet(context),
+            icon: const Icon(CookingIcons.pantry, size: 15, color: Color(0xFFFF5722)),
+            label: Text(
+              'Malzemeler (${widget.recipe.ingredients.length})',
+              style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFFFF5722)),
+            ),
+            style: TextButton.styleFrom(
+              backgroundColor: const Color(0xFFFF5722).withValues(alpha: 0.12),
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+            ),
+          ),
           IconButton(
             icon: const Icon(Icons.close_rounded),
             onPressed: () => Navigator.of(context).pop(),
@@ -276,26 +413,34 @@ class _CookingModeScreenState extends State<CookingModeScreen> {
                         ),
                       ),
                     ),
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFF1E293B),
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: const Color(0xFF334155)),
-                      ),
-                      child: Row(
-                        children: [
-                          Icon(toolIcon, size: 16, color: const Color(0xFF38BDF8)),
-                          const SizedBox(width: 6),
-                          Text(
-                            toolLabel,
-                            style: const TextStyle(
-                              color: Color(0xFFCBD5E1),
-                              fontSize: 13,
-                              fontWeight: FontWeight.w500,
+                    const SizedBox(width: 8),
+                    Flexible(
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFF1E293B),
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(color: const Color(0xFF334155)),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(toolIcon, size: 16, color: const Color(0xFF38BDF8)),
+                            const SizedBox(width: 6),
+                            Flexible(
+                              child: Text(
+                                toolLabel,
+                                style: const TextStyle(
+                                  color: Color(0xFFCBD5E1),
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
                     ),
                   ],
@@ -313,6 +458,72 @@ class _CookingModeScreenState extends State<CookingModeScreen> {
                     height: 1.3,
                   ),
                 ),
+
+                // Step Ingredients (if available for this step)
+                if (step.stepIngredients.isNotEmpty) ...[
+                  const SizedBox(height: 14),
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(14),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF1E293B),
+                      borderRadius: BorderRadius.circular(14),
+                      border: Border.all(color: const Color(0xFF38BDF8).withValues(alpha: 0.35)),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Row(
+                          children: [
+                            Icon(Icons.shopping_basket_rounded, size: 16, color: Color(0xFF38BDF8)),
+                            SizedBox(width: 8),
+                            Text(
+                              'Bu Adımda Kullanılacak Malzemeler:',
+                              style: TextStyle(
+                                color: Color(0xFF38BDF8),
+                                fontSize: 13,
+                                fontWeight: FontWeight.bold,
+                                letterSpacing: 0.2,
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 10),
+                        Wrap(
+                          spacing: 8,
+                          runSpacing: 8,
+                          children: step.stepIngredients.map((item) {
+                            return Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                              decoration: BoxDecoration(
+                                color: const Color(0xFF0F172A),
+                                borderRadius: BorderRadius.circular(10),
+                                border: Border.all(color: const Color(0xFF334155)),
+                              ),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  const Icon(Icons.check_circle_outline_rounded, size: 14, color: Color(0xFF10B981)),
+                                  const SizedBox(width: 6),
+                                  Flexible(
+                                    child: Text(
+                                      item,
+                                      style: const TextStyle(
+                                        color: Color(0xFFF1F5F9),
+                                        fontSize: 13,
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            );
+                          }).toList(),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
 
                 const SizedBox(height: 16),
 
@@ -362,16 +573,16 @@ class _CookingModeScreenState extends State<CookingModeScreen> {
 
                 const SizedBox(height: 20),
 
-                // Expandable Pro-Tip Box (Acemi Püf Noktası)
+                // Expandable Pro-Tip Box (Acemi Püf Noktası & Vektörel Animasyon)
                 if (step.proTip.isNotEmpty)
-                  _buildProTipCard(step.proTip),
+                  _buildProTipCard(step),
               ],
             ),
           );
         },
       ),
 
-      // Navigation Bar at Bottom
+      // Navigation Bar at Bottom (Overflow-safe)
       bottomSheet: Container(
         padding: const EdgeInsets.all(16),
         decoration: const BoxDecoration(
@@ -384,16 +595,28 @@ class _CookingModeScreenState extends State<CookingModeScreen> {
               if (_currentStepIndex > 0)
                 Expanded(
                   flex: 1,
-                  child: OutlinedButton.icon(
+                  child: OutlinedButton(
                     onPressed: _goToPreviousStep,
-                    icon: const Icon(Icons.arrow_back_rounded, size: 18),
-                    label: const Text('Önceki'),
                     style: OutlinedButton.styleFrom(
                       foregroundColor: Colors.white,
                       side: const BorderSide(color: Color(0xFF475569)),
-                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 8),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(14),
+                      ),
+                    ),
+                    child: const FittedBox(
+                      fit: BoxFit.scaleDown,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(Icons.arrow_back_rounded, size: 18),
+                          SizedBox(width: 6),
+                          Text(
+                            'Önceki',
+                            style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
+                          ),
+                        ],
                       ),
                     ),
                   ),
@@ -401,30 +624,39 @@ class _CookingModeScreenState extends State<CookingModeScreen> {
               if (_currentStepIndex > 0) const SizedBox(width: 12),
               Expanded(
                 flex: 2,
-                child: ElevatedButton.icon(
+                child: ElevatedButton(
                   onPressed: _goToNextStep,
-                  icon: Icon(
-                    _currentStepIndex == totalSteps - 1
-                        ? Icons.check_circle_rounded
-                        : Icons.arrow_forward_rounded,
-                    size: 20,
-                  ),
-                  label: Text(
-                    _currentStepIndex == totalSteps - 1
-                        ? 'Pişirmeyi Tamamla 🎉'
-                        : 'Sonraki Adım',
-                    style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-                  ),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: _currentStepIndex == totalSteps - 1
                         ? const Color(0xFF10B981)
                         : const Color(0xFFFF5722),
                     foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(vertical: 14),
+                    padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 8),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(14),
                     ),
                     elevation: 0,
+                  ),
+                  child: FittedBox(
+                    fit: BoxFit.scaleDown,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          _currentStepIndex == totalSteps - 1
+                              ? 'Pişirmeyi Tamamla 🎉'
+                              : 'Sonraki Adım',
+                          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+                        ),
+                        const SizedBox(width: 6),
+                        Icon(
+                          _currentStepIndex == totalSteps - 1
+                              ? Icons.check_circle_rounded
+                              : Icons.arrow_forward_rounded,
+                          size: 18,
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ),
@@ -501,41 +733,77 @@ class _CookingModeScreenState extends State<CookingModeScreen> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               if (!_isTimerRunning && _remainingSeconds > 0)
-                ElevatedButton.icon(
-                  onPressed: _startTimer,
-                  icon: const Icon(CookingIcons.play, size: 18),
-                  label: const Text('Sayacı Başlat'),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFFFF5722),
-                    foregroundColor: Colors.white,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
+                Flexible(
+                  child: ElevatedButton(
+                    onPressed: _startTimer,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFFFF5722),
+                      foregroundColor: Colors.white,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                    ),
+                    child: const FittedBox(
+                      fit: BoxFit.scaleDown,
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(CookingIcons.play, size: 18),
+                          SizedBox(width: 6),
+                          Text('Sayacı Başlat'),
+                        ],
+                      ),
                     ),
                   ),
                 ),
               if (_isTimerRunning)
-                ElevatedButton.icon(
-                  onPressed: _pauseTimer,
-                  icon: const Icon(CookingIcons.pause, size: 18),
-                  label: const Text('Duraklat'),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFFF59E0B),
-                    foregroundColor: Colors.white,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
+                Flexible(
+                  child: ElevatedButton(
+                    onPressed: _pauseTimer,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFFF59E0B),
+                      foregroundColor: Colors.white,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                    ),
+                    child: const FittedBox(
+                      fit: BoxFit.scaleDown,
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(CookingIcons.pause, size: 18),
+                          SizedBox(width: 6),
+                          Text('Duraklat'),
+                        ],
+                      ),
                     ),
                   ),
                 ),
-              const SizedBox(width: 12),
-              OutlinedButton.icon(
-                onPressed: _resetTimer,
-                icon: const Icon(CookingIcons.replay, size: 16),
-                label: const Text('Sıfırla'),
-                style: OutlinedButton.styleFrom(
-                  foregroundColor: const Color(0xFF94A3B8),
-                  side: const BorderSide(color: Color(0xFF475569)),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10),
+              const SizedBox(width: 10),
+              Flexible(
+                child: OutlinedButton(
+                  onPressed: _resetTimer,
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: const Color(0xFF94A3B8),
+                    side: const BorderSide(color: Color(0xFF475569)),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                  ),
+                  child: const FittedBox(
+                    fit: BoxFit.scaleDown,
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(CookingIcons.replay, size: 16),
+                        SizedBox(width: 6),
+                        Text('Sıfırla'),
+                      ],
+                    ),
                   ),
                 ),
               ),
@@ -546,9 +814,9 @@ class _CookingModeScreenState extends State<CookingModeScreen> {
     );
   }
 
-  Widget _buildProTipCard(String proTip) {
+  Widget _buildProTipCard(CookingStep step) {
     return Material(
-      color: const Color(0xFF292524),
+      color: const Color(0xFF1E293B),
       borderRadius: BorderRadius.circular(16),
       child: Container(
         decoration: BoxDecoration(
@@ -583,14 +851,43 @@ class _CookingModeScreenState extends State<CookingModeScreen> {
               ),
             ),
             children: [
+              // Vector Animation showing technique
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
+                child: CookingTechniqueAnimation(
+                  technique: CookingTechniqueType.detect(
+                    toolIcon: step.toolIcon,
+                    proTip: step.proTip,
+                  ),
+                  height: 160,
+                  isDarkMode: true,
+                ),
+              ),
               Padding(
                 padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-                child: Text(
-                  proTip,
-                  style: const TextStyle(
-                    fontSize: 14,
-                    color: Color(0xFFFDE68A),
-                    height: 1.5,
+                child: Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFF59E0B).withValues(alpha: 0.12),
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: const Color(0xFFF59E0B).withValues(alpha: 0.25)),
+                  ),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Icon(Icons.tips_and_updates_rounded, color: Color(0xFFF59E0B), size: 18),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          step.proTip,
+                          style: const TextStyle(
+                            fontSize: 13,
+                            color: Color(0xFFFDE68A),
+                            height: 1.45,
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ),

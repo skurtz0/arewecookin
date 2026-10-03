@@ -20,11 +20,12 @@ void main() {
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 150));
 
-    // Verify Discover Screen is active initially
+    // Verify Navigation bar tabs
     expect(find.byType(DiscoverScreen), findsOneWidget);
     expect(find.text('AreWeCookin'), findsOneWidget);
     expect(find.text('Keşfet'), findsOneWidget);
     expect(find.text('Kilerim'), findsOneWidget);
+    expect(find.text('Hesabım'), findsOneWidget);
 
     // Tap on Kilerim tab
     final kilerTab = find.text('Kilerim');
@@ -34,6 +35,15 @@ void main() {
     // Verify Pantry Screen is visible and active
     expect(find.byType(PantryScreen), findsOneWidget);
     expect(find.text('Akıllı Kiler'), findsOneWidget);
+
+    // Tap on Hesabım tab
+    final hesapTab = find.text('Hesabım');
+    await tester.tap(hesapTab);
+    await tester.pumpAndSettle();
+
+    // Verify Account Screen is visible with Google login and preferences
+    expect(find.text('Google ile Otomatik Giriş'), findsOneWidget);
+    expect(find.text('Giriş Yap'), findsWidgets);
 
     // Tap back to Keşfet tab
     final kesfetTab = find.text('Keşfet');

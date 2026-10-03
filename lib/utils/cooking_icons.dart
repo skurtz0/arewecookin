@@ -44,6 +44,10 @@ class CookingIcons {
       case 'bowl':
       case 'kase':
         return Icons.rice_bowl_rounded;
+      case 'plate':
+      case 'tabak':
+      case 'servis':
+        return Icons.dinner_dining_rounded;
       case 'spoon':
       case 'kasik':
         return Icons.flatware_rounded;
@@ -84,6 +88,10 @@ class CookingIcons {
       case 'bowl':
       case 'kase':
         return 'Geniş Karıştırma Kabı';
+      case 'plate':
+      case 'tabak':
+      case 'servis':
+        return 'Servis Tabağı & Sunum';
       case 'spoon':
       case 'kasik':
         return 'Tahta Kaşık / Spatula';
