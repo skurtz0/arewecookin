@@ -1,19 +1,21 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/models.dart';
 import '../utils/cooking_icons.dart';
 import '../widgets/cooking_technique_animation.dart';
+import '../providers/locale_provider.dart';
 
-class CookingModeScreen extends StatefulWidget {
+class CookingModeScreen extends ConsumerStatefulWidget {
   final Recipe recipe;
 
   const CookingModeScreen({super.key, required this.recipe});
 
   @override
-  State<CookingModeScreen> createState() => _CookingModeScreenState();
+  ConsumerState<CookingModeScreen> createState() => _CookingModeScreenState();
 }
 
-class _CookingModeScreenState extends State<CookingModeScreen> {
+class _CookingModeScreenState extends ConsumerState<CookingModeScreen> {
   late final PageController _pageController;
   int _currentStepIndex = 0;
 
@@ -27,6 +29,7 @@ class _CookingModeScreenState extends State<CookingModeScreen> {
   final Set<int> _checkedIngredients = {};
 
   void _showAllIngredientsSheet(BuildContext context) {
+    final strings = ref.read(appStringsProvider);
     showModalBottomSheet(
       context: context,
       backgroundColor: const Color(0xFF1E293B),
@@ -58,9 +61,9 @@ class _CookingModeScreenState extends State<CookingModeScreen> {
                       children: [
                         const Icon(CookingIcons.pantry, color: Color(0xFFFF5722), size: 20),
                         const SizedBox(width: 10),
-                        const Text(
-                          'Tarifin Tüm Malzemeleri',
-                          style: TextStyle(
+                        Text(
+                          strings.ingredientsTitle,
+                          style: const TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
                             color: Colors.white,
@@ -68,7 +71,7 @@ class _CookingModeScreenState extends State<CookingModeScreen> {
                         ),
                         const Spacer(),
                         Text(
-                          '${_checkedIngredients.length}/${widget.recipe.ingredients.length} Hazır',
+                          '${_checkedIngredients.length}/${widget.recipe.ingredients.length} ${strings.locale.toLowerCase().startsWith('tr') ? 'Hazır' : 'Ready'}',
                           style: const TextStyle(
                             fontSize: 13,
                             color: Color(0xFF94A3B8),
@@ -120,7 +123,7 @@ class _CookingModeScreenState extends State<CookingModeScreen> {
                                   const SizedBox(width: 12),
                                   Expanded(
                                     child: Text(
-                                      '${ing.amount} ${ing.unit} ${ing.name}',
+                                      ing.localizedDisplayText(strings.locale),
                                       style: TextStyle(
                                         fontSize: 15,
                                         color: isChecked ? const Color(0xFF94A3B8) : Colors.white,
@@ -325,6 +328,7 @@ class _CookingModeScreenState extends State<CookingModeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final strings = ref.watch(appStringsProvider);
     final steps = widget.recipe.steps;
     final totalSteps = steps.length;
     final progress = totalSteps > 0 ? (_currentStepIndex + 1) / totalSteps : 1.0;
@@ -339,13 +343,13 @@ class _CookingModeScreenState extends State<CookingModeScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              widget.recipe.title,
+              widget.recipe.localizedTitle(strings.locale),
               style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white),
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
             ),
             Text(
-              'Adım ${_currentStepIndex + 1} / $totalSteps',
+              '${strings.step} ${_currentStepIndex + 1} / $totalSteps',
               style: const TextStyle(fontSize: 12, color: Color(0xFF94A3B8)),
             ),
           ],
@@ -355,7 +359,7 @@ class _CookingModeScreenState extends State<CookingModeScreen> {
             onPressed: () => _showAllIngredientsSheet(context),
             icon: const Icon(CookingIcons.pantry, size: 15, color: Color(0xFFFF5722)),
             label: Text(
-              'Malzemeler (${widget.recipe.ingredients.length})',
+              strings.ingredientsCountFormat(widget.recipe.ingredients.length),
               style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFFFF5722)),
             ),
             style: TextButton.styleFrom(
@@ -386,7 +390,7 @@ class _CookingModeScreenState extends State<CookingModeScreen> {
         itemBuilder: (context, index) {
           final step = steps[index];
           final toolIcon = CookingIcons.getToolIcon(step.toolIcon);
-          final toolLabel = CookingIcons.getToolLabel(step.toolIcon);
+          final toolLabel = CookingIcons.getToolLabel(step.toolIcon, strings.locale);
 
           return SingleChildScrollView(
             padding: const EdgeInsets.fromLTRB(20, 24, 20, 100),
@@ -404,7 +408,7 @@ class _CookingModeScreenState extends State<CookingModeScreen> {
                         borderRadius: BorderRadius.circular(20),
                       ),
                       child: Text(
-                        'ADIM ${step.order}',
+                        '${strings.step.toUpperCase()} ${step.order}',
                         style: const TextStyle(
                           color: Colors.white,
                           fontSize: 12,
@@ -450,7 +454,7 @@ class _CookingModeScreenState extends State<CookingModeScreen> {
 
                 // Step Title
                 Text(
-                  step.title,
+                  step.localizedTitle(strings.locale),
                   style: const TextStyle(
                     fontSize: 24,
                     fontWeight: FontWeight.bold,
@@ -536,7 +540,7 @@ class _CookingModeScreenState extends State<CookingModeScreen> {
                     border: Border.all(color: const Color(0xFF334155)),
                   ),
                   child: Text(
-                    step.instruction,
+                    step.localizedInstruction(strings.locale),
                     style: const TextStyle(
                       fontSize: 18,
                       color: Color(0xFFF1F5F9),
@@ -605,16 +609,16 @@ class _CookingModeScreenState extends State<CookingModeScreen> {
                         borderRadius: BorderRadius.circular(14),
                       ),
                     ),
-                    child: const FittedBox(
+                    child: FittedBox(
                       fit: BoxFit.scaleDown,
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Icon(Icons.arrow_back_rounded, size: 18),
-                          SizedBox(width: 6),
+                          const Icon(Icons.arrow_back_rounded, size: 18),
+                          const SizedBox(width: 6),
                           Text(
-                            'Önceki',
-                            style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
+                            strings.cancel == 'İptal' ? 'Önceki' : 'Back',
+                            style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
                           ),
                         ],
                       ),
@@ -644,8 +648,8 @@ class _CookingModeScreenState extends State<CookingModeScreen> {
                       children: [
                         Text(
                           _currentStepIndex == totalSteps - 1
-                              ? 'Pişirmeyi Tamamla 🎉'
-                              : 'Sonraki Adım',
+                              ? '${strings.finishCooking} 🎉'
+                              : (strings.cancel == 'İptal' ? 'Sonraki Adım' : 'Next Step'),
                           style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
                         ),
                         const SizedBox(width: 6),
@@ -668,6 +672,7 @@ class _CookingModeScreenState extends State<CookingModeScreen> {
   }
 
   Widget _buildTimerSection() {
+    final strings = ref.watch(appStringsProvider);
     final timerFraction = _totalStepSeconds > 0
         ? _remainingSeconds / _totalStepSeconds
         : 0.0;
@@ -695,9 +700,9 @@ class _CookingModeScreenState extends State<CookingModeScreen> {
                     size: 20,
                   ),
                   const SizedBox(width: 8),
-                  const Text(
-                    'Adım Süresi',
-                    style: TextStyle(
+                  Text(
+                    strings.locale.toLowerCase().startsWith('tr') ? 'Adım Süresi' : 'Step Timer',
+                    style: const TextStyle(
                       color: Color(0xFF94A3B8),
                       fontSize: 14,
                       fontWeight: FontWeight.w600,
@@ -744,14 +749,14 @@ class _CookingModeScreenState extends State<CookingModeScreen> {
                       ),
                       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
                     ),
-                    child: const FittedBox(
+                    child: FittedBox(
                       fit: BoxFit.scaleDown,
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          Icon(CookingIcons.play, size: 18),
-                          SizedBox(width: 6),
-                          Text('Sayacı Başlat'),
+                          const Icon(CookingIcons.play, size: 18),
+                          const SizedBox(width: 6),
+                          Text(strings.startTimer),
                         ],
                       ),
                     ),
@@ -769,14 +774,14 @@ class _CookingModeScreenState extends State<CookingModeScreen> {
                       ),
                       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
                     ),
-                    child: const FittedBox(
+                    child: FittedBox(
                       fit: BoxFit.scaleDown,
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          Icon(CookingIcons.pause, size: 18),
-                          SizedBox(width: 6),
-                          Text('Duraklat'),
+                          const Icon(CookingIcons.pause, size: 18),
+                          const SizedBox(width: 6),
+                          Text(strings.pauseTimer),
                         ],
                       ),
                     ),
@@ -794,14 +799,14 @@ class _CookingModeScreenState extends State<CookingModeScreen> {
                     ),
                     padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
                   ),
-                  child: const FittedBox(
+                  child: FittedBox(
                     fit: BoxFit.scaleDown,
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Icon(CookingIcons.replay, size: 16),
-                        SizedBox(width: 6),
-                        Text('Sıfırla'),
+                        const Icon(CookingIcons.replay, size: 16),
+                        const SizedBox(width: 6),
+                        Text(strings.resetTimer),
                       ],
                     ),
                   ),
@@ -815,6 +820,7 @@ class _CookingModeScreenState extends State<CookingModeScreen> {
   }
 
   Widget _buildProTipCard(CookingStep step) {
+    final strings = ref.watch(appStringsProvider);
     return Material(
       color: const Color(0xFF1E293B),
       borderRadius: BorderRadius.circular(16),
@@ -842,9 +848,9 @@ class _CookingModeScreenState extends State<CookingModeScreen> {
                 size: 20,
               ),
             ),
-            title: const Text(
-              'Acemi Püf Noktası 💡',
-              style: TextStyle(
+            title: Text(
+              '${strings.proTip} 💡',
+              style: const TextStyle(
                 fontSize: 15,
                 fontWeight: FontWeight.bold,
                 color: Color(0xFFFEF3C7),
@@ -879,7 +885,7 @@ class _CookingModeScreenState extends State<CookingModeScreen> {
                       const SizedBox(width: 8),
                       Expanded(
                         child: Text(
-                          step.proTip,
+                          step.localizedProTip(ref.read(appStringsProvider).locale),
                           style: const TextStyle(
                             fontSize: 13,
                             color: Color(0xFFFDE68A),

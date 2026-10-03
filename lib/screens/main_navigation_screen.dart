@@ -47,6 +47,7 @@ class _MainNavigationScreenState extends ConsumerState<MainNavigationScreen> {
           ],
         ),
         child: NavigationBar(
+          key: ValueKey('main_nav_bar_${strings.locale}'),
           selectedIndex: _currentIndex,
           onDestinationSelected: (index) {
             if (index == _currentIndex) {
@@ -64,16 +65,19 @@ class _MainNavigationScreenState extends ConsumerState<MainNavigationScreen> {
           indicatorColor: const Color(0xFFFF5722).withValues(alpha: 0.15),
           destinations: [
             NavigationDestination(
+              key: ValueKey('tab_discover_${strings.locale}'),
               icon: const Icon(CookingIcons.compass, color: Color(0xFF64748B)),
               selectedIcon: const Icon(CookingIcons.compass, color: Color(0xFFFF5722)),
               label: strings.tabDiscover,
             ),
             NavigationDestination(
+              key: ValueKey('tab_pantry_${strings.locale}'),
               icon: const Icon(CookingIcons.pantry, color: Color(0xFF64748B)),
               selectedIcon: const Icon(CookingIcons.pantry, color: Color(0xFF059669)),
               label: strings.tabPantry,
             ),
             NavigationDestination(
+              key: ValueKey('tab_account_${strings.locale}'),
               icon: const Icon(Icons.person_outline_rounded, color: Color(0xFF64748B)),
               selectedIcon: const Icon(Icons.person_rounded, color: Color(0xFFFF5722)),
               label: strings.tabAccount,

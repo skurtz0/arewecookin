@@ -20,20 +20,20 @@ void main() {
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 100));
 
-      // Verify header and search bar
-      expect(find.text('AreWeCookin'), findsOneWidget);
+      // Verify search bar and cuisine selector
       expect(find.byType(TextField), findsOneWidget);
+      expect(find.text('World Cuisines'), findsOneWidget);
 
-      // Verify category chips
-      expect(find.widgetWithText(ChoiceChip, 'Tümü'), findsOneWidget);
-      expect(find.widgetWithText(ChoiceChip, 'Tatlı'), findsOneWidget);
-      expect(find.widgetWithText(ChoiceChip, 'Çorba'), findsOneWidget);
+      // Verify category chips in default English
+      expect(find.widgetWithText(ChoiceChip, 'All'), findsOneWidget);
+      expect(find.widgetWithText(ChoiceChip, 'Dessert'), findsOneWidget);
+      expect(find.widgetWithText(ChoiceChip, 'Soup'), findsOneWidget);
 
       // Verify recipe cards loaded
       expect(find.byType(ListView), findsWidgets);
 
       // Tap on a recipe card to test navigation to RecipeDetailScreen
-      final firstCard = find.textContaining('dk').first;
+      final firstCard = find.textContaining('min').first;
       await tester.tap(firstCard);
       await tester.pumpAndSettle();
 
@@ -52,15 +52,15 @@ void main() {
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 100));
 
-      // Tap 'Tatlı' category chip
-      final tatliChip = find.widgetWithText(ChoiceChip, 'Tatlı');
-      expect(tatliChip, findsOneWidget);
-      await tester.tap(tatliChip);
+      // Tap 'Dessert' category chip
+      final dessertChip = find.widgetWithText(ChoiceChip, 'Dessert');
+      expect(dessertChip, findsOneWidget);
+      await tester.tap(dessertChip);
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 100));
 
       // Verify that category filter applied
-      expect(find.text('Tatlı'), findsWidgets);
+      expect(find.text('Dessert'), findsWidgets);
     });
 
     testWidgets('renders cuisine selector at the top and filters by cuisine', (tester) async {
@@ -78,24 +78,24 @@ void main() {
       // Verify cuisine selector header at top
       expect(find.text('World Cuisines'), findsOneWidget);
 
-      // Verify cuisine filter options exist
-      expect(find.text('🌍 Tümü'), findsOneWidget);
-      expect(find.text('🇹🇷 Türk Mutfağı'), findsOneWidget);
-      expect(find.text('🇮🇹 İtalyan'), findsOneWidget);
-      expect(find.text('🥢 Asya & Uzak Doğu'), findsOneWidget);
+      // Verify cuisine filter options exist (localized)
+      expect(find.text('🌍 All'), findsOneWidget);
+      expect(find.text('🇹🇷 Turkish'), findsOneWidget);
+      expect(find.text('🇮🇹 Italian'), findsOneWidget);
+      expect(find.text('🥢 Asian & Far East'), findsOneWidget);
 
-      // Tap '🇮🇹 İtalyan' cuisine chip
-      final italianFilter = find.text('🇮🇹 İtalyan');
+      // Tap '🇮🇹 Italian' cuisine chip
+      final italianFilter = find.text('🇮🇹 Italian');
       expect(italianFilter, findsOneWidget);
       await tester.tap(italianFilter);
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 100));
 
       // Verify that Italian cuisine recipes and badges are displayed
-      expect(find.text('İtalyan Mutfağı'), findsWidgets);
+      expect(find.text('Italian'), findsWidgets);
 
-      // Tap '🌍 Tümü' to reset cuisine filter
-      final allCuisinesFilter = find.text('🌍 Tümü');
+      // Tap '🌍 All' to reset cuisine filter
+      final allCuisinesFilter = find.text('🌍 All');
       expect(allCuisinesFilter, findsOneWidget);
       await tester.tap(allCuisinesFilter);
       await tester.pump();
@@ -121,8 +121,7 @@ void main() {
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 100));
 
-      // At top, title and cuisine selector are fully visible
-      expect(find.text('AreWeCookin'), findsOneWidget);
+      // At top, cuisine selector is fully visible
       expect(find.text('World Cuisines'), findsOneWidget);
 
       // Drag up (scrolling down into recipes)
@@ -130,7 +129,6 @@ void main() {
       await tester.pumpAndSettle();
 
       // Top panel has scrolled out of view and is completely hidden
-      expect(find.text('AreWeCookin'), findsNothing);
       expect(find.text('World Cuisines'), findsNothing);
 
       // Drag down (scrolling back up)
@@ -138,7 +136,6 @@ void main() {
       await tester.pumpAndSettle();
 
       // Top panel snaps back into view
-      expect(find.text('AreWeCookin'), findsOneWidget);
       expect(find.text('World Cuisines'), findsOneWidget);
     });
 
@@ -167,13 +164,13 @@ void main() {
       expect(scrollable.position.pixels, greaterThan(300));
 
       // Re-tap Discover tab
-      final kesfetTab = find.text('Discover');
-      await tester.tap(kesfetTab);
+      final discoverTab = find.text('Discover');
+      await tester.tap(discoverTab);
       await tester.pumpAndSettle();
 
       // Should be back at the very top (0.0)
       expect(scrollable.position.pixels, equals(0.0));
-      expect(tester.getRect(find.text('AreWeCookin')).top, greaterThanOrEqualTo(0));
+      expect(find.text('World Cuisines'), findsOneWidget);
     });
   });
 }

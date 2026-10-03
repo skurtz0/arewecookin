@@ -1,3 +1,5 @@
+import '../l10n/recipe_localization.dart';
+
 class Ingredient {
   final String name;
   final String amount;
@@ -45,6 +47,15 @@ class Ingredient {
 
   String get displayText {
     final parts = [amount, unit, name].where((s) => s.isNotEmpty);
+    return parts.join(' ');
+  }
+
+  String localizedName(String locale) => RecipeLocalization.localizeIngredientName(name, locale);
+  String localizedUnit(String locale) => RecipeLocalization.localizeUnit(unit, locale);
+  String localizedDisplayText(String locale) {
+    final u = localizedUnit(locale);
+    final n = localizedName(locale);
+    final parts = [amount, u, n].where((s) => s.isNotEmpty);
     return parts.join(' ');
   }
 

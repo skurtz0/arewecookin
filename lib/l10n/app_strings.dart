@@ -77,6 +77,9 @@ class AppStrings {
   String get minutes => _get('minutes', 'min');
   String get servings => _get('servings', 'Servings');
   String get ingredients => _get('ingredients', 'Ingredients');
+  String minutesShort(int mins) => '$mins $minutes';
+  String servingsFormat(int count) => '$count $servings';
+  String ingredientsCountFormat(int count) => '$count $ingredients';
   String get prepTime => _get('prepTime', 'Prep Time');
   String get cookTime => _get('cookTime', 'Cook Time');
   String get totalTime => _get('totalTime', 'Total Time');

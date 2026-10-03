@@ -1,4 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import '../l10n/app_strings.dart';
+import '../l10n/recipe_localization.dart';
 import 'ingredient.dart';
 import 'substitution.dart';
 import 'cooking_step.dart';
@@ -46,6 +48,12 @@ class Recipe {
     final cleaned = title.replaceAll(RegExp(r'\s*#\d+'), '').trim();
     return cleaned.isNotEmpty ? cleaned : title;
   }
+
+  String localizedTitle(String locale) => RecipeLocalization.localizeTitle(this, locale);
+  String localizedCleanTitle(String locale) => RecipeLocalization.localizeCleanTitle(this, locale);
+  String localizedCategory(AppStrings strings) => RecipeLocalization.localizeCategory(category, strings);
+  String localizedCuisine(AppStrings strings) => RecipeLocalization.localizeCuisine(cuisine, strings);
+  String localizedDifficulty(AppStrings strings) => RecipeLocalization.localizeDifficulty(difficulty, strings);
 
   Map<String, dynamic> toMap() {
     return {

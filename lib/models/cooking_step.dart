@@ -1,3 +1,5 @@
+import '../l10n/recipe_localization.dart';
+
 class CookingStep {
   final int order;
   final String title;
@@ -63,6 +65,11 @@ class CookingStep {
       stepIngredients: stepIngredients ?? this.stepIngredients,
     );
   }
+
+  String localizedTitle(String locale) => RecipeLocalization.localizeStepTitle(title, locale);
+  String localizedInstruction(String locale, [String? dishName]) =>
+      RecipeLocalization.localizeStepInstruction(instruction, locale, dishName);
+  String localizedProTip(String locale) => RecipeLocalization.localizeProTip(proTip, locale);
 
   @override
   bool operator ==(Object other) =>

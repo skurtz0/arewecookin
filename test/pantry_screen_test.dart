@@ -1,18 +1,30 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:arewecookin/providers/locale_provider.dart';
 import 'package:arewecookin/screens/pantry_screen.dart';
+
+class FakeLocaleNotifier extends LocaleNotifier {
+  final Locale _initial;
+  FakeLocaleNotifier([this._initial = const Locale('tr')]);
+
+  @override
+  Locale build() => _initial;
+}
 
 void main() {
   group('PantryScreen Widget Tests', () {
-    testWidgets('renders pantry categories and toggles ingredient chips', (tester) async {
+    testWidgets('renders pantry categories and toggles ingredient chips in Turkish', (tester) async {
       tester.view.physicalSize = const Size(1000, 2000);
       tester.view.devicePixelRatio = 1.0;
       addTearDown(tester.view.resetPhysicalSize);
 
       await tester.pumpWidget(
-        const ProviderScope(
-          child: MaterialApp(
+        ProviderScope(
+          overrides: [
+            localeProvider.overrideWith(() => FakeLocaleNotifier(const Locale('tr'))),
+          ],
+          child: const MaterialApp(
             home: PantryScreen(),
           ),
         ),
@@ -44,7 +56,7 @@ void main() {
 
       // Check that matching recipes appeared and show match percentage
       expect(find.textContaining('%'), findsWidgets);
-      expect(find.textContaining('Uyum'), findsWidgets);
+      expect(find.textContaining('Eşleşme'), findsWidgets);
 
       // Verify "Temizle" button clears selections
       final clearButton = find.text('Temizle');
@@ -56,14 +68,17 @@ void main() {
       expect(find.text('Kileriniz boş görünüyor'), findsOneWidget);
     });
 
-    testWidgets('renders cuisine selection chips and filters matched recipes', (tester) async {
+    testWidgets('renders cuisine selection chips and filters matched recipes in Turkish', (tester) async {
       tester.view.physicalSize = const Size(1000, 2000);
       tester.view.devicePixelRatio = 1.0;
       addTearDown(tester.view.resetPhysicalSize);
 
       await tester.pumpWidget(
-        const ProviderScope(
-          child: MaterialApp(
+        ProviderScope(
+          overrides: [
+            localeProvider.overrideWith(() => FakeLocaleNotifier(const Locale('tr'))),
+          ],
+          child: const MaterialApp(
             home: PantryScreen(),
           ),
         ),
@@ -116,6 +131,28 @@ void main() {
       await tester.tap(fullMatchToggle);
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 200));
+    });
+
+    testWidgets('renders pantry screen in default English', (tester) async {
+      tester.view.physicalSize = const Size(1000, 2000);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(tester.view.resetPhysicalSize);
+
+      await tester.pumpWidget(
+        const ProviderScope(
+          child: MaterialApp(
+            home: PantryScreen(),
+          ),
+        ),
+      );
+
+      await tester.pumpAndSettle();
+
+      expect(find.text('Smart Pantry'), findsOneWidget);
+      expect(find.text('Your pantry looks empty'), findsOneWidget);
+      expect(find.text('Which cuisine are you cooking today?'), findsOneWidget);
+      expect(find.text('🌍 All'), findsOneWidget);
+      expect(find.text('🇮🇹 Italian'), findsOneWidget);
     });
   });
 }

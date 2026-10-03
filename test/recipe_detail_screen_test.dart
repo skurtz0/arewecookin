@@ -2,8 +2,17 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:arewecookin/models/models.dart';
-import 'package:arewecookin/screens/recipe_detail_screen.dart';
+import 'package:arewecookin/providers/locale_provider.dart';
 import 'package:arewecookin/screens/cooking_mode_screen.dart';
+import 'package:arewecookin/screens/recipe_detail_screen.dart';
+
+class FakeLocaleNotifier extends LocaleNotifier {
+  final Locale _initial;
+  FakeLocaleNotifier([this._initial = const Locale('tr')]);
+
+  @override
+  Locale build() => _initial;
+}
 
 void main() {
   group('RecipeDetailScreen Widget Tests', () {
@@ -16,18 +25,18 @@ void main() {
         category: 'Ana Yemek',
         prepTime: 15,
         cookTime: 45,
-        difficulty: 'Kolay',
+        difficulty: 'Orta',
         ingredientKeys: ['kuru fasulye', 'sogan', 'salca'],
         ingredients: [
           Ingredient(name: 'Kuru Fasulye', amount: '2', unit: 'su bardağı'),
-          Ingredient(name: 'Kuru Soğan', amount: '1', unit: 'adet'),
+          Ingredient(name: 'Soğan', amount: '1', unit: 'adet'),
           Ingredient(name: 'Salça', amount: '1', unit: 'yemek kaşığı'),
         ],
         substitutions: [
           Substitution(
-            ingredient: 'kuru fasulye',
+            ingredient: 'Kuru Fasulye',
             alternative: 'Nohut veya Barbunya',
-            tip: 'Pişme süresi benzerdir.',
+            tip: 'Pişme süresi değişebilir.',
           ),
         ],
         steps: [
@@ -44,9 +53,12 @@ void main() {
       );
     });
 
-    testWidgets('renders details, scales servings, toggles checklist and launches cooking mode', (tester) async {
+    testWidgets('renders details, scales servings, toggles checklist and launches cooking mode in Turkish', (tester) async {
       await tester.pumpWidget(
         ProviderScope(
+          overrides: [
+            localeProvider.overrideWith(() => FakeLocaleNotifier(const Locale('tr'))),
+          ],
           child: MaterialApp(
             home: RecipeDetailScreen(recipe: sampleRecipe),
           ),
@@ -58,7 +70,7 @@ void main() {
       // Verify title & stats
       expect(find.text('Özel Güveçte Kuru Fasulye #1'), findsWidgets);
       expect(find.text('Ana Yemek'), findsOneWidget);
-      expect(find.text('4 Kişi'), findsOneWidget);
+      expect(find.text('4 Kişilik'), findsWidgets);
       expect(find.text('15 dk'), findsOneWidget);
       expect(find.text('45 dk'), findsOneWidget);
 
@@ -72,7 +84,7 @@ void main() {
       await tester.pumpAndSettle();
 
       // Check servings updated to 5 Kişilik
-      expect(find.text('5 Kişilik'), findsOneWidget);
+      expect(find.text('5 Kişilik'), findsWidgets);
       // 2 * (5/4) = 2.5
       expect(find.text('2.5 su bardağı'), findsOneWidget);
 
@@ -96,13 +108,33 @@ void main() {
       expect(find.text('Akıllı İkame Önerileri'), findsOneWidget);
       expect(find.textContaining('Nohut veya Barbunya'), findsOneWidget);
 
-      // Tap CTA: "Yapmaya Başlayalım 🍳"
-      final ctaButton = find.text('Yapmaya Başlayalım 🍳');
+      // Tap CTA: "Pişirme Modunu Başlat 🍳"
+      final ctaButton = find.text('Pişirme Modunu Başlat 🍳');
       expect(ctaButton, findsOneWidget);
       await tester.tap(ctaButton);
       await tester.pumpAndSettle();
 
       expect(find.byType(CookingModeScreen), findsOneWidget);
+    });
+
+    testWidgets('renders recipe details with English localization', (tester) async {
+      await tester.pumpWidget(
+        ProviderScope(
+          child: MaterialApp(
+            home: RecipeDetailScreen(recipe: sampleRecipe),
+          ),
+        ),
+      );
+
+      await tester.pumpAndSettle();
+
+      // Verify English localized labels
+      expect(find.text('Special Clay Pot White Bean Stew'), findsWidgets);
+      expect(find.text('Main Dish'), findsOneWidget);
+      expect(find.text('4 Servings'), findsWidgets);
+      expect(find.text('15 min'), findsOneWidget);
+      expect(find.text('45 min'), findsOneWidget);
+      expect(find.text('Start Cooking Mode 🍳'), findsOneWidget);
     });
   });
 }

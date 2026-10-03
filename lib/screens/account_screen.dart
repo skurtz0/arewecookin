@@ -823,6 +823,7 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
     required VoidCallback onTap,
     Widget? trailing,
   }) {
+    final strings = ref.watch(appStringsProvider);
     return InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(12),
@@ -845,7 +846,7 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    recipe.title,
+                    recipe.localizedTitle(strings.locale),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: const TextStyle(
@@ -865,7 +866,7 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
                           borderRadius: BorderRadius.circular(6),
                         ),
                         child: Text(
-                          recipe.category,
+                          recipe.localizedCategory(strings),
                           style: const TextStyle(
                             fontSize: 10,
                             color: Color(0xFFFF5722),
@@ -875,7 +876,7 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
                       ),
                       const SizedBox(width: 8),
                       Text(
-                        '${recipe.totalTime} dk',
+                        strings.minutesShort(recipe.totalTime),
                         style: TextStyle(
                             fontSize: 11, color: Colors.grey.shade600),
                       ),

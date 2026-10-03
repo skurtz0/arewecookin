@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../utils/cooking_icons.dart';
 import '../models/models.dart';
+import '../l10n/recipe_localization.dart';
 import '../providers/discover_provider.dart';
 import '../providers/locale_provider.dart';
 import '../providers/auth_provider.dart';
@@ -23,14 +24,14 @@ class DiscoverScreenState extends ConsumerState<DiscoverScreen> {
   Timer? _debounceTimer;
 
   static const List<Map<String, String>> cuisineFilters = [
-    {'id': 'Tümü', 'label': '🌍 Tümü'},
-    {'id': 'Türk Mutfağı', 'label': '🇹🇷 Türk Mutfağı'},
-    {'id': 'İtalyan Mutfağı', 'label': '🇮🇹 İtalyan'},
-    {'id': 'Asya & Uzak Doğu', 'label': '🥢 Asya & Uzak Doğu'},
-    {'id': 'Meksika Mutfağı', 'label': '🇲🇽 Meksika'},
-    {'id': 'Akdeniz Mutfağı', 'label': '🫒 Akdeniz'},
-    {'id': 'Fransız & Dünya', 'label': '🇫🇷 Fransız & Dünya'},
-    {'id': 'Pratik & Sokak', 'label': '⚡ Pratik & Sokak'},
+    {'id': 'Tümü', 'flag': '🌍', 'label': '🌍 Tümü'},
+    {'id': 'Türk Mutfağı', 'flag': '🇹🇷', 'label': '🇹🇷 Türk Mutfağı'},
+    {'id': 'İtalyan Mutfağı', 'flag': '🇮🇹', 'label': '🇮🇹 İtalyan'},
+    {'id': 'Asya & Uzak Doğu', 'flag': '🥢', 'label': '🥢 Asya & Uzak Doğu'},
+    {'id': 'Meksika Mutfağı', 'flag': '🇲🇽', 'label': '🇲🇽 Meksika'},
+    {'id': 'Akdeniz Mutfağı', 'flag': '🫒', 'label': '🫒 Akdeniz'},
+    {'id': 'Fransız & Dünya', 'flag': '🇫🇷', 'label': '🇫🇷 Fransız & Dünya'},
+    {'id': 'Pratik & Sokak', 'flag': '⚡', 'label': '⚡ Pratik & Sokak'},
   ];
 
   static const List<String> categories = [
@@ -150,54 +151,10 @@ class DiscoverScreenState extends ConsumerState<DiscoverScreen> {
               backgroundColor: Colors.white,
               elevation: 0,
               surfaceTintColor: Colors.transparent,
-              titleSpacing: 16,
-              toolbarHeight: 56,
-              title: Row(
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(8),
-                    decoration: BoxDecoration(
-                      color: Colors.orange.shade50,
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: const Icon(
-                      CookingIcons.chefHat,
-                      color: Color(0xFFFF5722),
-                      size: 24,
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text(
-                          strings.appTitle,
-                          style: const TextStyle(
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold,
-                            color: Color(0xFF1E293B),
-                          ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                        Text(
-                          strings.appSubtitle,
-                          style: TextStyle(
-                            fontSize: 12,
-                            color: Colors.grey.shade600,
-                          ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
+              automaticallyImplyLeading: false,
+              toolbarHeight: 0,
               bottom: PreferredSize(
-                preferredSize: const Size.fromHeight(190),
+                preferredSize: const Size.fromHeight(196),
                 child: Container(
                   color: Colors.white,
                   child: Column(
@@ -257,7 +214,7 @@ class DiscoverScreenState extends ConsumerState<DiscoverScreen> {
                             final isSelected = category == discoverState.selectedCategory;
 
                             return ChoiceChip(
-                              label: Text(category),
+                              label: Text(RecipeLocalization.localizeCategory(category, strings)),
                               selected: isSelected,
                               onSelected: (_) {
                                 ref.read(discoverProvider.notifier).setCategory(category);
@@ -382,7 +339,7 @@ class DiscoverScreenState extends ConsumerState<DiscoverScreen> {
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           Text(
-                            discoverState.selectedCuisine,
+                            RecipeLocalization.localizeCuisine(discoverState.selectedCuisine, strings),
                             style: const TextStyle(
                               fontSize: 11,
                               fontWeight: FontWeight.bold,
@@ -409,6 +366,10 @@ class DiscoverScreenState extends ConsumerState<DiscoverScreen> {
               itemBuilder: (context, index) {
                 final c = cuisineFilters[index];
                 final isSelected = discoverState.selectedCuisine == c['id'];
+                final flag = c['flag'] ?? '';
+                final localizedLabel = flag.isNotEmpty
+                    ? '$flag ${RecipeLocalization.localizeCuisine(c['id']!, strings)}'
+                    : RecipeLocalization.localizeCuisine(c['id']!, strings);
 
                 return Material(
                   color: Colors.transparent,
@@ -439,7 +400,7 @@ class DiscoverScreenState extends ConsumerState<DiscoverScreen> {
                       ),
                       child: Center(
                         child: Text(
-                          c['label']!,
+                          localizedLabel,
                           style: TextStyle(
                             fontSize: 12.5,
                             fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
@@ -548,7 +509,7 @@ class DiscoverScreenState extends ConsumerState<DiscoverScreen> {
   }
 }
 
-class _RecipeCard extends StatelessWidget {
+class _RecipeCard extends ConsumerWidget {
   final Recipe recipe;
   final VoidCallback onTap;
 
@@ -581,7 +542,8 @@ class _RecipeCard extends StatelessWidget {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final strings = ref.watch(appStringsProvider);
     final catColor = _categoryColor(recipe.category);
 
     return Container(
@@ -630,7 +592,7 @@ class _RecipeCard extends StatelessWidget {
                             borderRadius: BorderRadius.circular(10),
                           ),
                           child: Text(
-                            recipe.category,
+                            recipe.localizedCategory(strings),
                             style: const TextStyle(
                               color: Colors.white,
                               fontSize: 12,
@@ -652,7 +614,7 @@ class _RecipeCard extends StatelessWidget {
                             ],
                           ),
                           child: Text(
-                            recipe.cuisine,
+                            recipe.localizedCuisine(strings),
                             style: const TextStyle(
                               color: Colors.white,
                               fontSize: 11,
@@ -684,7 +646,7 @@ class _RecipeCard extends StatelessWidget {
                           Icon(CookingIcons.gauge, size: 13, color: Colors.grey.shade800),
                           const SizedBox(width: 4),
                           Text(
-                            recipe.difficulty,
+                            recipe.localizedDifficulty(strings),
                             style: TextStyle(
                               fontSize: 11,
                               color: Colors.grey.shade800,
@@ -703,7 +665,7 @@ class _RecipeCard extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      recipe.title,
+                      recipe.localizedTitle(strings.locale),
                       style: const TextStyle(
                         fontSize: 17,
                         fontWeight: FontWeight.bold,
@@ -718,17 +680,17 @@ class _RecipeCard extends StatelessWidget {
                       children: [
                         _InfoBadge(
                           icon: CookingIcons.clock,
-                          label: '${recipe.totalTime} dk',
+                          label: strings.minutesShort(recipe.totalTime),
                         ),
                         const SizedBox(width: 12),
                         _InfoBadge(
                           icon: CookingIcons.users,
-                          label: '${recipe.servings} Kişilik',
+                          label: strings.servingsFormat(recipe.servings),
                         ),
                         const SizedBox(width: 12),
                         _InfoBadge(
                           icon: CookingIcons.utensils,
-                          label: '${recipe.ingredients.length} Malzeme',
+                          label: strings.ingredientsCountFormat(recipe.ingredients.length),
                         ),
                         const Spacer(),
                         Container(

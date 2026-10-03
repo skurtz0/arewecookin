@@ -7,16 +7,16 @@ import '../providers/user_recipes_provider.dart';
 import '../providers/locale_provider.dart';
 import 'cooking_mode_screen.dart';
 
-class RecipeDetailScreen extends StatefulWidget {
+class RecipeDetailScreen extends ConsumerStatefulWidget {
   final Recipe recipe;
 
   const RecipeDetailScreen({super.key, required this.recipe});
 
   @override
-  State<RecipeDetailScreen> createState() => _RecipeDetailScreenState();
+  ConsumerState<RecipeDetailScreen> createState() => _RecipeDetailScreenState();
 }
 
-class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
+class _RecipeDetailScreenState extends ConsumerState<RecipeDetailScreen> {
   late int _servings;
   final Set<int> _checkedIngredientIndices = {};
 
@@ -87,6 +87,7 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final strings = ref.watch(appStringsProvider);
     final recipe = widget.recipe;
     final totalIngredients = recipe.ingredients.length;
     final checkedCount = _checkedIngredientIndices.length;
@@ -100,7 +101,7 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
         elevation: 0,
         surfaceTintColor: Colors.transparent,
         title: Text(
-          recipe.title,
+          recipe.localizedTitle(strings.locale),
           style: const TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.bold,
@@ -199,7 +200,7 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
                           borderRadius: BorderRadius.circular(10),
                         ),
                         child: Text(
-                          recipe.category,
+                          recipe.localizedCategory(strings),
                           style: TextStyle(
                             color: catColor,
                             fontSize: 13,
@@ -215,7 +216,7 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
                           borderRadius: BorderRadius.circular(10),
                         ),
                         child: Text(
-                          recipe.difficulty,
+                          recipe.localizedDifficulty(strings),
                           style: TextStyle(
                             fontSize: 13,
                             color: Colors.grey.shade800,
@@ -227,7 +228,7 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
                   ),
                   const SizedBox(height: 14),
                   Text(
-                    recipe.title,
+                    recipe.localizedTitle(strings.locale),
                     style: const TextStyle(
                       fontSize: 22,
                       fontWeight: FontWeight.bold,
@@ -243,29 +244,29 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
                       Expanded(
                         child: _StatColumn(
                           icon: CookingIcons.clock,
-                          value: '${recipe.prepTime} dk',
-                          label: 'Hazırlık',
+                          value: strings.minutesShort(recipe.prepTime),
+                          label: strings.prepTime,
                         ),
                       ),
                       Expanded(
                         child: _StatColumn(
                           icon: CookingIcons.fire,
-                          value: '${recipe.cookTime} dk',
-                          label: 'Pişirme',
+                          value: strings.minutesShort(recipe.cookTime),
+                          label: strings.cookTime,
                         ),
                       ),
                       Expanded(
                         child: _StatColumn(
                           icon: CookingIcons.timer,
-                          value: '${recipe.totalTime} dk',
-                          label: 'Toplam',
+                          value: strings.minutesShort(recipe.totalTime),
+                          label: strings.totalTime,
                         ),
                       ),
                       Expanded(
                         child: _StatColumn(
                           icon: CookingIcons.users,
-                          value: '$_servings Kişi',
-                          label: 'Porsiyon',
+                          value: strings.servingsFormat(_servings),
+                          label: strings.servings,
                         ),
                       ),
                     ],
@@ -288,9 +289,9 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
                 children: [
                   const Icon(CookingIcons.users, color: Color(0xFFFF5722), size: 20),
                   const SizedBox(width: 8),
-                  const Text(
-                    'Porsiyon:',
-                    style: TextStyle(
+                  Text(
+                    '${strings.servings}:',
+                    style: const TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w600,
                       color: Color(0xFF1E293B),
@@ -306,7 +307,7 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
                         : null,
                   ),
                   Text(
-                    '$_servings Kişilik',
+                    strings.servingsFormat(_servings),
                     style: const TextStyle(
                       fontSize: 15,
                       fontWeight: FontWeight.bold,
@@ -332,9 +333,9 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text(
-                        'Malzeme Hazırlığı',
-                        style: TextStyle(
+                      Text(
+                        strings.ingredientsTitle,
+                        style: const TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
                           color: Color(0xFF1E293B),
@@ -342,7 +343,7 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        '$checkedCount / $totalIngredients hazır (${(progress * 100).toInt()}%)',
+                        '$checkedCount / $totalIngredients ${strings.locale.toLowerCase().startsWith('tr') ? 'hazır' : 'ready'} (${(progress * 100).toInt()}%)',
                         style: TextStyle(
                           fontSize: 13,
                           color: progress == 1.0 ? Colors.green.shade700 : Colors.grey.shade600,
@@ -359,7 +360,9 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
                     padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                   ),
                   child: Text(
-                    checkedCount == totalIngredients ? 'Temizle' : 'Tümünü Seç',
+                    checkedCount == totalIngredients
+                        ? strings.clearAll
+                        : (strings.locale.toLowerCase().startsWith('tr') ? 'Tümünü Seç' : 'Select All'),
                     style: const TextStyle(
                       color: Color(0xFFFF5722),
                       fontWeight: FontWeight.bold,
@@ -418,7 +421,7 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
                           const SizedBox(width: 14),
                           Expanded(
                             child: Text(
-                              ing.name,
+                              ing.localizedName(strings.locale),
                               style: TextStyle(
                                 fontSize: 15,
                                 fontWeight: FontWeight.w500,
@@ -428,7 +431,7 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
                             ),
                           ),
                           Text(
-                            '$scaledAmount ${ing.unit}',
+                            '$scaledAmount ${ing.localizedUnit(strings.locale)}',
                             style: TextStyle(
                               fontSize: 14,
                               fontWeight: FontWeight.bold,
@@ -520,10 +523,10 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
             const SizedBox(height: 24),
             Row(
               children: [
-                const Expanded(
+                Expanded(
                   child: Text(
-                    'Pişirme Adımları Özeti',
-                    style: TextStyle(
+                    strings.stepsTitle,
+                    style: const TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
                       color: Color(0xFF1E293B),
@@ -531,7 +534,7 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
                   ),
                 ),
                 Text(
-                  '${recipe.steps.length} Adım',
+                  '${recipe.steps.length} ${strings.step}',
                   style: TextStyle(
                     fontSize: 13,
                     fontWeight: FontWeight.bold,
@@ -548,7 +551,7 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
               itemBuilder: (context, index) {
                 final step = recipe.steps[index];
                 final toolIcon = CookingIcons.getToolIcon(step.toolIcon);
-                final toolName = CookingIcons.getToolLabel(step.toolIcon);
+                final toolName = CookingIcons.getToolLabel(step.toolIcon, strings.locale);
 
                 return Container(
                   margin: const EdgeInsets.only(bottom: 10),
@@ -582,7 +585,7 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
                               children: [
                                 Expanded(
                                   child: Text(
-                                    step.title,
+                                    step.localizedTitle(strings.locale),
                                     style: const TextStyle(
                                       fontWeight: FontWeight.bold,
                                       fontSize: 14,
@@ -615,7 +618,7 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
                             ),
                             const SizedBox(height: 6),
                             Text(
-                              step.instruction,
+                              step.localizedInstruction(strings.locale),
                               style: const TextStyle(
                                 fontSize: 13,
                                 color: Color(0xFF334155),
@@ -670,7 +673,7 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
                                     const SizedBox(width: 8),
                                     Expanded(
                                       child: Text(
-                                        step.proTip,
+                                        step.localizedProTip(strings.locale),
                                         style: const TextStyle(
                                           fontSize: 12,
                                           color: Color(0xFF92400E),
@@ -725,16 +728,16 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
                 ),
                 elevation: 0,
               ),
-              child: const FittedBox(
+              child: FittedBox(
                 fit: BoxFit.scaleDown,
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Icon(CookingIcons.play, size: 22),
-                    SizedBox(width: 8),
+                    const Icon(CookingIcons.play, size: 22),
+                    const SizedBox(width: 8),
                     Text(
-                      'Yapmaya Başlayalım 🍳',
-                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                      '${strings.startCooking} 🍳',
+                      style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                     ),
                   ],
                 ),

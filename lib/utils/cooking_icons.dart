@@ -67,47 +67,48 @@ class CookingIcons {
     }
   }
 
-  /// Get localized Turkish tool name
-  static String getToolLabel(String toolKey) {
+  /// Get localized tool name (Turkish or English fallback)
+  static String getToolLabel(String toolKey, [String? locale]) {
+    final isTr = locale == null || locale.toLowerCase().startsWith('tr');
     switch (toolKey.toLowerCase().trim()) {
       case 'knife':
       case 'bicak':
-        return 'Şef Bıçağı & Kesme Tahtası';
+        return isTr ? 'Şef Bıçağı & Kesme Tahtası' : 'Chef Knife & Board';
       case 'pan':
       case 'tava':
-        return 'Tava / Wok';
+        return isTr ? 'Tava / Wok' : 'Skillet / Pan';
       case 'pot':
       case 'tencere':
-        return 'Derin Tencere';
+        return isTr ? 'Derin Tencere' : 'Deep Cooking Pot';
       case 'oven':
       case 'firin':
-        return 'Fırın & Tepsi';
+        return isTr ? 'Fırın & Tepsi' : 'Oven & Baking Sheet';
       case 'whisk':
       case 'cirpici':
-        return 'El Çırpıcısı / Mikser';
+        return isTr ? 'El Çırpıcısı / Mikser' : 'Whisk / Mixer';
       case 'bowl':
       case 'kase':
-        return 'Geniş Karıştırma Kabı';
+        return isTr ? 'Geniş Karıştırma Kabı' : 'Mixing Bowl';
       case 'plate':
       case 'tabak':
       case 'servis':
-        return 'Servis Tabağı & Sunum';
+        return isTr ? 'Servis Tabağı & Sunum' : 'Serving Plate';
       case 'spoon':
       case 'kasik':
-        return 'Tahta Kaşık / Spatula';
+        return isTr ? 'Tahta Kaşık / Spatula' : 'Wooden Spoon / Spatula';
       case 'microwave':
       case 'mikrodalga':
-        return 'Mikrodalga';
+        return isTr ? 'Mikrodalga' : 'Microwave';
       case 'blender':
-        return 'El Blenderı';
+        return isTr ? 'El Blenderı' : 'Immersion Blender';
       case 'grater':
       case 'rende':
-        return 'İnce / Kalın Rende';
+        return isTr ? 'İnce / Kalın Rende' : 'Box Grater';
       case 'scale':
       case 'terazi':
-        return 'Mutfak Terazisi';
+        return isTr ? 'Mutfak Terazisi' : 'Kitchen Scale';
       default:
-        return 'Mutfak Gereci';
+        return isTr ? 'Mutfak Gereci' : 'Kitchen Utensil';
     }
   }
 }

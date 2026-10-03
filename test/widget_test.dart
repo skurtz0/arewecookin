@@ -23,7 +23,6 @@ void main() {
 
     // Verify Navigation bar tabs in default English
     expect(find.byType(DiscoverScreen), findsOneWidget);
-    expect(find.text('AreWeCookin'), findsOneWidget);
     expect(find.text('Discover'), findsOneWidget);
     expect(find.text('Pantry'), findsOneWidget);
     expect(find.text('Account'), findsOneWidget);
