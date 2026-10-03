@@ -1,9 +1,10 @@
 class UserProfile {
   final String id;
   final String email;
+  final String? phoneNumber;
   final String displayName;
   final String? photoUrl;
-  final String authProvider; // 'google', 'password', 'guest'
+  final String authProvider; // 'google', 'password', 'phone', 'guest'
   final bool isLoggedIn;
   final int savedRecipesCount;
   final int cookedCount;
@@ -11,6 +12,7 @@ class UserProfile {
   const UserProfile({
     required this.id,
     required this.email,
+    this.phoneNumber,
     required this.displayName,
     this.photoUrl,
     required this.authProvider,
@@ -22,16 +24,18 @@ class UserProfile {
   static const guest = UserProfile(
     id: 'guest_user',
     email: '',
+    phoneNumber: null,
     displayName: 'Misafir Aşçı',
     authProvider: 'guest',
     isLoggedIn: false,
-    savedRecipesCount: 3,
-    cookedCount: 2,
+    savedRecipesCount: 0,
+    cookedCount: 0,
   );
 
   UserProfile copyWith({
     String? id,
     String? email,
+    String? phoneNumber,
     String? displayName,
     String? photoUrl,
     String? authProvider,
@@ -42,6 +46,7 @@ class UserProfile {
     return UserProfile(
       id: id ?? this.id,
       email: email ?? this.email,
+      phoneNumber: phoneNumber ?? this.phoneNumber,
       displayName: displayName ?? this.displayName,
       photoUrl: photoUrl ?? this.photoUrl,
       authProvider: authProvider ?? this.authProvider,
@@ -51,3 +56,4 @@ class UserProfile {
     );
   }
 }
+

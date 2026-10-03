@@ -5,8 +5,10 @@ import '../utils/cooking_icons.dart';
 import '../models/models.dart';
 import '../providers/discover_provider.dart';
 import '../providers/locale_provider.dart';
+import '../providers/auth_provider.dart';
 import '../widgets/recipe_image.dart';
 import 'recipe_detail_screen.dart';
+import 'add_recipe_screen.dart';
 
 class DiscoverScreen extends ConsumerStatefulWidget {
   const DiscoverScreen({super.key});
@@ -100,6 +102,41 @@ class DiscoverScreenState extends ConsumerState<DiscoverScreen> {
 
     return Scaffold(
       backgroundColor: const Color(0xFFF9F9FB),
+      floatingActionButton: FloatingActionButton.extended(
+        heroTag: 'discover_add_recipe_fab',
+        onPressed: () {
+          final authState = ref.read(authProvider);
+          final strings = ref.read(appStringsProvider);
+          if (!authState.user.isLoggedIn) {
+            showDialog(
+              context: context,
+              builder: (ctx) => AlertDialog(
+                title: Text(strings.loginRequiredToPublish),
+                content: Text(strings.loginToPublishMsg),
+                actions: [
+                  TextButton(
+                    onPressed: () => Navigator.of(ctx).pop(),
+                    child: Text(strings.cancel),
+                  ),
+                ],
+              ),
+            );
+            return;
+          }
+          Navigator.of(context).push(
+            MaterialPageRoute(
+              builder: (context) => const AddRecipeScreen(),
+            ),
+          );
+        },
+        backgroundColor: const Color(0xFFFF5722),
+        foregroundColor: Colors.white,
+        icon: const Icon(Icons.add_rounded, size: 22),
+        label: Text(
+          strings.addRecipe,
+          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
+        ),
+      ),
       body: RefreshIndicator(
         color: const Color(0xFFFF5722),
         onRefresh: () => ref.read(discoverProvider.notifier).loadInitial(),

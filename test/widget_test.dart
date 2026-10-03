@@ -18,7 +18,8 @@ void main() {
     );
 
     await tester.pump();
-    await tester.pump(const Duration(milliseconds: 150));
+    await tester.pump(const Duration(milliseconds: 2600));
+    await tester.pumpAndSettle();
 
     // Verify Navigation bar tabs
     expect(find.byType(DiscoverScreen), findsOneWidget);

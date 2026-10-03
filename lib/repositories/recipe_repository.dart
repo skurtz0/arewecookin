@@ -20,10 +20,33 @@ class PaginatedRecipes {
 class RecipeRepository {
   final FirebaseFirestore? firestore;
   static const int totalCapacity = RecipeGenerator.totalCapacity;
+  final List<Recipe> _customRecipes = [];
 
   RecipeRepository({this.firestore});
 
+  List<Recipe> get customRecipes => List.unmodifiable(_customRecipes);
+
+  void addCustomRecipe(Recipe recipe) {
+    _customRecipes.removeWhere((r) => r.id == recipe.id);
+    _customRecipes.insert(0, recipe);
+    if (firestore != null) {
+      try {
+        firestore!.collection('recipes').doc(recipe.id).set(recipe.toMap());
+      } catch (_) {}
+    }
+  }
+
+  void removeCustomRecipe(String recipeId) {
+    _customRecipes.removeWhere((r) => r.id == recipeId);
+    if (firestore != null) {
+      try {
+        firestore!.collection('recipes').doc(recipeId).delete();
+      } catch (_) {}
+    }
+  }
+
   /// Fetches recipes with infinite-scroll pagination (limit & startAfterDocument).
+
   /// Supports category, cuisine filtering and title search.
   Future<PaginatedRecipes> getRecipes({
     int limit = 20,
@@ -194,6 +217,10 @@ class RecipeRepository {
 
   /// Get a single recipe by its ID
   Future<Recipe?> getRecipeById(String id) async {
+    for (final r in _customRecipes) {
+      if (r.id == id) return r;
+    }
+
     final db = firestore;
     if (db != null) {
       try {
@@ -224,6 +251,17 @@ class RecipeRepository {
     String? searchQuery,
   }) {
     final List<Recipe> matching = [];
+
+    // Prepend custom recipes when at initial offset
+    if (offset == 0) {
+      for (final r in _customRecipes) {
+        if (category != null && r.category != category) continue;
+        if (cuisine != null && r.cuisine != cuisine) continue;
+        if (searchQuery != null && !r.title.toLowerCase().contains(searchQuery)) continue;
+        matching.add(r);
+      }
+    }
+
     int currentIndex = offset;
 
     while (currentIndex < totalCapacity && matching.length < limit) {

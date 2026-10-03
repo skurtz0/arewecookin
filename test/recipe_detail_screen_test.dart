@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:arewecookin/models/models.dart';
 import 'package:arewecookin/screens/recipe_detail_screen.dart';
@@ -45,8 +46,10 @@ void main() {
 
     testWidgets('renders details, scales servings, toggles checklist and launches cooking mode', (tester) async {
       await tester.pumpWidget(
-        MaterialApp(
-          home: RecipeDetailScreen(recipe: sampleRecipe),
+        ProviderScope(
+          child: MaterialApp(
+            home: RecipeDetailScreen(recipe: sampleRecipe),
+          ),
         ),
       );
 

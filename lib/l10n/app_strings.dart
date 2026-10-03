@@ -96,4 +96,73 @@ class AppStrings {
   String get invalidEmail => isTurkish ? 'Geçerli bir e-posta adresi girin' : 'Please enter a valid email';
   String get passwordLength => isTurkish ? 'Şifre en az 6 karakter olmalı' : 'Password must be at least 6 characters';
   String get enterName => isTurkish ? 'Lütfen adınızı girin' : 'Please enter your name';
+
+  // Splash
+  String get splashTagline => isTurkish ? 'Bugün ne pişiriyoruz?' : 'What are we cookin\' today?';
+  String get splashLoading => isTurkish ? 'Mutfak hazırlanıyor...' : 'Preparing the kitchen...';
+
+  // Phone Auth
+  String get phoneAuth => isTurkish ? 'Telefon ile Giriş' : 'Phone Sign In';
+  String get phoneNumber => isTurkish ? 'Telefon Numarası' : 'Phone Number';
+  String get enterPhoneNumber => isTurkish ? 'Telefon numaranızı girin (+90...)' : 'Enter phone number (+1...)';
+  String get sendOtp => isTurkish ? 'Doğrulama Kodu Gönder' : 'Send Verification Code';
+  String get verificationCode => isTurkish ? 'Doğrulama Kodu' : 'Verification Code';
+  String get enterOtp => isTurkish ? '6 haneli SMS kodunu girin' : 'Enter 6-digit SMS code';
+  String get verifyOtp => isTurkish ? 'Kodu Onayla ve Giriş Yap' : 'Verify & Sign In';
+  String get invalidPhone => isTurkish ? 'Geçerli bir telefon numarası girin' : 'Enter a valid phone number';
+  String get invalidOtp => isTurkish ? 'Lütfen 6 haneli kodu eksiksiz girin' : 'Please enter the 6-digit code';
+
+  // Account Management & Security
+  String get changePassword => isTurkish ? 'Şifre Değiştir' : 'Change Password';
+  String get newPassword => isTurkish ? 'Yeni Şifre' : 'New Password';
+  String get changeEmail => isTurkish ? 'E-posta Değiştir' : 'Change Email';
+  String get newEmail => isTurkish ? 'Yeni E-posta Adresi' : 'New Email Address';
+  String get deleteAccount => isTurkish ? 'Hesabı Sil' : 'Delete Account';
+  String get deleteAccountTitle => isTurkish ? 'Hesabınızı Silmek İstiyor Musunuz?' : 'Delete Your Account?';
+  String get deleteAccountConfirm => isTurkish
+      ? 'Hesabınız ve tüm kaydedilen tarifleriniz kalıcı olarak silinecektir. Bu işlem geri alınamaz!'
+      : 'Your account and all saved recipes will be permanently deleted. This action cannot be undone!';
+  String get deleteAccountAction => isTurkish ? 'Evet, Hesabımı Sil' : 'Yes, Delete Account';
+  String get cancel => isTurkish ? 'İptal' : 'Cancel';
+  String get saveChanges => isTurkish ? 'Kaydet' : 'Save';
+  String get editProfile => isTurkish ? 'Profili Düzenle' : 'Edit Profile';
+  String get updateName => isTurkish ? 'İsim Değiştir' : 'Change Name';
+  String get profileUpdated => isTurkish ? 'Profil başarıyla güncellendi.' : 'Profile updated successfully.';
+  String get passwordUpdated => isTurkish ? 'Şifreniz başarıyla güncellendi.' : 'Password updated successfully.';
+  String get emailUpdated => isTurkish ? 'E-posta adresiniz güncellendi.' : 'Email address updated.';
+  String get accountDeleted => isTurkish ? 'Hesabınız başarıyla silindi.' : 'Account deleted successfully.';
+
+  // Add Recipe & Recipe Management
+  String get addRecipe => isTurkish ? 'Tarif Ekle' : 'Add Recipe';
+  String get newRecipe => isTurkish ? 'Yeni Tarif Paylaş' : 'Share New Recipe';
+  String get recipeTitle => isTurkish ? 'Tarif Adı' : 'Recipe Title';
+  String get enterRecipeTitle => isTurkish ? 'Örn: Anne Usulü Mercimek Çorbası' : 'e.g. Grandma\'s Lentil Soup';
+  String get recipeCategory => isTurkish ? 'Kategori' : 'Category';
+  String get recipeCuisine => isTurkish ? 'Mutfak' : 'Cuisine';
+  String get prepTimeMinutes => isTurkish ? 'Hazırlık (dk)' : 'Prep (min)';
+  String get cookTimeMinutes => isTurkish ? 'Pişirme (dk)' : 'Cook (min)';
+  String get servingsCount => isTurkish ? 'Porsiyon' : 'Servings';
+  String get imageUrlOptional => isTurkish ? 'Fotoğraf URL (İsteğe Bağlı)' : 'Image URL (Optional)';
+  String get addIngredient => isTurkish ? 'Malzeme Ekle' : 'Add Ingredient';
+  String get ingredientName => isTurkish ? 'Malzeme adı (örn: Zeytinyağı)' : 'Ingredient name (e.g. Olive oil)';
+  String get ingredientAmount => isTurkish ? 'Miktar (örn: 2)' : 'Amount (e.g. 2)';
+  String get ingredientUnit => isTurkish ? 'Birim (kaşık, bardak, gr)' : 'Unit (tbsp, cup, g)';
+  String get addStep => isTurkish ? 'Adım Ekle' : 'Add Step';
+  String get stepInstruction => isTurkish ? 'Adım açıklaması / talimatı...' : 'Step instructions...';
+  String get stepTimerOptional => isTurkish ? 'Zamanlayıcı (dk, isteğe bağlı)' : 'Timer (min, optional)';
+  String get publishRecipe => isTurkish ? 'Tarifi Yayınla' : 'Publish Recipe';
+  String get recipePublishedSuccess => isTurkish ? 'Tarifiniz başarıyla yayınlandı!' : 'Your recipe has been published!';
+  String get loginRequiredToPublish => isTurkish ? 'Tarif Eklemek İçin Giriş Yapın' : 'Sign In to Add Recipes';
+  String get loginToPublishMsg => isTurkish
+      ? 'Kendi lezzetli tariflerinizi toplulukla paylaşmak için lütfen giriş yapın veya kayıt olun.'
+      : 'Please sign in or create an account to share your recipes with the community.';
+  String get mySavedRecipes => isTurkish ? 'Kaydettiğim Tarifler' : 'Saved Recipes';
+  String get myCreatedRecipes => isTurkish ? 'Eklediğim Tarifler' : 'My Recipes';
+  String get noSavedRecipesYet => isTurkish ? 'Henüz kaydedilmiş bir tarifiniz yok.' : 'No saved recipes yet.';
+  String get noCreatedRecipesYet => isTurkish ? 'Henüz eklediğiniz bir tarif yok. İlk tarifinizi hemen paylaşın!' : 'You haven\'t added any recipes yet. Share your first recipe!';
+  String get exploreRecipes => isTurkish ? 'Tarifleri Keşfet' : 'Explore Recipes';
+  String get removeFavorite => isTurkish ? 'Favorilerden Çıkar' : 'Remove Favorite';
+  String get addedToFavorites => isTurkish ? 'Tarif favorilerinize eklendi!' : 'Recipe added to favorites!';
+  String get removedFromFavorites => isTurkish ? 'Tarif favorilerden çıkarıldı.' : 'Recipe removed from favorites.';
 }
+

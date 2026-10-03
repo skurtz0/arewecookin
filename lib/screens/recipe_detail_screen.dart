@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/models.dart';
 import '../utils/cooking_icons.dart';
 import '../widgets/recipe_image.dart';
+import '../providers/user_recipes_provider.dart';
+import '../providers/locale_provider.dart';
 import 'cooking_mode_screen.dart';
 
 class RecipeDetailScreen extends StatefulWidget {
@@ -106,6 +109,41 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
         ),
+        actions: [
+          Consumer(
+            builder: (context, ref, _) {
+              final savedState = ref.watch(savedRecipesProvider);
+              final isSaved = savedState.isSaved(recipe.id);
+              final strings = ref.watch(appStringsProvider);
+              return IconButton(
+                icon: Icon(
+                  isSaved ? Icons.bookmark_rounded : Icons.bookmark_border_rounded,
+                  color: isSaved ? const Color(0xFFFF5722) : const Color(0xFF64748B),
+                  size: 24,
+                ),
+                onPressed: () async {
+                  final nowSaved =
+                      await ref.read(savedRecipesProvider.notifier).toggleSave(recipe);
+                  if (context.mounted) {
+                    ScaffoldMessenger.of(context).clearSnackBars();
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text(
+                          nowSaved
+                              ? strings.addedToFavorites
+                              : strings.removedFromFavorites,
+                        ),
+                        duration: const Duration(seconds: 2),
+                        behavior: SnackBarBehavior.floating,
+                      ),
+                    );
+                  }
+                },
+              );
+            },
+          ),
+          const SizedBox(width: 8),
+        ],
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.fromLTRB(16, 16, 16, 100),
