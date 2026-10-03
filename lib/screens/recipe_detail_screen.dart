@@ -5,6 +5,7 @@ import '../utils/cooking_icons.dart';
 import '../widgets/recipe_image.dart';
 import '../providers/user_recipes_provider.dart';
 import '../providers/locale_provider.dart';
+import '../l10n/recipe_localization.dart';
 import 'cooking_mode_screen.dart';
 
 class RecipeDetailScreen extends ConsumerStatefulWidget {
@@ -343,7 +344,7 @@ class _RecipeDetailScreenState extends ConsumerState<RecipeDetailScreen> {
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        '$checkedCount / $totalIngredients ${strings.locale.toLowerCase().startsWith('tr') ? 'hazır' : 'ready'} (${(progress * 100).toInt()}%)',
+                        '$checkedCount / $totalIngredients ${strings.ready} (${(progress * 100).toInt()}%)',
                         style: TextStyle(
                           fontSize: 13,
                           color: progress == 1.0 ? Colors.green.shade700 : Colors.grey.shade600,
@@ -362,7 +363,7 @@ class _RecipeDetailScreenState extends ConsumerState<RecipeDetailScreen> {
                   child: Text(
                     checkedCount == totalIngredients
                         ? strings.clearAll
-                        : (strings.locale.toLowerCase().startsWith('tr') ? 'Tümünü Seç' : 'Select All'),
+                        : strings.selectAll,
                     style: const TextStyle(
                       color: Color(0xFFFF5722),
                       fontWeight: FontWeight.bold,
@@ -454,8 +455,8 @@ class _RecipeDetailScreenState extends ConsumerState<RecipeDetailScreen> {
                   Icon(CookingIcons.substitute, color: Color(0xFFF59E0B), size: 20),
                   const SizedBox(width: 8),
                   Text(
-                    'Akıllı İkame Önerileri',
-                    style: TextStyle(
+                    strings.substitutionsTitle,
+                    style: const TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
                       color: Color(0xFF1E293B),
@@ -494,7 +495,7 @@ class _RecipeDetailScreenState extends ConsumerState<RecipeDetailScreen> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              '${sub.ingredient.toUpperCase()} yerine: ${sub.alternative}',
+                              '${RecipeLocalization.localizeIngredientName(sub.ingredient, strings.locale).toUpperCase()} ${strings.insteadOf}: ${RecipeLocalization.localizeSubstitutionAlternative(sub.alternative, strings.locale)}',
                               style: const TextStyle(
                                 fontWeight: FontWeight.bold,
                                 fontSize: 13,
@@ -503,7 +504,7 @@ class _RecipeDetailScreenState extends ConsumerState<RecipeDetailScreen> {
                             ),
                             const SizedBox(height: 4),
                             Text(
-                              sub.tip,
+                              RecipeLocalization.localizeSubstitutionTip(sub.tip, strings.locale),
                               style: const TextStyle(
                                 fontSize: 12,
                                 color: Color(0xFFB45309),
@@ -644,7 +645,7 @@ class _RecipeDetailScreenState extends ConsumerState<RecipeDetailScreen> {
                                         const Icon(Icons.check_circle_outline, size: 12, color: Color(0xFF10B981)),
                                         const SizedBox(width: 4),
                                         Text(
-                                          item,
+                                          RecipeLocalization.localizeIngredientName(item, strings.locale),
                                           style: const TextStyle(
                                             fontSize: 11,
                                             color: Color(0xFF475569),

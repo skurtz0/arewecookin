@@ -71,6 +71,8 @@ class RecipeLocalization {
 
   static String localizeDifficulty(String difficulty, AppStrings strings) {
     switch (difficulty.trim()) {
+      case 'Çok Kolay':
+        return strings.diffVeryEasy;
       case 'Kolay':
         return strings.diffEasy;
       case 'Orta':
@@ -502,5 +504,123 @@ class RecipeLocalization {
     }
 
     return 'Chef Tip: Taste and adjust seasoning right before serving for the most balanced flavor.';
+  }
+
+  // ==========================================
+  // Pantry Categories & Ingredient Chips
+  // ==========================================
+
+  static String localizePantryCategory(String category, AppStrings strings) {
+    if (strings.isTurkish) return category;
+    switch (category.trim()) {
+      case 'Temel Malzemeler':
+        return 'Pantry Staples';
+      case 'Süt & Kahvaltılık':
+        return 'Dairy & Breakfast';
+      case 'Et & Balık':
+        return 'Meat & Seafood';
+      case 'Sebze & Taze':
+        return 'Fresh Produce';
+      case 'Dünya & Özel Malzemeler':
+        return 'World & Specialties';
+      default:
+        return category;
+    }
+  }
+
+  static const Map<String, String> _pantryIngredientLabelsEn = {
+    'un': 'Flour 🌾',
+    'seker': 'Sugar 🍬',
+    'tuz': 'Salt 🧂',
+    'zeytinyagi': 'Olive Oil 🫒',
+    'tereyagi': 'Butter 🧈',
+    'pirinc': 'Rice 🍚',
+    'makarna': 'Pasta 🍝',
+    'fasulye': 'White Beans 🫘',
+    'nohut': 'Chickpeas 🍲',
+    'mercimek': 'Lentils 🥣',
+    'bulgur': 'Bulgur 🌾',
+    'irmik': 'Semolina 🥣',
+    'yumurta': 'Eggs 🥚',
+    'sut': 'Milk 🥛',
+    'peynir': 'Cheese / Kashar 🧀',
+    'yogurt': 'Yogurt 🥣',
+    'kiyma': 'Ground Meat 🥩',
+    'tavuk': 'Chicken 🍗',
+    'et': 'Beef / Lamb 🍖',
+    'balik': 'Fish / Salmon 🐟',
+    'sucuk': 'Spicy Sausage 🌭',
+    'ton baligi': 'Tuna 🥫',
+    'domates': 'Tomatoes 🍅',
+    'biber': 'Peppers 🌶️',
+    'sogan': 'Onions 🧅',
+    'sarimsak': 'Garlic 🧄',
+    'patates': 'Potatoes 🥔',
+    'patlican': 'Eggplant 🍆',
+    'mantar': 'Mushrooms 🍄',
+    'havuc': 'Carrots 🥕',
+    'limon': 'Lemon 🍋',
+    'yesillik': 'Fresh Greens 🌿',
+    'baharat': 'Spices ✨',
+    'lavas': 'Flatbread / Tortilla 🌯',
+    'noodle': 'Noodles 🍜',
+    'avokado': 'Avocado 🥑',
+    'tofu': 'Tofu 🥢',
+    'kakao': 'Cocoa / Chocolate 🍫',
+    'ceviz': 'Walnuts 🌰',
+    'yufka': 'Filo Dough 🫓',
+  };
+
+  static String localizePantryIngredientLabel(String key, String defaultLabel, String locale) {
+    if (isTurkish(locale)) return defaultLabel;
+    final normalized = key.toLowerCase().trim();
+    return _pantryIngredientLabelsEn[normalized] ?? defaultLabel;
+  }
+
+  // ==========================================
+  // Substitutions Localization
+  // ==========================================
+
+  static const Map<String, String> _substitutionAlternativesEn = {
+    'Yulaf unu veya Badem unu': 'Oat flour or Almond flour',
+    'Zeytinyağı veya Hindistan cevizi yağı': 'Olive oil or Coconut oil',
+    'Elma püresi veya Muz': 'Applesauce or Mashed banana',
+    'Pirinç sütü veya Yulaf sütü': 'Rice milk or Oat milk',
+    'Karnabahar pirinci': 'Cauliflower rice',
+    'Kabak spagetti (Zoodle)': 'Zucchini noodles (Zoodles)',
+    'Chia tohumu jeli': 'Chia seed gel',
+    'Tofu veya Mantar': 'Tofu or Mushrooms',
+    'Esmer pirinç': 'Brown rice',
+    'Bal veya Akçaağaç şurubu': 'Honey or Maple syrup',
+    'Yoğurt veya Labne': 'Greek yogurt or Labneh',
+    'Limon suyu': 'Lemon juice',
+    'Toz zencefil': 'Ground ginger',
+    'Kaju kreması': 'Cashew cream',
+  };
+
+  static String localizeSubstitutionAlternative(String alt, String locale) {
+    if (isTurkish(locale)) return alt;
+    return _substitutionAlternativesEn[alt.trim()] ?? alt;
+  }
+
+  static String localizeSubstitutionTip(String tip, String locale) {
+    if (isTurkish(locale) || tip.trim().isEmpty) return tip;
+    final lower = tip.toLowerCase();
+    if (lower.contains('glutensiz')) {
+      return 'For a gluten-free alternative, add 1 egg to enhance binding.';
+    }
+    if (lower.contains('1:1')) {
+      return 'Can be substituted 1:1 in baked goods and cookies.';
+    }
+    if (lower.contains('karbonhidrat') || lower.contains('düşük')) {
+      return 'A healthy low-carb and light dinner alternative.';
+    }
+    if (lower.contains('nem') || lower.contains('tatlı')) {
+      return 'Adds natural moisture and mild sweetness in desserts.';
+    }
+    if (lower.contains('kremamsı') || lower.contains('süt')) {
+      return 'Use as a plant-based dairy-free creamy replacement.';
+    }
+    return tip;
   }
 }

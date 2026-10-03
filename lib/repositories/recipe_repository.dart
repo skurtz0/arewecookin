@@ -93,7 +93,7 @@ class RecipeRepository {
 
           if (cleanQuery != null && cleanQuery.isNotEmpty) {
             recipes = recipes
-                .where((r) => r.title.toLowerCase().contains(cleanQuery))
+                .where((r) => _matchesQuery(r, cleanQuery))
                 .toList();
           }
 
@@ -257,7 +257,7 @@ class RecipeRepository {
       for (final r in _customRecipes) {
         if (category != null && r.category != category) continue;
         if (cuisine != null && r.cuisine != cuisine) continue;
-        if (searchQuery != null && !r.title.toLowerCase().contains(searchQuery)) continue;
+        if (searchQuery != null && !_matchesQuery(r, searchQuery)) continue;
         matching.add(r);
       }
     }
@@ -276,7 +276,7 @@ class RecipeRepository {
         continue;
       }
 
-      if (searchQuery != null && !recipe.title.toLowerCase().contains(searchQuery)) {
+      if (searchQuery != null && !_matchesQuery(recipe, searchQuery)) {
         continue;
       }
 
@@ -290,6 +290,18 @@ class RecipeRepository {
       hasMore: hasMore,
       nextOffset: currentIndex,
     );
+  }
+
+  bool _matchesQuery(Recipe r, String query) {
+    final q = query.toLowerCase().trim();
+    if (q.isEmpty) return true;
+    if (r.title.toLowerCase().contains(q)) return true;
+    if (r.cleanTitle.toLowerCase().contains(q)) return true;
+    if (r.localizedTitle('en').toLowerCase().contains(q)) return true;
+    if (r.category.toLowerCase().contains(q)) return true;
+    if (r.cuisine.toLowerCase().contains(q)) return true;
+    if (r.ingredientKeys.any((k) => k.toLowerCase().contains(q))) return true;
+    return false;
   }
 }
 

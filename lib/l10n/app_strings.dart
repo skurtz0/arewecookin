@@ -84,6 +84,7 @@ class AppStrings {
   String get cookTime => _get('cookTime', 'Cook Time');
   String get totalTime => _get('totalTime', 'Total Time');
   String get difficulty => _get('difficulty', 'Difficulty');
+  String get diffVeryEasy => _get('diffVeryEasy', 'Very Easy');
   String get diffEasy => _get('diffEasy', 'Easy');
   String get diffMedium => _get('diffMedium', 'Medium');
   String get diffHard => _get('diffHard', 'Hard');
@@ -98,6 +99,18 @@ class AppStrings {
   String get resetTimer => _get('resetTimer', 'Reset');
   String get finishCooking => _get('finishCooking', 'Finish Cooking');
   String get congratulations => _get('congratulations', 'Congratulations Chef!');
+  String get stepTimer => _get('stepTimer', 'Step Timer');
+  String get stepFreePrep => _get('stepFreePrep', 'This step is untimed preparation, no timer needed.');
+  String get nextStep => _get('nextStep', 'Next Step');
+  String get prevStep => _get('prevStep', 'Previous Step');
+  String get stepIngredientsUsed => _get('stepIngredientsUsed', 'Ingredients For This Step:');
+  String get ready => _get('ready', 'ready');
+  String get selectAll => _get('selectAll', 'Select All');
+  String get add => _get('add', 'Add');
+  String get insteadOf => _get('insteadOf', 'instead of');
+  String get loadingMoreRecipes => _get('loadingMoreRecipes', 'Loading more recipes...');
+  String get resetFilters => _get('resetFilters', 'Reset Filters');
+  String get tryDifferentFilter => _get('tryDifferentFilter', 'Try a different search term or reset filters.');
 
   // Pantry Screen
   String get smartPantry => _get('smartPantry', 'Smart Pantry');
@@ -107,6 +120,12 @@ class AppStrings {
   String get matchRate => _get('matchRate', 'Match');
   String get clearAll => _get('clearAll', 'Clear All');
   String get noRecipesFound => _get('noRecipesFound', 'No matching recipes found');
+  String get pantryEmptyTitle => _get('pantryEmptyTitle', 'Your pantry looks empty');
+  String get pantryEmptyDesc => _get('pantryEmptyDesc', 'Select ingredients from above. Matching dishes will be listed instantly according to your cuisine preference.');
+  String get onlyFullMatches => _get('onlyFullMatches', '100% Match Only');
+  String get allIngredientsReady => _get('allIngredientsReady', 'All ingredients ready in your pantry! You can cook now.');
+  String get missingIngredients => _get('missingIngredients', 'Missing');
+  String get substitutionSuggestion => _get('substitutionSuggestion', 'Substitution Suggestion');
 
   // Account & Auth
   String get myAccount => _get('myAccount', 'My Account');

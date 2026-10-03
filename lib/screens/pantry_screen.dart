@@ -329,9 +329,9 @@ class _PantryScreenState extends ConsumerState<PantryScreen> {
                         borderRadius: BorderRadius.circular(12),
                       ),
                     ),
-                    child: const FittedBox(
+                    child: FittedBox(
                       fit: BoxFit.scaleDown,
-                      child: Text('Ekle', style: TextStyle(fontWeight: FontWeight.bold)),
+                      child: Text(strings.add, style: const TextStyle(fontWeight: FontWeight.bold)),
                     ),
                   ),
                 ],
@@ -352,7 +352,7 @@ class _PantryScreenState extends ConsumerState<PantryScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          category.key,
+                          RecipeLocalization.localizePantryCategory(category.key, strings),
                           style: const TextStyle(
                             fontSize: 13,
                             fontWeight: FontWeight.bold,
@@ -365,7 +365,8 @@ class _PantryScreenState extends ConsumerState<PantryScreen> {
                           runSpacing: 8,
                           children: category.value.map((item) {
                             final key = item['key']!;
-                            final label = item['label']!;
+                            final rawLabel = item['label']!;
+                            final label = RecipeLocalization.localizePantryIngredientLabel(key, rawLabel, strings.locale);
                             final isSelected = pantryState.selectedKeys.contains(key);
 
                             return FilterChip(
@@ -459,9 +460,7 @@ class _PantryScreenState extends ConsumerState<PantryScreen> {
                             ),
                             const SizedBox(width: 4),
                             Text(
-                              strings.locale.toLowerCase().startsWith('tr')
-                                  ? 'Sadece %100 Hazır'
-                                  : '100% Match Only',
+                              strings.onlyFullMatches,
                               style: TextStyle(
                                 fontSize: 11,
                                 fontWeight: FontWeight.bold,
@@ -503,9 +502,7 @@ class _PantryScreenState extends ConsumerState<PantryScreen> {
                     Icon(CookingIcons.pantry, size: 54, color: Colors.grey.shade300),
                     const SizedBox(height: 16),
                     Text(
-                      strings.locale.toLowerCase().startsWith('tr')
-                          ? 'Kileriniz boş görünüyor'
-                          : 'Your pantry looks empty',
+                      strings.pantryEmptyTitle,
                       style: const TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.bold,
@@ -514,9 +511,7 @@ class _PantryScreenState extends ConsumerState<PantryScreen> {
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      strings.locale.toLowerCase().startsWith('tr')
-                          ? 'Yukarıdan elinizdeki malzemeleri seçin. Mutfak tercihinize göre anında en uygun yemekler sıralanacaktır.'
-                          : 'Select ingredients from above. Best matching dishes will be listed instantly according to your cuisine preference.',
+                      strings.pantryEmptyDesc,
                       textAlign: TextAlign.center,
                       style: TextStyle(fontSize: 13, color: Colors.grey.shade600),
                     ),
@@ -541,18 +536,14 @@ class _PantryScreenState extends ConsumerState<PantryScreen> {
                     const SizedBox(height: 12),
                     Text(
                       pantryState.selectedCuisine != 'Tümü'
-                          ? (strings.locale.toLowerCase().startsWith('tr')
-                              ? '${pantryState.selectedCuisine} kategorisinde seçili malzemelerle eşleşen tarif bulunamadı.'
-                              : 'No recipes found for ${RecipeLocalization.localizeCuisine(pantryState.selectedCuisine, strings)} with selected ingredients.')
+                          ? '${RecipeLocalization.localizeCuisine(pantryState.selectedCuisine, strings)}: ${strings.noRecipesFound}'
                           : strings.noRecipesFound,
                       textAlign: TextAlign.center,
                       style: TextStyle(color: Colors.grey.shade700, fontWeight: FontWeight.w500),
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      strings.locale.toLowerCase().startsWith('tr')
-                          ? 'Farklı malzemeler seçebilir veya mutfak filtresini "Tümü" olarak değiştirebilirsiniz.'
-                          : 'Try selecting different ingredients or set cuisine filter to "All".',
+                      strings.tryDifferentFilter,
                       textAlign: TextAlign.center,
                       style: TextStyle(color: Colors.grey.shade500, fontSize: 12),
                     ),
@@ -763,9 +754,7 @@ class _PantryRecipeCard extends ConsumerWidget {
                         const SizedBox(width: 6),
                         Expanded(
                           child: Text(
-                            strings.cancel == 'İptal'
-                                ? 'Tüm malzemeler dolabınızda hazır! Hemen pişirebilirsiniz.'
-                                : 'All ingredients ready in your pantry! You can cook now.',
+                            strings.allIngredientsReady,
                             style: const TextStyle(
                               fontSize: 12,
                               color: Color(0xFF065F46),
@@ -783,7 +772,7 @@ class _PantryRecipeCard extends ConsumerWidget {
                       Padding(
                         padding: const EdgeInsets.only(top: 2),
                         child: Text(
-                          '${strings.cancel == 'İptal' ? 'Eksik' : 'Missing'} (${missingKeys.length}): ',
+                          '${strings.missingIngredients} (${missingKeys.length}): ',
                           style: TextStyle(
                             fontSize: 12,
                             color: Colors.grey.shade700,
@@ -838,7 +827,7 @@ class _PantryRecipeCard extends ConsumerWidget {
                             Icon(CookingIcons.substitute, size: 14, color: Colors.amber.shade800),
                             const SizedBox(width: 4),
                             Text(
-                              'İkame Önerisi (${substitutions.first.ingredient} yerine):',
+                              '${strings.substitutionSuggestion} (${RecipeLocalization.localizeIngredientName(substitutions.first.ingredient, strings.locale)} ${strings.insteadOf}):',
                               style: TextStyle(
                                 fontSize: 11,
                                 fontWeight: FontWeight.bold,
@@ -849,7 +838,7 @@ class _PantryRecipeCard extends ConsumerWidget {
                         ),
                         const SizedBox(height: 2),
                         Text(
-                          '${substitutions.first.alternative} - ${substitutions.first.tip}',
+                          '${RecipeLocalization.localizeSubstitutionAlternative(substitutions.first.alternative, strings.locale)} - ${RecipeLocalization.localizeSubstitutionTip(substitutions.first.tip, strings.locale)}',
                           style: TextStyle(fontSize: 11, color: Colors.amber.shade900),
                         ),
                       ],

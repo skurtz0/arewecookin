@@ -420,6 +420,7 @@ class DiscoverScreenState extends ConsumerState<DiscoverScreen> {
   }
 
   Widget _buildBottomLoader() {
+    final strings = ref.watch(appStringsProvider);
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 24),
       alignment: Alignment.center,
@@ -436,7 +437,7 @@ class DiscoverScreenState extends ConsumerState<DiscoverScreen> {
           ),
           const SizedBox(width: 12),
           Text(
-            'Daha fazla tarif yükleniyor...',
+            strings.loadingMoreRecipes,
             style: TextStyle(
               fontSize: 13,
               color: Colors.grey.shade600,
@@ -448,6 +449,7 @@ class DiscoverScreenState extends ConsumerState<DiscoverScreen> {
   }
 
   Widget _buildEmptyState(BuildContext context) {
+    final strings = ref.watch(appStringsProvider);
     return SingleChildScrollView(
       physics: const AlwaysScrollableScrollPhysics(),
       child: Center(
@@ -459,9 +461,9 @@ class DiscoverScreenState extends ConsumerState<DiscoverScreen> {
               const SizedBox(height: 48),
               Icon(CookingIcons.utensils, size: 64, color: Colors.grey.shade300),
               const SizedBox(height: 16),
-              const Text(
-                'Aradığınız tarif bulunamadı',
-                style: TextStyle(
+              Text(
+                strings.noRecipesFound,
+                style: const TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
                   color: Color(0xFF1E293B),
@@ -469,7 +471,7 @@ class DiscoverScreenState extends ConsumerState<DiscoverScreen> {
               ),
               const SizedBox(height: 8),
               Text(
-                'Farklı bir arama terimi deneyin veya kategori filtresini sıfırlayın.',
+                strings.tryDifferentFilter,
                 textAlign: TextAlign.center,
                 style: TextStyle(fontSize: 14, color: Colors.grey.shade600),
               ),
@@ -489,14 +491,14 @@ class DiscoverScreenState extends ConsumerState<DiscoverScreen> {
                   ),
                   padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                 ),
-                child: const FittedBox(
+                child: FittedBox(
                   fit: BoxFit.scaleDown,
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Icon(Icons.refresh_rounded, size: 16),
-                      SizedBox(width: 8),
-                      Text('Filtreleri Sıfırla'),
+                      const Icon(Icons.refresh_rounded, size: 16),
+                      const SizedBox(width: 8),
+                      Text(strings.resetFilters),
                     ],
                   ),
                 ),

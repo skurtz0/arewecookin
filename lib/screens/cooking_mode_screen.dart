@@ -5,6 +5,7 @@ import '../models/models.dart';
 import '../utils/cooking_icons.dart';
 import '../widgets/cooking_technique_animation.dart';
 import '../providers/locale_provider.dart';
+import '../l10n/recipe_localization.dart';
 
 class CookingModeScreen extends ConsumerStatefulWidget {
   final Recipe recipe;
@@ -71,7 +72,7 @@ class _CookingModeScreenState extends ConsumerState<CookingModeScreen> {
                         ),
                         const Spacer(),
                         Text(
-                          '${_checkedIngredients.length}/${widget.recipe.ingredients.length} ${strings.locale.toLowerCase().startsWith('tr') ? 'Hazır' : 'Ready'}',
+                          '${_checkedIngredients.length}/${widget.recipe.ingredients.length} ${strings.ready.isNotEmpty ? strings.ready[0].toUpperCase() + strings.ready.substring(1) : ''}',
                           style: const TextStyle(
                             fontSize: 13,
                             color: Color(0xFF94A3B8),
@@ -477,13 +478,13 @@ class _CookingModeScreenState extends ConsumerState<CookingModeScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Row(
+                        Row(
                           children: [
-                            Icon(Icons.shopping_basket_rounded, size: 16, color: Color(0xFF38BDF8)),
-                            SizedBox(width: 8),
+                            const Icon(Icons.shopping_basket_rounded, size: 16, color: Color(0xFF38BDF8)),
+                            const SizedBox(width: 8),
                             Text(
-                              'Bu Adımda Kullanılacak Malzemeler:',
-                              style: TextStyle(
+                              strings.stepIngredientsUsed,
+                              style: const TextStyle(
                                 color: Color(0xFF38BDF8),
                                 fontSize: 13,
                                 fontWeight: FontWeight.bold,
@@ -511,7 +512,7 @@ class _CookingModeScreenState extends ConsumerState<CookingModeScreen> {
                                   const SizedBox(width: 6),
                                   Flexible(
                                     child: Text(
-                                      item,
+                                      RecipeLocalization.localizeIngredientName(item, strings.locale),
                                       style: const TextStyle(
                                         color: Color(0xFFF1F5F9),
                                         fontSize: 13,
@@ -564,12 +565,14 @@ class _CookingModeScreenState extends ConsumerState<CookingModeScreen> {
                       border: Border.all(color: const Color(0xFF334155)),
                     ),
                     child: Row(
-                      children: const [
-                        Icon(CookingIcons.clock, size: 16, color: Color(0xFF94A3B8)),
-                        SizedBox(width: 8),
-                        Text(
-                          'Bu adım serbest hazırlıktır, zamanlayıcı gerekmez.',
-                          style: TextStyle(fontSize: 13, color: Color(0xFF94A3B8)),
+                      children: [
+                        const Icon(CookingIcons.clock, size: 16, color: Color(0xFF94A3B8)),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            strings.stepFreePrep,
+                            style: const TextStyle(fontSize: 13, color: Color(0xFF94A3B8)),
+                          ),
                         ),
                       ],
                     ),
@@ -617,7 +620,7 @@ class _CookingModeScreenState extends ConsumerState<CookingModeScreen> {
                           const Icon(Icons.arrow_back_rounded, size: 18),
                           const SizedBox(width: 6),
                           Text(
-                            strings.cancel == 'İptal' ? 'Önceki' : 'Back',
+                            strings.prevStep,
                             style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
                           ),
                         ],
@@ -649,7 +652,7 @@ class _CookingModeScreenState extends ConsumerState<CookingModeScreen> {
                         Text(
                           _currentStepIndex == totalSteps - 1
                               ? '${strings.finishCooking} 🎉'
-                              : (strings.cancel == 'İptal' ? 'Sonraki Adım' : 'Next Step'),
+                              : strings.nextStep,
                           style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
                         ),
                         const SizedBox(width: 6),
@@ -701,7 +704,7 @@ class _CookingModeScreenState extends ConsumerState<CookingModeScreen> {
                   ),
                   const SizedBox(width: 8),
                   Text(
-                    strings.locale.toLowerCase().startsWith('tr') ? 'Adım Süresi' : 'Step Timer',
+                    strings.stepTimer,
                     style: const TextStyle(
                       color: Color(0xFF94A3B8),
                       fontSize: 14,
