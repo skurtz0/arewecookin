@@ -74,6 +74,9 @@ class AppStrings {
   String timersElsewhere(int n) => _get('timersRunningElsewhere', 'Timers running in other steps: {n}').replaceAll('{n}', '$n');
   String get copyRecipe => _get('copyRecipe', 'Copy recipe as text');
   String get recipeCopied => _get('recipeCopied', 'Recipe copied to clipboard');
+  String get todayLabel => _get('todayLabel', 'Today');
+  String get mealPlanClear => _get('mealPlanClear', 'Clear plan');
+  String get mealPlanClearConfirm => _get('mealPlanClearConfirm', 'Remove all planned meals?');
   String get shoppingOpen => _get('shoppingOpen', 'Open');
   String shoppingAdded(int n) => _get('shoppingAdded', '{n} items added to your list').replaceAll('{n}', '$n');
 

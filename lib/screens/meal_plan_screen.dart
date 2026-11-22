@@ -21,6 +21,30 @@ class MealPlanScreen extends ConsumerWidget {
         actions: [
           if (total > 0)
             IconButton(
+              key: const Key('plan_clear'),
+              tooltip: strings.mealPlanClear,
+              icon: const Icon(Icons.delete_sweep_outlined),
+              onPressed: () async {
+                final ok = await showDialog<bool>(
+                  context: context,
+                  builder: (ctx) => AlertDialog(
+                    title: Text(strings.mealPlanClear),
+                    content: Text(strings.mealPlanClearConfirm),
+                    actions: [
+                      TextButton(onPressed: () => Navigator.of(ctx).pop(false), child: Text(strings.cancel)),
+                      TextButton(
+                        key: const Key('plan_clear_confirm'),
+                        onPressed: () => Navigator.of(ctx).pop(true),
+                        child: Text(strings.mealPlanClear),
+                      ),
+                    ],
+                  ),
+                );
+                if (ok == true) ref.read(mealPlanProvider.notifier).clear();
+              },
+            ),
+          if (total > 0)
+            IconButton(
               key: const Key('plan_to_shopping_list'),
               tooltip: strings.mealPlanToList,
               icon: const Icon(Icons.add_shopping_cart_rounded),
@@ -73,7 +97,10 @@ class MealPlanScreen extends ConsumerWidget {
                   if ((plan[day] ?? const []).isNotEmpty) ...[
                     Padding(
                       padding: const EdgeInsets.only(top: 8, bottom: 6),
-                      child: Text(strings.weekdayName(day),
+                      child: Text(
+                          day == DateTime.now().weekday
+                              ? '${strings.weekdayName(day)} · ${strings.todayLabel}'
+                              : strings.weekdayName(day),
                           style: const TextStyle(
                               fontSize: 16, fontWeight: FontWeight.bold, color: Color(0xFFFF5722))),
                     ),
