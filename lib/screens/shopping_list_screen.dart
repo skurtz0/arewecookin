@@ -1,14 +1,36 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
 import '../providers/locale_provider.dart';
 import '../providers/shopping_list_provider.dart';
 import 'meal_plan_screen.dart';
 
-class ShoppingListScreen extends ConsumerWidget {
+class ShoppingListScreen extends ConsumerStatefulWidget {
   const ShoppingListScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<ShoppingListScreen> createState() => _ShoppingListScreenState();
+}
+
+class _ShoppingListScreenState extends ConsumerState<ShoppingListScreen> {
+  final _controller = TextEditingController();
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  void _submit() {
+    final text = _controller.text.trim();
+    if (text.isEmpty) return;
+    ref.read(shoppingListProvider.notifier).addAll([ShoppingItem(name: text)]);
+    _controller.clear();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final strings = ref.watch(appStringsProvider);
     final items = ref.watch(shoppingListProvider);
     final notifier = ref.read(shoppingListProvider.notifier);
@@ -23,9 +45,25 @@ class ShoppingListScreen extends ConsumerWidget {
             key: const Key('open_meal_plan'),
             tooltip: strings.mealPlanTitle,
             icon: const Icon(Icons.calendar_month_outlined),
-            onPressed: () => Navigator.of(context)
-                .push(MaterialPageRoute(builder: (_) => const MealPlanScreen())),
+            onPressed: () => Navigator.of(
+              context,
+            ).push(MaterialPageRoute(builder: (_) => const MealPlanScreen())),
           ),
+          if (items.isNotEmpty)
+            IconButton(
+              key: const Key('copy_shopping_list'),
+              tooltip: strings.shoppingCopy,
+              icon: const Icon(Icons.copy_rounded),
+              onPressed: () async {
+                await Clipboard.setData(ClipboardData(text: notifier.asText()));
+                if (!context.mounted) return;
+                ScaffoldMessenger.of(context)
+                  ..hideCurrentSnackBar()
+                  ..showSnackBar(
+                    SnackBar(content: Text(strings.shoppingCopied)),
+                  );
+              },
+            ),
           if (doneCount > 0)
             TextButton(
               onPressed: notifier.clearDone,
@@ -33,67 +71,119 @@ class ShoppingListScreen extends ConsumerWidget {
             ),
         ],
       ),
-      body: items.isEmpty
-          ? Center(
-              child: Padding(
-                padding: const EdgeInsets.all(32),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(Icons.shopping_basket_outlined, size: 64, color: Colors.grey.shade400),
-                    const SizedBox(height: 16),
-                    Text(
-                      strings.shoppingEmptyTitle,
-                      style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      strings.shoppingEmptyHint,
-                      textAlign: TextAlign.center,
-                      style: TextStyle(color: Colors.grey.shade600),
-                    ),
-                  ],
+      body: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 12, 16, 4),
+            child: TextField(
+              key: const Key('shopping_add_field'),
+              controller: _controller,
+              textInputAction: TextInputAction.done,
+              onSubmitted: (_) => _submit(),
+              decoration: InputDecoration(
+                hintText: strings.shoppingAddHint,
+                prefixIcon: const Icon(Icons.add_rounded),
+                suffixIcon: IconButton(
+                  tooltip: strings.shoppingAddHint,
+                  icon: const Icon(Icons.check_rounded),
+                  onPressed: _submit,
+                ),
+                filled: true,
+                fillColor: Colors.white,
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(14),
                 ),
               ),
-            )
-          : ListView.builder(
-              padding: const EdgeInsets.only(bottom: 24),
-              itemCount: items.length,
-              itemBuilder: (context, i) {
-                final item = items[i];
-                final qty = [item.amount, item.unit].where((e) => e.trim().isNotEmpty).join(' ');
-                return Dismissible(
-                  key: ValueKey('shop_${item.key}'),
-                  direction: DismissDirection.endToStart,
-                  background: Container(
-                    color: Colors.red.shade400,
-                    alignment: Alignment.centerRight,
-                    padding: const EdgeInsets.only(right: 20),
-                    child: const Icon(Icons.delete_outline, color: Colors.white),
-                  ),
-                  onDismissed: (_) => notifier.removeAt(i),
-                  child: CheckboxListTile(
-                    value: item.done,
-                    onChanged: (_) => notifier.toggle(i),
-                    controlAffinity: ListTileControlAffinity.leading,
-                    activeColor: const Color(0xFF10B981),
-                    title: Text(
-                      item.name,
-                      style: TextStyle(
-                        decoration: item.done ? TextDecoration.lineThrough : null,
-                        color: item.done ? Colors.grey : const Color(0xFF1E293B),
+            ),
+          ),
+          Expanded(
+            child: items.isEmpty
+                ? Center(
+                    child: Padding(
+                      padding: const EdgeInsets.all(32),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(
+                            Icons.shopping_basket_outlined,
+                            size: 64,
+                            color: Colors.grey.shade400,
+                          ),
+                          const SizedBox(height: 16),
+                          Text(
+                            strings.shoppingEmptyTitle,
+                            style: const TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            strings.shoppingEmptyHint,
+                            textAlign: TextAlign.center,
+                            style: TextStyle(color: Colors.grey.shade600),
+                          ),
+                        ],
                       ),
                     ),
-                    subtitle: item.recipeTitle.isEmpty ? null : Text(item.recipeTitle),
-                    secondary: qty.isEmpty
-                        ? null
-                        : Text(qty,
-                            style: const TextStyle(
-                                fontWeight: FontWeight.bold, color: Color(0xFFFF5722))),
+                  )
+                : ListView.builder(
+                    padding: const EdgeInsets.only(bottom: 24),
+                    itemCount: items.length,
+                    itemBuilder: (context, i) {
+                      final item = items[i];
+                      final qty = [
+                        item.amount,
+                        item.unit,
+                      ].where((e) => e.trim().isNotEmpty).join(' ');
+                      return Dismissible(
+                        key: ValueKey('shop_${item.key}'),
+                        direction: DismissDirection.endToStart,
+                        background: Container(
+                          color: Colors.red.shade400,
+                          alignment: Alignment.centerRight,
+                          padding: const EdgeInsets.only(right: 20),
+                          child: const Icon(
+                            Icons.delete_outline,
+                            color: Colors.white,
+                          ),
+                        ),
+                        onDismissed: (_) => notifier.removeAt(i),
+                        child: CheckboxListTile(
+                          value: item.done,
+                          onChanged: (_) => notifier.toggle(i),
+                          controlAffinity: ListTileControlAffinity.leading,
+                          activeColor: const Color(0xFF10B981),
+                          title: Text(
+                            item.name,
+                            style: TextStyle(
+                              decoration: item.done
+                                  ? TextDecoration.lineThrough
+                                  : null,
+                              color: item.done
+                                  ? Colors.grey
+                                  : const Color(0xFF1E293B),
+                            ),
+                          ),
+                          subtitle: item.recipeTitle.isEmpty
+                              ? null
+                              : Text(item.recipeTitle),
+                          secondary: qty.isEmpty
+                              ? null
+                              : Text(
+                                  qty,
+                                  style: const TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    color: Color(0xFFFF5722),
+                                  ),
+                                ),
+                        ),
+                      );
+                    },
                   ),
-                );
-              },
-            ),
+          ),
+        ],
+      ),
     );
   }
 }

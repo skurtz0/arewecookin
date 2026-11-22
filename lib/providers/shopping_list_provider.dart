@@ -111,6 +111,16 @@ class ShoppingListNotifier extends Notifier<List<ShoppingItem>> {
     _save();
   }
 
+  /// Plain-text version of the list (unchecked first), for sharing/pasting.
+  String asText() {
+    final lines = <String>[];
+    for (final i in [...state.where((e) => !e.done), ...state.where((e) => e.done)]) {
+      final qty = [i.amount, i.unit].where((e) => e.trim().isNotEmpty).join(' ');
+      lines.add('${i.done ? '[x]' : '[ ]'} ${i.name}${qty.isEmpty ? '' : ' - $qty'}');
+    }
+    return lines.join('\n');
+  }
+
   void clearAll() {
     state = const [];
     _save();

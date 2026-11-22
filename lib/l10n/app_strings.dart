@@ -60,6 +60,9 @@ class AppStrings {
   String get mealPlanAlready => _get('mealPlanAlready', 'Already planned for that day');
   String mealPlanAddedTo(String day) => _get('mealPlanAddedTo', 'Added to {day}').replaceAll('{day}', day);
   String weekdayName(int d) => _get('wd$d', const ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'][(d - 1) % 7]);
+  String get shoppingAddHint => _get('shoppingAddHint', 'Add an item');
+  String get shoppingCopy => _get('shoppingCopy', 'Copy list');
+  String get shoppingCopied => _get('shoppingCopied', 'List copied to clipboard');
   String get shoppingOpen => _get('shoppingOpen', 'Open');
   String shoppingAdded(int n) => _get('shoppingAdded', '{n} items added to your list').replaceAll('{n}', '$n');
 
