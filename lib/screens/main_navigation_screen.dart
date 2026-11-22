@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../utils/cooking_icons.dart';
 import '../providers/locale_provider.dart';
 import '../providers/discover_provider.dart';
+import '../providers/shopping_list_provider.dart';
 import 'discover_screen.dart';
 import 'pantry_screen.dart';
 import 'account_screen.dart';
@@ -28,6 +29,7 @@ class _MainNavigationScreenState extends ConsumerState<MainNavigationScreen> {
   @override
   Widget build(BuildContext context) {
     final strings = ref.watch(appStringsProvider);
+    final openItems = ref.watch(shoppingListProvider).where((e) => !e.done).length;
 
     return Scaffold(
       body: IndexedStack(
@@ -80,8 +82,17 @@ class _MainNavigationScreenState extends ConsumerState<MainNavigationScreen> {
             ),
             NavigationDestination(
               key: ValueKey('tab_shopping_${strings.locale}'),
-              icon: const Icon(Icons.shopping_basket_outlined, color: Color(0xFF64748B)),
-              selectedIcon: const Icon(Icons.shopping_basket_rounded, color: Color(0xFFFF5722)),
+              icon: Badge(
+                key: const Key('shopping_badge'),
+                isLabelVisible: openItems > 0,
+                label: Text('$openItems'),
+                child: const Icon(Icons.shopping_basket_outlined, color: Color(0xFF64748B)),
+              ),
+              selectedIcon: Badge(
+                isLabelVisible: openItems > 0,
+                label: Text('$openItems'),
+                child: const Icon(Icons.shopping_basket_rounded, color: Color(0xFFFF5722)),
+              ),
               label: strings.shoppingListTitle,
             ),
             NavigationDestination(
