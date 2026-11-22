@@ -49,6 +49,7 @@ class AppStrings {
   String get mealPlanRemove => _get('mealPlanRemove', 'Remove from plan');
   String get servingsReset => _get('servingsReset', 'Original servings');
   String get pantryFullOnly => _get('pantryFullOnly', 'Full matches only');
+  String get todayInPlan => _get('todayInPlan', 'Planned for today');
   String get shoppingClearAll => _get('shoppingClearAll', 'Clear list');
   String get shoppingClearAllConfirm => _get('shoppingClearAllConfirm', 'Remove all items from the shopping list?');
   String get shoppingEmptyTitle => _get('shoppingEmptyTitle', 'Your list is empty');

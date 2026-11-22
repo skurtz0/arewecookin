@@ -1,3 +1,4 @@
+import 'package:arewecookin/providers/meal_plan_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -111,6 +112,26 @@ void main() {
       final yFast = tester.getTopLeft(find.text(fast.localizedTitle('en')).first).dy;
       final ySlow = tester.getTopLeft(find.text(slow.localizedTitle('en')).first).dy;
       expect(yFast, lessThan(ySlow));
+    });
+
+    testWidgets('today\'s planned meals show on Discover and open the recipe', (tester) async {
+      SharedPreferences.setMockInitialValues({});
+      final container = ProviderContainer();
+      addTearDown(container.dispose);
+      await tester.pumpWidget(UncontrolledProviderScope(
+        container: container,
+        child: const MaterialApp(home: Scaffold(body: DiscoverScreen())),
+      ));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 300));
+      expect(find.byKey(const Key('today_plan_card')), findsNothing);
+      final recipe = container.read(discoverProvider).recipes.first;
+      container.read(mealPlanProvider.notifier).add(DateTime.now().weekday, recipe);
+      await tester.pump();
+      expect(find.byKey(const Key('today_plan_card')), findsOneWidget);
+      await tester.tap(find.byKey(Key('today_plan_${recipe.id}')));
+      await tester.pumpAndSettle();
+      expect(find.byType(RecipeDetailScreen), findsOneWidget);
     });
 
     testWidgets('my rating shows on the recipe card', (tester) async {

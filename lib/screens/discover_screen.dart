@@ -14,6 +14,7 @@ import '../providers/recipe_notes_provider.dart';
 import '../providers/user_recipes_provider.dart';
 import '../providers/locale_provider.dart';
 import '../providers/auth_provider.dart';
+import '../providers/meal_plan_provider.dart';
 import '../widgets/recipe_image.dart';
 import 'recipe_detail_screen.dart';
 import 'add_recipe_screen.dart';
@@ -114,6 +115,7 @@ class DiscoverScreenState extends ConsumerState<DiscoverScreen> {
     final strings = ref.watch(appStringsProvider);
     final recent = ref.watch(recentRecipesProvider);
     final searches = ref.watch(recentSearchesProvider);
+    final todayPlan = ref.watch(mealPlanProvider)[DateTime.now().weekday] ?? const <Recipe>[];
 
     return Scaffold(
       backgroundColor: const Color(0xFFF9F9FB),
@@ -290,6 +292,40 @@ class DiscoverScreenState extends ConsumerState<DiscoverScreen> {
                         onPressed: () => ref.read(recentSearchesProvider.notifier).clear(),
                       ),
                     ],
+                  ),
+                ),
+              ),
+            if (todayPlan.isNotEmpty && discoverState.searchQuery.isEmpty && !_onlySaved)
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
+                  child: Card(
+                    key: const Key('today_plan_card'),
+                    margin: EdgeInsets.zero,
+                    child: Padding(
+                      padding: const EdgeInsets.all(12),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(strings.todayInPlan,
+                              style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
+                          Wrap(
+                            spacing: 8,
+                            children: [
+                              for (final r in todayPlan)
+                                ActionChip(
+                                  key: Key('today_plan_${r.id}'),
+                                  avatar: const Icon(Icons.calendar_month_outlined, size: 16),
+                                  label: Text(r.localizedTitle(strings.locale), overflow: TextOverflow.ellipsis),
+                                  onPressed: () => Navigator.of(context).push(
+                                    MaterialPageRoute(builder: (_) => RecipeDetailScreen(recipe: r)),
+                                  ),
+                                ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
                   ),
                 ),
               ),
