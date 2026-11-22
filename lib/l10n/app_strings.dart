@@ -59,6 +59,7 @@ class AppStrings {
   String get listCleared => _get('listCleared', 'List cleared');
   String get shoppingEditItem => _get('shoppingEditItem', 'Edit item (e.g. 2 kg milk)');
   String get shoppingHint => _get('shoppingHint', 'Long-press to edit, swipe to delete');
+  String plannedOn(String days) => _get('plannedOnFmt', 'Planned: {days}').replaceAll('{days}', days);
   String get shoppingClearAll => _get('shoppingClearAll', 'Clear list');
   String get shoppingClearAllConfirm => _get('shoppingClearAllConfirm', 'Remove all items from the shopping list?');
   String get shoppingEmptyTitle => _get('shoppingEmptyTitle', 'Your list is empty');

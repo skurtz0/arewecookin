@@ -731,6 +731,22 @@ class _RecipeDetailScreenState extends ConsumerState<RecipeDetailScreen> {
                 },
               ),
             ),
+            Builder(builder: (context) {
+              final plan = ref.watch(mealPlanProvider);
+              final days = [
+                for (var d = 1; d <= 7; d++)
+                  if ((plan[d] ?? const <Recipe>[]).any((r) => r.id == recipe.id)) strings.weekdayName(d),
+              ];
+              if (days.isEmpty) return const SizedBox.shrink();
+              return Padding(
+                padding: const EdgeInsets.only(top: 6),
+                child: Text(
+                  strings.plannedOn(days.join(', ')),
+                  key: const Key('planned_on'),
+                  style: TextStyle(fontSize: 12.5, color: Colors.grey.shade700),
+                ),
+              );
+            }),
 
             // Personal rating and notes (stored on the device)
             const SizedBox(height: 24),

@@ -28,4 +28,23 @@ void main() {
       findsOneWidget,
     );
   });
+
+  testWidgets('detail shows on which days the recipe is planned', (tester) async {
+    SharedPreferences.setMockInitialValues({});
+    final recipe = (await RecipeRepository().getRecipes(limit: 1)).recipes.first;
+    final c = ProviderContainer();
+    addTearDown(c.dispose);
+    await tester.pumpWidget(UncontrolledProviderScope(
+      container: c,
+      child: MaterialApp(home: RecipeDetailScreen(recipe: recipe)),
+    ));
+    await tester.pumpAndSettle();
+    expect(find.byKey(const Key('planned_on')), findsNothing);
+    c.read(mealPlanProvider.notifier).add(2, recipe);
+    c.read(mealPlanProvider.notifier).add(5, recipe);
+    await tester.pumpAndSettle();
+    final text = tester.widget<Text>(find.byKey(const Key('planned_on'))).data!;
+    expect(text, startsWith('Planned: '));
+    expect(text.split(', ').length, 2);
+  });
 }
