@@ -175,6 +175,19 @@ void main() {
       expect(find.text('03:00'), findsOneWidget);
     });
 
+    testWidgets('timer is exposed to screen readers with a label', (tester) async {
+      final handle = tester.ensureSemantics();
+      await tester.pumpWidget(
+        ProviderScope(
+          overrides: [localeProvider.overrideWith(() => FakeLocaleNotifier(const Locale('en')))],
+          child: MaterialApp(home: CookingModeScreen(recipe: sampleRecipe)),
+        ),
+      );
+      await tester.pumpAndSettle();
+      expect(find.bySemanticsLabel(RegExp(r'step timer: 03:00', caseSensitive: false)), findsOneWidget);
+      handle.dispose();
+    });
+
     testWidgets('displays step ingredients and full ingredients bottom sheet in cooking mode in Turkish', (tester) async {
       const detailedRecipe = Recipe(
         id: 'rec_00099',

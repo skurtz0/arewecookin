@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/semantics.dart';
 import 'package:flutter/services.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -32,10 +33,12 @@ class _CookingModeScreenState extends ConsumerState<CookingModeScreen> {
   Timer? _ticker;
   final Map<int, int> _remaining = {};
   final Set<int> _runningSteps = {};
-  final Map<int, int> _extraSeconds = {}; // minutes added with "+1 min", per step
+  final Map<int, int> _extraSeconds =
+      {}; // minutes added with "+1 min", per step
 
   int get _totalStepSeconds => _currentStepIndex < widget.recipe.steps.length
-      ? widget.recipe.steps[_currentStepIndex].timerSeconds + (_extraSeconds[_currentStepIndex] ?? 0)
+      ? widget.recipe.steps[_currentStepIndex].timerSeconds +
+            (_extraSeconds[_currentStepIndex] ?? 0)
       : 0;
   int get _remainingSeconds =>
       _remaining[_currentStepIndex] ?? _totalStepSeconds;
@@ -192,10 +195,15 @@ class _CookingModeScreenState extends ConsumerState<CookingModeScreen> {
     // Resume where the user stopped last time (stored step arrives asynchronously).
     ref.listenManual(recipeProgressProvider, (prev, next) {
       final saved = next[widget.recipe.id]?.step ?? 0;
-      if (!_resumed && saved > 0 && saved < widget.recipe.steps.length && _currentStepIndex == 0) {
+      if (!_resumed &&
+          saved > 0 &&
+          saved < widget.recipe.steps.length &&
+          _currentStepIndex == 0) {
         _resumed = true;
         WidgetsBinding.instance.addPostFrameCallback((_) {
-          if (mounted && _pageController.hasClients) _pageController.jumpToPage(saved);
+          if (mounted && _pageController.hasClients) {
+            _pageController.jumpToPage(saved);
+          }
         });
       }
     }, fireImmediately: true);
@@ -260,6 +268,12 @@ class _CookingModeScreenState extends ConsumerState<CookingModeScreen> {
       SystemSound.play(SystemSoundType.alert);
     } catch (_) {}
     final strings = ref.read(appStringsProvider);
+    // Spoken for screen-reader users even if the snackbar is not looked at.
+    SemanticsService.sendAnnouncement(
+      View.of(context),
+      strings.timerDoneFor(step + 1),
+      Directionality.of(context),
+    );
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Row(
@@ -898,17 +912,22 @@ class _CookingModeScreenState extends ConsumerState<CookingModeScreen> {
                 ),
               ),
               const SizedBox(width: 8),
-              Text(
-                _formatSeconds(_remainingSeconds),
-                style: TextStyle(
-                  fontSize: 28,
-                  fontWeight: FontWeight.bold,
-                  fontFamily: 'monospace',
-                  color: _remainingSeconds == 0
-                      ? const Color(0xFF10B981)
-                      : (_isTimerRunning
-                            ? const Color(0xFFFF5722)
-                            : Colors.white),
+              Semantics(
+                label:
+                    '${strings.stepTimer}: ${_formatSeconds(_remainingSeconds)}',
+                excludeSemantics: true,
+                child: Text(
+                  _formatSeconds(_remainingSeconds),
+                  style: TextStyle(
+                    fontSize: 28,
+                    fontWeight: FontWeight.bold,
+                    fontFamily: 'monospace',
+                    color: _remainingSeconds == 0
+                        ? const Color(0xFF10B981)
+                        : (_isTimerRunning
+                              ? const Color(0xFFFF5722)
+                              : Colors.white),
+                  ),
                 ),
               ),
             ],
@@ -1033,8 +1052,13 @@ class _CookingModeScreenState extends ConsumerState<CookingModeScreen> {
                     style: OutlinedButton.styleFrom(
                       foregroundColor: const Color(0xFF38BDF8),
                       side: const BorderSide(color: Color(0xFF475569)),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 14,
+                        vertical: 12,
+                      ),
                     ),
                     child: FittedBox(
                       fit: BoxFit.scaleDown,
