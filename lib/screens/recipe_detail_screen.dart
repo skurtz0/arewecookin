@@ -678,8 +678,10 @@ class _RecipeDetailScreenState extends ConsumerState<RecipeDetailScreen> {
                 onPressed: () async {
                   final day = await showModalBottomSheet<int>(
                     context: context,
+                    isScrollControlled: true,
                     builder: (ctx) => SafeArea(
-                      child: Column(
+                      child: SingleChildScrollView(
+                        child: Column(
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           Padding(
@@ -696,9 +698,15 @@ class _RecipeDetailScreenState extends ConsumerState<RecipeDetailScreen> {
                             ListTile(
                               key: Key('plan_day_$d'),
                               title: Text(strings.weekdayName(d)),
+                              trailing: (ref.read(mealPlanProvider)[d] ?? const <Recipe>[])
+                                      .any((r) => r.id == recipe.id)
+                                  ? const Icon(Icons.check_circle_rounded,
+                                      key: Key('plan_day_has_recipe'), color: Color(0xFF10B981))
+                                  : null,
                               onTap: () => Navigator.of(ctx).pop(d),
                             ),
                         ],
+                      ),
                       ),
                     ),
                   );
