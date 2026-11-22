@@ -82,6 +82,9 @@ class AppStrings {
   String get savedOnly => _get('savedOnly', 'Saved');
   String get savedFilterEmpty => _get('savedFilterEmpty', 'No saved recipes yet. Tap the bookmark on a recipe to save it.');
   String get shoppingAddMissing => _get('shoppingAddMissing', 'Add missing to shopping list');
+  String get diffFilterEasy => _get('diffFilterEasy', 'Easy');
+  String get diffFilterMedium => _get('diffFilterMedium', 'Medium');
+  String get diffFilterHard => _get('diffFilterHard', 'Hard');
   String get shoppingOpen => _get('shoppingOpen', 'Open');
   String shoppingAdded(int n) => _get('shoppingAdded', '{n} items added to your list').replaceAll('{n}', '$n');
 

@@ -443,6 +443,21 @@ class DiscoverScreenState extends ConsumerState<DiscoverScreen> {
                     onSelected: (v) => setState(() => _onlySaved = v),
                   ),
                 ),
+                for (final g in const ['easy', 'medium', 'hard'])
+                  Padding(
+                    padding: const EdgeInsetsDirectional.only(end: 8),
+                    child: FilterChip(
+                      key: Key('difficulty_$g'),
+                      label: Text(g == 'easy'
+                          ? strings.diffFilterEasy
+                          : g == 'medium'
+                              ? strings.diffFilterMedium
+                              : strings.diffFilterHard),
+                      selected: discoverState.difficulty == g,
+                      selectedColor: const Color(0xFFFF5722).withValues(alpha: 0.18),
+                      onSelected: (v) => ref.read(discoverProvider.notifier).setDifficulty(v ? g : null),
+                    ),
+                  ),
                 for (final m in const <int?>[null, 15, 30, 60])
                   Padding(
                     padding: const EdgeInsetsDirectional.only(end: 8),
@@ -663,6 +678,7 @@ class DiscoverScreenState extends ConsumerState<DiscoverScreen> {
                   ref.read(discoverProvider.notifier).setCategory('Tümü');
                   ref.read(discoverProvider.notifier).setCuisine('Tümü');
                   ref.read(discoverProvider.notifier).setMaxMinutes(null);
+                  ref.read(discoverProvider.notifier).setDifficulty(null);
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xFFFF5722),

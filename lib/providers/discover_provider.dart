@@ -14,6 +14,7 @@ class DiscoverState {
   final String selectedCuisine;
   final String searchQuery;
   final int? maxMinutes;
+  final String? difficulty;
   final String? errorMessage;
 
   const DiscoverState({
@@ -27,6 +28,7 @@ class DiscoverState {
     this.selectedCuisine = 'Tümü',
     this.searchQuery = '',
     this.maxMinutes,
+    this.difficulty,
     this.errorMessage,
   });
 
@@ -41,6 +43,8 @@ class DiscoverState {
     String? selectedCuisine,
     String? searchQuery,
     int? maxMinutes,
+    String? difficulty,
+    bool clearDifficulty = false,
     bool clearMaxMinutes = false,
     String? errorMessage,
   }) {
@@ -55,6 +59,7 @@ class DiscoverState {
       selectedCuisine: selectedCuisine ?? this.selectedCuisine,
       searchQuery: searchQuery ?? this.searchQuery,
       maxMinutes: clearMaxMinutes ? null : (maxMinutes ?? this.maxMinutes),
+      difficulty: clearDifficulty ? null : (difficulty ?? this.difficulty),
       errorMessage: errorMessage,
     );
   }
@@ -87,6 +92,7 @@ class DiscoverNotifier extends Notifier<DiscoverState> {
         cuisine: state.selectedCuisine == 'Tümü' ? null : state.selectedCuisine,
         searchQuery: state.searchQuery.isEmpty ? null : state.searchQuery,
         maxMinutes: state.maxMinutes,
+        difficulty: state.difficulty,
       );
 
       state = state.copyWith(
@@ -118,6 +124,7 @@ class DiscoverNotifier extends Notifier<DiscoverState> {
         cuisine: state.selectedCuisine == 'Tümü' ? null : state.selectedCuisine,
         searchQuery: state.searchQuery.isEmpty ? null : state.searchQuery,
         maxMinutes: state.maxMinutes,
+        difficulty: state.difficulty,
       );
 
       final updatedList = [...state.recipes, ...result.recipes];
@@ -152,6 +159,12 @@ class DiscoverNotifier extends Notifier<DiscoverState> {
   void setMaxMinutes(int? minutes) {
     if (state.maxMinutes == minutes) return;
     state = minutes == null ? state.copyWith(clearMaxMinutes: true) : state.copyWith(maxMinutes: minutes);
+    loadInitial();
+  }
+
+  void setDifficulty(String? group) {
+    if (state.difficulty == group) return;
+    state = group == null ? state.copyWith(clearDifficulty: true) : state.copyWith(difficulty: group);
     loadInitial();
   }
 

@@ -64,6 +64,7 @@ class RecipeRepository {
     String? cuisine,
     String? searchQuery,
     int? maxMinutes,
+    String? difficulty,
   }) async {
     final cleanCategory = (category == null || category == 'Tümü' || category.trim().isEmpty)
         ? null
@@ -74,7 +75,7 @@ class RecipeRepository {
     final cleanQuery = searchQuery?.trim().toLowerCase();
 
     // The time filter is applied on the local dataset (a Firestore range query would break paging/sorting).
-    final db = maxMinutes == null ? firestore : null;
+    final db = (maxMinutes == null && difficulty == null) ? firestore : null;
     if (db != null) {
       try {
         Query<Map<String, dynamic>> query = db.collection('recipes');
@@ -139,6 +140,7 @@ class RecipeRepository {
       cuisine: cleanCuisine,
       searchQuery: cleanQuery,
       maxMinutes: maxMinutes,
+      difficulty: difficulty,
     );
   }
 
@@ -281,6 +283,7 @@ class RecipeRepository {
     String? cuisine,
     String? searchQuery,
     int? maxMinutes,
+    String? difficulty,
   }) {
     final List<Recipe> matching = [];
 
@@ -291,6 +294,7 @@ class RecipeRepository {
         if (cuisine != null && r.cuisine != cuisine) continue;
         if (searchQuery != null && !_matchesQuery(r, searchQuery)) continue;
         if (maxMinutes != null && r.totalTime > maxMinutes) continue;
+        if (difficulty != null && !matchesDifficulty(r.difficulty, difficulty)) continue;
         matching.add(r);
       }
     }
@@ -322,6 +326,10 @@ class RecipeRepository {
         continue;
       }
 
+      if (difficulty != null && !matchesDifficulty(recipe.difficulty, difficulty)) {
+        continue;
+      }
+
       matching.add(recipe);
     }
 
@@ -332,6 +340,19 @@ class RecipeRepository {
       hasMore: hasMore,
       nextOffset: currentIndex,
     );
+  }
+
+  /// Difficulty groups used by the Discover filter: easy = Çok Kolay + Kolay, medium = Orta, hard = Zor.
+  static bool matchesDifficulty(String difficulty, String group) {
+    switch (group) {
+      case 'easy':
+        return difficulty == 'Çok Kolay' || difficulty == 'Kolay';
+      case 'medium':
+        return difficulty == 'Orta';
+      case 'hard':
+        return difficulty == 'Zor';
+    }
+    return true;
   }
 
   /// Lower-cases and strips diacritics so "sutlac" finds "Sütlaç" and "ISPANAK" finds "ıspanak".
