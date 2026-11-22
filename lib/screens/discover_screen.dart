@@ -7,6 +7,7 @@ import '../utils/cooking_icons.dart';
 import '../models/models.dart';
 import '../l10n/recipe_localization.dart';
 import '../providers/discover_provider.dart';
+import '../providers/recent_recipes_provider.dart';
 import '../providers/locale_provider.dart';
 import '../providers/auth_provider.dart';
 import '../widgets/recipe_image.dart';
@@ -105,6 +106,7 @@ class DiscoverScreenState extends ConsumerState<DiscoverScreen> {
 
     final discoverState = ref.watch(discoverProvider);
     final strings = ref.watch(appStringsProvider);
+    final recent = ref.watch(recentRecipesProvider);
 
     return Scaffold(
       backgroundColor: const Color(0xFFF9F9FB),
@@ -252,6 +254,34 @@ class DiscoverScreenState extends ConsumerState<DiscoverScreen> {
                 ),
               ),
             ),
+            if (recent.isNotEmpty && discoverState.searchQuery.isEmpty)
+              SliverToBoxAdapter(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(16, 12, 16, 6),
+                      child: Text(strings.recentlyViewed,
+                          style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
+                    ),
+                    SizedBox(
+                      height: 40,
+                      child: ListView.separated(
+                        key: const Key('recent_strip'),
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                        scrollDirection: Axis.horizontal,
+                        itemCount: recent.length,
+                        separatorBuilder: (_, _) => const SizedBox(width: 8),
+                        itemBuilder: (context, i) => ActionChip(
+                          label: Text(recent[i].localizedTitle(strings.locale)),
+                          onPressed: () => Navigator.of(context).push(MaterialPageRoute(
+                              builder: (_) => RecipeDetailScreen(recipe: recent[i]))),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
             if (discoverState.isLoading)
               const SliverFillRemaining(
                 hasScrollBody: false,

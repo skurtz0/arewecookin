@@ -7,6 +7,7 @@ import '../providers/user_recipes_provider.dart';
 import '../providers/locale_provider.dart';
 import '../providers/shopping_list_provider.dart';
 import '../providers/meal_plan_provider.dart';
+import '../providers/recent_recipes_provider.dart';
 import '../l10n/recipe_localization.dart';
 import 'cooking_mode_screen.dart';
 
@@ -27,6 +28,9 @@ class _RecipeDetailScreenState extends ConsumerState<RecipeDetailScreen> {
   void initState() {
     super.initState();
     _servings = widget.recipe.servings > 0 ? widget.recipe.servings : 4;
+    Future.microtask(() {
+      if (mounted) ref.read(recentRecipesProvider.notifier).add(widget.recipe);
+    });
   }
 
   void _toggleIngredient(int index) {
