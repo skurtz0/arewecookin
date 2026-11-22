@@ -93,4 +93,22 @@ void main() {
     expect(names.length, 2);
     expect(names.firstWhere((e) => e.name == 'Alpha').done, isTrue);
   });
+
+  testWidgets('long press edits an item and keeps its checked state', (tester) async {
+    SharedPreferences.setMockInitialValues({});
+    final c = ProviderContainer();
+    addTearDown(c.dispose);
+    c.read(shoppingListProvider.notifier).addAll(const [ShoppingItem(name: 'Milk')]);
+    c.read(shoppingListProvider.notifier).toggle(0);
+    await tester.pumpWidget(UncontrolledProviderScope(container: c, child: const MaterialApp(home: ShoppingListScreen())));
+    await tester.pumpAndSettle();
+    await tester.longPress(find.text('Milk'));
+    await tester.pumpAndSettle();
+    await tester.enterText(find.byKey(const Key('shopping_edit_field')), '2 kg oat milk');
+    await tester.tap(find.byKey(const Key('shopping_edit_save')));
+    await tester.pumpAndSettle();
+    final item = c.read(shoppingListProvider).single;
+    expect([item.amount, item.unit, item.name], ['2', 'kg', 'oat milk']);
+    expect(item.done, isTrue);
+  });
 }

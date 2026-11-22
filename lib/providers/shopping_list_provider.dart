@@ -158,6 +158,24 @@ class ShoppingListNotifier extends Notifier<List<ShoppingItem>> {
     _save();
   }
 
+  /// Replaces the item at [index], keeping its checked state and source recipe.
+  /// Ignored if the new name is empty or clashes with another item.
+  void replaceAt(int index, ShoppingItem edited) {
+    if (index < 0 || index >= state.length || edited.name.trim().isEmpty) return;
+    final old = state[index];
+    if (state.asMap().entries.any((e) => e.key != index && e.value.key == edited.key)) return;
+    final next = [...state];
+    next[index] = ShoppingItem(
+      name: edited.name,
+      amount: edited.amount,
+      unit: edited.unit,
+      recipeTitle: old.recipeTitle,
+      done: old.done,
+    );
+    state = next;
+    _save();
+  }
+
   void removeAt(int index) {
     if (index < 0 || index >= state.length) return;
     state = [...state]..removeAt(index);

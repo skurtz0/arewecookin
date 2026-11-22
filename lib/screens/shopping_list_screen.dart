@@ -57,6 +57,32 @@ class _ShoppingListScreenState extends ConsumerState<ShoppingListScreen> {
         ));
     }
 
+    Future<void> editItem(int i, ShoppingItem item) async {
+      final qty = [item.amount, item.unit].where((e) => e.trim().isNotEmpty).join(' ');
+      final controller = TextEditingController(text: [qty, item.name].where((e) => e.isNotEmpty).join(' '));
+      final text = await showDialog<String>(
+        context: context,
+        builder: (ctx) => AlertDialog(
+          title: Text(strings.shoppingEditItem),
+          content: TextField(
+            key: const Key('shopping_edit_field'),
+            controller: controller,
+            autofocus: true,
+            onSubmitted: (v) => Navigator.of(ctx).pop(v),
+          ),
+          actions: [
+            TextButton(onPressed: () => Navigator.of(ctx).pop(), child: Text(strings.cancel)),
+            TextButton(
+              key: const Key('shopping_edit_save'),
+              onPressed: () => Navigator.of(ctx).pop(controller.text),
+              child: Text(strings.saveChanges),
+            ),
+          ],
+        ),
+      );
+      if (text != null) notifier.replaceAt(i, ShoppingItem.parse(text));
+    }
+
     void removeItem(int i, ShoppingItem removed) {
       notifier.removeAt(i);
       ScaffoldMessenger.of(context)
@@ -213,7 +239,9 @@ class _ShoppingListScreenState extends ConsumerState<ShoppingListScreen> {
                           customSemanticsActions: {
                             CustomSemanticsAction(label: strings.shoppingDeleteItem): () => removeItem(i, item),
                           },
-                          child: CheckboxListTile(
+                          child: GestureDetector(
+                            onLongPress: () => editItem(i, item),
+                            child: CheckboxListTile(
                           value: item.done,
                           onChanged: (_) => notifier.toggle(i),
                           controlAffinity: ListTileControlAffinity.leading,
@@ -241,6 +269,7 @@ class _ShoppingListScreenState extends ConsumerState<ShoppingListScreen> {
                                     color: Color(0xFFFF5722),
                                   ),
                                 ),
+                        ),
                         ),
                         ),
                       );
