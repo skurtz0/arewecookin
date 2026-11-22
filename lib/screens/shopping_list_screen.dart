@@ -43,6 +43,20 @@ class _ShoppingListScreenState extends ConsumerState<ShoppingListScreen> {
         if (items[n].done) n,
     ];
 
+    void clearWithUndo(void Function() clear) {
+      final before = [...items];
+      clear();
+      ScaffoldMessenger.of(context)
+        ..hideCurrentSnackBar()
+        ..showSnackBar(SnackBar(
+          content: Text(strings.listCleared),
+          action: SnackBarAction(
+            label: strings.undoLabel,
+            onPressed: () => notifier.restore(before),
+          ),
+        ));
+    }
+
     void removeItem(int i, ShoppingItem removed) {
       notifier.removeAt(i);
       ScaffoldMessenger.of(context)
@@ -105,12 +119,12 @@ class _ShoppingListScreenState extends ConsumerState<ShoppingListScreen> {
                     ],
                   ),
                 );
-                if (ok == true) notifier.clearAll();
+                if (ok == true) clearWithUndo(notifier.clearAll);
               },
             ),
           if (doneCount > 0)
             TextButton(
-              onPressed: notifier.clearDone,
+              onPressed: () => clearWithUndo(notifier.clearDone),
               child: Text(strings.shoppingClearDone),
             ),
         ],

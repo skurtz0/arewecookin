@@ -74,4 +74,23 @@ void main() {
     expect(c.read(shoppingListProvider), isEmpty);
     handle.dispose();
   });
+
+  testWidgets('clear checked can be undone', (tester) async {
+    SharedPreferences.setMockInitialValues({});
+    final c = ProviderContainer();
+    addTearDown(c.dispose);
+    c.read(shoppingListProvider.notifier).addAll(const [ShoppingItem(name: 'Alpha'), ShoppingItem(name: 'Beta')]);
+    await tester.pumpWidget(UncontrolledProviderScope(container: c, child: const MaterialApp(home: ShoppingListScreen())));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Alpha'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Clear checked'));
+    await tester.pumpAndSettle();
+    expect(c.read(shoppingListProvider).map((e) => e.name), ['Beta']);
+    await tester.tap(find.text('Undo'));
+    await tester.pumpAndSettle();
+    final names = c.read(shoppingListProvider);
+    expect(names.length, 2);
+    expect(names.firstWhere((e) => e.name == 'Alpha').done, isTrue);
+  });
 }

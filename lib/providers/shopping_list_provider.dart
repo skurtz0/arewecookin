@@ -164,6 +164,12 @@ class ShoppingListNotifier extends Notifier<List<ShoppingItem>> {
     _save();
   }
 
+  /// Replaces the whole list (used by "Undo" after a bulk clear).
+  void restore(List<ShoppingItem> items) {
+    state = [...items];
+    _save();
+  }
+
   void clearDone() {
     state = state.where((e) => !e.done).toList();
     _save();
