@@ -14,6 +14,7 @@ import '../providers/recipe_progress_provider.dart';
 import '../providers/cook_history_provider.dart';
 import '../providers/unit_system_provider.dart';
 import '../providers/cook_text_size_provider.dart';
+import '../providers/recipe_notes_provider.dart';
 import '../utils/unit_converter.dart';
 import '../l10n/recipe_localization.dart';
 
@@ -386,6 +387,7 @@ class _CookingModeScreenState extends ConsumerState<CookingModeScreen> {
   }
 
   void _showCompletionDialog() {
+    final strings = ref.read(appStringsProvider);
     // Finished: next time the recipe starts from step 1 again.
     ref.read(recipeProgressProvider.notifier).setStep(widget.recipe.id, 0);
     ref.read(cookHistoryProvider.notifier).markCooked(widget.recipe.id);
@@ -412,13 +414,13 @@ class _CookingModeScreenState extends ConsumerState<CookingModeScreen> {
                 ),
               ),
               const SizedBox(height: 16),
-              const Text(
-                'Tebrikler! 🎉',
-                style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+              Text(
+                strings.doneTitle,
+                style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 8),
               Text(
-                '${widget.recipe.title} tarifini ustalıkla tamamladınız. Ellerinize sağlık ve afiyet olsun!',
+                strings.doneBody(widget.recipe.localizedTitle(strings.locale)),
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize: 14,
@@ -426,7 +428,31 @@ class _CookingModeScreenState extends ConsumerState<CookingModeScreen> {
                   height: 1.4,
                 ),
               ),
-              const SizedBox(height: 20),
+              const SizedBox(height: 12),
+              Text(strings.doneRate, style: TextStyle(fontSize: 13, color: Colors.grey.shade700)),
+              Consumer(builder: (context, ref, _) {
+                final rating = ref.watch(recipeNotesProvider.select((m) => m[widget.recipe.id]?.rating ?? 0));
+                return FittedBox(
+                  fit: BoxFit.scaleDown,
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      for (var n = 1; n <= 5; n++)
+                        IconButton(
+                          key: Key('done_rate_$n'),
+                          tooltip: strings.rateStarFor(n),
+                          visualDensity: VisualDensity.compact,
+                          icon: Icon(
+                            n <= rating ? Icons.star_rounded : Icons.star_border_rounded,
+                            color: const Color(0xFFF59E0B),
+                          ),
+                          onPressed: () => ref.read(recipeNotesProvider.notifier).setRating(widget.recipe.id, n),
+                        ),
+                    ],
+                  ),
+                );
+              }),
+              const SizedBox(height: 12),
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
@@ -442,9 +468,9 @@ class _CookingModeScreenState extends ConsumerState<CookingModeScreen> {
                     ),
                     padding: const EdgeInsets.symmetric(vertical: 14),
                   ),
-                  child: const Text(
-                    'Tariflere Geri Dön',
-                    style: TextStyle(fontWeight: FontWeight.bold),
+                  child: Text(
+                    strings.doneBack,
+                    style: const TextStyle(fontWeight: FontWeight.bold),
                   ),
                 ),
               ),

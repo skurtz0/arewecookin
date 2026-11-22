@@ -60,6 +60,10 @@ class AppStrings {
   String get shoppingEditItem => _get('shoppingEditItem', 'Edit item (e.g. 2 kg milk)');
   String get shoppingHint => _get('shoppingHint', 'Long-press to edit, swipe to delete');
   String plannedOn(String days) => _get('plannedOnFmt', 'Planned: {days}').replaceAll('{days}', days);
+  String get doneTitle => _get('doneTitle', 'Well done! 🎉');
+  String doneBody(String title) => _get('doneBodyFmt', 'You finished {title}. Enjoy your meal!').replaceAll('{title}', title);
+  String get doneBack => _get('doneBack', 'Back to recipes');
+  String get doneRate => _get('doneRate', 'How was it? Rate it');
   String get shoppingClearAll => _get('shoppingClearAll', 'Clear list');
   String get shoppingClearAllConfirm => _get('shoppingClearAllConfirm', 'Remove all items from the shopping list?');
   String get shoppingEmptyTitle => _get('shoppingEmptyTitle', 'Your list is empty');

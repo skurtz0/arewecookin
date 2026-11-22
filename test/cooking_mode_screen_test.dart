@@ -4,6 +4,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:arewecookin/models/models.dart';
 import 'package:arewecookin/providers/locale_provider.dart';
 import 'package:arewecookin/providers/recipe_progress_provider.dart';
+import 'package:arewecookin/providers/recipe_notes_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:arewecookin/screens/cooking_mode_screen.dart';
 
@@ -100,6 +101,30 @@ void main() {
       await tester.pumpAndSettle();
       // 180 s + 60 s = 4 min
       expect(find.textContaining('~4 dk sayaç kaldı'), findsOneWidget);
+    });
+
+    testWidgets('completion dialog is localized and lets you rate the recipe', (tester) async {
+      SharedPreferences.setMockInitialValues({});
+      final container = ProviderContainer(overrides: [
+        localeProvider.overrideWith(() => FakeLocaleNotifier(const Locale('en'))),
+      ]);
+      addTearDown(container.dispose);
+      await tester.pumpWidget(UncontrolledProviderScope(
+        container: container,
+        child: MaterialApp(home: CookingModeScreen(recipe: sampleRecipe)),
+      ));
+      await tester.pumpAndSettle();
+      for (var i = 0; i < sampleRecipe.steps.length; i++) {
+        await tester.tap(find.byIcon(Icons.arrow_forward_rounded).evaluate().isNotEmpty
+            ? find.byIcon(Icons.arrow_forward_rounded).first
+            : find.textContaining('🎉').last);
+        await tester.pumpAndSettle();
+      }
+      expect(find.text('Well done! 🎉'), findsOneWidget);
+      expect(find.text('Back to recipes'), findsOneWidget);
+      await tester.tap(find.byKey(const Key('done_rate_4')));
+      await tester.pumpAndSettle();
+      expect(container.read(recipeNotesProvider)[sampleRecipe.id]?.rating, 4);
     });
 
     testWidgets('renders step 1 with tool icon, instruction, pro tip, timer and navigates through wizard in Turkish', (tester) async {
