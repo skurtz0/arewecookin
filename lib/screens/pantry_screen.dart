@@ -29,6 +29,7 @@ class _PantryScreenState extends ConsumerState<PantryScreen> {
     {'id': 'Fransız & Dünya', 'label': '🇫🇷 Dünya / Tatlı'},
     {'id': 'Pratik & Sokak', 'label': '⚡ Pratik & Sokak'},
     for (final c in WorldCountries.all)
+      if (c.id != 'Türk Mutfağı')
       {'id': c.id, 'flag': c.flag, 'label': '${c.flag} ${c.id}'},
   ];
 

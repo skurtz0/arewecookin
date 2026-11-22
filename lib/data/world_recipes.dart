@@ -13,6 +13,12 @@ class WorldRecipes {
 
   static List<Recipe> get all => _cache ??= _build();
 
+  /// Generated base dishes superseded by a curated recipe (hidden from the generated list).
+  static final Set<String> coveredDishes = {
+    for (final e in jsonDecode(worldRecipesJson) as List)
+      if (((e as Map)['cov'] as String).isNotEmpty) e['cov'] as String,
+  };
+
   static bool isWorldId(String id) => id.startsWith('w_');
 
   static Recipe? byId(String id) {

@@ -57,6 +57,7 @@ class WorldCountries {
   WorldCountry('Tayvan', 'Taiwan', '🇹🇼'),
   WorldCountry('Tayland', 'Thailand', '🇹🇭'),
   WorldCountry('Tunus', 'Tunisia', '🇹🇳'),
+  WorldCountry('Türk Mutfağı', 'Turkey', '🇹🇷'),
   WorldCountry('Ukrayna', 'Ukraine', '🇺🇦'),
   WorldCountry('Birleşik Krallık', 'United Kingdom', '🇬🇧'),
   WorldCountry('ABD', 'United States', '🇺🇸'),

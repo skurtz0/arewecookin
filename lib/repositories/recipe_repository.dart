@@ -296,6 +296,11 @@ class RecipeRepository {
       final recipe = _recipeAt(currentIndex);
       currentIndex++;
 
+      if (recipe.id.startsWith('rec_') &&
+          WorldRecipes.coveredDishes.contains(recipe.baseDish)) {
+        continue;
+      }
+
       if (category != null && recipe.category != category) {
         continue;
       }

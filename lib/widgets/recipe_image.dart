@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 
 /// Reliable, beautiful recipe image widget with shimmer loading and artistic fallback.
@@ -128,7 +129,7 @@ class RecipeImage extends StatelessWidget {
     } else {
       imageContent = Image.network(
         imageUrl!,
-        headers: const {'User-Agent': 'AreWeCookinApp/1.0 (culinary-app)'},
+        headers: kIsWeb ? null : const {'User-Agent': 'AreWeCookinApp/1.0 (culinary-app)'},
         width: width,
         height: height,
         fit: fit,

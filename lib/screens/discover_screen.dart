@@ -34,6 +34,7 @@ class DiscoverScreenState extends ConsumerState<DiscoverScreen> {
     {'id': 'Fransız & Dünya', 'flag': '🇫🇷', 'label': '🇫🇷 Fransız & Dünya'},
     {'id': 'Pratik & Sokak', 'flag': '⚡', 'label': '⚡ Pratik & Sokak'},
     for (final c in WorldCountries.all)
+      if (c.id != 'Türk Mutfağı')
       {'id': c.id, 'flag': c.flag, 'label': '${c.flag} ${c.id}'},
   ];
 
