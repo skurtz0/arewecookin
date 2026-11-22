@@ -72,6 +72,25 @@ void main() {
       expect(find.textContaining('2 adet Yumurta'), findsNothing);
     });
 
+    testWidgets('text size button enlarges the step instruction and wraps around', (tester) async {
+      SharedPreferences.setMockInitialValues({});
+      await tester.pumpWidget(ProviderScope(
+        overrides: [localeProvider.overrideWith(() => FakeLocaleNotifier(const Locale('tr')))],
+        child: MaterialApp(home: CookingModeScreen(recipe: sampleRecipe)),
+      ));
+      await tester.pumpAndSettle();
+      double size() => tester.widget<Text>(find.byKey(const Key('step_instruction'))).style!.fontSize!;
+      expect(size(), 18);
+      await tester.ensureVisible(find.byKey(const Key('cook_text_size')));
+      await tester.tap(find.byKey(const Key('cook_text_size')));
+      await tester.pumpAndSettle();
+      expect(size(), 22);
+      await tester.tap(find.byKey(const Key('cook_text_size')));
+      await tester.tap(find.byKey(const Key('cook_text_size')));
+      await tester.pumpAndSettle();
+      expect(size(), 18);
+    });
+
     testWidgets('renders step 1 with tool icon, instruction, pro tip, timer and navigates through wizard in Turkish', (tester) async {
       await tester.pumpWidget(
         ProviderScope(

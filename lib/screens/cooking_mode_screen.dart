@@ -13,6 +13,7 @@ import '../providers/locale_provider.dart';
 import '../providers/recipe_progress_provider.dart';
 import '../providers/cook_history_provider.dart';
 import '../providers/unit_system_provider.dart';
+import '../providers/cook_text_size_provider.dart';
 import '../utils/unit_converter.dart';
 import '../l10n/recipe_localization.dart';
 
@@ -719,7 +720,15 @@ class _CookingModeScreenState extends ConsumerState<CookingModeScreen> {
                   ),
                 ],
 
-                const SizedBox(height: 16),
+                Align(
+                  alignment: AlignmentDirectional.centerEnd,
+                  child: IconButton(
+                    key: const Key('cook_text_size'),
+                    tooltip: strings.cookTextSize,
+                    icon: const Icon(Icons.text_increase_rounded, color: Color(0xFF94A3B8)),
+                    onPressed: () => ref.read(cookTextSizeProvider.notifier).cycle(),
+                  ),
+                ),
 
                 // Step Instruction (Large, high-contrast text for in-kitchen cooking)
                 Container(
@@ -731,8 +740,9 @@ class _CookingModeScreenState extends ConsumerState<CookingModeScreen> {
                   ),
                   child: Text(
                     step.localizedInstruction(strings.locale),
-                    style: const TextStyle(
-                      fontSize: 18,
+                    key: const Key('step_instruction'),
+                    style: TextStyle(
+                      fontSize: CookTextSizeNotifier.sizes[ref.watch(cookTextSizeProvider)],
                       color: Color(0xFFF1F5F9),
                       height: 1.6,
                       fontWeight: FontWeight.w400,
