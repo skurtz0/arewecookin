@@ -12,6 +12,8 @@ import '../providers/meal_plan_provider.dart';
 import '../providers/recent_recipes_provider.dart';
 import '../providers/recipe_notes_provider.dart';
 import '../providers/recipe_progress_provider.dart';
+import '../providers/unit_system_provider.dart';
+import '../utils/unit_converter.dart';
 import '../l10n/recipe_localization.dart';
 import 'cooking_mode_screen.dart';
 
@@ -69,7 +71,7 @@ class _RecipeDetailScreenState extends ConsumerState<RecipeDetailScreen> {
       ..writeln();
     for (final i in r.ingredients) {
       b.writeln(
-        '- ${i.localizedName(locale)}: ${_formatScaledAmount(i.amount)} ${i.localizedUnit(locale)}'
+        '- ${i.localizedName(locale)}: ${_qty(i, locale).amount} ${_qty(i, locale).unit}'
             .trimRight(),
       );
     }
@@ -101,6 +103,17 @@ class _RecipeDetailScreenState extends ConsumerState<RecipeDetailScreen> {
         );
       }
     });
+  }
+
+  /// Scaled amount + unit, converted to US units when the user chose them.
+  ({String amount, String unit}) _qty(Ingredient i, String locale) {
+    final scaled = _formatScaledAmount(i.amount);
+    final unit = i.localizedUnit(locale);
+    if (!ref.read(imperialUnitsProvider)) return (amount: scaled, unit: unit);
+    final n = double.tryParse(scaled.replaceAll(',', '.'));
+    final conv = n == null ? null : UnitConverter.toImperial(n, i.unit.trim().isEmpty ? unit : i.unit);
+    if (conv == null) return (amount: scaled, unit: unit);
+    return (amount: UnitConverter.format(conv.amount), unit: conv.unit);
   }
 
   String _formatScaledAmount(String rawAmount) {
@@ -143,6 +156,7 @@ class _RecipeDetailScreenState extends ConsumerState<RecipeDetailScreen> {
   @override
   Widget build(BuildContext context) {
     final strings = ref.watch(appStringsProvider);
+    final imperial = ref.watch(imperialUnitsProvider);
     final recipe = widget.recipe;
     final totalIngredients = recipe.ingredients.length;
     final checkedCount = _checkedIngredientIndices.length;
@@ -435,7 +449,22 @@ class _RecipeDetailScreenState extends ConsumerState<RecipeDetailScreen> {
               ),
             ),
 
-            const SizedBox(height: 24),
+            const SizedBox(height: 10),
+            Align(
+              alignment: AlignmentDirectional.centerEnd,
+              child: SegmentedButton<bool>(
+                key: const Key('unit_system_toggle'),
+                showSelectedIcon: false,
+                style: const ButtonStyle(visualDensity: VisualDensity.compact),
+                segments: [
+                  ButtonSegment(value: false, label: Text(strings.unitMetric)),
+                  ButtonSegment(value: true, label: Text(strings.unitImperial)),
+                ],
+                selected: {imperial},
+                onSelectionChanged: (v) => ref.read(imperialUnitsProvider.notifier).set(v.first),
+              ),
+            ),
+            const SizedBox(height: 14),
 
             // Ingredient Readiness Checklist Header
             Row(
@@ -521,7 +550,7 @@ class _RecipeDetailScreenState extends ConsumerState<RecipeDetailScreen> {
                 itemBuilder: (context, index) {
                   final ing = recipe.ingredients[index];
                   final isChecked = _checkedIngredientIndices.contains(index);
-                  final scaledAmount = _formatScaledAmount(ing.amount);
+                  final qty = _qty(ing, strings.locale);
 
                   return InkWell(
                     onTap: () => _toggleIngredient(index),
@@ -559,7 +588,7 @@ class _RecipeDetailScreenState extends ConsumerState<RecipeDetailScreen> {
                             ),
                           ),
                           Text(
-                            '$scaledAmount ${ing.localizedUnit(strings.locale)}',
+                            '${qty.amount} ${qty.unit}',
                             style: TextStyle(
                               fontSize: 14,
                               fontWeight: FontWeight.bold,
@@ -597,8 +626,8 @@ class _RecipeDetailScreenState extends ConsumerState<RecipeDetailScreen> {
                             .map(
                               (i) => ShoppingItem(
                                 name: i.localizedName(strings.locale),
-                                amount: _formatScaledAmount(i.amount),
-                                unit: i.localizedUnit(strings.locale),
+                                amount: _qty(i, strings.locale).amount,
+                                unit: _qty(i, strings.locale).unit,
                                 recipeTitle: recipe.localizedTitle(
                                   strings.locale,
                                 ),

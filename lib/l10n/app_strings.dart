@@ -88,6 +88,8 @@ class AppStrings {
   String get myNotes => _get('myNotes', 'My notes');
   String get myNotesHint => _get('myNotesHint', 'Your tweaks, tips, who liked it...');
   String rateStarFor(int n) => _get('rateStar', 'Rate {n} stars').replaceAll('{n}', '$n');
+  String get unitMetric => _get('unitMetric', 'Metric');
+  String get unitImperial => _get('unitImperial', 'US units');
   String get shoppingOpen => _get('shoppingOpen', 'Open');
   String shoppingAdded(int n) => _get('shoppingAdded', '{n} items added to your list').replaceAll('{n}', '$n');
 
