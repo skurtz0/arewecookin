@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:arewecookin/models/models.dart';
@@ -135,6 +136,29 @@ void main() {
       expect(find.text('15 min'), findsOneWidget);
       expect(find.text('45 min'), findsOneWidget);
       expect(find.text('Start Cooking Mode 🍳'), findsOneWidget);
+    });
+
+    testWidgets('copy button puts the recipe text on the clipboard', (tester) async {
+      String? copied;
+      tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(SystemChannels.platform, (call) async {
+        if (call.method == 'Clipboard.setData') {
+          copied = (call.arguments as Map)['text'] as String?;
+        }
+        return null;
+      });
+      addTearDown(() => tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(SystemChannels.platform, null));
+      await tester.pumpWidget(
+        ProviderScope(
+          overrides: [localeProvider.overrideWith(() => FakeLocaleNotifier(const Locale('tr')))],
+          child: MaterialApp(home: RecipeDetailScreen(recipe: sampleRecipe)),
+        ),
+      );
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const Key('copy_recipe')));
+      await tester.pumpAndSettle();
+      expect(copied, isNotNull);
+      expect(copied, contains('Kuru Fasulye'));
+      expect(copied, contains('1.'));
     });
   });
 }

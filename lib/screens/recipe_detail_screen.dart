@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/models.dart';
 import '../utils/cooking_icons.dart';
@@ -31,6 +32,23 @@ class _RecipeDetailScreenState extends ConsumerState<RecipeDetailScreen> {
     Future.microtask(() {
       if (mounted) ref.read(recentRecipesProvider.notifier).add(widget.recipe);
     });
+  }
+
+  /// Plain-text recipe (title, scaled ingredients, steps) for pasting into notes or chats.
+  String recipeAsText(String locale) {
+    final r = widget.recipe;
+    final b = StringBuffer(r.localizedTitle(locale))
+      ..writeln()
+      ..writeln('${r.totalTime} min | $_servings')
+      ..writeln();
+    for (final i in r.ingredients) {
+      b.writeln('- ${i.localizedName(locale)}: ${_formatScaledAmount(i.amount)} ${i.localizedUnit(locale)}'.trimRight());
+    }
+    b.writeln();
+    for (var n = 0; n < r.steps.length; n++) {
+      b.writeln('${n + 1}. ${r.steps[n].localizedInstruction(locale)}');
+    }
+    return b.toString().trimRight();
   }
 
   void _toggleIngredient(int index) {
@@ -118,6 +136,21 @@ class _RecipeDetailScreenState extends ConsumerState<RecipeDetailScreen> {
           overflow: TextOverflow.ellipsis,
         ),
         actions: [
+          Builder(builder: (context) {
+            final strings = ref.read(appStringsProvider);
+            return IconButton(
+              key: const Key('copy_recipe'),
+              tooltip: strings.copyRecipe,
+              icon: const Icon(Icons.copy_rounded, size: 22, color: Color(0xFF64748B)),
+              onPressed: () async {
+                await Clipboard.setData(ClipboardData(text: recipeAsText(strings.locale)));
+                if (!context.mounted) return;
+                ScaffoldMessenger.of(context)
+                  ..hideCurrentSnackBar()
+                  ..showSnackBar(SnackBar(content: Text(strings.recipeCopied)));
+              },
+            );
+          }),
           Consumer(
             builder: (context, ref, _) {
               final savedState = ref.watch(savedRecipesProvider);
