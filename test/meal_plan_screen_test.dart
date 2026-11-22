@@ -26,4 +26,24 @@ void main() {
     expect(container.read(mealPlanProvider), isEmpty);
     expect(find.byIcon(Icons.calendar_month_outlined), findsOneWidget);
   });
+
+  testWidgets('removing a planned meal can be undone', (tester) async {
+    SharedPreferences.setMockInitialValues({});
+    final recipe = (await RecipeRepository().getRecipes(limit: 1)).recipes.first;
+    final container = ProviderContainer();
+    addTearDown(container.dispose);
+    final day = DateTime.now().weekday;
+    container.read(mealPlanProvider.notifier).add(day, recipe);
+    await tester.pumpWidget(UncontrolledProviderScope(
+      container: container,
+      child: const MaterialApp(home: MealPlanScreen()),
+    ));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(Key('plan_remove_${day}_${recipe.id}')));
+    await tester.pumpAndSettle();
+    expect(container.read(mealPlanProvider), isEmpty);
+    await tester.tap(find.text('Undo'));
+    await tester.pumpAndSettle();
+    expect(container.read(mealPlanProvider)[day]!.length, 1);
+  });
 }

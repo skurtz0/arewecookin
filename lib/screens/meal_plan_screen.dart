@@ -131,9 +131,22 @@ class MealPlanScreen extends ConsumerWidget {
                           onTap: () => Navigator.of(context).push(
                               MaterialPageRoute(builder: (_) => RecipeDetailScreen(recipe: r))),
                           trailing: IconButton(
-                            tooltip: strings.shoppingClearDone,
+                            key: Key('plan_remove_${day}_${r.id}'),
+                            tooltip: strings.mealPlanRemove,
                             icon: const Icon(Icons.close_rounded),
-                            onPressed: () => ref.read(mealPlanProvider.notifier).remove(day, r.id),
+                            onPressed: () {
+                              final notifier = ref.read(mealPlanProvider.notifier);
+                              notifier.remove(day, r.id);
+                              ScaffoldMessenger.of(context)
+                                ..hideCurrentSnackBar()
+                                ..showSnackBar(SnackBar(
+                                  content: Text(strings.mealPlanRemove),
+                                  action: SnackBarAction(
+                                    label: strings.undoLabel,
+                                    onPressed: () => notifier.add(day, r),
+                                  ),
+                                ));
+                            },
                           ),
                         ),
                       ),
