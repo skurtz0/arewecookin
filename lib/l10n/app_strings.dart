@@ -51,6 +51,15 @@ class AppStrings {
   String get shoppingNothingNew => _get('shoppingNothingNew', 'Everything is already on your list');
   String get timeAny => _get('timeAny', 'Any time');
   String timeUpTo(int n) => _get('timeUpTo', '{n} min').replaceAll('{n}', '$n');
+  String get mealPlanTitle => _get('mealPlanTitle', 'Meal plan');
+  String get mealPlanToList => _get('mealPlanToList', 'Add all ingredients to shopping list');
+  String get mealPlanEmptyTitle => _get('mealPlanEmptyTitle', 'No meals planned');
+  String get mealPlanEmptyHint => _get('mealPlanEmptyHint', 'Open a recipe and add it to your meal plan.');
+  String get mealPlanAdd => _get('mealPlanAdd', 'Add to meal plan');
+  String get mealPlanPickDay => _get('mealPlanPickDay', 'Pick a day');
+  String get mealPlanAlready => _get('mealPlanAlready', 'Already planned for that day');
+  String mealPlanAddedTo(String day) => _get('mealPlanAddedTo', 'Added to {day}').replaceAll('{day}', day);
+  String weekdayName(int d) => _get('wd$d', const ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'][(d - 1) % 7]);
   String get shoppingOpen => _get('shoppingOpen', 'Open');
   String shoppingAdded(int n) => _get('shoppingAdded', '{n} items added to your list').replaceAll('{n}', '$n');
 

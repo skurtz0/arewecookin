@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../providers/locale_provider.dart';
 import '../providers/shopping_list_provider.dart';
+import 'meal_plan_screen.dart';
 
 class ShoppingListScreen extends ConsumerWidget {
   const ShoppingListScreen({super.key});
@@ -18,6 +19,13 @@ class ShoppingListScreen extends ConsumerWidget {
       appBar: AppBar(
         title: Text(strings.shoppingListTitle),
         actions: [
+          IconButton(
+            key: const Key('open_meal_plan'),
+            tooltip: strings.mealPlanTitle,
+            icon: const Icon(Icons.calendar_month_outlined),
+            onPressed: () => Navigator.of(context)
+                .push(MaterialPageRoute(builder: (_) => const MealPlanScreen())),
+          ),
           if (doneCount > 0)
             TextButton(
               onPressed: notifier.clearDone,

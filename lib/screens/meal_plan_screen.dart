@@ -1,0 +1,100 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../providers/locale_provider.dart';
+import '../providers/meal_plan_provider.dart';
+import '../providers/shopping_list_provider.dart';
+import 'recipe_detail_screen.dart';
+
+class MealPlanScreen extends ConsumerWidget {
+  const MealPlanScreen({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final strings = ref.watch(appStringsProvider);
+    final plan = ref.watch(mealPlanProvider);
+    final total = plan.values.fold<int>(0, (a, l) => a + l.length);
+
+    return Scaffold(
+      backgroundColor: const Color(0xFFF8FAFC),
+      appBar: AppBar(
+        title: Text(strings.mealPlanTitle),
+        actions: [
+          if (total > 0)
+            IconButton(
+              key: const Key('plan_to_shopping_list'),
+              tooltip: strings.mealPlanToList,
+              icon: const Icon(Icons.add_shopping_cart_rounded),
+              onPressed: () {
+                final items = <ShoppingItem>[];
+                for (final recipes in plan.values) {
+                  for (final r in recipes) {
+                    for (final i in r.ingredients.where((i) => !i.isOptional)) {
+                      items.add(ShoppingItem(
+                        name: i.localizedName(strings.locale),
+                        amount: i.amount,
+                        unit: i.localizedUnit(strings.locale),
+                        recipeTitle: r.localizedTitle(strings.locale),
+                      ));
+                    }
+                  }
+                }
+                final added = ref.read(shoppingListProvider.notifier).addAll(items);
+                ScaffoldMessenger.of(context)
+                  ..hideCurrentSnackBar()
+                  ..showSnackBar(SnackBar(
+                    content: Text(added == 0
+                        ? strings.shoppingNothingNew
+                        : strings.shoppingAdded(added)),
+                  ));
+              },
+            ),
+        ],
+      ),
+      body: total == 0
+          ? Center(
+              child: Padding(
+                padding: const EdgeInsets.all(32),
+                child: Column(mainAxisSize: MainAxisSize.min, children: [
+                  Icon(Icons.calendar_month_outlined, size: 64, color: Colors.grey.shade400),
+                  const SizedBox(height: 16),
+                  Text(strings.mealPlanEmptyTitle,
+                      style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                  const SizedBox(height: 8),
+                  Text(strings.mealPlanEmptyHint,
+                      textAlign: TextAlign.center,
+                      style: TextStyle(color: Colors.grey.shade600)),
+                ]),
+              ),
+            )
+          : ListView(
+              padding: const EdgeInsets.all(16),
+              children: [
+                for (var day = 1; day <= 7; day++)
+                  if ((plan[day] ?? const []).isNotEmpty) ...[
+                    Padding(
+                      padding: const EdgeInsets.only(top: 8, bottom: 6),
+                      child: Text(strings.weekdayName(day),
+                          style: const TextStyle(
+                              fontSize: 16, fontWeight: FontWeight.bold, color: Color(0xFFFF5722))),
+                    ),
+                    for (final r in plan[day]!)
+                      Card(
+                        margin: const EdgeInsets.only(bottom: 8),
+                        child: ListTile(
+                          title: Text(r.localizedTitle(strings.locale)),
+                          subtitle: Text('${r.totalTime} min'),
+                          onTap: () => Navigator.of(context).push(
+                              MaterialPageRoute(builder: (_) => RecipeDetailScreen(recipe: r))),
+                          trailing: IconButton(
+                            tooltip: strings.shoppingClearDone,
+                            icon: const Icon(Icons.close_rounded),
+                            onPressed: () => ref.read(mealPlanProvider.notifier).remove(day, r.id),
+                          ),
+                        ),
+                      ),
+                  ],
+              ],
+            ),
+    );
+  }
+}

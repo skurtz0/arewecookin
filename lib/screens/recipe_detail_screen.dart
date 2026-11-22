@@ -6,6 +6,7 @@ import '../widgets/recipe_image.dart';
 import '../providers/user_recipes_provider.dart';
 import '../providers/locale_provider.dart';
 import '../providers/shopping_list_provider.dart';
+import '../providers/meal_plan_provider.dart';
 import '../l10n/recipe_localization.dart';
 import 'cooking_mode_screen.dart';
 
@@ -470,6 +471,44 @@ class _RecipeDetailScreenState extends ConsumerState<RecipeDetailScreen> {
                           ? strings.shoppingNothingNew
                           : strings.shoppingAdded(added)),
                     ));
+                },
+              ),
+            ),
+
+            const SizedBox(height: 8),
+            SizedBox(
+              width: double.infinity,
+              child: OutlinedButton.icon(
+                key: const Key('add_to_meal_plan'),
+                icon: const Icon(Icons.calendar_month_outlined),
+                label: Text(strings.mealPlanAdd),
+                onPressed: () async {
+                  final day = await showModalBottomSheet<int>(
+                    context: context,
+                    builder: (ctx) => SafeArea(
+                      child: Column(mainAxisSize: MainAxisSize.min, children: [
+                        Padding(
+                          padding: const EdgeInsets.all(16),
+                          child: Text(strings.mealPlanPickDay,
+                              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                        ),
+                        for (var d = 1; d <= 7; d++)
+                          ListTile(
+                            key: Key('plan_day_$d'),
+                            title: Text(strings.weekdayName(d)),
+                            onTap: () => Navigator.of(ctx).pop(d),
+                          ),
+                      ]),
+                    ),
+                  );
+                  if (day == null || !context.mounted) return;
+                  final ok = ref.read(mealPlanProvider.notifier).add(day, recipe);
+                  ScaffoldMessenger.of(context)
+                    ..hideCurrentSnackBar()
+                    ..showSnackBar(SnackBar(
+                        content: Text(ok
+                            ? strings.mealPlanAddedTo(strings.weekdayName(day))
+                            : strings.mealPlanAlready)));
                 },
               ),
             ),
