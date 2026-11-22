@@ -63,7 +63,7 @@ class _RecipeDetailScreenState extends ConsumerState<RecipeDetailScreen> {
   void _changeServings(int delta) {
     setState(() {
       _servingsTouched = true;
-      _servings += delta;
+      _servings = (_servings + delta).clamp(1, 99);
     });
     ref.read(recipeProgressProvider.notifier).setServings(widget.recipe.id, _servings);
   }
@@ -453,7 +453,7 @@ class _RecipeDetailScreenState extends ConsumerState<RecipeDetailScreen> {
                     visualDensity: VisualDensity.compact,
                     icon: const Icon(Icons.add_circle_outline_rounded),
                     color: const Color(0xFFFF5722),
-                    onPressed: () => _changeServings(1),
+                    onPressed: _servings < 99 ? () => _changeServings(1) : null,
                   ),
                 ],
               ),

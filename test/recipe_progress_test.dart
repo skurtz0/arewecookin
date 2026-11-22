@@ -91,4 +91,20 @@ void main() {
     expect(find.textContaining(strings.resumeCooking(3)), findsOneWidget);
     expect(find.textContaining(strings.startCooking), findsNothing);
   });
+
+  testWidgets('servings stop at 99', (tester) async {
+    SharedPreferences.setMockInitialValues({});
+    final recipe = (await RecipeRepository().getRecipes(limit: 1)).recipes.first;
+    final c = ProviderContainer();
+    addTearDown(c.dispose);
+    c.read(recipeProgressProvider.notifier).setServings(recipe.id, 99);
+    await tester.pumpWidget(UncontrolledProviderScope(
+      container: c,
+      child: MaterialApp(home: RecipeDetailScreen(recipe: recipe)),
+    ));
+    await tester.pumpAndSettle();
+    final plus = find.widgetWithIcon(IconButton, Icons.add_circle_outline_rounded);
+    await tester.ensureVisible(plus);
+    expect(tester.widget<IconButton>(plus).onPressed, isNull);
+  });
 }
