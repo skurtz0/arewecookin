@@ -91,6 +91,17 @@ void main() {
       expect(find.text('5 Kişilik'), findsWidgets);
       // 2 * (5/4) = 2.5
       expect(find.text('2½ su bardağı'), findsOneWidget);
+      // Reset returns to the original servings
+      final reset = find.byKey(const Key('servings_reset'));
+      expect(reset, findsOneWidget);
+      await tester.ensureVisible(reset);
+      await tester.tap(reset);
+      await tester.pumpAndSettle();
+      expect(find.text('4 Kişilik'), findsWidgets);
+      expect(find.byKey(const Key('servings_reset')), findsNothing);
+      await tester.ensureVisible(addServingsButton);
+      await tester.tap(addServingsButton);
+      await tester.pumpAndSettle();
 
       // Test ingredient checklist toggle
       expect(find.text('0 / 3 hazır (0%)'), findsOneWidget);

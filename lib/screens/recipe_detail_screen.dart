@@ -446,6 +446,16 @@ class _RecipeDetailScreenState extends ConsumerState<RecipeDetailScreen> {
               ),
             ),
 
+            if (widget.recipe.servings > 0 && _servings != widget.recipe.servings)
+              Align(
+                alignment: AlignmentDirectional.centerEnd,
+                child: TextButton.icon(
+                  key: const Key('servings_reset'),
+                  icon: const Icon(Icons.restart_alt_rounded, size: 18),
+                  label: Text(strings.servingsReset),
+                  onPressed: () => _changeServings(widget.recipe.servings - _servings),
+                ),
+              ),
             const SizedBox(height: 10),
             Align(
               alignment: AlignmentDirectional.centerEnd,

@@ -47,6 +47,7 @@ class AppStrings {
   String get shoppingClearDone => _get('shoppingClearDone', 'Clear checked');
   String get savedSortQuick => _get('savedSortQuick', 'Quickest first');
   String get mealPlanRemove => _get('mealPlanRemove', 'Remove from plan');
+  String get servingsReset => _get('servingsReset', 'Original servings');
   String get shoppingClearAll => _get('shoppingClearAll', 'Clear list');
   String get shoppingClearAllConfirm => _get('shoppingClearAllConfirm', 'Remove all items from the shopping list?');
   String get shoppingEmptyTitle => _get('shoppingEmptyTitle', 'Your list is empty');
