@@ -90,6 +90,8 @@ class AppStrings {
   String rateStarFor(int n) => _get('rateStar', 'Rate {n} stars').replaceAll('{n}', '$n');
   String get unitMetric => _get('unitMetric', 'Metric');
   String get unitImperial => _get('unitImperial', 'US units');
+  String get planCopy => _get('planCopy', 'Copy plan as text');
+  String get planCopied => _get('planCopied', 'Plan copied to clipboard');
   String get shoppingOpen => _get('shoppingOpen', 'Open');
   String shoppingAdded(int n) => _get('shoppingAdded', '{n} items added to your list').replaceAll('{n}', '$n');
 

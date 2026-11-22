@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../providers/locale_provider.dart';
 import '../providers/meal_plan_provider.dart';
@@ -19,6 +20,23 @@ class MealPlanScreen extends ConsumerWidget {
       appBar: AppBar(
         title: Text(strings.mealPlanTitle),
         actions: [
+          if (total > 0)
+            IconButton(
+              key: const Key('plan_copy'),
+              tooltip: strings.planCopy,
+              icon: const Icon(Icons.copy_rounded),
+              onPressed: () async {
+                final text = ref.read(mealPlanProvider.notifier).asText(
+                      strings.weekdayName,
+                      (r) => r.localizedTitle(strings.locale),
+                    );
+                await Clipboard.setData(ClipboardData(text: text));
+                if (!context.mounted) return;
+                ScaffoldMessenger.of(context)
+                  ..hideCurrentSnackBar()
+                  ..showSnackBar(SnackBar(content: Text(strings.planCopied)));
+              },
+            ),
           if (total > 0)
             IconButton(
               key: const Key('plan_clear'),
