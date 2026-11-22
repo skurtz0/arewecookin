@@ -82,6 +82,8 @@ void main() {
       // Scale servings up from 4 to 5 (increase servings)
       final addServingsButton = find.byIcon(Icons.add_circle_outline_rounded);
       expect(addServingsButton, findsOneWidget);
+      await tester.ensureVisible(addServingsButton);
+      await tester.pumpAndSettle();
       await tester.tap(addServingsButton);
       await tester.pumpAndSettle();
 
