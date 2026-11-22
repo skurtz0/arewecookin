@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/models.dart';
 import '../providers/auth_provider.dart';
+import '../providers/cook_history_provider.dart';
 import '../providers/locale_provider.dart';
 import '../providers/user_recipes_provider.dart';
 import '../widgets/recipe_image.dart';
@@ -659,8 +660,9 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
               ),
               Container(width: 1, height: 36, color: Colors.grey.shade200),
               _ProfileStat(
-                label: strings.masterScore,
-                count: '185',
+                key: const Key('cooked_total_stat'),
+                label: strings.cookedDishes,
+                count: '${ref.watch(cookHistoryProvider).values.fold<int>(0, (a, r) => a + r.count)}',
                 icon: Icons.stars_rounded,
               ),
             ],
@@ -1671,6 +1673,7 @@ class _ProfileStat extends StatelessWidget {
   final IconData icon;
 
   const _ProfileStat({
+    super.key,
     required this.label,
     required this.count,
     required this.icon,

@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:arewecookin/main.dart';
+import 'package:arewecookin/providers/cook_history_provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:arewecookin/screens/account_screen.dart';
 
 void main() {
@@ -74,6 +76,26 @@ void main() {
 
       // Verify back to guest view
       expect(find.text('Google ile Otomatik Giriş'), findsOneWidget);
+    });
+
+    testWidgets('profile shows the real number of cooked dishes', (tester) async {
+      SharedPreferences.setMockInitialValues({});
+      final container = ProviderContainer();
+      addTearDown(container.dispose);
+      container.read(cookHistoryProvider.notifier).markCooked('a');
+      container.read(cookHistoryProvider.notifier).markCooked('a');
+      container.read(cookHistoryProvider.notifier).markCooked('b');
+      await tester.pumpWidget(UncontrolledProviderScope(
+        container: container,
+        child: const MaterialApp(home: AccountScreen()),
+      ));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Google ile Otomatik Giriş'));
+      await tester.pumpAndSettle();
+      final stat = find.byKey(const Key('cooked_total_stat'));
+      expect(stat, findsOneWidget);
+      expect(find.descendant(of: stat, matching: find.text('3')), findsOneWidget);
+      expect(find.text('185'), findsNothing);
     });
 
     testWidgets('language toggle dynamically switches locale between Turkish and English', (tester) async {
