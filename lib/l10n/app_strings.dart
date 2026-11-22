@@ -96,6 +96,8 @@ class AppStrings {
   String get clearHistory => _get('clearHistory', 'Clear history');
   String get cookedOnce => _get('cookedOnce', 'Cooked once');
   String cookedTimes(int n) => n == 1 ? cookedOnce : _get('cookedTimesFmt', 'Cooked {n} times').replaceAll('{n}', '$n');
+  String get undoLabel => _get('undoLabel', 'Undo');
+  String get itemRemoved => _get('itemRemoved', 'Item removed');
   String get shoppingOpen => _get('shoppingOpen', 'Open');
   String shoppingAdded(int n) => _get('shoppingAdded', '{n} items added to your list').replaceAll('{n}', '$n');
 

@@ -156,7 +156,19 @@ class _ShoppingListScreenState extends ConsumerState<ShoppingListScreen> {
                             color: Colors.white,
                           ),
                         ),
-                        onDismissed: (_) => notifier.removeAt(i),
+                        onDismissed: (_) {
+                          final removed = item;
+                          notifier.removeAt(i);
+                          ScaffoldMessenger.of(context)
+                            ..hideCurrentSnackBar()
+                            ..showSnackBar(SnackBar(
+                              content: Text(strings.itemRemoved),
+                              action: SnackBarAction(
+                                label: strings.undoLabel,
+                                onPressed: () => notifier.insertAt(i, removed),
+                              ),
+                            ));
+                        },
                         child: CheckboxListTile(
                           value: item.done,
                           onChanged: (_) => notifier.toggle(i),

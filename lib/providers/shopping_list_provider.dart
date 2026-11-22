@@ -128,6 +128,15 @@ class ShoppingListNotifier extends Notifier<List<ShoppingItem>> {
     _save();
   }
 
+  /// Puts an item back at [index] (used by "Undo" after a swipe-delete).
+  void insertAt(int index, ShoppingItem item) {
+    if (state.any((e) => e.key == item.key)) return;
+    final next = [...state];
+    next.insert(index.clamp(0, next.length), item);
+    state = next;
+    _save();
+  }
+
   void removeAt(int index) {
     if (index < 0 || index >= state.length) return;
     state = [...state]..removeAt(index);

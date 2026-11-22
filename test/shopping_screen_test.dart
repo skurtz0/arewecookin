@@ -19,4 +19,19 @@ void main() {
     expect(ys[0], greaterThan(ys[1]));
     expect(ys[0], greaterThan(ys[2]));
   });
+
+  testWidgets('swipe-deleting an item can be undone', (tester) async {
+    SharedPreferences.setMockInitialValues({});
+    final c = ProviderContainer();
+    addTearDown(c.dispose);
+    c.read(shoppingListProvider.notifier).addAll(const [ShoppingItem(name: 'Alpha'), ShoppingItem(name: 'Beta')]);
+    await tester.pumpWidget(UncontrolledProviderScope(container: c, child: const MaterialApp(home: ShoppingListScreen())));
+    await tester.pumpAndSettle();
+    await tester.drag(find.text('Alpha'), const Offset(-600, 0));
+    await tester.pumpAndSettle();
+    expect(c.read(shoppingListProvider).map((e) => e.name), ['Beta']);
+    await tester.tap(find.text('Undo'));
+    await tester.pumpAndSettle();
+    expect(c.read(shoppingListProvider).map((e) => e.name), ['Alpha', 'Beta']);
+  });
 }
