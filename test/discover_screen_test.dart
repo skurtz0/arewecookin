@@ -152,6 +152,28 @@ void main() {
       expect(find.byKey(const Key('cooked_badge')), findsOneWidget);
     });
 
+    testWidgets('reset chip appears with a filter and clears it', (tester) async {
+      SharedPreferences.setMockInitialValues({});
+      final container = ProviderContainer();
+      addTearDown(container.dispose);
+      await tester.pumpWidget(UncontrolledProviderScope(
+        container: container,
+        child: const MaterialApp(home: Scaffold(body: DiscoverScreen())),
+      ));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 300));
+      expect(find.byKey(const Key('reset_filters_chip')), findsNothing);
+      container.read(discoverProvider.notifier).setDifficulty('easy');
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 300));
+      expect(find.byKey(const Key('reset_filters_chip')), findsOneWidget);
+      await tester.tap(find.byKey(const Key('reset_filters_chip')));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 300));
+      expect(container.read(discoverProvider).difficulty, isNull);
+      expect(find.byKey(const Key('reset_filters_chip')), findsNothing);
+    });
+
     testWidgets('my rating shows on the recipe card', (tester) async {
       SharedPreferences.setMockInitialValues({});
       final container = ProviderContainer();

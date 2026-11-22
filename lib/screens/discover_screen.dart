@@ -501,6 +501,25 @@ class DiscoverScreenState extends ConsumerState<DiscoverScreen> {
               padding: const EdgeInsets.symmetric(horizontal: 16),
               scrollDirection: Axis.horizontal,
               children: [
+                if (discoverState.selectedCategory != 'Tümü' ||
+                    discoverState.selectedCuisine != 'Tümü' ||
+                    discoverState.maxMinutes != null ||
+                    discoverState.difficulty != null)
+                  Padding(
+                    padding: const EdgeInsetsDirectional.only(end: 8),
+                    child: ActionChip(
+                      key: const Key('reset_filters_chip'),
+                      avatar: const Icon(Icons.filter_alt_off_outlined, size: 16),
+                      label: Text(strings.resetFilters),
+                      onPressed: () {
+                        final n = ref.read(discoverProvider.notifier);
+                        n.setCategory('Tümü');
+                        n.setCuisine('Tümü');
+                        n.setMaxMinutes(null);
+                        n.setDifficulty(null);
+                      },
+                    ),
+                  ),
                 Padding(
                   padding: const EdgeInsetsDirectional.only(end: 8),
                   child: ActionChip(
