@@ -111,4 +111,17 @@ void main() {
     expect([item.amount, item.unit, item.name], ['2', 'kg', 'oat milk']);
     expect(item.done, isTrue);
   });
+
+  testWidgets('title shows checked / total count', (tester) async {
+    SharedPreferences.setMockInitialValues({});
+    final c = ProviderContainer();
+    addTearDown(c.dispose);
+    c.read(shoppingListProvider.notifier).addAll(const [ShoppingItem(name: 'Alpha'), ShoppingItem(name: 'Beta')]);
+    await tester.pumpWidget(UncontrolledProviderScope(container: c, child: const MaterialApp(home: ShoppingListScreen())));
+    await tester.pumpAndSettle();
+    expect(find.text('0 / 2'), findsOneWidget);
+    await tester.tap(find.text('Alpha'));
+    await tester.pumpAndSettle();
+    expect(find.text('1 / 2'), findsOneWidget);
+  });
 }
