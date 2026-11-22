@@ -69,10 +69,12 @@ class ShoppingItem {
 
 class ShoppingListNotifier extends Notifier<List<ShoppingItem>> {
   static const _prefKey = 'shopping_list_v1';
+  // Saving waits for the stored list to be read first, so an early change never overwrites it.
+  Future<void> _ready = Future.value();
 
   @override
   List<ShoppingItem> build() {
-    _load();
+    _ready = _load();
     return const [];
   }
 
@@ -95,6 +97,7 @@ class ShoppingListNotifier extends Notifier<List<ShoppingItem>> {
 
   Future<void> _save() async {
     try {
+      await _ready;
       final prefs = await SharedPreferences.getInstance();
       await prefs.setStringList(_prefKey, state.map((e) => jsonEncode(e.toMap())).toList());
     } catch (_) {}

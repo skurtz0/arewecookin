@@ -1,5 +1,6 @@
 import 'package:arewecookin/providers/pantry_provider.dart';
 import 'package:arewecookin/providers/recipe_notes_provider.dart';
+import 'package:arewecookin/providers/shopping_list_provider.dart';
 import 'package:arewecookin/providers/recipe_progress_provider.dart';
 import 'package:arewecookin/providers/recent_searches_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -49,5 +50,21 @@ void main() {
     b.read(pantryProvider);
     await settle();
     expect(b.read(pantryProvider).selectedKeys, {'domates', 'soğan', 'yumurta'});
+  });
+
+  test('shopping list: an early add keeps the stored items', () async {
+    SharedPreferences.setMockInitialValues({
+      'shopping_list_v1': ['{"name":"Milk","amount":"1","unit":"l","recipe":"","done":false}'],
+    });
+    final a = ProviderContainer();
+    addTearDown(a.dispose);
+    a.read(shoppingListProvider.notifier).addAll(const [ShoppingItem(name: 'Eggs')]);
+    await settle();
+    a.dispose();
+    final b = ProviderContainer();
+    addTearDown(b.dispose);
+    b.read(shoppingListProvider);
+    await settle();
+    expect(b.read(shoppingListProvider).map((e) => e.name).toSet(), {'Milk', 'Eggs'});
   });
 }
