@@ -32,6 +32,7 @@ class DiscoverScreenState extends ConsumerState<DiscoverScreen> {
   final TextEditingController _searchController = TextEditingController();
   bool _onlySaved = false;
   bool _savedQuickest = false;
+  bool _savedTopRated = false;
   Timer? _debounceTimer;
 
   static final List<Map<String, String>> cuisineFilters = [
@@ -648,7 +649,12 @@ class DiscoverScreenState extends ConsumerState<DiscoverScreen> {
       if (query.isEmpty) return true;
       return RecipeRepository.normalizeSearch(r.localizedTitle(strings.locale)).contains(query);
     }).toList();
-    if (_savedQuickest) saved.sort((a, b) => a.totalTime.compareTo(b.totalTime));
+    final ratings = ref.watch(recipeNotesProvider);
+    if (_savedTopRated) {
+      saved.sort((a, b) => (ratings[b.id]?.rating ?? 0).compareTo(ratings[a.id]?.rating ?? 0));
+    } else if (_savedQuickest) {
+      saved.sort((a, b) => a.totalTime.compareTo(b.totalTime));
+    }
     if (saved.isEmpty) {
       return SliverFillRemaining(
         hasScrollBody: false,
@@ -673,12 +679,30 @@ class DiscoverScreenState extends ConsumerState<DiscoverScreen> {
             if (index == 0) {
               return Align(
                 alignment: AlignmentDirectional.centerStart,
-                child: FilterChip(
-                  key: const Key('saved_sort_quick'),
-                  avatar: const Icon(Icons.bolt_rounded, size: 16),
-                  label: Text(strings.savedSortQuick),
-                  selected: _savedQuickest,
-                  onSelected: (v) => setState(() => _savedQuickest = v),
+                child: Wrap(
+                  spacing: 8,
+                  children: [
+                    FilterChip(
+                      key: const Key('saved_sort_quick'),
+                      avatar: const Icon(Icons.bolt_rounded, size: 16),
+                      label: Text(strings.savedSortQuick),
+                      selected: _savedQuickest && !_savedTopRated,
+                      onSelected: (v) => setState(() {
+                        _savedQuickest = v;
+                        if (v) _savedTopRated = false;
+                      }),
+                    ),
+                    FilterChip(
+                      key: const Key('saved_sort_rating'),
+                      avatar: const Icon(Icons.star_rounded, size: 16),
+                      label: Text(strings.savedSortRating),
+                      selected: _savedTopRated,
+                      onSelected: (v) => setState(() {
+                        _savedTopRated = v;
+                        if (v) _savedQuickest = false;
+                      }),
+                    ),
+                  ],
                 ),
               );
             }

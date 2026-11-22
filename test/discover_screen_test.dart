@@ -174,6 +174,35 @@ void main() {
       expect(find.byKey(const Key('reset_filters_chip')), findsNothing);
     });
 
+    testWidgets('saved list can be sorted by my rating', (tester) async {
+      tester.view.physicalSize = const Size(1200, 6000);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(tester.view.reset);
+      SharedPreferences.setMockInitialValues({});
+      final container = ProviderContainer();
+      addTearDown(container.dispose);
+      await tester.pumpWidget(UncontrolledProviderScope(
+        container: container,
+        child: const MaterialApp(home: Scaffold(body: DiscoverScreen())),
+      ));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 300));
+      final all = container.read(discoverProvider).recipes;
+      final liked = all[0];
+      final other = all[1];
+      // Save the liked one first, so newest-first puts the other on top before sorting.
+      await container.read(savedRecipesProvider.notifier).toggleSave(liked);
+      await container.read(savedRecipesProvider.notifier).toggleSave(other);
+      container.read(recipeNotesProvider.notifier).setRating(liked.id, 5);
+      await tester.tap(find.byKey(const Key('saved_filter')));
+      await tester.pumpAndSettle();
+      double y(r) => tester.getTopLeft(find.text(r.localizedTitle('en')).first).dy;
+      expect(y(other), lessThan(y(liked)));
+      await tester.tap(find.byKey(const Key('saved_sort_rating')));
+      await tester.pumpAndSettle();
+      expect(y(liked), lessThan(y(other)));
+    });
+
     testWidgets('my rating shows on the recipe card', (tester) async {
       SharedPreferences.setMockInitialValues({});
       final container = ProviderContainer();
