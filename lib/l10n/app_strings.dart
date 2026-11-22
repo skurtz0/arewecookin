@@ -92,6 +92,8 @@ class AppStrings {
   String get unitImperial => _get('unitImperial', 'US units');
   String get planCopy => _get('planCopy', 'Copy plan as text');
   String get planCopied => _get('planCopied', 'Plan copied to clipboard');
+  String get recentSearches => _get('recentSearches', 'Recent searches');
+  String get clearHistory => _get('clearHistory', 'Clear history');
   String get shoppingOpen => _get('shoppingOpen', 'Open');
   String shoppingAdded(int n) => _get('shoppingAdded', '{n} items added to your list').replaceAll('{n}', '$n');
 

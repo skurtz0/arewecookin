@@ -9,6 +9,7 @@ import '../l10n/recipe_localization.dart';
 import '../providers/discover_provider.dart';
 import '../repositories/recipe_repository.dart';
 import '../providers/recent_recipes_provider.dart';
+import '../providers/recent_searches_provider.dart';
 import '../providers/recipe_notes_provider.dart';
 import '../providers/user_recipes_provider.dart';
 import '../providers/locale_provider.dart';
@@ -111,6 +112,7 @@ class DiscoverScreenState extends ConsumerState<DiscoverScreen> {
     final discoverState = ref.watch(discoverProvider);
     final strings = ref.watch(appStringsProvider);
     final recent = ref.watch(recentRecipesProvider);
+    final searches = ref.watch(recentSearchesProvider);
 
     return Scaffold(
       backgroundColor: const Color(0xFFF9F9FB),
@@ -180,6 +182,7 @@ class DiscoverScreenState extends ConsumerState<DiscoverScreen> {
                         child: TextField(
                           controller: _searchController,
                           onChanged: _onSearchChanged,
+                          onSubmitted: (v) => ref.read(recentSearchesProvider.notifier).add(v),
                           decoration: InputDecoration(
                             hintText: strings.searchPlaceholder,
                             hintStyle: TextStyle(color: Colors.grey.shade400, fontSize: 14),
@@ -259,6 +262,36 @@ class DiscoverScreenState extends ConsumerState<DiscoverScreen> {
                 ),
               ),
             ),
+            if (searches.isNotEmpty && discoverState.searchQuery.isEmpty && !_onlySaved)
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
+                  child: Wrap(
+                    key: const Key('recent_searches'),
+                    spacing: 8,
+                    runSpacing: 4,
+                    crossAxisAlignment: WrapCrossAlignment.center,
+                    children: [
+                      for (final q in searches)
+                        ActionChip(
+                          avatar: const Icon(Icons.history_rounded, size: 16),
+                          label: Text(q),
+                          onPressed: () {
+                            _searchController.text = q;
+                            ref.read(discoverProvider.notifier).setSearchQuery(q);
+                          },
+                        ),
+                      IconButton(
+                        key: const Key('clear_recent_searches'),
+                        tooltip: strings.clearHistory,
+                        visualDensity: VisualDensity.compact,
+                        icon: const Icon(Icons.close_rounded, size: 18),
+                        onPressed: () => ref.read(recentSearchesProvider.notifier).clear(),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
             if (recent.isNotEmpty && discoverState.searchQuery.isEmpty)
               SliverToBoxAdapter(
                 child: Column(
@@ -327,6 +360,8 @@ class DiscoverScreenState extends ConsumerState<DiscoverScreen> {
                         child: _RecipeCard(
                           recipe: recipe,
                           onTap: () {
+                            // A search that led to opening a recipe is worth remembering.
+                            ref.read(recentSearchesProvider.notifier).add(discoverState.searchQuery);
                             Navigator.of(context).push(
                               MaterialPageRoute(
                                 builder: (_) => RecipeDetailScreen(recipe: recipe),
