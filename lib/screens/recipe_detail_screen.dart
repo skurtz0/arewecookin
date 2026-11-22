@@ -11,6 +11,7 @@ import '../providers/shopping_list_provider.dart';
 import '../providers/meal_plan_provider.dart';
 import '../providers/recent_recipes_provider.dart';
 import '../providers/recipe_notes_provider.dart';
+import '../providers/recipe_progress_provider.dart';
 import '../l10n/recipe_localization.dart';
 import 'cooking_mode_screen.dart';
 
@@ -25,6 +26,7 @@ class RecipeDetailScreen extends ConsumerStatefulWidget {
 
 class _RecipeDetailScreenState extends ConsumerState<RecipeDetailScreen> {
   late int _servings;
+  bool _servingsTouched = false;
   final Set<int> _checkedIngredientIndices = {};
   final TextEditingController _noteController = TextEditingController();
 
@@ -38,9 +40,24 @@ class _RecipeDetailScreenState extends ConsumerState<RecipeDetailScreen> {
   void initState() {
     super.initState();
     _servings = widget.recipe.servings > 0 ? widget.recipe.servings : 4;
+    // Restore the servings the user chose last time (arrives asynchronously).
+    ref.listenManual(recipeProgressProvider, (prev, next) {
+      final saved = next[widget.recipe.id]?.servings;
+      if (!_servingsTouched && saved != null && saved != _servings && mounted) {
+        setState(() => _servings = saved);
+      }
+    }, fireImmediately: true);
     Future.microtask(() {
       if (mounted) ref.read(recentRecipesProvider.notifier).add(widget.recipe);
     });
+  }
+
+  void _changeServings(int delta) {
+    setState(() {
+      _servingsTouched = true;
+      _servings += delta;
+    });
+    ref.read(recipeProgressProvider.notifier).setServings(widget.recipe.id, _servings);
   }
 
   /// Plain-text recipe (title, scaled ingredients, steps) for pasting into notes or chats.
@@ -391,7 +408,7 @@ class _RecipeDetailScreenState extends ConsumerState<RecipeDetailScreen> {
                         ? const Color(0xFFFF5722)
                         : Colors.grey.shade300,
                     onPressed: _servings > 1
-                        ? () => setState(() => _servings--)
+                        ? () => _changeServings(-1)
                         : null,
                   ),
                   Flexible(
@@ -412,7 +429,7 @@ class _RecipeDetailScreenState extends ConsumerState<RecipeDetailScreen> {
                     visualDensity: VisualDensity.compact,
                     icon: const Icon(Icons.add_circle_outline_rounded),
                     color: const Color(0xFFFF5722),
-                    onPressed: () => setState(() => _servings++),
+                    onPressed: () => _changeServings(1),
                   ),
                 ],
               ),

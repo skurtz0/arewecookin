@@ -9,6 +9,7 @@ import '../models/models.dart';
 import '../utils/cooking_icons.dart';
 import '../widgets/cooking_technique_animation.dart';
 import '../providers/locale_provider.dart';
+import '../providers/recipe_progress_provider.dart';
 import '../l10n/recipe_localization.dart';
 
 class CookingModeScreen extends ConsumerStatefulWidget {
@@ -23,6 +24,7 @@ class CookingModeScreen extends ConsumerStatefulWidget {
 class _CookingModeScreenState extends ConsumerState<CookingModeScreen> {
   late final PageController _pageController;
   int _currentStepIndex = 0;
+  bool _resumed = false;
 
   // Step timers: every step keeps its own countdown, so a timer keeps running
   // (e.g. while the dish simmers) when the user moves to the next step.
@@ -185,6 +187,16 @@ class _CookingModeScreenState extends ConsumerState<CookingModeScreen> {
   void initState() {
     super.initState();
     _pageController = PageController();
+    // Resume where the user stopped last time (stored step arrives asynchronously).
+    ref.listenManual(recipeProgressProvider, (prev, next) {
+      final saved = next[widget.recipe.id]?.step ?? 0;
+      if (!_resumed && saved > 0 && saved < widget.recipe.steps.length && _currentStepIndex == 0) {
+        _resumed = true;
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (mounted && _pageController.hasClients) _pageController.jumpToPage(saved);
+        });
+      }
+    }, fireImmediately: true);
     _setKeepAwake(true);
     _initTimerForStep(0);
   }
@@ -288,6 +300,8 @@ class _CookingModeScreenState extends ConsumerState<CookingModeScreen> {
     setState(() {
       _currentStepIndex = index;
     });
+    _resumed = true;
+    ref.read(recipeProgressProvider.notifier).setStep(widget.recipe.id, index);
     _initTimerForStep(index);
   }
 
@@ -312,6 +326,8 @@ class _CookingModeScreenState extends ConsumerState<CookingModeScreen> {
   }
 
   void _showCompletionDialog() {
+    // Finished: next time the recipe starts from step 1 again.
+    ref.read(recipeProgressProvider.notifier).setStep(widget.recipe.id, 0);
     showDialog(
       context: context,
       builder: (context) {
