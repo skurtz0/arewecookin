@@ -22,6 +22,7 @@ class PantryScreen extends ConsumerStatefulWidget {
 class _PantryScreenState extends ConsumerState<PantryScreen> {
   final TextEditingController _customIngredientController =
       TextEditingController();
+  bool _fullOnly = false;
 
   static final List<Map<String, String>> cuisineFilters = [
     {'id': 'Tümü', 'label': '🌍 Tümü'},
@@ -109,6 +110,9 @@ class _PantryScreenState extends ConsumerState<PantryScreen> {
     final strings = ref.watch(appStringsProvider);
     final pantryState = ref.watch(pantryProvider);
     final userKeys = pantryState.selectedKeys.toList();
+    final shown = _fullOnly
+        ? pantryState.matchedRecipes.where((r) => r.getMissingKeys(userKeys).isEmpty).toList()
+        : pantryState.matchedRecipes;
 
     return Scaffold(
       backgroundColor: const Color(0xFFF9F9FB),
@@ -660,7 +664,20 @@ class _PantryScreenState extends ConsumerState<PantryScreen> {
               padding: const EdgeInsets.fromLTRB(16, 0, 16, 32),
               sliver: SliverList(
                 delegate: SliverChildBuilderDelegate((context, index) {
-                  final recipe = pantryState.matchedRecipes[index];
+                  if (index == 0) {
+                    return Align(
+                      alignment: AlignmentDirectional.centerStart,
+                      child: FilterChip(
+                        key: const Key('pantry_full_only'),
+                        avatar: const Icon(Icons.check_circle_outline_rounded, size: 16),
+                        label: Text(strings.pantryFullOnly),
+                        selected: _fullOnly,
+                        selectedColor: const Color(0xFF10B981).withValues(alpha: 0.2),
+                        onSelected: (v) => setState(() => _fullOnly = v),
+                      ),
+                    );
+                  }
+                  final recipe = shown[index - 1];
                   final matchScore = recipe.calculateMatchScore(userKeys);
                   final missingKeys = recipe.getMissingKeys(userKeys);
                   final subs = recipe.getApplicableSubstitutions(userKeys);
@@ -678,7 +695,7 @@ class _PantryScreenState extends ConsumerState<PantryScreen> {
                       );
                     },
                   );
-                }, childCount: pantryState.matchedRecipes.length),
+                }, childCount: shown.length + 1),
               ),
             ),
         ],
