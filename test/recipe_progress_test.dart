@@ -71,6 +71,6 @@ void main() {
     ));
     await tester.pumpAndSettle();
     final strings = c.read(appStringsProvider);
-    expect(find.text('${strings.step} 3 / ${recipe.steps.length}'), findsOneWidget);
+    expect(find.textContaining('${strings.step} 3 / ${recipe.steps.length}'), findsOneWidget);
   });
 }

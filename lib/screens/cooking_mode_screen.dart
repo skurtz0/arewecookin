@@ -72,6 +72,15 @@ class _CookingModeScreenState extends ConsumerState<CookingModeScreen> {
     return [amount, unit, ing.localizedName(locale)].where((e) => e.isNotEmpty).join(' ');
   }
 
+  /// Minutes of step timers from the current step to the end (rounded up); 0 when none.
+  int _timerMinutesLeft() {
+    var seconds = 0;
+    for (var i = _currentStepIndex; i < widget.recipe.steps.length; i++) {
+      seconds += widget.recipe.steps[i].timerSeconds;
+    }
+    return (seconds / 60).ceil();
+  }
+
   void _showAllIngredientsSheet(BuildContext context) {
     final strings = ref.read(appStringsProvider);
     showModalBottomSheet(
@@ -498,7 +507,9 @@ class _CookingModeScreenState extends ConsumerState<CookingModeScreen> {
               overflow: TextOverflow.ellipsis,
             ),
             Text(
-              '${strings.step} ${_currentStepIndex + 1} / $totalSteps',
+              '${strings.step} ${_currentStepIndex + 1} / $totalSteps'
+              '${_timerMinutesLeft() > 0 ? ' · ${strings.timerLeft(_timerMinutesLeft())}' : ''}',
+              key: const Key('step_progress'),
               style: const TextStyle(fontSize: 12, color: Color(0xFF94A3B8)),
             ),
           ],

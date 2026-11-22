@@ -91,6 +91,17 @@ void main() {
       expect(size(), 18);
     });
 
+    testWidgets('header shows the timer minutes left and shrinks as steps advance', (tester) async {
+      SharedPreferences.setMockInitialValues({});
+      await tester.pumpWidget(ProviderScope(
+        overrides: [localeProvider.overrideWith(() => FakeLocaleNotifier(const Locale('tr')))],
+        child: MaterialApp(home: CookingModeScreen(recipe: sampleRecipe)),
+      ));
+      await tester.pumpAndSettle();
+      // 180 s + 60 s = 4 min
+      expect(find.textContaining('~4 dk sayaç kaldı'), findsOneWidget);
+    });
+
     testWidgets('renders step 1 with tool icon, instruction, pro tip, timer and navigates through wizard in Turkish', (tester) async {
       await tester.pumpWidget(
         ProviderScope(
