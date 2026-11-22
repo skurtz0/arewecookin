@@ -29,6 +29,7 @@ class DiscoverScreenState extends ConsumerState<DiscoverScreen> {
   final ScrollController _scrollController = ScrollController();
   final TextEditingController _searchController = TextEditingController();
   bool _onlySaved = false;
+  bool _savedQuickest = false;
   Timer? _debounceTimer;
 
   static final List<Map<String, String>> cuisineFilters = [
@@ -581,6 +582,7 @@ class DiscoverScreenState extends ConsumerState<DiscoverScreen> {
       if (query.isEmpty) return true;
       return RecipeRepository.normalizeSearch(r.localizedTitle(strings.locale)).contains(query);
     }).toList();
+    if (_savedQuickest) saved.sort((a, b) => a.totalTime.compareTo(b.totalTime));
     if (saved.isEmpty) {
       return SliverFillRemaining(
         hasScrollBody: false,
@@ -602,7 +604,19 @@ class DiscoverScreenState extends ConsumerState<DiscoverScreen> {
       sliver: SliverList(
         delegate: SliverChildBuilderDelegate(
           (context, index) {
-            final recipe = saved[index];
+            if (index == 0) {
+              return Align(
+                alignment: AlignmentDirectional.centerStart,
+                child: FilterChip(
+                  key: const Key('saved_sort_quick'),
+                  avatar: const Icon(Icons.bolt_rounded, size: 16),
+                  label: Text(strings.savedSortQuick),
+                  selected: _savedQuickest,
+                  onSelected: (v) => setState(() => _savedQuickest = v),
+                ),
+              );
+            }
+            final recipe = saved[index - 1];
             return _RecipeCard(
               recipe: recipe,
               onTap: () => Navigator.of(context).push(
@@ -610,7 +624,7 @@ class DiscoverScreenState extends ConsumerState<DiscoverScreen> {
               ),
             );
           },
-          childCount: saved.length,
+          childCount: saved.length + 1,
         ),
       ),
     );

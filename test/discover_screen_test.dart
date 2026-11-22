@@ -82,6 +82,37 @@ void main() {
       expect(find.textContaining(recipe.localizedTitle('en')), findsWidgets);
     });
 
+    testWidgets('saved list can be sorted quickest first', (tester) async {
+      tester.view.physicalSize = const Size(1200, 6000);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(tester.view.reset);
+      SharedPreferences.setMockInitialValues({});
+      final container = ProviderContainer();
+      addTearDown(container.dispose);
+      await tester.pumpWidget(UncontrolledProviderScope(
+        container: container,
+        child: const MaterialApp(home: Scaffold(body: DiscoverScreen())),
+      ));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 300));
+      final all = [...container.read(discoverProvider).recipes]..sort((a, b) => b.totalTime.compareTo(a.totalTime));
+      final slow = all.first;
+      final fast = all.lastWhere((r) => r.totalTime < slow.totalTime);
+      await container.read(savedRecipesProvider.notifier).toggleSave(fast);
+      await container.read(savedRecipesProvider.notifier).toggleSave(slow);
+      await tester.tap(find.byKey(const Key('saved_filter')));
+      await tester.pumpAndSettle();
+      double y(r) => tester.getTopLeft(find.text(r.localizedTitle('en')).first).dy;
+      expect(y(fast), isNot(equals(y(slow))));
+      final beforeFastFirst = y(fast) < y(slow);
+      await tester.tap(find.byKey(const Key('saved_sort_quick')));
+      await tester.pumpAndSettle();
+      expect(beforeFastFirst, isFalse, reason: 'unsorted order is newest first, so the slow one leads');
+      final yFast = tester.getTopLeft(find.text(fast.localizedTitle('en')).first).dy;
+      final ySlow = tester.getTopLeft(find.text(slow.localizedTitle('en')).first).dy;
+      expect(yFast, lessThan(ySlow));
+    });
+
     testWidgets('my rating shows on the recipe card', (tester) async {
       SharedPreferences.setMockInitialValues({});
       final container = ProviderContainer();
