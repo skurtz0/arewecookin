@@ -1,8 +1,10 @@
 import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
 import '../models/models.dart';
 import '../utils/cooking_icons.dart';
 import '../widgets/cooking_technique_animation.dart';
@@ -31,7 +33,8 @@ class _CookingModeScreenState extends ConsumerState<CookingModeScreen> {
   int get _totalStepSeconds => _currentStepIndex < widget.recipe.steps.length
       ? widget.recipe.steps[_currentStepIndex].timerSeconds
       : 0;
-  int get _remainingSeconds => _remaining[_currentStepIndex] ?? _totalStepSeconds;
+  int get _remainingSeconds =>
+      _remaining[_currentStepIndex] ?? _totalStepSeconds;
   bool get _isTimerRunning => _runningSteps.contains(_currentStepIndex);
 
   // Ingredients checklist state
@@ -68,7 +71,11 @@ class _CookingModeScreenState extends ConsumerState<CookingModeScreen> {
                     const SizedBox(height: 16),
                     Row(
                       children: [
-                        const Icon(CookingIcons.pantry, color: Color(0xFFFF5722), size: 20),
+                        const Icon(
+                          CookingIcons.pantry,
+                          color: Color(0xFFFF5722),
+                          size: 20,
+                        ),
                         const SizedBox(width: 10),
                         Text(
                           strings.ingredientsTitle,
@@ -112,21 +119,31 @@ class _CookingModeScreenState extends ConsumerState<CookingModeScreen> {
                               setState(() {});
                             },
                             child: Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 14,
+                                vertical: 10,
+                              ),
                               decoration: BoxDecoration(
                                 color: isChecked
                                     ? const Color(0xFF0F172A)
-                                    : const Color(0xFF334155).withValues(alpha: 0.5),
+                                    : const Color(0xFF334155)
+                                          .withValues(alpha: 0.5),
                                 borderRadius: BorderRadius.circular(12),
                                 border: Border.all(
-                                  color: isChecked ? const Color(0xFF10B981) : const Color(0xFF475569),
+                                  color: isChecked
+                                      ? const Color(0xFF10B981)
+                                      : const Color(0xFF475569),
                                 ),
                               ),
                               child: Row(
                                 children: [
                                   Icon(
-                                    isChecked ? Icons.check_circle_rounded : Icons.radio_button_unchecked_rounded,
-                                    color: isChecked ? const Color(0xFF10B981) : const Color(0xFF94A3B8),
+                                    isChecked
+                                        ? Icons.check_circle_rounded
+                                        : Icons.radio_button_unchecked_rounded,
+                                    color: isChecked
+                                        ? const Color(0xFF10B981)
+                                        : const Color(0xFF94A3B8),
                                     size: 20,
                                   ),
                                   const SizedBox(width: 12),
@@ -135,9 +152,15 @@ class _CookingModeScreenState extends ConsumerState<CookingModeScreen> {
                                       ing.localizedDisplayText(strings.locale),
                                       style: TextStyle(
                                         fontSize: 15,
-                                        color: isChecked ? const Color(0xFF94A3B8) : Colors.white,
-                                        decoration: isChecked ? TextDecoration.lineThrough : null,
-                                        fontWeight: isChecked ? FontWeight.normal : FontWeight.w600,
+                                        color: isChecked
+                                            ? const Color(0xFF94A3B8)
+                                            : Colors.white,
+                                        decoration: isChecked
+                                            ? TextDecoration.lineThrough
+                                            : null,
+                                        fontWeight: isChecked
+                                            ? FontWeight.normal
+                                            : FontWeight.w600,
                                       ),
                                     ),
                                   ),
@@ -183,7 +206,10 @@ class _CookingModeScreenState extends ConsumerState<CookingModeScreen> {
 
   void _initTimerForStep(int stepIndex) {
     if (stepIndex < widget.recipe.steps.length) {
-      _remaining.putIfAbsent(stepIndex, () => widget.recipe.steps[stepIndex].timerSeconds);
+      _remaining.putIfAbsent(
+        stepIndex,
+        () => widget.recipe.steps[stepIndex].timerSeconds,
+      );
     }
   }
 
@@ -290,7 +316,9 @@ class _CookingModeScreenState extends ConsumerState<CookingModeScreen> {
       context: context,
       builder: (context) {
         return AlertDialog(
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -315,7 +343,11 @@ class _CookingModeScreenState extends ConsumerState<CookingModeScreen> {
               Text(
                 '${widget.recipe.title} tarifini ustalıkla tamamladınız. Ellerinize sağlık ve afiyet olsun!',
                 textAlign: TextAlign.center,
-                style: TextStyle(fontSize: 14, color: Colors.grey.shade700, height: 1.4),
+                style: TextStyle(
+                  fontSize: 14,
+                  color: Colors.grey.shade700,
+                  height: 1.4,
+                ),
               ),
               const SizedBox(height: 20),
               SizedBox(
@@ -333,7 +365,10 @@ class _CookingModeScreenState extends ConsumerState<CookingModeScreen> {
                     ),
                     padding: const EdgeInsets.symmetric(vertical: 14),
                   ),
-                  child: const Text('Tariflere Geri Dön', style: TextStyle(fontWeight: FontWeight.bold)),
+                  child: const Text(
+                    'Tariflere Geri Dön',
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
                 ),
               ),
             ],
@@ -354,10 +389,29 @@ class _CookingModeScreenState extends ConsumerState<CookingModeScreen> {
     final strings = ref.watch(appStringsProvider);
     final steps = widget.recipe.steps;
     final totalSteps = steps.length;
-    final progress = totalSteps > 0 ? (_currentStepIndex + 1) / totalSteps : 1.0;
+    final progress = totalSteps > 0
+        ? (_currentStepIndex + 1) / totalSteps
+        : 1.0;
 
+    // Large system text is respected up to 1.4x here: the step cards use dense multi-chip rows.
+    final mq = MediaQuery.of(context);
+    return MediaQuery(
+      data: mq.copyWith(textScaler: mq.textScaler.clamp(maxScaleFactor: 1.4)),
+      child: _buildScaffold(context, strings, steps, totalSteps, progress),
+    );
+  }
+
+  Widget _buildScaffold(
+    BuildContext context,
+    AppStrings strings,
+    List<CookingStep> steps,
+    int totalSteps,
+    double progress,
+  ) {
     return Scaffold(
-      backgroundColor: const Color(0xFF0F172A), // In-kitchen dark mode for maximum contrast
+      backgroundColor: const Color(
+        0xFF0F172A,
+      ), // In-kitchen dark mode for maximum contrast
       appBar: AppBar(
         backgroundColor: const Color(0xFF1E293B),
         elevation: 0,
@@ -367,7 +421,11 @@ class _CookingModeScreenState extends ConsumerState<CookingModeScreen> {
           children: [
             Text(
               widget.recipe.localizedTitle(strings.locale),
-              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white),
+              style: const TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+                color: Colors.white,
+              ),
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
             ),
@@ -380,15 +438,25 @@ class _CookingModeScreenState extends ConsumerState<CookingModeScreen> {
         actions: [
           TextButton.icon(
             onPressed: () => _showAllIngredientsSheet(context),
-            icon: const Icon(CookingIcons.pantry, size: 15, color: Color(0xFFFF5722)),
+            icon: const Icon(
+              CookingIcons.pantry,
+              size: 15,
+              color: Color(0xFFFF5722),
+            ),
             label: Text(
               strings.ingredientsCountFormat(widget.recipe.ingredients.length),
-              style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFFFF5722)),
+              style: const TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.bold,
+                color: Color(0xFFFF5722),
+              ),
             ),
             style: TextButton.styleFrom(
               backgroundColor: const Color(0xFFFF5722).withValues(alpha: 0.12),
               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
             ),
           ),
           IconButton(
@@ -414,7 +482,10 @@ class _CookingModeScreenState extends ConsumerState<CookingModeScreen> {
         itemBuilder: (context, index) {
           final step = steps[index];
           final toolIcon = CookingIcons.getToolIcon(step.toolIcon);
-          final toolLabel = CookingIcons.getToolLabel(step.toolIcon, strings.locale);
+          final toolLabel = CookingIcons.getToolLabel(
+            step.toolIcon,
+            strings.locale,
+          );
 
           return SingleChildScrollView(
             padding: const EdgeInsets.fromLTRB(20, 24, 20, 100),
@@ -426,7 +497,10 @@ class _CookingModeScreenState extends ConsumerState<CookingModeScreen> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 14,
+                        vertical: 6,
+                      ),
                       decoration: BoxDecoration(
                         color: const Color(0xFFFF5722),
                         borderRadius: BorderRadius.circular(20),
@@ -444,7 +518,10 @@ class _CookingModeScreenState extends ConsumerState<CookingModeScreen> {
                     const SizedBox(width: 8),
                     Flexible(
                       child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 10,
+                          vertical: 6,
+                        ),
                         decoration: BoxDecoration(
                           color: const Color(0xFF1E293B),
                           borderRadius: BorderRadius.circular(12),
@@ -453,7 +530,11 @@ class _CookingModeScreenState extends ConsumerState<CookingModeScreen> {
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            Icon(toolIcon, size: 16, color: const Color(0xFF38BDF8)),
+                            Icon(
+                              toolIcon,
+                              size: 16,
+                              color: const Color(0xFF38BDF8),
+                            ),
                             const SizedBox(width: 6),
                             Flexible(
                               child: Text(
@@ -496,14 +577,20 @@ class _CookingModeScreenState extends ConsumerState<CookingModeScreen> {
                     decoration: BoxDecoration(
                       color: const Color(0xFF1E293B),
                       borderRadius: BorderRadius.circular(14),
-                      border: Border.all(color: const Color(0xFF38BDF8).withValues(alpha: 0.35)),
+                      border: Border.all(
+                        color: const Color(0xFF38BDF8).withValues(alpha: 0.35),
+                      ),
                     ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Row(
                           children: [
-                            const Icon(Icons.shopping_basket_rounded, size: 16, color: Color(0xFF38BDF8)),
+                            const Icon(
+                              Icons.shopping_basket_rounded,
+                              size: 16,
+                              color: Color(0xFF38BDF8),
+                            ),
                             const SizedBox(width: 8),
                             Text(
                               strings.stepIngredientsUsed,
@@ -522,20 +609,32 @@ class _CookingModeScreenState extends ConsumerState<CookingModeScreen> {
                           runSpacing: 8,
                           children: step.stepIngredients.map((item) {
                             return Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 10,
+                                vertical: 6,
+                              ),
                               decoration: BoxDecoration(
                                 color: const Color(0xFF0F172A),
                                 borderRadius: BorderRadius.circular(10),
-                                border: Border.all(color: const Color(0xFF334155)),
+                                border: Border.all(
+                                  color: const Color(0xFF334155),
+                                ),
                               ),
                               child: Row(
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
-                                  const Icon(Icons.check_circle_outline_rounded, size: 14, color: Color(0xFF10B981)),
+                                  const Icon(
+                                    Icons.check_circle_outline_rounded,
+                                    size: 14,
+                                    color: Color(0xFF10B981),
+                                  ),
                                   const SizedBox(width: 6),
                                   Flexible(
                                     child: Text(
-                                      RecipeLocalization.localizeIngredientName(item, strings.locale),
+                                      RecipeLocalization.localizeIngredientName(
+                                        item,
+                                        strings.locale,
+                                      ),
                                       style: const TextStyle(
                                         color: Color(0xFFF1F5F9),
                                         fontSize: 13,
@@ -581,7 +680,10 @@ class _CookingModeScreenState extends ConsumerState<CookingModeScreen> {
                   _buildTimerSection()
                 else
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 12,
+                    ),
                     decoration: BoxDecoration(
                       color: const Color(0xFF1E293B).withValues(alpha: 0.5),
                       borderRadius: BorderRadius.circular(12),
@@ -589,12 +691,19 @@ class _CookingModeScreenState extends ConsumerState<CookingModeScreen> {
                     ),
                     child: Row(
                       children: [
-                        const Icon(CookingIcons.clock, size: 16, color: Color(0xFF94A3B8)),
+                        const Icon(
+                          CookingIcons.clock,
+                          size: 16,
+                          color: Color(0xFF94A3B8),
+                        ),
                         const SizedBox(width: 8),
                         Expanded(
                           child: Text(
                             strings.stepFreePrep,
-                            style: const TextStyle(fontSize: 13, color: Color(0xFF94A3B8)),
+                            style: const TextStyle(
+                              fontSize: 13,
+                              color: Color(0xFF94A3B8),
+                            ),
                           ),
                         ),
                       ],
@@ -604,8 +713,7 @@ class _CookingModeScreenState extends ConsumerState<CookingModeScreen> {
                 const SizedBox(height: 20),
 
                 // Expandable Pro-Tip Box (Acemi Püf Noktası & Vektörel Animasyon)
-                if (step.proTip.isNotEmpty)
-                  _buildProTipCard(step),
+                if (step.proTip.isNotEmpty) _buildProTipCard(step),
               ],
             ),
           );
@@ -630,7 +738,10 @@ class _CookingModeScreenState extends ConsumerState<CookingModeScreen> {
                     style: OutlinedButton.styleFrom(
                       foregroundColor: Colors.white,
                       side: const BorderSide(color: Color(0xFF475569)),
-                      padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 8),
+                      padding: const EdgeInsets.symmetric(
+                        vertical: 14,
+                        horizontal: 8,
+                      ),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(14),
                       ),
@@ -644,7 +755,10 @@ class _CookingModeScreenState extends ConsumerState<CookingModeScreen> {
                           const SizedBox(width: 6),
                           Text(
                             strings.prevStep,
-                            style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
+                            style: const TextStyle(
+                              fontWeight: FontWeight.w600,
+                              fontSize: 14,
+                            ),
                           ),
                         ],
                       ),
@@ -661,7 +775,10 @@ class _CookingModeScreenState extends ConsumerState<CookingModeScreen> {
                         ? const Color(0xFF10B981)
                         : const Color(0xFFFF5722),
                     foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 8),
+                    padding: const EdgeInsets.symmetric(
+                      vertical: 14,
+                      horizontal: 8,
+                    ),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(14),
                     ),
@@ -676,7 +793,10 @@ class _CookingModeScreenState extends ConsumerState<CookingModeScreen> {
                           _currentStepIndex == totalSteps - 1
                               ? '${strings.finishCooking} 🎉'
                               : strings.nextStep,
-                          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+                          style: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 15,
+                          ),
                         ),
                         const SizedBox(width: 6),
                         Icon(
@@ -709,7 +829,9 @@ class _CookingModeScreenState extends ConsumerState<CookingModeScreen> {
         color: const Color(0xFF1E293B),
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: _isTimerRunning ? const Color(0xFFFF5722) : const Color(0xFF334155),
+          color: _isTimerRunning
+              ? const Color(0xFFFF5722)
+              : const Color(0xFF334155),
           width: _isTimerRunning ? 1.5 : 1.0,
         ),
       ),
@@ -718,24 +840,35 @@ class _CookingModeScreenState extends ConsumerState<CookingModeScreen> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Row(
-                children: [
-                  Icon(
-                    _isTimerRunning ? CookingIcons.timerActive : CookingIcons.timer,
-                    color: _isTimerRunning ? const Color(0xFFFF5722) : const Color(0xFF94A3B8),
-                    size: 20,
-                  ),
-                  const SizedBox(width: 8),
-                  Text(
-                    strings.stepTimer,
-                    style: const TextStyle(
-                      color: Color(0xFF94A3B8),
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
+              Flexible(
+                child: Row(
+                  children: [
+                    Icon(
+                      _isTimerRunning
+                          ? CookingIcons.timerActive
+                          : CookingIcons.timer,
+                      color: _isTimerRunning
+                          ? const Color(0xFFFF5722)
+                          : const Color(0xFF94A3B8),
+                      size: 20,
                     ),
-                  ),
-                ],
+                    const SizedBox(width: 8),
+                    Flexible(
+                      child: Text(
+                        strings.stepTimer,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(
+                          color: Color(0xFF94A3B8),
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
               ),
+              const SizedBox(width: 8),
               Text(
                 _formatSeconds(_remainingSeconds),
                 style: TextStyle(
@@ -744,7 +877,9 @@ class _CookingModeScreenState extends ConsumerState<CookingModeScreen> {
                   fontFamily: 'monospace',
                   color: _remainingSeconds == 0
                       ? const Color(0xFF10B981)
-                      : (_isTimerRunning ? const Color(0xFFFF5722) : Colors.white),
+                      : (_isTimerRunning
+                            ? const Color(0xFFFF5722)
+                            : Colors.white),
                 ),
               ),
             ],
@@ -756,14 +891,18 @@ class _CookingModeScreenState extends ConsumerState<CookingModeScreen> {
               value: timerFraction,
               minHeight: 6,
               backgroundColor: const Color(0xFF334155),
-              color: _isTimerRunning ? const Color(0xFFFF5722) : const Color(0xFF38BDF8),
+              color: _isTimerRunning
+                  ? const Color(0xFFFF5722)
+                  : const Color(0xFF38BDF8),
             ),
           ),
           if (_runningSteps.any((e) => e != _currentStepIndex))
             Padding(
               padding: const EdgeInsets.only(top: 8),
               child: Text(
-                strings.timersElsewhere(_runningSteps.where((e) => e != _currentStepIndex).length),
+                strings.timersElsewhere(
+                  _runningSteps.where((e) => e != _currentStepIndex).length,
+                ),
                 key: const Key('timers_elsewhere'),
                 style: const TextStyle(fontSize: 12, color: Color(0xFFFBBF24)),
               ),
@@ -782,7 +921,10 @@ class _CookingModeScreenState extends ConsumerState<CookingModeScreen> {
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(10),
                       ),
-                      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 14,
+                        vertical: 12,
+                      ),
                     ),
                     child: FittedBox(
                       fit: BoxFit.scaleDown,
@@ -807,7 +949,10 @@ class _CookingModeScreenState extends ConsumerState<CookingModeScreen> {
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(10),
                       ),
-                      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 14,
+                        vertical: 12,
+                      ),
                     ),
                     child: FittedBox(
                       fit: BoxFit.scaleDown,
@@ -832,7 +977,10 @@ class _CookingModeScreenState extends ConsumerState<CookingModeScreen> {
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(10),
                     ),
-                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 14,
+                      vertical: 12,
+                    ),
                   ),
                   child: FittedBox(
                     fit: BoxFit.scaleDown,
@@ -862,7 +1010,9 @@ class _CookingModeScreenState extends ConsumerState<CookingModeScreen> {
       child: Container(
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: const Color(0xFFF59E0B).withValues(alpha: 0.3)),
+          border: Border.all(
+            color: const Color(0xFFF59E0B).withValues(alpha: 0.3),
+          ),
         ),
         child: Theme(
           data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
@@ -870,7 +1020,10 @@ class _CookingModeScreenState extends ConsumerState<CookingModeScreen> {
             initiallyExpanded: true,
             iconColor: const Color(0xFFF59E0B),
             collapsedIconColor: const Color(0xFFF59E0B),
-            tilePadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+            tilePadding: const EdgeInsets.symmetric(
+              horizontal: 16,
+              vertical: 4,
+            ),
             leading: Container(
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
@@ -911,16 +1064,24 @@ class _CookingModeScreenState extends ConsumerState<CookingModeScreen> {
                   decoration: BoxDecoration(
                     color: const Color(0xFFF59E0B).withValues(alpha: 0.12),
                     borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: const Color(0xFFF59E0B).withValues(alpha: 0.25)),
+                    border: Border.all(
+                      color: const Color(0xFFF59E0B).withValues(alpha: 0.25),
+                    ),
                   ),
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Icon(Icons.tips_and_updates_rounded, color: Color(0xFFF59E0B), size: 18),
+                      const Icon(
+                        Icons.tips_and_updates_rounded,
+                        color: Color(0xFFF59E0B),
+                        size: 18,
+                      ),
                       const SizedBox(width: 8),
                       Expanded(
                         child: Text(
-                          step.localizedProTip(ref.read(appStringsProvider).locale),
+                          step.localizedProTip(
+                            ref.read(appStringsProvider).locale,
+                          ),
                           style: const TextStyle(
                             fontSize: 13,
                             color: Color(0xFFFDE68A),

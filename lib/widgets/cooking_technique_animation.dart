@@ -47,7 +47,9 @@ enum CookingTechniqueType {
       return CookingTechniqueType.simmerSteamLock;
     }
 
-    if (lowerTip.contains('dinlen') || lowerTip.contains('et suları') || lowerTip.contains('beklet')) {
+    if (lowerTip.contains('dinlen') ||
+        lowerTip.contains('et suları') ||
+        lowerTip.contains('beklet')) {
       return CookingTechniqueType.restingJuices;
     }
 
@@ -183,49 +185,49 @@ enum CookingTechniqueType {
         return [
           '1. Adım: Parmakları pençe yapın, tırnakları arkaya saklayın.',
           '2. Adım: Bıçak ucunu tahtaya sabitleyip beşik gibi salın.',
-          '3. Adım: Malzemeyi ileri iterek ritmik şekilde dilimleyin.'
+          '3. Adım: Malzemeyi ileri iterek ritmik şekilde dilimleyin.',
         ];
       case CookingTechniqueType.panHeatTest:
         return [
           '1. Adım: Tavayı orta-yüksek ateşte 2-3 dk kuru ısıtın.',
           '2. Adım: Parmağınızla birkaç damla su serpin.',
-          '3. Adım: Damlalar cıva gibi birleşip kayıyorsa tava hazırdır.'
+          '3. Adım: Damlalar cıva gibi birleşip kayıyorsa tava hazırdır.',
         ];
       case CookingTechniqueType.whiskFigureEight:
         return [
           '1. Adım: Kabı 45 derece hafif eğik tutun.',
           '2. Adım: Çırpıcı ile tabanda sonsuzluk (8) şekli çizin.',
-          '3. Adım: Mikro hava kabarcıkları oluşunca ritmi sabit tutun.'
+          '3. Adım: Mikro hava kabarcıkları oluşunca ritmi sabit tutun.',
         ];
       case CookingTechniqueType.simmerSteamLock:
         return [
           '1. Adım: Kaynama başlayınca ocağı en kısık seviyeye alın.',
           '2. Adım: Ağır tencere kapağını kapatıp hava sızdırmazlığını sağlayın.',
-          '3. Adım: Süre dolana kadar kapağı kesinlikle açmayın.'
+          '3. Adım: Süre dolana kadar kapağı kesinlikle açmayın.',
         ];
       case CookingTechniqueType.sauteToss:
         return [
           '1. Adım: Malzemeleri tek katman halinde tavaya yayın.',
           '2. Adım: Taban 1-2 dakika temas edip kızarana kadar ellemeyin.',
-          '3. Adım: Bilekten tek hareketle silkeleyerek havalandırın.'
+          '3. Adım: Bilekten tek hareketle silkeleyerek havalandırın.',
         ];
       case CookingTechniqueType.spiceBloom:
         return [
           '1. Adım: Yağı ısıtıp ateşi orta seviyeye çekin.',
           '2. Adım: Baharatları ekleyip 25-30 sn sürekli karıştırın.',
-          '3. Adım: Koku buruna gelir gelmez sıvıyı/salçayı ilave edin.'
+          '3. Adım: Koku buruna gelir gelmez sıvıyı/salçayı ilave edin.',
         ];
       case CookingTechniqueType.restingJuices:
         return [
           '1. Adım: Yemeği ocaktan/fırından alıp kapağını kapalı tutun.',
           '2. Adım: Buharın ve lezzetin oturması için 5-15 dakika dinlendirin.',
-          '3. Adım: Sosu ve aroması dengelenmiş yemeği sıcak servis yapın.'
+          '3. Adım: Sosu ve aroması dengelenmiş yemeği sıcak servis yapın.',
         ];
       case CookingTechniqueType.substitutionBalance:
         return [
           '1. Adım: İkame malzemeyi ölçülü kaba alın.',
           '2. Adım: Sıvıyı azar azar ekleyip kıvamı test edin.',
-          '3. Adım: Orijinal tarif dokusuna ulaştığınızda kullanın.'
+          '3. Adım: Orijinal tarif dokusuna ulaştığınızda kullanın.',
         ];
     }
   }
@@ -329,7 +331,11 @@ enum CookingTechniqueType {
       case CookingTechniqueType.spiceBloom:
         return ['1. Ilık Yağ', '2. 30 sn Çevirme', '3. Aroma Açığa Çıkışı'];
       case CookingTechniqueType.restingJuices:
-        return ['1. Ocaktan Alma', '2. Dinlendirme & Kapak', '3. Servis & Sunum'];
+        return [
+          '1. Ocaktan Alma',
+          '2. Dinlendirme & Kapak',
+          '3. Servis & Sunum',
+        ];
       case CookingTechniqueType.substitutionBalance:
         return ['1. Hassas Ölçüm', '2. Kademeli Sıvı', '3. Kıvam Eşitleme'];
     }
@@ -341,49 +347,49 @@ enum CookingTechniqueType {
         return [
           'Parmak uçlarınızı içeri kıvırıp tırnaklarınızı geriye gizleyin. Bıçağın yan yüzeyi orta parmak eklemine yaslanmalıdır.',
           'Bıçağın ucunu tahtaya sabitleyin; bıçağı balta gibi vurmak yerine beşik gibi ileri-aşağı salındırın.',
-          'Malzemeyi baş parmağınızla hafifçe ileri iterken bıçağı tahtadan ayırmadan sabit ritimle dilimleyin.'
+          'Malzemeyi baş parmağınızla hafifçe ileri iterken bıçağı tahtadan ayırmadan sabit ritimle dilimleyin.',
         ];
       case CookingTechniqueType.panHeatTest:
         return [
           'Tavayı yağ eklemeden orta-yüksek ateşte 2-3 dakika boyunca kuru olarak ısıtın.',
           'Parmağınızı ıslatıp tavaya 2-3 damla su serpin. Hemen buharlaşıyorsa tava henüz hazır değildir.',
-          'Su damlaları cıva gibi birleşip tava tabanında kayarak dans ediyorsa sıcaklık 200°C\'dir; yağ ve eti şimdi ekleyin.'
+          'Su damlaları cıva gibi birleşip tava tabanında kayarak dans ediyorsa sıcaklık 200°C\'dir; yağ ve eti şimdi ekleyin.',
         ];
       case CookingTechniqueType.whiskFigureEight:
         return [
           'Çırpma kabını sol elinizle 45 derece eğik tutun ve çırpıcıyı sapından rahatça kavrayın.',
           'Dairesel dönüş yerine kabın tabanına yatay bir 8 (sonsuzluk) yörüngesi çizin.',
-          'Oluşan karşıt iki girdap karışıma iki kat fazla mikro hava hapseder; karışım rekor hızla kabarır.'
+          'Oluşan karşıt iki girdap karışıma iki kat fazla mikro hava hapseder; karışım rekor hızla kabarır.',
         ];
       case CookingTechniqueType.simmerSteamLock:
         return [
           'Tencere fokurdamaya başlar başlamaz ocağın altını en kısık seviyeye getirin.',
           'Tencerenin kapağını sıkıca kapatarak buharın kenarlardan kaçmasını engelleyin.',
-          'Kapağı kesinlikle açmayın! Aromatik buhar kapağın iç yüzeyinde yoğunlaşıp yemeğe geri damlar.'
+          'Kapağı kesinlikle açmayın! Aromatik buhar kapağın iç yüzeyinde yoğunlaşıp yemeğe geri damlar.',
         ];
       case CookingTechniqueType.sauteToss:
         return [
           'Malzemeleri tavaya üst üste gelmeyecek şekilde tek katman halinde yayın.',
           'Malzemelerin tabanla temas edip nar gibi kızarması için 1-2 dakika ellemeyin.',
-          'Tavayı bilekten ileri-yukarı silkeleyerek malzemelerin havada takla atıp eşit pişmesini sağlayın.'
+          'Tavayı bilekten ileri-yukarı silkeleyerek malzemelerin havada takla atıp eşit pişmesini sağlayın.',
         ];
       case CookingTechniqueType.spiceBloom:
         return [
           'Tavaya 1-2 kaşık yağı koyup orta ateşte ısıtın.',
           'Baharatları doğrudan yağa dökün ve spatula ile 25-30 saniye aralıksız çevirin.',
-          'Yağda çözünen uçucu aromalar buruna geldiği anda sıvı veya salçayı ekleyip pişirmeyi dengeleyin.'
+          'Yağda çözünen uçucu aromalar buruna geldiği anda sıvı veya salçayı ekleyip pişirmeyi dengeleyin.',
         ];
       case CookingTechniqueType.restingJuices:
         return [
           'Pişen yemeği ocaktan veya fırından alın; kapağını ya da folyosunu açmadan sıcağını koruyun.',
           'Buharın ve lezzetlerin homojen oturması için belirtilen dinlendirme süresince (5-15 dk) bekletin.',
-          'Dinlenen yemeğin sosu koyulaşır ve aroması tam oturur; sıcak ve şık bir sunumla servis yapın.'
+          'Dinlenen yemeğin sosu koyulaşır ve aroması tam oturur; sıcak ve şık bir sunumla servis yapın.',
         ];
       case CookingTechniqueType.substitutionBalance:
         return [
           'İkame malzemeyi hassas ölçü kabında hazırlayın.',
           'Sıvı bileşeni tek seferde boca etmek yerine 3 aşamada azar azar ekleyip karıştırın.',
-          'Kaşığın arkasıyla kıvamı test edin; orijinal tarif dokusuna ulaştığınızda işlemi tamamlayın.'
+          'Kaşığın arkasıyla kıvamı test edin; orijinal tarif dokusuna ulaştığınızda işlemi tamamlayın.',
         ];
     }
   }
@@ -405,7 +411,8 @@ class CookingTechniqueAnimation extends StatefulWidget {
   });
 
   @override
-  State<CookingTechniqueAnimation> createState() => _CookingTechniqueAnimationState();
+  State<CookingTechniqueAnimation> createState() =>
+      _CookingTechniqueAnimationState();
 }
 
 class _CookingTechniqueAnimationState extends State<CookingTechniqueAnimation>
@@ -431,7 +438,9 @@ class _CookingTechniqueAnimationState extends State<CookingTechniqueAnimation>
       duration: const Duration(seconds: 15),
     );
 
-    final isTest = WidgetsBinding.instance.runtimeType.toString().contains('Test');
+    final isTest = WidgetsBinding.instance.runtimeType.toString().contains(
+      'Test',
+    );
     if (!isTest) {
       _controller.repeat();
     } else {
@@ -451,7 +460,9 @@ class _CookingTechniqueAnimationState extends State<CookingTechniqueAnimation>
         _controller.stop();
         _isPlaying = false;
       } else {
-        final isTest = WidgetsBinding.instance.runtimeType.toString().contains('Test');
+        final isTest = WidgetsBinding.instance.runtimeType.toString().contains(
+          'Test',
+        );
         if (!isTest) {
           _controller.repeat();
         } else {
@@ -463,7 +474,9 @@ class _CookingTechniqueAnimationState extends State<CookingTechniqueAnimation>
   }
 
   void _replay() {
-    final isTest = WidgetsBinding.instance.runtimeType.toString().contains('Test');
+    final isTest = WidgetsBinding.instance.runtimeType.toString().contains(
+      'Test',
+    );
     _controller.reset();
     if (!isTest) {
       _controller.repeat();
@@ -480,7 +493,9 @@ class _CookingTechniqueAnimationState extends State<CookingTechniqueAnimation>
     setState(() {
       _selectedPhaseIndex = index;
     });
-    final isTest = WidgetsBinding.instance.runtimeType.toString().contains('Test');
+    final isTest = WidgetsBinding.instance.runtimeType.toString().contains(
+      'Test',
+    );
     if (!isTest) {
       _controller.animateTo(
         (index + 0.5) / 3.0,
@@ -527,7 +542,9 @@ class _CookingTechniqueAnimationState extends State<CookingTechniqueAnimation>
               width: 44,
               height: 4,
               decoration: BoxDecoration(
-                color: widget.isDarkMode ? Colors.white24 : Colors.grey.shade300,
+                color: widget.isDarkMode
+                    ? Colors.white24
+                    : Colors.grey.shade300,
                 borderRadius: BorderRadius.circular(2),
               ),
             ),
@@ -544,7 +561,11 @@ class _CookingTechniqueAnimationState extends State<CookingTechniqueAnimation>
                       color: const Color(0xFFFF5722).withValues(alpha: 0.15),
                       borderRadius: BorderRadius.circular(10),
                     ),
-                    child: Icon(widget.technique.icon, color: const Color(0xFFFF5722), size: 22),
+                    child: Icon(
+                      widget.technique.icon,
+                      color: const Color(0xFFFF5722),
+                      size: 22,
+                    ),
                   ),
                   const SizedBox(width: 12),
                   Expanded(
@@ -556,14 +577,18 @@ class _CookingTechniqueAnimationState extends State<CookingTechniqueAnimation>
                           style: TextStyle(
                             fontSize: 17,
                             fontWeight: FontWeight.bold,
-                            color: widget.isDarkMode ? Colors.white : const Color(0xFF0F172A),
+                            color: widget.isDarkMode
+                                ? Colors.white
+                                : const Color(0xFF0F172A),
                           ),
                         ),
                         Text(
                           'Mutfak Masterclass & Şef Rehberi',
                           style: TextStyle(
                             fontSize: 12,
-                            color: widget.isDarkMode ? Colors.white60 : Colors.grey.shade600,
+                            color: widget.isDarkMode
+                                ? Colors.white60
+                                : Colors.grey.shade600,
                           ),
                         ),
                       ],
@@ -572,7 +597,9 @@ class _CookingTechniqueAnimationState extends State<CookingTechniqueAnimation>
                   IconButton(
                     icon: Icon(
                       Icons.close_rounded,
-                      color: widget.isDarkMode ? Colors.white70 : Colors.grey.shade700,
+                      color: widget.isDarkMode
+                          ? Colors.white70
+                          : Colors.grey.shade700,
                     ),
                     onPressed: () => Navigator.pop(context),
                   ),
@@ -601,15 +628,25 @@ class _CookingTechniqueAnimationState extends State<CookingTechniqueAnimation>
 
                     // Telemetry Badge
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 14,
+                        vertical: 10,
+                      ),
                       decoration: BoxDecoration(
                         color: const Color(0xFFFF5722).withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: const Color(0xFFFF5722).withValues(alpha: 0.25)),
+                        border: Border.all(
+                          color: const Color(0xFFFF5722)
+                              .withValues(alpha: 0.25),
+                        ),
                       ),
                       child: Row(
                         children: [
-                          const Icon(Icons.speed_rounded, color: Color(0xFFFF5722), size: 18),
+                          const Icon(
+                            Icons.speed_rounded,
+                            color: Color(0xFFFF5722),
+                            size: 18,
+                          ),
                           const SizedBox(width: 10),
                           Expanded(
                             child: Text(
@@ -633,7 +670,9 @@ class _CookingTechniqueAnimationState extends State<CookingTechniqueAnimation>
                         fontSize: 12,
                         fontWeight: FontWeight.bold,
                         letterSpacing: 0.8,
-                        color: widget.isDarkMode ? Colors.white60 : Colors.grey.shade600,
+                        color: widget.isDarkMode
+                            ? Colors.white60
+                            : Colors.grey.shade600,
                       ),
                     ),
                     const SizedBox(height: 10),
@@ -642,12 +681,16 @@ class _CookingTechniqueAnimationState extends State<CookingTechniqueAnimation>
                         margin: const EdgeInsets.only(bottom: 10),
                         padding: const EdgeInsets.all(12),
                         decoration: BoxDecoration(
-                          color: widget.isDarkMode ? const Color(0xFF1E293B) : const Color(0xFFF8FAFC),
+                          color: widget.isDarkMode
+                              ? const Color(0xFF1E293B)
+                              : const Color(0xFFF8FAFC),
                           borderRadius: BorderRadius.circular(12),
                           border: Border.all(
                             color: i == _currentActivePhase
                                 ? const Color(0xFFFF5722).withValues(alpha: 0.5)
-                                : (widget.isDarkMode ? Colors.white12 : Colors.grey.shade200),
+                                : (widget.isDarkMode
+                                      ? Colors.white12
+                                      : Colors.grey.shade200),
                           ),
                         ),
                         child: Column(
@@ -678,7 +721,9 @@ class _CookingTechniqueAnimationState extends State<CookingTechniqueAnimation>
                                   style: TextStyle(
                                     fontSize: 13,
                                     fontWeight: FontWeight.bold,
-                                    color: widget.isDarkMode ? Colors.white : Colors.black87,
+                                    color: widget.isDarkMode
+                                        ? Colors.white
+                                        : Colors.black87,
                                   ),
                                 ),
                               ],
@@ -689,7 +734,9 @@ class _CookingTechniqueAnimationState extends State<CookingTechniqueAnimation>
                               style: TextStyle(
                                 fontSize: 12,
                                 height: 1.4,
-                                color: widget.isDarkMode ? Colors.white70 : Colors.grey.shade700,
+                                color: widget.isDarkMode
+                                    ? Colors.white70
+                                    : Colors.grey.shade700,
                               ),
                             ),
                           ],
@@ -704,14 +751,20 @@ class _CookingTechniqueAnimationState extends State<CookingTechniqueAnimation>
                       decoration: BoxDecoration(
                         color: const Color(0xFF059669).withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(14),
-                        border: Border.all(color: const Color(0xFF10B981).withValues(alpha: 0.3)),
+                        border: Border.all(
+                          color: const Color(0xFF10B981).withValues(alpha: 0.3),
+                        ),
                       ),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           const Row(
                             children: [
-                              Icon(Icons.check_circle_rounded, color: Color(0xFF10B981), size: 18),
+                              Icon(
+                                Icons.check_circle_rounded,
+                                color: Color(0xFF10B981),
+                                size: 18,
+                              ),
                               SizedBox(width: 8),
                               Text(
                                 'DOĞRU: Profesyonel Şef Yöntemi',
@@ -729,7 +782,9 @@ class _CookingTechniqueAnimationState extends State<CookingTechniqueAnimation>
                             style: TextStyle(
                               fontSize: 12,
                               height: 1.4,
-                              color: widget.isDarkMode ? Colors.white70 : Colors.grey.shade800,
+                              color: widget.isDarkMode
+                                  ? Colors.white70
+                                  : Colors.grey.shade800,
                             ),
                           ),
                         ],
@@ -741,14 +796,20 @@ class _CookingTechniqueAnimationState extends State<CookingTechniqueAnimation>
                       decoration: BoxDecoration(
                         color: const Color(0xFFDC2626).withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(14),
-                        border: Border.all(color: const Color(0xFFEF4444).withValues(alpha: 0.3)),
+                        border: Border.all(
+                          color: const Color(0xFFEF4444).withValues(alpha: 0.3),
+                        ),
                       ),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           const Row(
                             children: [
-                              Icon(Icons.cancel_rounded, color: Color(0xFFEF4444), size: 18),
+                              Icon(
+                                Icons.cancel_rounded,
+                                color: Color(0xFFEF4444),
+                                size: 18,
+                              ),
                               SizedBox(width: 8),
                               Text(
                                 'YANLIŞ: Kaçınılması Gereken Acemi Hatası',
@@ -766,7 +827,9 @@ class _CookingTechniqueAnimationState extends State<CookingTechniqueAnimation>
                             style: TextStyle(
                               fontSize: 12,
                               height: 1.4,
-                              color: widget.isDarkMode ? Colors.white70 : Colors.grey.shade800,
+                              color: widget.isDarkMode
+                                  ? Colors.white70
+                                  : Colors.grey.shade800,
                             ),
                           ),
                         ],
@@ -788,7 +851,10 @@ class _CookingTechniqueAnimationState extends State<CookingTechniqueAnimation>
                         ),
                         child: const Text(
                           'Anladım, Uygulayalım',
-                          style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+                          style: TextStyle(
+                            fontSize: 15,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                       ),
                     ),
@@ -809,11 +875,15 @@ class _CookingTechniqueAnimationState extends State<CookingTechniqueAnimation>
         color: widget.isDarkMode ? const Color(0xFF1E293B) : Colors.white,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: widget.isDarkMode ? const Color(0xFF334155) : Colors.grey.shade200,
+          color: widget.isDarkMode
+              ? const Color(0xFF334155)
+              : Colors.grey.shade200,
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: widget.isDarkMode ? 0.35 : 0.05),
+            color: Colors.black.withValues(
+              alpha: widget.isDarkMode ? 0.35 : 0.05,
+            ),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -850,7 +920,9 @@ class _CookingTechniqueAnimationState extends State<CookingTechniqueAnimation>
                         style: TextStyle(
                           fontSize: 13,
                           fontWeight: FontWeight.bold,
-                          color: widget.isDarkMode ? Colors.white : const Color(0xFF0F172A),
+                          color: widget.isDarkMode
+                              ? Colors.white
+                              : const Color(0xFF0F172A),
                         ),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
@@ -859,7 +931,9 @@ class _CookingTechniqueAnimationState extends State<CookingTechniqueAnimation>
                         'Şef Tekniği & Canlı Kılavuz',
                         style: TextStyle(
                           fontSize: 10,
-                          color: widget.isDarkMode ? Colors.white54 : Colors.grey.shade500,
+                          color: widget.isDarkMode
+                              ? Colors.white54
+                              : Colors.grey.shade500,
                         ),
                       ),
                     ],
@@ -874,7 +948,9 @@ class _CookingTechniqueAnimationState extends State<CookingTechniqueAnimation>
                       child: Icon(
                         Icons.fullscreen_rounded,
                         size: 20,
-                        color: widget.isDarkMode ? Colors.white60 : Colors.grey.shade600,
+                        color: widget.isDarkMode
+                            ? Colors.white60
+                            : Colors.grey.shade600,
                       ),
                     ),
                   ),
@@ -889,14 +965,28 @@ class _CookingTechniqueAnimationState extends State<CookingTechniqueAnimation>
             child: Container(
               height: 28,
               decoration: BoxDecoration(
-                color: widget.isDarkMode ? const Color(0xFF0F172A) : Colors.grey.shade200,
+                color: widget.isDarkMode
+                    ? const Color(0xFF0F172A)
+                    : Colors.grey.shade200,
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Row(
                 children: [
-                  _buildTabButton(0, 'Canlı Rehber', Icons.auto_stories_rounded),
-                  _buildTabButton(1, 'Doğru / Yanlış', Icons.compare_arrows_rounded),
-                  _buildTabButton(2, '3 Adım', Icons.format_list_numbered_rounded),
+                  _buildTabButton(
+                    0,
+                    'Canlı Rehber',
+                    Icons.auto_stories_rounded,
+                  ),
+                  _buildTabButton(
+                    1,
+                    'Doğru / Yanlış',
+                    Icons.compare_arrows_rounded,
+                  ),
+                  _buildTabButton(
+                    2,
+                    '3 Adım',
+                    Icons.format_list_numbered_rounded,
+                  ),
                 ],
               ),
             ),
@@ -933,7 +1023,9 @@ class _CookingTechniqueAnimationState extends State<CookingTechniqueAnimation>
                           decoration: BoxDecoration(
                             color: _currentActivePhase == i
                                 ? const Color(0xFFFF5722).withValues(alpha: 0.2)
-                                : (widget.isDarkMode ? Colors.white10 : Colors.grey.shade100),
+                                : (widget.isDarkMode
+                                      ? Colors.white10
+                                      : Colors.grey.shade100),
                             borderRadius: BorderRadius.circular(6),
                             border: Border.all(
                               color: _currentActivePhase == i
@@ -952,7 +1044,9 @@ class _CookingTechniqueAnimationState extends State<CookingTechniqueAnimation>
                                   : FontWeight.normal,
                               color: _currentActivePhase == i
                                   ? const Color(0xFFFF5722)
-                                  : (widget.isDarkMode ? Colors.white70 : Colors.grey.shade700),
+                                  : (widget.isDarkMode
+                                        ? Colors.white70
+                                        : Colors.grey.shade700),
                             ),
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
@@ -975,16 +1069,22 @@ class _CookingTechniqueAnimationState extends State<CookingTechniqueAnimation>
                     Row(
                       children: [
                         InkWell(
-                          onTap: () => setState(() => _showCorrectMethod = true),
+                          onTap: () =>
+                              setState(() => _showCorrectMethod = true),
                           borderRadius: BorderRadius.circular(6),
                           child: Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 8,
+                              vertical: 4,
+                            ),
                             decoration: BoxDecoration(
                               color: _showCorrectMethod
                                   ? const Color(0xFF10B981)
                                   : Colors.transparent,
                               borderRadius: BorderRadius.circular(6),
-                              border: Border.all(color: const Color(0xFF10B981)),
+                              border: Border.all(
+                                color: const Color(0xFF10B981),
+                              ),
                             ),
                             child: Row(
                               mainAxisSize: MainAxisSize.min,
@@ -992,7 +1092,9 @@ class _CookingTechniqueAnimationState extends State<CookingTechniqueAnimation>
                                 Icon(
                                   Icons.check_circle_rounded,
                                   size: 13,
-                                  color: _showCorrectMethod ? Colors.white : const Color(0xFF10B981),
+                                  color: _showCorrectMethod
+                                      ? Colors.white
+                                      : const Color(0xFF10B981),
                                 ),
                                 const SizedBox(width: 4),
                                 Text(
@@ -1000,7 +1102,9 @@ class _CookingTechniqueAnimationState extends State<CookingTechniqueAnimation>
                                   style: TextStyle(
                                     fontSize: 10,
                                     fontWeight: FontWeight.bold,
-                                    color: _showCorrectMethod ? Colors.white : const Color(0xFF10B981),
+                                    color: _showCorrectMethod
+                                        ? Colors.white
+                                        : const Color(0xFF10B981),
                                   ),
                                 ),
                               ],
@@ -1009,16 +1113,22 @@ class _CookingTechniqueAnimationState extends State<CookingTechniqueAnimation>
                         ),
                         const SizedBox(width: 8),
                         InkWell(
-                          onTap: () => setState(() => _showCorrectMethod = false),
+                          onTap: () =>
+                              setState(() => _showCorrectMethod = false),
                           borderRadius: BorderRadius.circular(6),
                           child: Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 8,
+                              vertical: 4,
+                            ),
                             decoration: BoxDecoration(
                               color: !_showCorrectMethod
                                   ? const Color(0xFFEF4444)
                                   : Colors.transparent,
                               borderRadius: BorderRadius.circular(6),
-                              border: Border.all(color: const Color(0xFFEF4444)),
+                              border: Border.all(
+                                color: const Color(0xFFEF4444),
+                              ),
                             ),
                             child: Row(
                               mainAxisSize: MainAxisSize.min,
@@ -1026,7 +1136,9 @@ class _CookingTechniqueAnimationState extends State<CookingTechniqueAnimation>
                                 Icon(
                                   Icons.cancel_rounded,
                                   size: 13,
-                                  color: !_showCorrectMethod ? Colors.white : const Color(0xFFEF4444),
+                                  color: !_showCorrectMethod
+                                      ? Colors.white
+                                      : const Color(0xFFEF4444),
                                 ),
                                 const SizedBox(width: 4),
                                 Text(
@@ -1034,7 +1146,9 @@ class _CookingTechniqueAnimationState extends State<CookingTechniqueAnimation>
                                   style: TextStyle(
                                     fontSize: 10,
                                     fontWeight: FontWeight.bold,
-                                    color: !_showCorrectMethod ? Colors.white : const Color(0xFFEF4444),
+                                    color: !_showCorrectMethod
+                                        ? Colors.white
+                                        : const Color(0xFFEF4444),
                                   ),
                                 ),
                               ],
@@ -1055,7 +1169,8 @@ class _CookingTechniqueAnimationState extends State<CookingTechniqueAnimation>
                           border: Border.all(
                             color: _showCorrectMethod
                                 ? const Color(0xFF10B981).withValues(alpha: 0.3)
-                                : const Color(0xFFEF4444).withValues(alpha: 0.3),
+                                : const Color(0xFFEF4444)
+                                      .withValues(alpha: 0.3),
                           ),
                         ),
                         child: SingleChildScrollView(
@@ -1063,7 +1178,9 @@ class _CookingTechniqueAnimationState extends State<CookingTechniqueAnimation>
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                _showCorrectMethod ? 'Şeflerin Altın Kuralı:' : 'Yapılan Kritik Hata:',
+                                _showCorrectMethod
+                                    ? 'Şeflerin Altın Kuralı:'
+                                    : 'Yapılan Kritik Hata:',
                                 style: TextStyle(
                                   fontSize: 11,
                                   fontWeight: FontWeight.bold,
@@ -1080,7 +1197,9 @@ class _CookingTechniqueAnimationState extends State<CookingTechniqueAnimation>
                                 style: TextStyle(
                                   fontSize: 11,
                                   height: 1.4,
-                                  color: widget.isDarkMode ? Colors.white70 : Colors.black87,
+                                  color: widget.isDarkMode
+                                      ? Colors.white70
+                                      : Colors.black87,
                                 ),
                               ),
                             ],
@@ -1103,14 +1222,19 @@ class _CookingTechniqueAnimationState extends State<CookingTechniqueAnimation>
                     for (int i = 0; i < widget.technique.stepList.length; i++)
                       Container(
                         margin: const EdgeInsets.only(bottom: 6),
-                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 10,
+                          vertical: 6,
+                        ),
                         decoration: BoxDecoration(
                           color: widget.isDarkMode
                               ? const Color(0xFF0F172A).withValues(alpha: 0.5)
                               : const Color(0xFFF1F5F9),
                           borderRadius: BorderRadius.circular(8),
                           border: Border.all(
-                            color: widget.isDarkMode ? Colors.white10 : Colors.grey.shade200,
+                            color: widget.isDarkMode
+                                ? Colors.white10
+                                : Colors.grey.shade200,
                           ),
                         ),
                         child: Row(
@@ -1135,10 +1259,15 @@ class _CookingTechniqueAnimationState extends State<CookingTechniqueAnimation>
                             const SizedBox(width: 8),
                             Expanded(
                               child: Text(
-                                widget.technique.stepList[i].replaceFirst('${i + 1}. Adım: ', ''),
+                                widget.technique.stepList[i].replaceFirst(
+                                  '${i + 1}. Adım: ',
+                                  '',
+                                ),
                                 style: TextStyle(
                                   fontSize: 11,
-                                  color: widget.isDarkMode ? Colors.white70 : Colors.black87,
+                                  color: widget.isDarkMode
+                                      ? Colors.white70
+                                      : Colors.black87,
                                 ),
                                 maxLines: 2,
                                 overflow: TextOverflow.ellipsis,
@@ -1164,7 +1293,9 @@ class _CookingTechniqueAnimationState extends State<CookingTechniqueAnimation>
                     style: TextStyle(
                       fontSize: 11,
                       height: 1.35,
-                      color: widget.isDarkMode ? const Color(0xFFCBD5E1) : const Color(0xFF64748B),
+                      color: widget.isDarkMode
+                          ? const Color(0xFFCBD5E1)
+                          : const Color(0xFF64748B),
                     ),
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
@@ -1178,13 +1309,19 @@ class _CookingTechniqueAnimationState extends State<CookingTechniqueAnimation>
                     child: Container(
                       padding: const EdgeInsets.all(6),
                       decoration: BoxDecoration(
-                        color: widget.isDarkMode ? const Color(0xFF334155) : Colors.grey.shade200,
+                        color: widget.isDarkMode
+                            ? const Color(0xFF334155)
+                            : Colors.grey.shade200,
                         shape: BoxShape.circle,
                       ),
                       child: Icon(
-                        _isPlaying ? Icons.pause_rounded : Icons.play_arrow_rounded,
+                        _isPlaying
+                            ? Icons.pause_rounded
+                            : Icons.play_arrow_rounded,
                         size: 14,
-                        color: widget.isDarkMode ? Colors.white : Colors.black87,
+                        color: widget.isDarkMode
+                            ? Colors.white
+                            : Colors.black87,
                       ),
                     ),
                   ),
@@ -1195,13 +1332,17 @@ class _CookingTechniqueAnimationState extends State<CookingTechniqueAnimation>
                     child: Container(
                       padding: const EdgeInsets.all(6),
                       decoration: BoxDecoration(
-                        color: widget.isDarkMode ? const Color(0xFF334155) : Colors.grey.shade200,
+                        color: widget.isDarkMode
+                            ? const Color(0xFF334155)
+                            : Colors.grey.shade200,
                         shape: BoxShape.circle,
                       ),
                       child: Icon(
                         Icons.replay_rounded,
                         size: 14,
-                        color: widget.isDarkMode ? Colors.white : Colors.black87,
+                        color: widget.isDarkMode
+                            ? Colors.white
+                            : Colors.black87,
                       ),
                     ),
                   ),
@@ -1232,7 +1373,7 @@ class _CookingTechniqueAnimationState extends State<CookingTechniqueAnimation>
                       color: Colors.black.withValues(alpha: 0.1),
                       blurRadius: 4,
                       offset: const Offset(0, 1),
-                    )
+                    ),
                   ]
                 : null,
           ),
@@ -1244,17 +1385,29 @@ class _CookingTechniqueAnimationState extends State<CookingTechniqueAnimation>
                 size: 13,
                 color: isSelected
                     ? const Color(0xFFFF5722)
-                    : (widget.isDarkMode ? Colors.white54 : Colors.grey.shade600),
+                    : (widget.isDarkMode
+                          ? Colors.white54
+                          : Colors.grey.shade600),
               ),
               const SizedBox(width: 4),
-              Text(
-                title,
-                style: TextStyle(
-                  fontSize: 10,
-                  fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-                  color: isSelected
-                      ? (widget.isDarkMode ? Colors.white : const Color(0xFF0F172A))
-                      : (widget.isDarkMode ? Colors.white54 : Colors.grey.shade600),
+              Flexible(
+                child: Text(
+                  title,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    fontSize: 10,
+                    fontWeight: isSelected
+                        ? FontWeight.bold
+                        : FontWeight.normal,
+                    color: isSelected
+                        ? (widget.isDarkMode
+                              ? Colors.white
+                              : const Color(0xFF0F172A))
+                        : (widget.isDarkMode
+                              ? Colors.white54
+                              : Colors.grey.shade600),
+                  ),
                 ),
               ),
             ],
@@ -1278,7 +1431,9 @@ class _CookingTechniqueAnimationState extends State<CookingTechniqueAnimation>
             // Authentic Culinary High-Res Photography
             Image.network(
               widget.technique.imageUrl,
-              headers: const {'User-Agent': 'AreWeCookinApp/1.0 (culinary-app)'},
+              headers: const {
+                'User-Agent': 'AreWeCookinApp/1.0 (culinary-app)',
+              },
               fit: BoxFit.cover,
               errorBuilder: (context, error, stackTrace) {
                 return Container(
@@ -1337,10 +1492,10 @@ class _CookingTechniqueAnimationState extends State<CookingTechniqueAnimation>
                             child: FractionallySizedBox(
                               widthFactor: i < activePhase
                                   ? 1.0
-                                  : (i == activePhase ? ((progress * 3) - i).clamp(0.0, 1.0) : 0.0),
-                              child: Container(
-                                color: const Color(0xFFFF5722),
-                              ),
+                                  : (i == activePhase
+                                        ? ((progress * 3) - i).clamp(0.0, 1.0)
+                                        : 0.0),
+                              child: Container(color: const Color(0xFFFF5722)),
                             ),
                           ),
                         ),
@@ -1361,7 +1516,10 @@ class _CookingTechniqueAnimationState extends State<CookingTechniqueAnimation>
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 3,
+                    ),
                     decoration: BoxDecoration(
                       color: const Color(0xFFFF5722),
                       borderRadius: BorderRadius.circular(6),
@@ -1376,19 +1534,27 @@ class _CookingTechniqueAnimationState extends State<CookingTechniqueAnimation>
                       ),
                     ),
                   ),
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                    decoration: BoxDecoration(
-                      color: Colors.black.withValues(alpha: 0.65),
-                      borderRadius: BorderRadius.circular(6),
-                      border: Border.all(color: Colors.white24),
-                    ),
-                    child: Text(
-                      widget.technique.focalPointLabel,
-                      style: const TextStyle(
-                        color: Color(0xFFFFD54F),
-                        fontSize: 9.5,
-                        fontWeight: FontWeight.w600,
+                  const SizedBox(width: 8),
+                  Flexible(
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 8,
+                        vertical: 3,
+                      ),
+                      decoration: BoxDecoration(
+                        color: Colors.black.withValues(alpha: 0.65),
+                        borderRadius: BorderRadius.circular(6),
+                        border: Border.all(color: Colors.white24),
+                      ),
+                      child: Text(
+                        widget.technique.focalPointLabel,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(
+                          color: Color(0xFFFFD54F),
+                          fontSize: 9.5,
+                          fontWeight: FontWeight.w600,
+                        ),
                       ),
                     ),
                   ),
@@ -1414,7 +1580,11 @@ class _CookingTechniqueAnimationState extends State<CookingTechniqueAnimation>
                             color: Colors.black.withValues(alpha: 0.3),
                             shape: BoxShape.circle,
                           ),
-                          child: const Icon(Icons.chevron_left_rounded, color: Colors.white70, size: 20),
+                          child: const Icon(
+                            Icons.chevron_left_rounded,
+                            color: Colors.white70,
+                            size: 20,
+                          ),
                         ),
                       ),
                     ),
@@ -1433,7 +1603,11 @@ class _CookingTechniqueAnimationState extends State<CookingTechniqueAnimation>
                             color: Colors.black.withValues(alpha: 0.3),
                             shape: BoxShape.circle,
                           ),
-                          child: const Icon(Icons.chevron_right_rounded, color: Colors.white70, size: 20),
+                          child: const Icon(
+                            Icons.chevron_right_rounded,
+                            color: Colors.white70,
+                            size: 20,
+                          ),
                         ),
                       ),
                     ),
@@ -1448,7 +1622,10 @@ class _CookingTechniqueAnimationState extends State<CookingTechniqueAnimation>
               left: 10,
               right: 10,
               child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 8,
+                ),
                 decoration: BoxDecoration(
                   color: Colors.black.withValues(alpha: 0.75),
                   borderRadius: BorderRadius.circular(10),
@@ -1460,7 +1637,11 @@ class _CookingTechniqueAnimationState extends State<CookingTechniqueAnimation>
                   children: [
                     Row(
                       children: [
-                        const Icon(Icons.play_circle_fill_rounded, color: Color(0xFFFF5722), size: 14),
+                        const Icon(
+                          Icons.play_circle_fill_rounded,
+                          color: Color(0xFFFF5722),
+                          size: 14,
+                        ),
                         const SizedBox(width: 6),
                         Expanded(
                           child: Text(

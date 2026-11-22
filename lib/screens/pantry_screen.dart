@@ -1,6 +1,8 @@
 import '../data/world_countries.dart';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
 import '../l10n/recipe_localization.dart';
 import '../models/models.dart';
 import '../providers/locale_provider.dart';
@@ -17,7 +19,8 @@ class PantryScreen extends ConsumerStatefulWidget {
 }
 
 class _PantryScreenState extends ConsumerState<PantryScreen> {
-  final TextEditingController _customIngredientController = TextEditingController();
+  final TextEditingController _customIngredientController =
+      TextEditingController();
 
   static final List<Map<String, String>> cuisineFilters = [
     {'id': 'Tümü', 'label': '🌍 Tümü'},
@@ -30,7 +33,7 @@ class _PantryScreenState extends ConsumerState<PantryScreen> {
     {'id': 'Pratik & Sokak', 'label': '⚡ Pratik & Sokak'},
     for (final c in WorldCountries.all)
       if (c.id != 'Türk Mutfağı')
-      {'id': c.id, 'flag': c.flag, 'label': '${c.flag} ${c.id}'},
+        {'id': c.id, 'flag': c.flag, 'label': '${c.flag} ${c.id}'},
   ];
 
   static const Map<String, List<Map<String, String>>> stapleCategories = {
@@ -143,7 +146,10 @@ class _PantryScreenState extends ConsumerState<PantryScreen> {
                   ),
                   Text(
                     strings.pantrySubtitle,
-                    style: const TextStyle(fontSize: 12, color: Color(0xFF64748B)),
+                    style: const TextStyle(
+                      fontSize: 12,
+                      color: Color(0xFF64748B),
+                    ),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
@@ -158,10 +164,17 @@ class _PantryScreenState extends ConsumerState<PantryScreen> {
               padding: const EdgeInsets.only(right: 8),
               child: TextButton.icon(
                 onPressed: () => ref.read(pantryProvider.notifier).clearAll(),
-                icon: const Icon(Icons.delete_outline_rounded, size: 18, color: Colors.red),
+                icon: const Icon(
+                  Icons.delete_outline_rounded,
+                  size: 18,
+                  color: Colors.red,
+                ),
                 label: Text(
                   strings.clearAll,
-                  style: const TextStyle(color: Colors.red, fontWeight: FontWeight.w600),
+                  style: const TextStyle(
+                    color: Colors.red,
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
               ),
             ),
@@ -194,14 +207,20 @@ class _PantryScreenState extends ConsumerState<PantryScreen> {
                 children: [
                   Row(
                     children: [
-                      const Icon(Icons.auto_awesome, color: Colors.amberAccent, size: 20),
+                      const Icon(
+                        Icons.auto_awesome,
+                        color: Colors.amberAccent,
+                        size: 20,
+                      ),
                       const SizedBox(width: 8),
-                      Text(
-                        'Dolabınızda Ne Var? (${pantryState.selectedKeys.length} Seçildi)',
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
+                      Expanded(
+                        child: Text(
+                          'Dolabınızda Ne Var? (${pantryState.selectedKeys.length} Seçildi)',
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                       ),
                     ],
@@ -209,7 +228,11 @@ class _PantryScreenState extends ConsumerState<PantryScreen> {
                   const SizedBox(height: 6),
                   const Text(
                     'Elinizdeki malzemeleri seçin veya ekleyin. İstediğiniz mutfağı filtreleyerek anında 100% uyumlu tarifleri keşfedin.',
-                    style: TextStyle(color: Colors.white70, fontSize: 13, height: 1.4),
+                    style: TextStyle(
+                      color: Colors.white70,
+                      fontSize: 13,
+                      height: 1.4,
+                    ),
                   ),
                 ],
               ),
@@ -225,20 +248,28 @@ class _PantryScreenState extends ConsumerState<PantryScreen> {
                 children: [
                   Row(
                     children: [
-                      const Icon(Icons.restaurant_menu_rounded, size: 18, color: Color(0xFF065F46)),
+                      const Icon(
+                        Icons.restaurant_menu_rounded,
+                        size: 18,
+                        color: Color(0xFF065F46),
+                      ),
                       const SizedBox(width: 6),
-                      Text(
-                        strings.whichCuisineQuestion,
-                        style: const TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.bold,
-                          color: Color(0xFF1E293B),
+                      Expanded(
+                        child: Text(
+                          strings.whichCuisineQuestion,
+                          style: const TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.bold,
+                            color: Color(0xFF1E293B),
+                          ),
                         ),
                       ),
-                      const Spacer(),
                       if (pantryState.selectedCuisine != 'Tümü')
                         Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 8,
+                            vertical: 2,
+                          ),
                           decoration: BoxDecoration(
                             color: const Color(0xFFD1FAE5),
                             borderRadius: BorderRadius.circular(10),
@@ -259,27 +290,37 @@ class _PantryScreenState extends ConsumerState<PantryScreen> {
                     scrollDirection: Axis.horizontal,
                     child: Row(
                       children: cuisineFilters.map((c) {
-                        final isSelected = pantryState.selectedCuisine == c['id'];
+                        final isSelected =
+                            pantryState.selectedCuisine == c['id'];
                         final emoji = c['label']!.split(' ').first;
-                        final localizedLabel = '$emoji ${RecipeLocalization.localizeCuisine(c['id']!, strings)}';
+                        final localizedLabel =
+                            '$emoji ${RecipeLocalization.localizeCuisine(c['id']!, strings)}';
                         return Padding(
                           padding: const EdgeInsets.only(right: 8),
                           child: FilterChip(
                             label: Text(localizedLabel),
                             selected: isSelected,
                             onSelected: (_) {
-                              ref.read(pantryProvider.notifier).setCuisine(c['id']!);
+                              ref
+                                  .read(pantryProvider.notifier)
+                                  .setCuisine(c['id']!);
                             },
                             selectedColor: const Color(0xFF059669),
                             checkmarkColor: Colors.white,
                             labelStyle: TextStyle(
-                              color: isSelected ? Colors.white : const Color(0xFF1E293B),
-                              fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
+                              color: isSelected
+                                  ? Colors.white
+                                  : const Color(0xFF1E293B),
+                              fontWeight: isSelected
+                                  ? FontWeight.bold
+                                  : FontWeight.w500,
                               fontSize: 13,
                             ),
                             backgroundColor: Colors.white,
                             side: BorderSide(
-                              color: isSelected ? const Color(0xFF059669) : Colors.grey.shade300,
+                              color: isSelected
+                                  ? const Color(0xFF059669)
+                                  : Colors.grey.shade300,
                               width: isSelected ? 1.5 : 1,
                             ),
                             shape: RoundedRectangleBorder(
@@ -307,10 +348,16 @@ class _PantryScreenState extends ConsumerState<PantryScreen> {
                       onSubmitted: (_) => _handleAddCustom(),
                       decoration: InputDecoration(
                         hintText: 'Farklı malzeme ekle (örn: mantar, patlıcan, sucuk)...',
-                        hintStyle: TextStyle(color: Colors.grey.shade400, fontSize: 13),
+                        hintStyle: TextStyle(
+                          color: Colors.grey.shade400,
+                          fontSize: 13,
+                        ),
                         filled: true,
                         fillColor: Colors.white,
-                        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                        contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 12,
+                        ),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
                           borderSide: BorderSide(color: Colors.grey.shade200),
@@ -328,14 +375,20 @@ class _PantryScreenState extends ConsumerState<PantryScreen> {
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xFF059669),
                       foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 14,
+                      ),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12),
                       ),
                     ),
                     child: FittedBox(
                       fit: BoxFit.scaleDown,
-                      child: Text(strings.add, style: const TextStyle(fontWeight: FontWeight.bold)),
+                      child: Text(
+                        strings.add,
+                        style: const TextStyle(fontWeight: FontWeight.bold),
+                      ),
                     ),
                   ),
                 ],
@@ -356,7 +409,10 @@ class _PantryScreenState extends ConsumerState<PantryScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          RecipeLocalization.localizePantryCategory(category.key, strings),
+                          RecipeLocalization.localizePantryCategory(
+                            category.key,
+                            strings,
+                          ),
                           style: const TextStyle(
                             fontSize: 13,
                             fontWeight: FontWeight.bold,
@@ -370,25 +426,39 @@ class _PantryScreenState extends ConsumerState<PantryScreen> {
                           children: category.value.map((item) {
                             final key = item['key']!;
                             final rawLabel = item['label']!;
-                            final label = RecipeLocalization.localizePantryIngredientLabel(key, rawLabel, strings.locale);
-                            final isSelected = pantryState.selectedKeys.contains(key);
+                            final label =
+                                RecipeLocalization.localizePantryIngredientLabel(
+                                  key,
+                                  rawLabel,
+                                  strings.locale,
+                                );
+                            final isSelected = pantryState.selectedKeys
+                                .contains(key);
 
                             return FilterChip(
                               label: Text(label),
                               selected: isSelected,
                               onSelected: (_) {
-                                ref.read(pantryProvider.notifier).toggleIngredient(key);
+                                ref
+                                    .read(pantryProvider.notifier)
+                                    .toggleIngredient(key);
                               },
                               selectedColor: const Color(0xFF059669),
                               checkmarkColor: Colors.white,
                               labelStyle: TextStyle(
-                                color: isSelected ? Colors.white : const Color(0xFF1E293B),
-                                fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                                color: isSelected
+                                    ? Colors.white
+                                    : const Color(0xFF1E293B),
+                                fontWeight: isSelected
+                                    ? FontWeight.bold
+                                    : FontWeight.normal,
                                 fontSize: 13,
                               ),
                               backgroundColor: Colors.white,
                               side: BorderSide(
-                                color: isSelected ? const Color(0xFF059669) : Colors.grey.shade200,
+                                color: isSelected
+                                    ? const Color(0xFF059669)
+                                    : Colors.grey.shade200,
                               ),
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(20),
@@ -420,7 +490,10 @@ class _PantryScreenState extends ConsumerState<PantryScreen> {
                   ),
                   const SizedBox(width: 8),
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 2,
+                    ),
                     decoration: BoxDecoration(
                       color: const Color(0xFFD1FAE5),
                       borderRadius: BorderRadius.circular(12),
@@ -437,10 +510,15 @@ class _PantryScreenState extends ConsumerState<PantryScreen> {
                   const Spacer(),
                   if (pantryState.selectedKeys.isNotEmpty)
                     InkWell(
-                      onTap: () => ref.read(pantryProvider.notifier).toggleOnlyFullMatches(),
+                      onTap: () => ref
+                          .read(pantryProvider.notifier)
+                          .toggleOnlyFullMatches(),
                       borderRadius: BorderRadius.circular(20),
                       child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 10,
+                          vertical: 6,
+                        ),
                         decoration: BoxDecoration(
                           color: pantryState.onlyFullMatches
                               ? const Color(0xFF059669)
@@ -460,7 +538,9 @@ class _PantryScreenState extends ConsumerState<PantryScreen> {
                                   ? Icons.check_circle_rounded
                                   : Icons.filter_alt_outlined,
                               size: 13,
-                              color: pantryState.onlyFullMatches ? Colors.white : Colors.grey.shade700,
+                              color: pantryState.onlyFullMatches
+                                  ? Colors.white
+                                  : Colors.grey.shade700,
                             ),
                             const SizedBox(width: 4),
                             Text(
@@ -468,7 +548,9 @@ class _PantryScreenState extends ConsumerState<PantryScreen> {
                               style: TextStyle(
                                 fontSize: 11,
                                 fontWeight: FontWeight.bold,
-                                color: pantryState.onlyFullMatches ? Colors.white : Colors.grey.shade700,
+                                color: pantryState.onlyFullMatches
+                                    ? Colors.white
+                                    : Colors.grey.shade700,
                               ),
                             ),
                           ],
@@ -503,7 +585,11 @@ class _PantryScreenState extends ConsumerState<PantryScreen> {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Icon(CookingIcons.pantry, size: 54, color: Colors.grey.shade300),
+                    Icon(
+                      CookingIcons.pantry,
+                      size: 54,
+                      color: Colors.grey.shade300,
+                    ),
                     const SizedBox(height: 16),
                     Text(
                       strings.pantryEmptyTitle,
@@ -517,7 +603,10 @@ class _PantryScreenState extends ConsumerState<PantryScreen> {
                     Text(
                       strings.pantryEmptyDesc,
                       textAlign: TextAlign.center,
-                      style: TextStyle(fontSize: 13, color: Colors.grey.shade600),
+                      style: TextStyle(
+                        fontSize: 13,
+                        color: Colors.grey.shade600,
+                      ),
                     ),
                   ],
                 ),
@@ -536,20 +625,30 @@ class _PantryScreenState extends ConsumerState<PantryScreen> {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Icon(Icons.search_off_rounded, size: 48, color: Colors.grey.shade400),
+                    Icon(
+                      Icons.search_off_rounded,
+                      size: 48,
+                      color: Colors.grey.shade400,
+                    ),
                     const SizedBox(height: 12),
                     Text(
                       pantryState.selectedCuisine != 'Tümü'
                           ? '${RecipeLocalization.localizeCuisine(pantryState.selectedCuisine, strings)}: ${strings.noRecipesFound}'
                           : strings.noRecipesFound,
                       textAlign: TextAlign.center,
-                      style: TextStyle(color: Colors.grey.shade700, fontWeight: FontWeight.w500),
+                      style: TextStyle(
+                        color: Colors.grey.shade700,
+                        fontWeight: FontWeight.w500,
+                      ),
                     ),
                     const SizedBox(height: 8),
                     Text(
                       strings.tryDifferentFilter,
                       textAlign: TextAlign.center,
-                      style: TextStyle(color: Colors.grey.shade500, fontSize: 12),
+                      style: TextStyle(
+                        color: Colors.grey.shade500,
+                        fontSize: 12,
+                      ),
                     ),
                   ],
                 ),
@@ -559,29 +658,26 @@ class _PantryScreenState extends ConsumerState<PantryScreen> {
             SliverPadding(
               padding: const EdgeInsets.fromLTRB(16, 0, 16, 32),
               sliver: SliverList(
-                delegate: SliverChildBuilderDelegate(
-                  (context, index) {
-                    final recipe = pantryState.matchedRecipes[index];
-                    final matchScore = recipe.calculateMatchScore(userKeys);
-                    final missingKeys = recipe.getMissingKeys(userKeys);
-                    final subs = recipe.getApplicableSubstitutions(userKeys);
+                delegate: SliverChildBuilderDelegate((context, index) {
+                  final recipe = pantryState.matchedRecipes[index];
+                  final matchScore = recipe.calculateMatchScore(userKeys);
+                  final missingKeys = recipe.getMissingKeys(userKeys);
+                  final subs = recipe.getApplicableSubstitutions(userKeys);
 
-                    return _PantryRecipeCard(
-                      recipe: recipe,
-                      matchScore: matchScore,
-                      missingKeys: missingKeys,
-                      substitutions: subs,
-                      onTap: () {
-                        Navigator.of(context).push(
-                          MaterialPageRoute(
-                            builder: (_) => RecipeDetailScreen(recipe: recipe),
-                          ),
-                        );
-                      },
-                    );
-                  },
-                  childCount: pantryState.matchedRecipes.length,
-                ),
+                  return _PantryRecipeCard(
+                    recipe: recipe,
+                    matchScore: matchScore,
+                    missingKeys: missingKeys,
+                    substitutions: subs,
+                    onTap: () {
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (_) => RecipeDetailScreen(recipe: recipe),
+                        ),
+                      );
+                    },
+                  );
+                }, childCount: pantryState.matchedRecipes.length),
               ),
             ),
         ],
@@ -623,7 +719,9 @@ class _PantryRecipeCard extends ConsumerWidget {
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: isFullMatch ? const Color(0xFF10B981).withValues(alpha: 0.3) : Colors.grey.shade200,
+          color: isFullMatch
+              ? const Color(0xFF10B981).withValues(alpha: 0.3)
+              : Colors.grey.shade200,
           width: isFullMatch ? 1.5 : 1,
         ),
         boxShadow: [
@@ -668,7 +766,10 @@ class _PantryRecipeCard extends ConsumerWidget {
                             children: [
                               // Match percentage badge
                               Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 8,
+                                  vertical: 4,
+                                ),
                                 decoration: BoxDecoration(
                                   color: scoreColor.withValues(alpha: 0.12),
                                   borderRadius: BorderRadius.circular(8),
@@ -677,7 +778,9 @@ class _PantryRecipeCard extends ConsumerWidget {
                                   mainAxisSize: MainAxisSize.min,
                                   children: [
                                     Icon(
-                                      isFullMatch ? Icons.check_circle : Icons.pie_chart_outline_rounded,
+                                      isFullMatch
+                                          ? Icons.check_circle
+                                          : Icons.pie_chart_outline_rounded,
                                       size: 14,
                                       color: scoreColor,
                                     ),
@@ -697,7 +800,10 @@ class _PantryRecipeCard extends ConsumerWidget {
                               // Cuisine badge
                               Flexible(
                                 child: Container(
-                                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 6,
+                                    vertical: 4,
+                                  ),
                                   decoration: BoxDecoration(
                                     color: const Color(0xFFF1F5F9),
                                     borderRadius: BorderRadius.circular(8),
@@ -715,11 +821,18 @@ class _PantryRecipeCard extends ConsumerWidget {
                                 ),
                               ),
                               const Spacer(),
-                              Icon(CookingIcons.clock, size: 12, color: Colors.grey.shade500),
+                              Icon(
+                                CookingIcons.clock,
+                                size: 12,
+                                color: Colors.grey.shade500,
+                              ),
                               const SizedBox(width: 3),
                               Text(
                                 strings.minutesShort(recipe.totalTime),
-                                style: TextStyle(fontSize: 11, color: Colors.grey.shade600),
+                                style: TextStyle(
+                                  fontSize: 11,
+                                  color: Colors.grey.shade600,
+                                ),
                               ),
                             ],
                           ),
@@ -746,7 +859,10 @@ class _PantryRecipeCard extends ConsumerWidget {
                 if (isFullMatch)
                   Container(
                     width: double.infinity,
-                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 10,
+                      vertical: 6,
+                    ),
                     decoration: BoxDecoration(
                       color: const Color(0xFFECFDF5),
                       borderRadius: BorderRadius.circular(8),
@@ -754,7 +870,11 @@ class _PantryRecipeCard extends ConsumerWidget {
                     ),
                     child: Row(
                       children: [
-                        const Icon(Icons.verified_rounded, size: 16, color: Color(0xFF059669)),
+                        const Icon(
+                          Icons.verified_rounded,
+                          size: 16,
+                          color: Color(0xFF059669),
+                        ),
                         const SizedBox(width: 6),
                         Expanded(
                           child: Text(
@@ -790,14 +910,20 @@ class _PantryRecipeCard extends ConsumerWidget {
                           runSpacing: 4,
                           children: missingKeys.map((key) {
                             return Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 6,
+                                vertical: 2,
+                              ),
                               decoration: BoxDecoration(
                                 color: Colors.red.shade50,
                                 borderRadius: BorderRadius.circular(6),
                                 border: Border.all(color: Colors.red.shade200),
                               ),
                               child: Text(
-                                RecipeLocalization.localizeIngredientName(key, strings.locale),
+                                RecipeLocalization.localizeIngredientName(
+                                  key,
+                                  strings.locale,
+                                ),
                                 style: TextStyle(
                                   fontSize: 11,
                                   color: Colors.red.shade700,
@@ -828,7 +954,11 @@ class _PantryRecipeCard extends ConsumerWidget {
                       children: [
                         Row(
                           children: [
-                            Icon(CookingIcons.substitute, size: 14, color: Colors.amber.shade800),
+                            Icon(
+                              CookingIcons.substitute,
+                              size: 14,
+                              color: Colors.amber.shade800,
+                            ),
                             const SizedBox(width: 4),
                             Text(
                               '${strings.substitutionSuggestion} (${RecipeLocalization.localizeIngredientName(substitutions.first.ingredient, strings.locale)} ${strings.insteadOf}):',
@@ -843,7 +973,10 @@ class _PantryRecipeCard extends ConsumerWidget {
                         const SizedBox(height: 2),
                         Text(
                           '${RecipeLocalization.localizeSubstitutionAlternative(substitutions.first.alternative, strings.locale)} - ${RecipeLocalization.localizeSubstitutionTip(substitutions.first.tip, strings.locale)}',
-                          style: TextStyle(fontSize: 11, color: Colors.amber.shade900),
+                          style: TextStyle(
+                            fontSize: 11,
+                            color: Colors.amber.shade900,
+                          ),
                         ),
                       ],
                     ),

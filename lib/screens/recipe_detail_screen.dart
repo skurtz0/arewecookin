@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
 import '../models/models.dart';
 import '../utils/cooking_icons.dart';
 import '../widgets/recipe_image.dart';
@@ -42,7 +43,10 @@ class _RecipeDetailScreenState extends ConsumerState<RecipeDetailScreen> {
       ..writeln('${r.totalTime} min | $_servings')
       ..writeln();
     for (final i in r.ingredients) {
-      b.writeln('- ${i.localizedName(locale)}: ${_formatScaledAmount(i.amount)} ${i.localizedUnit(locale)}'.trimRight());
+      b.writeln(
+        '- ${i.localizedName(locale)}: ${_formatScaledAmount(i.amount)} ${i.localizedUnit(locale)}'
+            .trimRight(),
+      );
     }
     b.writeln();
     for (var n = 0; n < r.steps.length; n++) {
@@ -63,7 +67,8 @@ class _RecipeDetailScreenState extends ConsumerState<RecipeDetailScreen> {
 
   void _toggleAllIngredients() {
     setState(() {
-      if (_checkedIngredientIndices.length == widget.recipe.ingredients.length) {
+      if (_checkedIngredientIndices.length ==
+          widget.recipe.ingredients.length) {
         _checkedIngredientIndices.clear();
       } else {
         _checkedIngredientIndices.addAll(
@@ -116,7 +121,9 @@ class _RecipeDetailScreenState extends ConsumerState<RecipeDetailScreen> {
     final recipe = widget.recipe;
     final totalIngredients = recipe.ingredients.length;
     final checkedCount = _checkedIngredientIndices.length;
-    final progress = totalIngredients > 0 ? checkedCount / totalIngredients : 1.0;
+    final progress = totalIngredients > 0
+        ? checkedCount / totalIngredients
+        : 1.0;
     final catColor = _categoryColor(recipe.category);
 
     return Scaffold(
@@ -136,21 +143,31 @@ class _RecipeDetailScreenState extends ConsumerState<RecipeDetailScreen> {
           overflow: TextOverflow.ellipsis,
         ),
         actions: [
-          Builder(builder: (context) {
-            final strings = ref.read(appStringsProvider);
-            return IconButton(
-              key: const Key('copy_recipe'),
-              tooltip: strings.copyRecipe,
-              icon: const Icon(Icons.copy_rounded, size: 22, color: Color(0xFF64748B)),
-              onPressed: () async {
-                await Clipboard.setData(ClipboardData(text: recipeAsText(strings.locale)));
-                if (!context.mounted) return;
-                ScaffoldMessenger.of(context)
-                  ..hideCurrentSnackBar()
-                  ..showSnackBar(SnackBar(content: Text(strings.recipeCopied)));
-              },
-            );
-          }),
+          Builder(
+            builder: (context) {
+              final strings = ref.read(appStringsProvider);
+              return IconButton(
+                key: const Key('copy_recipe'),
+                tooltip: strings.copyRecipe,
+                icon: const Icon(
+                  Icons.copy_rounded,
+                  size: 22,
+                  color: Color(0xFF64748B),
+                ),
+                onPressed: () async {
+                  await Clipboard.setData(
+                    ClipboardData(text: recipeAsText(strings.locale)),
+                  );
+                  if (!context.mounted) return;
+                  ScaffoldMessenger.of(context)
+                    ..hideCurrentSnackBar()
+                    ..showSnackBar(
+                      SnackBar(content: Text(strings.recipeCopied)),
+                    );
+                },
+              );
+            },
+          ),
           Consumer(
             builder: (context, ref, _) {
               final savedState = ref.watch(savedRecipesProvider);
@@ -159,13 +176,18 @@ class _RecipeDetailScreenState extends ConsumerState<RecipeDetailScreen> {
               return IconButton(
                 tooltip: strings.a11ySave,
                 icon: Icon(
-                  isSaved ? Icons.bookmark_rounded : Icons.bookmark_border_rounded,
-                  color: isSaved ? const Color(0xFFFF5722) : const Color(0xFF64748B),
+                  isSaved
+                      ? Icons.bookmark_rounded
+                      : Icons.bookmark_border_rounded,
+                  color: isSaved
+                      ? const Color(0xFFFF5722)
+                      : const Color(0xFF64748B),
                   size: 24,
                 ),
                 onPressed: () async {
-                  final nowSaved =
-                      await ref.read(savedRecipesProvider.notifier).toggleSave(recipe);
+                  final nowSaved = await ref
+                      .read(savedRecipesProvider.notifier)
+                      .toggleSave(recipe);
                   if (context.mounted) {
                     ScaffoldMessenger.of(context).clearSnackBars();
                     ScaffoldMessenger.of(context).showSnackBar(
@@ -232,10 +254,15 @@ class _RecipeDetailScreenState extends ConsumerState<RecipeDetailScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Row(
+                  Wrap(
+                    spacing: 8,
+                    runSpacing: 8,
                     children: [
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 6,
+                        ),
                         decoration: BoxDecoration(
                           color: catColor.withValues(alpha: 0.12),
                           borderRadius: BorderRadius.circular(10),
@@ -249,9 +276,11 @@ class _RecipeDetailScreenState extends ConsumerState<RecipeDetailScreen> {
                           ),
                         ),
                       ),
-                      const SizedBox(width: 8),
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 10,
+                          vertical: 6,
+                        ),
                         decoration: BoxDecoration(
                           color: Colors.grey.shade100,
                           borderRadius: BorderRadius.circular(10),
@@ -328,32 +357,46 @@ class _RecipeDetailScreenState extends ConsumerState<RecipeDetailScreen> {
               ),
               child: Row(
                 children: [
-                  const Icon(CookingIcons.users, color: Color(0xFFFF5722), size: 20),
+                  const Icon(
+                    CookingIcons.users,
+                    color: Color(0xFFFF5722),
+                    size: 20,
+                  ),
                   const SizedBox(width: 8),
-                  Text(
-                    '${strings.servings}:',
-                    style: const TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                      color: Color(0xFF1E293B),
+                  Expanded(
+                    child: Text(
+                      '${strings.servings}:',
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                        color: Color(0xFF1E293B),
+                      ),
                     ),
                   ),
-                  const Spacer(),
                   IconButton(
                     tooltip: strings.a11yFewer,
                     visualDensity: VisualDensity.compact,
                     icon: const Icon(Icons.remove_circle_outline_rounded),
-                    color: _servings > 1 ? const Color(0xFFFF5722) : Colors.grey.shade300,
+                    color: _servings > 1
+                        ? const Color(0xFFFF5722)
+                        : Colors.grey.shade300,
                     onPressed: _servings > 1
                         ? () => setState(() => _servings--)
                         : null,
                   ),
-                  Text(
-                    strings.servingsFormat(_servings),
-                    style: const TextStyle(
-                      fontSize: 15,
-                      fontWeight: FontWeight.bold,
-                      color: Color(0xFF0F172A),
+                  Flexible(
+                    child: FittedBox(
+                      fit: BoxFit.scaleDown,
+                      child: Text(
+                        strings.servingsFormat(_servings),
+                        style: const TextStyle(
+                          fontSize: 15,
+                          fontWeight: FontWeight.bold,
+                          color: Color(0xFF0F172A),
+                        ),
+                      ),
                     ),
                   ),
                   IconButton(
@@ -389,7 +432,9 @@ class _RecipeDetailScreenState extends ConsumerState<RecipeDetailScreen> {
                         '$checkedCount / $totalIngredients ${strings.ready} (${(progress * 100).toInt()}%)',
                         style: TextStyle(
                           fontSize: 13,
-                          color: progress == 1.0 ? Colors.green.shade700 : Colors.grey.shade600,
+                          color: progress == 1.0
+                              ? Colors.green.shade700
+                              : Colors.grey.shade600,
                           fontWeight: FontWeight.w500,
                         ),
                       ),
@@ -400,7 +445,10 @@ class _RecipeDetailScreenState extends ConsumerState<RecipeDetailScreen> {
                   onPressed: _toggleAllIngredients,
                   style: TextButton.styleFrom(
                     visualDensity: VisualDensity.compact,
-                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 10,
+                      vertical: 6,
+                    ),
                   ),
                   child: Text(
                     checkedCount == totalIngredients
@@ -424,7 +472,9 @@ class _RecipeDetailScreenState extends ConsumerState<RecipeDetailScreen> {
                 value: progress,
                 minHeight: 8,
                 backgroundColor: Colors.grey.shade200,
-                color: progress == 1.0 ? const Color(0xFF10B981) : const Color(0xFFFF5722),
+                color: progress == 1.0
+                    ? const Color(0xFF10B981)
+                    : const Color(0xFFFF5722),
               ),
             ),
 
@@ -441,7 +491,8 @@ class _RecipeDetailScreenState extends ConsumerState<RecipeDetailScreen> {
                 physics: const NeverScrollableScrollPhysics(),
                 shrinkWrap: true,
                 itemCount: recipe.ingredients.length,
-                separatorBuilder: (_, _) => const Divider(height: 1, indent: 16, endIndent: 16),
+                separatorBuilder: (_, _) =>
+                    const Divider(height: 1, indent: 16, endIndent: 16),
                 itemBuilder: (context, index) {
                   final ing = recipe.ingredients[index];
                   final isChecked = _checkedIngredientIndices.contains(index);
@@ -451,14 +502,19 @@ class _RecipeDetailScreenState extends ConsumerState<RecipeDetailScreen> {
                     onTap: () => _toggleIngredient(index),
                     borderRadius: BorderRadius.circular(16),
                     child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 12,
+                      ),
                       child: Row(
                         children: [
                           Icon(
                             isChecked
                                 ? Icons.check_circle_rounded
                                 : Icons.radio_button_unchecked_rounded,
-                            color: isChecked ? const Color(0xFF10B981) : Colors.grey.shade400,
+                            color: isChecked
+                                ? const Color(0xFF10B981)
+                                : Colors.grey.shade400,
                             size: 22,
                           ),
                           const SizedBox(width: 14),
@@ -468,8 +524,12 @@ class _RecipeDetailScreenState extends ConsumerState<RecipeDetailScreen> {
                               style: TextStyle(
                                 fontSize: 15,
                                 fontWeight: FontWeight.w500,
-                                decoration: isChecked ? TextDecoration.lineThrough : null,
-                                color: isChecked ? Colors.grey.shade400 : const Color(0xFF1E293B),
+                                decoration: isChecked
+                                    ? TextDecoration.lineThrough
+                                    : null,
+                                color: isChecked
+                                    ? Colors.grey.shade400
+                                    : const Color(0xFF1E293B),
                               ),
                             ),
                           ),
@@ -478,7 +538,9 @@ class _RecipeDetailScreenState extends ConsumerState<RecipeDetailScreen> {
                             style: TextStyle(
                               fontSize: 14,
                               fontWeight: FontWeight.bold,
-                              color: isChecked ? Colors.grey.shade400 : const Color(0xFFFF5722),
+                              color: isChecked
+                                  ? Colors.grey.shade400
+                                  : const Color(0xFFFF5722),
                             ),
                           ),
                         ],
@@ -499,23 +561,36 @@ class _RecipeDetailScreenState extends ConsumerState<RecipeDetailScreen> {
                   // Ingredients already ticked as "have it" are not added to the list.
                   final needed = <Ingredient>[
                     for (var n = 0; n < recipe.ingredients.length; n++)
-                      if (!_checkedIngredientIndices.contains(n)) recipe.ingredients[n],
+                      if (!_checkedIngredientIndices.contains(n))
+                        recipe.ingredients[n],
                   ];
-                  final added = ref.read(shoppingListProvider.notifier).addAll(
-                        needed.where((i) => !i.isOptional).map((i) => ShoppingItem(
-                              name: i.localizedName(strings.locale),
-                              amount: _formatScaledAmount(i.amount),
-                              unit: i.localizedUnit(strings.locale),
-                              recipeTitle: recipe.localizedTitle(strings.locale),
-                            )),
+                  final added = ref
+                      .read(shoppingListProvider.notifier)
+                      .addAll(
+                        needed
+                            .where((i) => !i.isOptional)
+                            .map(
+                              (i) => ShoppingItem(
+                                name: i.localizedName(strings.locale),
+                                amount: _formatScaledAmount(i.amount),
+                                unit: i.localizedUnit(strings.locale),
+                                recipeTitle: recipe.localizedTitle(
+                                  strings.locale,
+                                ),
+                              ),
+                            ),
                       );
                   ScaffoldMessenger.of(context)
                     ..hideCurrentSnackBar()
-                    ..showSnackBar(SnackBar(
-                      content: Text(added == 0
-                          ? strings.shoppingNothingNew
-                          : strings.shoppingAdded(added)),
-                    ));
+                    ..showSnackBar(
+                      SnackBar(
+                        content: Text(
+                          added == 0
+                              ? strings.shoppingNothingNew
+                              : strings.shoppingAdded(added),
+                        ),
+                      ),
+                    );
                 },
               ),
             ),
@@ -531,29 +606,46 @@ class _RecipeDetailScreenState extends ConsumerState<RecipeDetailScreen> {
                   final day = await showModalBottomSheet<int>(
                     context: context,
                     builder: (ctx) => SafeArea(
-                      child: Column(mainAxisSize: MainAxisSize.min, children: [
-                        Padding(
-                          padding: const EdgeInsets.all(16),
-                          child: Text(strings.mealPlanPickDay,
-                              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-                        ),
-                        for (var d = 1; d <= 7; d++)
-                          ListTile(
-                            key: Key('plan_day_$d'),
-                            title: Text(strings.weekdayName(d)),
-                            onTap: () => Navigator.of(ctx).pop(d),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.all(16),
+                            child: Text(
+                              strings.mealPlanPickDay,
+                              style: const TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
                           ),
-                      ]),
+                          for (var d = 1; d <= 7; d++)
+                            ListTile(
+                              key: Key('plan_day_$d'),
+                              title: Text(strings.weekdayName(d)),
+                              onTap: () => Navigator.of(ctx).pop(d),
+                            ),
+                        ],
+                      ),
                     ),
                   );
                   if (day == null || !context.mounted) return;
-                  final ok = ref.read(mealPlanProvider.notifier).add(day, recipe);
+                  final ok = ref
+                      .read(mealPlanProvider.notifier)
+                      .add(day, recipe);
                   ScaffoldMessenger.of(context)
                     ..hideCurrentSnackBar()
-                    ..showSnackBar(SnackBar(
-                        content: Text(ok
-                            ? strings.mealPlanAddedTo(strings.weekdayName(day))
-                            : strings.mealPlanAlready)));
+                    ..showSnackBar(
+                      SnackBar(
+                        content: Text(
+                          ok
+                              ? strings.mealPlanAddedTo(
+                                  strings.weekdayName(day),
+                                )
+                              : strings.mealPlanAlready,
+                        ),
+                      ),
+                    );
                 },
               ),
             ),
@@ -563,7 +655,11 @@ class _RecipeDetailScreenState extends ConsumerState<RecipeDetailScreen> {
               const SizedBox(height: 24),
               Row(
                 children: [
-                  Icon(CookingIcons.substitute, color: Color(0xFFF59E0B), size: 20),
+                  Icon(
+                    CookingIcons.substitute,
+                    color: Color(0xFFF59E0B),
+                    size: 20,
+                  ),
                   const SizedBox(width: 8),
                   Text(
                     strings.substitutionsTitle,
@@ -615,7 +711,10 @@ class _RecipeDetailScreenState extends ConsumerState<RecipeDetailScreen> {
                             ),
                             const SizedBox(height: 4),
                             Text(
-                              RecipeLocalization.localizeSubstitutionTip(sub.tip, strings.locale),
+                              RecipeLocalization.localizeSubstitutionTip(
+                                sub.tip,
+                                strings.locale,
+                              ),
                               style: const TextStyle(
                                 fontSize: 12,
                                 color: Color(0xFFB45309),
@@ -663,7 +762,10 @@ class _RecipeDetailScreenState extends ConsumerState<RecipeDetailScreen> {
               itemBuilder: (context, index) {
                 final step = recipe.steps[index];
                 final toolIcon = CookingIcons.getToolIcon(step.toolIcon);
-                final toolName = CookingIcons.getToolLabel(step.toolIcon, strings.locale);
+                final toolName = CookingIcons.getToolLabel(
+                  step.toolIcon,
+                  strings.locale,
+                );
 
                 return Container(
                   margin: const EdgeInsets.only(bottom: 10),
@@ -708,22 +810,38 @@ class _RecipeDetailScreenState extends ConsumerState<RecipeDetailScreen> {
                                   ),
                                 ),
                                 const SizedBox(width: 8),
-                                Container(
-                                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
-                                  decoration: BoxDecoration(
-                                    color: Colors.grey.shade100,
-                                    borderRadius: BorderRadius.circular(6),
-                                  ),
-                                  child: Row(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      Icon(toolIcon, size: 13, color: Colors.grey.shade600),
-                                      const SizedBox(width: 4),
-                                      Text(
-                                        toolName,
-                                        style: TextStyle(fontSize: 11, color: Colors.grey.shade600),
-                                      ),
-                                    ],
+                                Flexible(
+                                  child: Container(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 6,
+                                      vertical: 3,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      color: Colors.grey.shade100,
+                                      borderRadius: BorderRadius.circular(6),
+                                    ),
+                                    child: Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        Icon(
+                                          toolIcon,
+                                          size: 13,
+                                          color: Colors.grey.shade600,
+                                        ),
+                                        const SizedBox(width: 4),
+                                        Flexible(
+                                          child: Text(
+                                            toolName,
+                                            maxLines: 1,
+                                            overflow: TextOverflow.ellipsis,
+                                            style: TextStyle(
+                                              fontSize: 11,
+                                              color: Colors.grey.shade600,
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
                                   ),
                                 ),
                               ],
@@ -744,23 +862,37 @@ class _RecipeDetailScreenState extends ConsumerState<RecipeDetailScreen> {
                                 runSpacing: 6,
                                 children: step.stepIngredients.map((item) {
                                   return Container(
-                                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 8,
+                                      vertical: 4,
+                                    ),
                                     decoration: BoxDecoration(
                                       color: const Color(0xFFF1F5F9),
                                       borderRadius: BorderRadius.circular(8),
-                                      border: Border.all(color: Colors.grey.shade200),
+                                      border: Border.all(
+                                        color: Colors.grey.shade200,
+                                      ),
                                     ),
                                     child: Row(
                                       mainAxisSize: MainAxisSize.min,
                                       children: [
-                                        const Icon(Icons.check_circle_outline, size: 12, color: Color(0xFF10B981)),
+                                        const Icon(
+                                          Icons.check_circle_outline,
+                                          size: 12,
+                                          color: Color(0xFF10B981),
+                                        ),
                                         const SizedBox(width: 4),
-                                        Text(
-                                          RecipeLocalization.localizeIngredientName(item, strings.locale),
-                                          style: const TextStyle(
-                                            fontSize: 11,
-                                            color: Color(0xFF475569),
-                                            fontWeight: FontWeight.w600,
+                                        Flexible(
+                                          child: Text(
+                                            RecipeLocalization.localizeIngredientName(
+                                              item,
+                                              strings.locale,
+                                            ),
+                                            style: const TextStyle(
+                                              fontSize: 11,
+                                              color: Color(0xFF475569),
+                                              fontWeight: FontWeight.w600,
+                                            ),
                                           ),
                                         ),
                                       ],
@@ -772,16 +904,25 @@ class _RecipeDetailScreenState extends ConsumerState<RecipeDetailScreen> {
                             if (step.proTip.isNotEmpty) ...[
                               const SizedBox(height: 8),
                               Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 10,
+                                  vertical: 8,
+                                ),
                                 decoration: BoxDecoration(
                                   color: const Color(0xFFFFFBEB),
                                   borderRadius: BorderRadius.circular(8),
-                                  border: Border.all(color: const Color(0xFFFDE68A)),
+                                  border: Border.all(
+                                    color: const Color(0xFFFDE68A),
+                                  ),
                                 ),
                                 child: Row(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    const Icon(CookingIcons.proTip, size: 14, color: Color(0xFFD97706)),
+                                    const Icon(
+                                      CookingIcons.proTip,
+                                      size: 14,
+                                      color: Color(0xFFD97706),
+                                    ),
                                     const SizedBox(width: 8),
                                     Expanded(
                                       child: Text(
@@ -849,7 +990,10 @@ class _RecipeDetailScreenState extends ConsumerState<RecipeDetailScreen> {
                     const SizedBox(width: 8),
                     Text(
                       '${strings.startCooking} 🍳',
-                      style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                   ],
                 ),
