@@ -124,4 +124,16 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text('1 / 2'), findsOneWidget);
   });
+
+  testWidgets('hint about edit and delete shows only when the list has items', (tester) async {
+    SharedPreferences.setMockInitialValues({});
+    final c = ProviderContainer();
+    addTearDown(c.dispose);
+    await tester.pumpWidget(UncontrolledProviderScope(container: c, child: const MaterialApp(home: ShoppingListScreen())));
+    await tester.pumpAndSettle();
+    expect(find.byKey(const Key('shopping_hint')), findsNothing);
+    c.read(shoppingListProvider.notifier).addAll(const [ShoppingItem(name: 'Alpha')]);
+    await tester.pumpAndSettle();
+    expect(find.byKey(const Key('shopping_hint')), findsOneWidget);
+  });
 }

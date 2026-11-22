@@ -191,6 +191,18 @@ class _ShoppingListScreenState extends ConsumerState<ShoppingListScreen> {
               ),
             ),
           ),
+          if (items.isNotEmpty)
+            Padding(
+              padding: const EdgeInsets.fromLTRB(20, 4, 20, 0),
+              child: Align(
+                alignment: AlignmentDirectional.centerStart,
+                child: Text(
+                  strings.shoppingHint,
+                  key: const Key('shopping_hint'),
+                  style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
+                ),
+              ),
+            ),
           Expanded(
             child: items.isEmpty
                 ? Center(
