@@ -20,6 +20,8 @@ class Recipe {
   final List<CookingStep> steps;
   final int servings;
   final String? imageUrl;
+  /// English title for curated world recipes (null = generic translation).
+  final String? titleEn;
 
   const Recipe({
     required this.id,
@@ -36,6 +38,7 @@ class Recipe {
     required this.steps,
     this.servings = 4,
     this.imageUrl,
+    this.titleEn,
   });
 
   int get totalTime => prepTime + cookTime;
@@ -71,6 +74,7 @@ class Recipe {
       'steps': steps.map((s) => s.toMap()).toList(),
       'servings': servings,
       if (imageUrl != null) 'imageUrl': imageUrl,
+      if (titleEn != null) 'titleEn': titleEn,
     };
   }
 
@@ -119,6 +123,7 @@ class Recipe {
       steps: parsedSteps,
       servings: (map['servings'] as num?)?.toInt() ?? 4,
       imageUrl: map['imageUrl'] as String?,
+      titleEn: map['titleEn'] as String?,
     );
   }
 
@@ -158,6 +163,7 @@ class Recipe {
       steps: steps ?? this.steps,
       servings: servings ?? this.servings,
       imageUrl: imageUrl ?? this.imageUrl,
+      titleEn: titleEn,
     );
   }
 

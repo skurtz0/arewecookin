@@ -1097,7 +1097,9 @@ class RecipeGenerator {
       difficulty = 'Zor';
     }
 
-    final imageUrl = dishImageUrls[baseDish] ?? categoryDefaultImages[category]!;
+    // Guessed stock photos did not match the dishes; leave null so the app
+    // shows its category artwork instead of a wrong picture.
+    const String? imageUrl = null;
     final cuisine = dishCuisines[baseDish] ?? 'Türk Mutfağı';
 
     final List<String> selectedKeys = pickKeysForDish(baseDish, category);

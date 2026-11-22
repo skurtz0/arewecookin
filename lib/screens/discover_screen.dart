@@ -1,3 +1,4 @@
+import '../data/world_countries.dart';
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -23,7 +24,7 @@ class DiscoverScreenState extends ConsumerState<DiscoverScreen> {
   final TextEditingController _searchController = TextEditingController();
   Timer? _debounceTimer;
 
-  static const List<Map<String, String>> cuisineFilters = [
+  static final List<Map<String, String>> cuisineFilters = [
     {'id': 'Tümü', 'flag': '🌍', 'label': '🌍 Tümü'},
     {'id': 'Türk Mutfağı', 'flag': '🇹🇷', 'label': '🇹🇷 Türk Mutfağı'},
     {'id': 'İtalyan Mutfağı', 'flag': '🇮🇹', 'label': '🇮🇹 İtalyan'},
@@ -32,6 +33,8 @@ class DiscoverScreenState extends ConsumerState<DiscoverScreen> {
     {'id': 'Akdeniz Mutfağı', 'flag': '🫒', 'label': '🫒 Akdeniz'},
     {'id': 'Fransız & Dünya', 'flag': '🇫🇷', 'label': '🇫🇷 Fransız & Dünya'},
     {'id': 'Pratik & Sokak', 'flag': '⚡', 'label': '⚡ Pratik & Sokak'},
+    for (final c in WorldCountries.all)
+      {'id': c.id, 'flag': c.flag, 'label': '${c.flag} ${c.id}'},
   ];
 
   static const List<String> categories = [

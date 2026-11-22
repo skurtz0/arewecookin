@@ -8,6 +8,10 @@ class CookingStep {
   final int timerSeconds;
   final String proTip;
   final List<String> stepIngredients;
+  /// Hand-written English text (curated recipes). Null = fall back to generic localization.
+  final String? titleEn;
+  final String? instructionEn;
+  final String? proTipEn;
 
   const CookingStep({
     required this.order,
@@ -17,6 +21,9 @@ class CookingStep {
     this.timerSeconds = 0,
     this.proTip = '',
     this.stepIngredients = const [],
+    this.titleEn,
+    this.instructionEn,
+    this.proTipEn,
   });
 
   Map<String, dynamic> toMap() {
@@ -28,6 +35,9 @@ class CookingStep {
       'timerSeconds': timerSeconds,
       'proTip': proTip,
       'stepIngredients': stepIngredients,
+      if (titleEn != null) 'titleEn': titleEn,
+      if (instructionEn != null) 'instructionEn': instructionEn,
+      if (proTipEn != null) 'proTipEn': proTipEn,
     };
   }
 
@@ -43,6 +53,9 @@ class CookingStep {
               ?.map((e) => e.toString())
               .toList() ??
           const [],
+      titleEn: map['titleEn'] as String?,
+      instructionEn: map['instructionEn'] as String?,
+      proTipEn: map['proTipEn'] as String?,
     );
   }
 
@@ -63,13 +76,19 @@ class CookingStep {
       timerSeconds: timerSeconds ?? this.timerSeconds,
       proTip: proTip ?? this.proTip,
       stepIngredients: stepIngredients ?? this.stepIngredients,
+      titleEn: titleEn,
+      instructionEn: instructionEn,
+      proTipEn: proTipEn,
     );
   }
 
-  String localizedTitle(String locale) => RecipeLocalization.localizeStepTitle(title, locale);
+  bool _tr(String l) => RecipeLocalization.isTurkish(l);
+  String localizedTitle(String locale) =>
+      (!_tr(locale) && titleEn != null) ? titleEn! : RecipeLocalization.localizeStepTitle(title, locale);
   String localizedInstruction(String locale, [String? dishName]) =>
-      RecipeLocalization.localizeStepInstruction(instruction, locale, dishName);
-  String localizedProTip(String locale) => RecipeLocalization.localizeProTip(proTip, locale);
+      (!_tr(locale) && instructionEn != null) ? instructionEn! : RecipeLocalization.localizeStepInstruction(instruction, locale, dishName);
+  String localizedProTip(String locale) =>
+      (!_tr(locale) && proTipEn != null) ? proTipEn! : RecipeLocalization.localizeProTip(proTip, locale);
 
   @override
   bool operator ==(Object other) =>

@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/models.dart';
+import '../data/world_recipes.dart';
 import '../services/recipe_generator.dart';
 
 class PaginatedRecipes {
@@ -19,7 +20,14 @@ class PaginatedRecipes {
 
 class RecipeRepository {
   final FirebaseFirestore? firestore;
-  static const int totalCapacity = RecipeGenerator.totalCapacity;
+  static const int generatedCapacity = RecipeGenerator.totalCapacity;
+  static int get totalCapacity => WorldRecipes.all.length + generatedCapacity;
+
+  /// Curated world recipes come first, then the generated catalogue.
+  static Recipe _recipeAt(int i) {
+    final world = WorldRecipes.all;
+    return i < world.length ? world[i] : RecipeGenerator.generate(i - world.length);
+  }
   final List<Recipe> _customRecipes = [];
 
   RecipeRepository({this.firestore});
@@ -97,6 +105,15 @@ class RecipeRepository {
                 .toList();
           }
 
+          if (startAfter == null && offset == 0) {
+            final ids = recipes.map((r) => r.id).toSet();
+            final world = WorldRecipes.all.where((r) =>
+                !ids.contains(r.id) &&
+                (cleanCategory == null || r.category == cleanCategory) &&
+                (cleanCuisine == null || r.cuisine == cleanCuisine) &&
+                (cleanQuery == null || cleanQuery.isEmpty || _matchesQuery(r, cleanQuery)));
+            recipes = [...world, ...recipes];
+          }
           final lastDoc = querySnapshot.docs.last;
           final hasMore = querySnapshot.docs.length >= limit;
 
@@ -171,6 +188,14 @@ class RecipeRepository {
 
     if (candidateRecipes.isEmpty) {
       // Evaluate the universe of base dishes in the deterministic dataset
+      for (final r in WorldRecipes.all) {
+        if (cleanCuisine != null && r.cuisine != cleanCuisine) {
+          continue;
+        }
+        if (r.ingredientKeys.any((k) => normalizedUserKeys.contains(k))) {
+          candidateRecipes.add(r);
+        }
+      }
       for (int i = 0; i < 256; i++) {
         final r = RecipeGenerator.generate(i);
         if (cleanCuisine != null && r.cuisine != cleanCuisine) {
@@ -231,11 +256,14 @@ class RecipeRepository {
       } catch (_) {}
     }
 
+    final world = WorldRecipes.byId(id);
+    if (world != null) return world;
+
     // Fallback search in deterministic set
     if (id.startsWith('rec_')) {
       final numStr = id.replaceFirst('rec_', '');
       final index = int.tryParse(numStr);
-      if (index != null && index >= 1 && index <= totalCapacity) {
+      if (index != null && index >= 1 && index <= generatedCapacity) {
         return RecipeGenerator.generate(index - 1);
       }
     }
@@ -265,7 +293,7 @@ class RecipeRepository {
     int currentIndex = offset;
 
     while (currentIndex < totalCapacity && matching.length < limit) {
-      final recipe = RecipeGenerator.generate(currentIndex);
+      final recipe = _recipeAt(currentIndex);
       currentIndex++;
 
       if (category != null && recipe.category != category) {

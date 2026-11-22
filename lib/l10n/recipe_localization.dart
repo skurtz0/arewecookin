@@ -1,3 +1,4 @@
+import '../data/world_countries.dart';
 import '../models/recipe.dart';
 import 'app_strings.dart';
 
@@ -65,8 +66,13 @@ class RecipeLocalization {
       case 'Sokak':
         return strings.cuisineStreet;
       default:
-        return cuisine;
+        return localizeCountry(cuisine, strings.locale);
     }
+  }
+
+  /// Country cuisine label for non-Turkish locales (curated world recipes).
+  static String localizeCountry(String cuisine, String locale) {
+    return WorldCountries.label(cuisine, isTurkish(locale));
   }
 
   static String localizeDifficulty(String difficulty, AppStrings strings) {
@@ -278,6 +284,7 @@ class RecipeLocalization {
     if (isTurkish(locale)) {
       return recipe.cleanTitle;
     }
+    if (recipe.titleEn != null) return recipe.titleEn!;
 
     final rawDish = recipe.baseDish?.trim() ?? recipe.cleanTitle;
     if (_dishBaseTranslations.containsKey(rawDish)) {
@@ -298,6 +305,7 @@ class RecipeLocalization {
     if (isTurkish(locale)) {
       return recipe.title;
     }
+    if (recipe.titleEn != null) return recipe.titleEn!;
 
     final clean = localizeCleanTitle(recipe, locale);
 
@@ -419,9 +427,14 @@ class RecipeLocalization {
     'gram (kuşbaşı)': 'g (diced)',
   };
 
+  static final Map<String, String> _extraIngredientEn = {};
+
+  /// Registered by curated world recipes (Turkish name -> English name).
+  static void registerIngredientEn(String tr, String en) => _extraIngredientEn.putIfAbsent(tr, () => en);
+
   static String localizeIngredientName(String name, String locale) {
     if (isTurkish(locale)) return name;
-    return _ingredientTranslations[name.trim()] ?? name;
+    return _extraIngredientEn[name.trim()] ?? _ingredientTranslations[name.trim()] ?? name;
   }
 
   static String localizeUnit(String unit, String locale) {

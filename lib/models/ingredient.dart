@@ -5,12 +5,16 @@ class Ingredient {
   final String amount;
   final String unit;
   final bool isOptional;
+  final String? nameEn;
+  final String? unitEn;
 
   const Ingredient({
     required this.name,
     required this.amount,
     required this.unit,
     this.isOptional = false,
+    this.nameEn,
+    this.unitEn,
   });
 
   Map<String, dynamic> toMap() {
@@ -19,6 +23,8 @@ class Ingredient {
       'amount': amount,
       'unit': unit,
       'isOptional': isOptional,
+      if (nameEn != null) 'nameEn': nameEn,
+      if (unitEn != null) 'unitEn': unitEn,
     };
   }
 
@@ -28,6 +34,8 @@ class Ingredient {
       amount: map['amount']?.toString() ?? '',
       unit: map['unit'] as String? ?? '',
       isOptional: map['isOptional'] as bool? ?? false,
+      nameEn: map['nameEn'] as String?,
+      unitEn: map['unitEn'] as String?,
     );
   }
 
@@ -42,6 +50,8 @@ class Ingredient {
       amount: amount ?? this.amount,
       unit: unit ?? this.unit,
       isOptional: isOptional ?? this.isOptional,
+      nameEn: nameEn,
+      unitEn: unitEn,
     );
   }
 
@@ -50,8 +60,12 @@ class Ingredient {
     return parts.join(' ');
   }
 
-  String localizedName(String locale) => RecipeLocalization.localizeIngredientName(name, locale);
-  String localizedUnit(String locale) => RecipeLocalization.localizeUnit(unit, locale);
+  String localizedName(String locale) => (!RecipeLocalization.isTurkish(locale) && nameEn != null)
+      ? nameEn!
+      : RecipeLocalization.localizeIngredientName(name, locale);
+  String localizedUnit(String locale) => (!RecipeLocalization.isTurkish(locale) && unitEn != null)
+      ? unitEn!
+      : RecipeLocalization.localizeUnit(unit, locale);
   String localizedDisplayText(String locale) {
     final u = localizedUnit(locale);
     final n = localizedName(locale);

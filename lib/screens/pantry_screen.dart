@@ -1,3 +1,4 @@
+import '../data/world_countries.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../l10n/recipe_localization.dart';
@@ -18,7 +19,7 @@ class PantryScreen extends ConsumerStatefulWidget {
 class _PantryScreenState extends ConsumerState<PantryScreen> {
   final TextEditingController _customIngredientController = TextEditingController();
 
-  static const List<Map<String, String>> cuisineFilters = [
+  static final List<Map<String, String>> cuisineFilters = [
     {'id': 'Tümü', 'label': '🌍 Tümü'},
     {'id': 'Türk Mutfağı', 'label': '🇹🇷 Türk Mutfağı'},
     {'id': 'İtalyan Mutfağı', 'label': '🇮🇹 İtalyan'},
@@ -27,6 +28,8 @@ class _PantryScreenState extends ConsumerState<PantryScreen> {
     {'id': 'Akdeniz Mutfağı', 'label': '🫒 Akdeniz'},
     {'id': 'Fransız & Dünya', 'label': '🇫🇷 Dünya / Tatlı'},
     {'id': 'Pratik & Sokak', 'label': '⚡ Pratik & Sokak'},
+    for (final c in WorldCountries.all)
+      {'id': c.id, 'flag': c.flag, 'label': '${c.flag} ${c.id}'},
   ];
 
   static const Map<String, List<Map<String, String>>> stapleCategories = {
