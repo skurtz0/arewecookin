@@ -19,6 +19,9 @@ void main() {
     ));
     await tester.pumpAndSettle();
     expect(find.textContaining('Today'), findsOneWidget);
+    final day = DateTime.now().weekday;
+    expect(find.byKey(Key('plan_day_total_$day')), findsOneWidget);
+    expect(find.textContaining('${recipe.totalTime}'), findsWidgets);
     await tester.tap(find.byKey(const Key('plan_clear')));
     await tester.pumpAndSettle();
     await tester.tap(find.byKey(const Key('plan_clear_confirm')));

@@ -116,9 +116,9 @@ class MealPlanScreen extends ConsumerWidget {
                     Padding(
                       padding: const EdgeInsets.only(top: 8, bottom: 6),
                       child: Text(
-                          day == DateTime.now().weekday
-                              ? '${strings.weekdayName(day)} · ${strings.todayLabel}'
-                              : strings.weekdayName(day),
+                          '${day == DateTime.now().weekday ? '${strings.weekdayName(day)} · ${strings.todayLabel}' : strings.weekdayName(day)}'
+                          ' · ${strings.minutesShort(plan[day]!.fold<int>(0, (a, r) => a + r.totalTime))}',
+                          key: Key('plan_day_total_$day'),
                           style: const TextStyle(
                               fontSize: 16, fontWeight: FontWeight.bold, color: Color(0xFFFF5722))),
                     ),
