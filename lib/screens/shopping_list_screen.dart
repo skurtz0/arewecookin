@@ -35,6 +35,12 @@ class _ShoppingListScreenState extends ConsumerState<ShoppingListScreen> {
     final items = ref.watch(shoppingListProvider);
     final notifier = ref.read(shoppingListProvider.notifier);
     final doneCount = items.where((e) => e.done).length;
+    final order = [
+      for (var n = 0; n < items.length; n++)
+        if (!items[n].done) n,
+      for (var n = 0; n < items.length; n++)
+        if (items[n].done) n,
+    ];
 
     return Scaffold(
       backgroundColor: const Color(0xFFF8FAFC),
@@ -129,8 +135,10 @@ class _ShoppingListScreenState extends ConsumerState<ShoppingListScreen> {
                   )
                 : ListView.builder(
                     padding: const EdgeInsets.only(bottom: 24),
-                    itemCount: items.length,
-                    itemBuilder: (context, i) {
+                    itemCount: order.length,
+                    itemBuilder: (context, pos) {
+                      // Checked items sink to the bottom; `i` is the real index in the stored list.
+                      final i = order[pos];
                       final item = items[i];
                       final qty = [
                         item.amount,

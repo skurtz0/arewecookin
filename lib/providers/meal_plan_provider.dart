@@ -33,7 +33,10 @@ class MealPlanNotifier extends Notifier<Map<int, List<Recipe>>> {
       });
       // Anything added before loading finished is kept.
       final merged = {...loaded};
-      state.forEach((d, l) => merged[d] = [...?merged[d], ...l]);
+      state.forEach((d, l) {
+        final ids = (merged[d] ?? const <Recipe>[]).map((r) => r.id).toSet();
+        merged[d] = [...?merged[d], ...l.where((r) => !ids.contains(r.id))];
+      });
       state = merged;
     } catch (_) {}
   }

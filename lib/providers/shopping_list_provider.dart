@@ -67,7 +67,8 @@ class ShoppingListNotifier extends Notifier<List<ShoppingItem>> {
         } catch (_) {}
       }
       // Items added before the load finished stay on top.
-      state = [...state, ...items];
+      final have = state.map((e) => e.key).toSet();
+      state = [...state, ...items.where((e) => have.add(e.key))];
     } catch (_) {}
   }
 
