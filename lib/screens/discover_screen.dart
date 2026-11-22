@@ -299,9 +299,19 @@ class DiscoverScreenState extends ConsumerState<DiscoverScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Padding(
-                      padding: const EdgeInsets.fromLTRB(16, 12, 16, 6),
-                      child: Text(strings.recentlyViewed,
-                          style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
+                      padding: const EdgeInsetsDirectional.fromSTEB(16, 8, 8, 0),
+                      child: Row(children: [
+                        Expanded(
+                          child: Text(strings.recentlyViewed,
+                              style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
+                        ),
+                        TextButton(
+                          key: const Key('recent_clear'),
+                          style: TextButton.styleFrom(visualDensity: VisualDensity.compact),
+                          onPressed: () => ref.read(recentRecipesProvider.notifier).clear(),
+                          child: Text(strings.clearAll),
+                        ),
+                      ]),
                     ),
                     SizedBox(
                       height: 40,

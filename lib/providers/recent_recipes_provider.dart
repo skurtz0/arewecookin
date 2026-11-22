@@ -38,6 +38,16 @@ class RecentRecipesNotifier extends Notifier<List<Recipe>> {
       } catch (_) {}
     }();
   }
+
+  void clear() {
+    state = const [];
+    () async {
+      try {
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.remove(_prefKey);
+      } catch (_) {}
+    }();
+  }
 }
 
 final recentRecipesProvider =

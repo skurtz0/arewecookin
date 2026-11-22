@@ -20,4 +20,16 @@ void main() {
     expect(list.first.id, recipes.first.id);
     expect(list.map((r) => r.id).toSet().length, list.length);
   });
+
+  test('recent recipes can be cleared', () async {
+    SharedPreferences.setMockInitialValues({});
+    final r = (await RecipeRepository().getRecipes(limit: 2)).recipes;
+    final c = ProviderContainer();
+    addTearDown(c.dispose);
+    final n = c.read(recentRecipesProvider.notifier);
+    n.add(r.first);
+    expect(c.read(recentRecipesProvider), isNotEmpty);
+    n.clear();
+    expect(c.read(recentRecipesProvider), isEmpty);
+  });
 }
