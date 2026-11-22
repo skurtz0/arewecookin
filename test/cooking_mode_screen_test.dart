@@ -3,6 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:arewecookin/models/models.dart';
 import 'package:arewecookin/providers/locale_provider.dart';
+import 'package:arewecookin/providers/recipe_progress_provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:arewecookin/screens/cooking_mode_screen.dart';
 
 class FakeLocaleNotifier extends LocaleNotifier {
@@ -50,6 +52,24 @@ void main() {
           ),
         ],
       );
+    });
+
+    testWidgets('ingredient sheet uses the servings chosen on the detail screen', (tester) async {
+      SharedPreferences.setMockInitialValues({});
+      final container = ProviderContainer(overrides: [
+        localeProvider.overrideWith(() => FakeLocaleNotifier(const Locale('tr'))),
+      ]);
+      addTearDown(container.dispose);
+      container.read(recipeProgressProvider.notifier).setServings(sampleRecipe.id, sampleRecipe.servings * 2);
+      await tester.pumpWidget(UncontrolledProviderScope(
+        container: container,
+        child: MaterialApp(home: CookingModeScreen(recipe: sampleRecipe)),
+      ));
+      await tester.pumpAndSettle();
+      await tester.tap(find.textContaining('Malzeme').first);
+      await tester.pumpAndSettle();
+      expect(find.textContaining('4 adet Yumurta'), findsOneWidget);
+      expect(find.textContaining('2 adet Yumurta'), findsNothing);
     });
 
     testWidgets('renders step 1 with tool icon, instruction, pro tip, timer and navigates through wizard in Turkish', (tester) async {

@@ -12,6 +12,8 @@ import '../widgets/cooking_technique_animation.dart';
 import '../providers/locale_provider.dart';
 import '../providers/recipe_progress_provider.dart';
 import '../providers/cook_history_provider.dart';
+import '../providers/unit_system_provider.dart';
+import '../utils/unit_converter.dart';
 import '../l10n/recipe_localization.dart';
 
 class CookingModeScreen extends ConsumerStatefulWidget {
@@ -46,6 +48,28 @@ class _CookingModeScreenState extends ConsumerState<CookingModeScreen> {
 
   // Ingredients checklist state
   final Set<int> _checkedIngredients = {};
+
+  /// Ingredient line scaled to the servings chosen on the detail screen, in the chosen unit system.
+  String _ingredientText(Ingredient ing, String locale) {
+    final chosen = ref.read(recipeProgressProvider)[widget.recipe.id]?.servings;
+    final base = widget.recipe.servings;
+    final original = double.tryParse(ing.amount.replaceAll(',', '.'));
+    final imperial = ref.read(imperialUnitsProvider);
+    if (original == null || (chosen == null || base <= 0 || chosen == base) && !imperial) {
+      return ing.localizedDisplayText(locale);
+    }
+    final scaled = (chosen == null || base <= 0) ? original : original * chosen / base;
+    var amount = AmountFormat.fraction(scaled);
+    var unit = ing.localizedUnit(locale);
+    if (imperial) {
+      final conv = UnitConverter.toImperial(scaled, ing.unit.trim().isEmpty ? unit : ing.unit);
+      if (conv != null) {
+        amount = UnitConverter.format(conv.amount);
+        unit = conv.unit;
+      }
+    }
+    return [amount, unit, ing.localizedName(locale)].where((e) => e.isNotEmpty).join(' ');
+  }
 
   void _showAllIngredientsSheet(BuildContext context) {
     final strings = ref.read(appStringsProvider);
@@ -156,7 +180,7 @@ class _CookingModeScreenState extends ConsumerState<CookingModeScreen> {
                                   const SizedBox(width: 12),
                                   Expanded(
                                     child: Text(
-                                      ing.localizedDisplayText(strings.locale),
+                                      _ingredientText(ing, strings.locale),
                                       style: TextStyle(
                                         fontSize: 15,
                                         color: isChecked
