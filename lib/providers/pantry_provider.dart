@@ -1,4 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../models/models.dart';
 import '../repositories/recipe_repository.dart';
 
@@ -41,9 +42,30 @@ class PantryState {
 class PantryNotifier extends Notifier<PantryState> {
   RecipeRepository get _repository => ref.read(recipeRepositoryProvider);
 
+  static const _prefKey = 'pantry_keys_v1';
+
   @override
   PantryState build() {
+    _restore();
     return const PantryState();
+  }
+
+  /// Pantry selection survives app restarts (and works offline).
+  Future<void> _restore() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final saved = prefs.getStringList(_prefKey);
+      if (saved == null || saved.isEmpty || state.selectedKeys.isNotEmpty) return;
+      state = state.copyWith(selectedKeys: saved.toSet());
+      await _searchMatches();
+    } catch (_) {}
+  }
+
+  Future<void> _persist() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setStringList(_prefKey, state.selectedKeys.toList());
+    } catch (_) {}
   }
 
   Future<void> setCuisine(String cuisine) async {
@@ -68,6 +90,7 @@ class PantryNotifier extends Notifier<PantryState> {
     }
 
     state = state.copyWith(selectedKeys: updated);
+    _persist();
     await _searchMatches();
   }
 
@@ -77,6 +100,7 @@ class PantryNotifier extends Notifier<PantryState> {
 
     final updated = Set<String>.from(state.selectedKeys)..add(normalized);
     state = state.copyWith(selectedKeys: updated);
+    _persist();
     await _searchMatches();
   }
 
@@ -87,6 +111,7 @@ class PantryNotifier extends Notifier<PantryState> {
       isLoading: false,
       errorMessage: null,
     );
+    _persist();
   }
 
   Future<void> _searchMatches() async {
