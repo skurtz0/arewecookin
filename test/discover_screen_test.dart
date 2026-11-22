@@ -1,4 +1,5 @@
 import 'package:arewecookin/providers/meal_plan_provider.dart';
+import 'package:arewecookin/providers/cook_history_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -132,6 +133,23 @@ void main() {
       await tester.tap(find.byKey(Key('today_plan_${recipe.id}')));
       await tester.pumpAndSettle();
       expect(find.byType(RecipeDetailScreen), findsOneWidget);
+    });
+
+    testWidgets('cooked recipes get a badge on the card', (tester) async {
+      SharedPreferences.setMockInitialValues({});
+      final container = ProviderContainer();
+      addTearDown(container.dispose);
+      await tester.pumpWidget(UncontrolledProviderScope(
+        container: container,
+        child: const MaterialApp(home: Scaffold(body: DiscoverScreen())),
+      ));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 300));
+      expect(find.byKey(const Key('cooked_badge')), findsNothing);
+      final recipe = container.read(discoverProvider).recipes.first;
+      container.read(cookHistoryProvider.notifier).markCooked(recipe.id);
+      await tester.pump();
+      expect(find.byKey(const Key('cooked_badge')), findsOneWidget);
     });
 
     testWidgets('my rating shows on the recipe card', (tester) async {

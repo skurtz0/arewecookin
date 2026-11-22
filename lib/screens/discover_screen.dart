@@ -15,6 +15,7 @@ import '../providers/user_recipes_provider.dart';
 import '../providers/locale_provider.dart';
 import '../providers/auth_provider.dart';
 import '../providers/meal_plan_provider.dart';
+import '../providers/cook_history_provider.dart';
 import '../widgets/recipe_image.dart';
 import 'recipe_detail_screen.dart';
 import 'add_recipe_screen.dart';
@@ -842,6 +843,7 @@ class _RecipeCard extends ConsumerWidget {
     final strings = ref.watch(appStringsProvider);
     final catColor = _categoryColor(recipe.category);
     final myRating = ref.watch(recipeNotesProvider.select((m) => m[recipe.id]?.rating ?? 0));
+    final cookedCount = ref.watch(cookHistoryProvider.select((m) => m[recipe.id]?.count ?? 0));
 
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
@@ -981,6 +983,12 @@ class _RecipeCard extends ConsumerWidget {
                             spacing: 12,
                             runSpacing: 6,
                             children: [
+                              if (cookedCount > 0)
+                                _InfoBadge(
+                                  key: const Key('cooked_badge'),
+                                  icon: Icons.check_circle_outline_rounded,
+                                  label: strings.cookedDishes,
+                                ),
                               if (myRating > 0)
                                 _InfoBadge(icon: Icons.star_rounded, label: '$myRating/5'),
                               _InfoBadge(
@@ -1027,7 +1035,7 @@ class _InfoBadge extends StatelessWidget {
   final IconData icon;
   final String label;
 
-  const _InfoBadge({required this.icon, required this.label});
+  const _InfoBadge({super.key, required this.icon, required this.label});
 
   @override
   Widget build(BuildContext context) {
