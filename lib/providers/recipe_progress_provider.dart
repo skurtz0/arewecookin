@@ -6,14 +6,23 @@ import 'package:shared_preferences/shared_preferences.dart';
 class RecipeProgress {
   final int? servings;
   final int step;
-  const RecipeProgress({this.servings, this.step = 0});
+  /// Indexes of ingredients ticked off on the detail screen.
+  final Set<int> checked;
+  const RecipeProgress({this.servings, this.step = 0, this.checked = const {}});
 
-  bool get isEmpty => servings == null && step == 0;
+  bool get isEmpty => servings == null && step == 0 && checked.isEmpty;
 
-  Map<String, dynamic> toMap() => {if (servings != null) 's': servings, 'p': step};
+  Map<String, dynamic> toMap() => {
+        if (servings != null) 's': servings,
+        'p': step,
+        if (checked.isNotEmpty) 'c': checked.toList()..sort(),
+      };
 
-  factory RecipeProgress.fromMap(Map<String, dynamic> m) =>
-      RecipeProgress(servings: (m['s'] as num?)?.toInt(), step: (m['p'] as num?)?.toInt() ?? 0);
+  factory RecipeProgress.fromMap(Map<String, dynamic> m) => RecipeProgress(
+        servings: (m['s'] as num?)?.toInt(),
+        step: (m['p'] as num?)?.toInt() ?? 0,
+        checked: {for (final v in (m['c'] as List? ?? const [])) (v as num).toInt()},
+      );
 }
 
 class RecipeProgressNotifier extends Notifier<Map<String, RecipeProgress>> {
@@ -61,12 +70,17 @@ class RecipeProgressNotifier extends Notifier<Map<String, RecipeProgress>> {
 
   void setServings(String id, int servings) {
     final cur = state[id] ?? const RecipeProgress();
-    _put(id, RecipeProgress(servings: servings, step: cur.step));
+    _put(id, RecipeProgress(servings: servings, step: cur.step, checked: cur.checked));
   }
 
   void setStep(String id, int step) {
     final cur = state[id] ?? const RecipeProgress();
-    _put(id, RecipeProgress(servings: cur.servings, step: step < 0 ? 0 : step));
+    _put(id, RecipeProgress(servings: cur.servings, step: step < 0 ? 0 : step, checked: cur.checked));
+  }
+
+  void setChecked(String id, Set<int> checked) {
+    final cur = state[id] ?? const RecipeProgress();
+    _put(id, RecipeProgress(servings: cur.servings, step: cur.step, checked: {...checked}));
   }
 }
 

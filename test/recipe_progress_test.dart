@@ -27,6 +27,21 @@ void main() {
     expect(b.read(recipeProgressProvider)['r']!.step, 2);
   });
 
+  test('progress: ticked ingredients persist and clearing them drops the entry', () async {
+    SharedPreferences.setMockInitialValues({});
+    final a = ProviderContainer();
+    a.read(recipeProgressProvider.notifier).setChecked('r', {0, 2});
+    await Future<void>.delayed(const Duration(milliseconds: 80));
+    a.dispose();
+    final b = ProviderContainer();
+    addTearDown(b.dispose);
+    b.read(recipeProgressProvider);
+    await Future<void>.delayed(const Duration(milliseconds: 80));
+    expect(b.read(recipeProgressProvider)['r']!.checked, {0, 2});
+    b.read(recipeProgressProvider.notifier).setChecked('r', {});
+    expect(b.read(recipeProgressProvider).containsKey('r'), isFalse);
+  });
+
   testWidgets('detail screen restores saved servings', (tester) async {
     SharedPreferences.setMockInitialValues({});
     final recipe = (await RecipeRepository().getRecipes(limit: 1)).recipes.first;

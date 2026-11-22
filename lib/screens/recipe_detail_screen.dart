@@ -30,6 +30,7 @@ class RecipeDetailScreen extends ConsumerStatefulWidget {
 class _RecipeDetailScreenState extends ConsumerState<RecipeDetailScreen> {
   late int _servings;
   bool _servingsTouched = false;
+  bool _checkedTouched = false;
   final Set<int> _checkedIngredientIndices = {};
   final TextEditingController _noteController = TextEditingController();
 
@@ -48,6 +49,10 @@ class _RecipeDetailScreenState extends ConsumerState<RecipeDetailScreen> {
       final saved = next[widget.recipe.id]?.servings;
       if (!_servingsTouched && saved != null && saved != _servings && mounted) {
         setState(() => _servings = saved);
+      }
+      final savedChecked = next[widget.recipe.id]?.checked;
+      if (!_checkedTouched && savedChecked != null && savedChecked.isNotEmpty && mounted) {
+        setState(() => _checkedIngredientIndices.addAll(savedChecked));
       }
     }, fireImmediately: true);
     Future.microtask(() {
@@ -91,6 +96,12 @@ class _RecipeDetailScreenState extends ConsumerState<RecipeDetailScreen> {
         _checkedIngredientIndices.add(index);
       }
     });
+    _persistChecked();
+  }
+
+  void _persistChecked() {
+    _checkedTouched = true;
+    ref.read(recipeProgressProvider.notifier).setChecked(widget.recipe.id, _checkedIngredientIndices);
   }
 
   void _toggleAllIngredients() {
@@ -104,6 +115,7 @@ class _RecipeDetailScreenState extends ConsumerState<RecipeDetailScreen> {
         );
       }
     });
+    _persistChecked();
   }
 
   /// Scaled amount + unit, converted to US units when the user chose them.
