@@ -5,6 +5,7 @@ import '../utils/cooking_icons.dart';
 import '../widgets/recipe_image.dart';
 import '../providers/user_recipes_provider.dart';
 import '../providers/locale_provider.dart';
+import '../providers/shopping_list_provider.dart';
 import '../l10n/recipe_localization.dart';
 import 'cooking_mode_screen.dart';
 
@@ -443,6 +444,32 @@ class _RecipeDetailScreenState extends ConsumerState<RecipeDetailScreen> {
                       ),
                     ),
                   );
+                },
+              ),
+            ),
+            const SizedBox(height: 12),
+            SizedBox(
+              width: double.infinity,
+              child: OutlinedButton.icon(
+                key: const Key('add_to_shopping_list'),
+                icon: const Icon(Icons.add_shopping_cart_rounded),
+                label: Text(strings.shoppingAdd),
+                onPressed: () {
+                  final added = ref.read(shoppingListProvider.notifier).addAll(
+                        recipe.ingredients.where((i) => !i.isOptional).map((i) => ShoppingItem(
+                              name: i.localizedName(strings.locale),
+                              amount: _formatScaledAmount(i.amount),
+                              unit: i.localizedUnit(strings.locale),
+                              recipeTitle: recipe.localizedTitle(strings.locale),
+                            )),
+                      );
+                  ScaffoldMessenger.of(context)
+                    ..hideCurrentSnackBar()
+                    ..showSnackBar(SnackBar(
+                      content: Text(added == 0
+                          ? strings.shoppingNothingNew
+                          : strings.shoppingAdded(added)),
+                    ));
                 },
               ),
             ),

@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:wakelock_plus/wakelock_plus.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/models.dart';
 import '../utils/cooking_icons.dart';
@@ -154,11 +155,20 @@ class _CookingModeScreenState extends ConsumerState<CookingModeScreen> {
   void initState() {
     super.initState();
     _pageController = PageController();
+    _setKeepAwake(true);
     _initTimerForStep(0);
+  }
+
+  /// Keeps the screen on while cooking. Failures (unsupported platform, tests) are ignored.
+  void _setKeepAwake(bool on) {
+    try {
+      (on ? WakelockPlus.enable() : WakelockPlus.disable()).catchError((_) {});
+    } catch (_) {}
   }
 
   @override
   void dispose() {
+    _setKeepAwake(false);
     _activeTimer?.cancel();
     _pageController.dispose();
     super.dispose();

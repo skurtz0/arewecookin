@@ -6,6 +6,7 @@ import '../providers/discover_provider.dart';
 import 'discover_screen.dart';
 import 'pantry_screen.dart';
 import 'account_screen.dart';
+import 'shopping_list_screen.dart';
 
 class MainNavigationScreen extends ConsumerStatefulWidget {
   const MainNavigationScreen({super.key});
@@ -20,6 +21,7 @@ class _MainNavigationScreenState extends ConsumerState<MainNavigationScreen> {
   final List<Widget> _screens = const [
     DiscoverScreen(),
     PantryScreen(),
+    ShoppingListScreen(),
     AccountScreen(),
   ];
 
@@ -75,6 +77,12 @@ class _MainNavigationScreenState extends ConsumerState<MainNavigationScreen> {
               icon: const Icon(CookingIcons.pantry, color: Color(0xFF64748B)),
               selectedIcon: const Icon(CookingIcons.pantry, color: Color(0xFF059669)),
               label: strings.tabPantry,
+            ),
+            NavigationDestination(
+              key: ValueKey('tab_shopping_${strings.locale}'),
+              icon: const Icon(Icons.shopping_basket_outlined, color: Color(0xFF64748B)),
+              selectedIcon: const Icon(Icons.shopping_basket_rounded, color: Color(0xFFFF5722)),
+              label: strings.shoppingListTitle,
             ),
             NavigationDestination(
               key: ValueKey('tab_account_${strings.locale}'),

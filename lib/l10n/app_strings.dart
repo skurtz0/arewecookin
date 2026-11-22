@@ -43,6 +43,14 @@ class AppStrings {
   String get tabDiscover => _get('tabDiscover', 'Discover');
   String get tabPantry => _get('tabPantry', 'Pantry');
   String get tabAccount => _get('tabAccount', 'Account');
+  String get shoppingListTitle => _get('shoppingListTitle', 'Shopping list');
+  String get shoppingClearDone => _get('shoppingClearDone', 'Clear checked');
+  String get shoppingEmptyTitle => _get('shoppingEmptyTitle', 'Your list is empty');
+  String get shoppingEmptyHint => _get('shoppingEmptyHint', 'Open a recipe and add ingredients to your list.');
+  String get shoppingAdd => _get('shoppingAdd', 'Add to shopping list');
+  String get shoppingNothingNew => _get('shoppingNothingNew', 'Everything is already on your list');
+  String get shoppingOpen => _get('shoppingOpen', 'Open');
+  String shoppingAdded(int n) => _get('shoppingAdded', '{n} items added to your list').replaceAll('{n}', '$n');
 
   // App Header
   String get appTitle => _get('appTitle', 'AreWeCookin');
