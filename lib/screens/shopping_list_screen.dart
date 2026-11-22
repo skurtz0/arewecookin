@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/semantics.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -41,6 +42,19 @@ class _ShoppingListScreenState extends ConsumerState<ShoppingListScreen> {
       for (var n = 0; n < items.length; n++)
         if (items[n].done) n,
     ];
+
+    void removeItem(int i, ShoppingItem removed) {
+      notifier.removeAt(i);
+      ScaffoldMessenger.of(context)
+        ..hideCurrentSnackBar()
+        ..showSnackBar(SnackBar(
+          content: Text(strings.itemRemoved),
+          action: SnackBarAction(
+            label: strings.undoLabel,
+            onPressed: () => notifier.insertAt(i, removed),
+          ),
+        ));
+    }
 
     return Scaffold(
       backgroundColor: const Color(0xFFF8FAFC),
@@ -180,20 +194,12 @@ class _ShoppingListScreenState extends ConsumerState<ShoppingListScreen> {
                             color: Colors.white,
                           ),
                         ),
-                        onDismissed: (_) {
-                          final removed = item;
-                          notifier.removeAt(i);
-                          ScaffoldMessenger.of(context)
-                            ..hideCurrentSnackBar()
-                            ..showSnackBar(SnackBar(
-                              content: Text(strings.itemRemoved),
-                              action: SnackBarAction(
-                                label: strings.undoLabel,
-                                onPressed: () => notifier.insertAt(i, removed),
-                              ),
-                            ));
-                        },
-                        child: CheckboxListTile(
+                        onDismissed: (_) => removeItem(i, item),
+                        child: Semantics(
+                          customSemanticsActions: {
+                            CustomSemanticsAction(label: strings.shoppingDeleteItem): () => removeItem(i, item),
+                          },
+                          child: CheckboxListTile(
                           value: item.done,
                           onChanged: (_) => notifier.toggle(i),
                           controlAffinity: ListTileControlAffinity.leading,
@@ -221,6 +227,7 @@ class _ShoppingListScreenState extends ConsumerState<ShoppingListScreen> {
                                     color: Color(0xFFFF5722),
                                   ),
                                 ),
+                        ),
                         ),
                       );
                     },

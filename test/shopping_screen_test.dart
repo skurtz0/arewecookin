@@ -1,6 +1,7 @@
 import 'package:arewecookin/providers/shopping_list_provider.dart';
 import 'package:arewecookin/screens/shopping_list_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/semantics.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -52,5 +53,25 @@ void main() {
     await tester.tap(find.byKey(const Key('shopping_clear_all_confirm')));
     await tester.pumpAndSettle();
     expect(c.read(shoppingListProvider), isEmpty);
+  });
+
+  testWidgets('screen readers get a delete action on shopping items', (tester) async {
+    SharedPreferences.setMockInitialValues({});
+    final handle = tester.ensureSemantics();
+    final c = ProviderContainer();
+    addTearDown(c.dispose);
+    c.read(shoppingListProvider.notifier).addAll(const [ShoppingItem(name: 'Alpha')]);
+    await tester.pumpWidget(UncontrolledProviderScope(container: c, child: const MaterialApp(home: ShoppingListScreen())));
+    await tester.pumpAndSettle();
+    final withAction = find.byWidgetPredicate(
+        (w) => w is Semantics && w.properties.customSemanticsActions != null);
+    expect(withAction, findsOneWidget);
+    final node = tester.getSemantics(withAction);
+    final actionId = node.getSemanticsData().customSemanticsActionIds!.first;
+    expect(c.read(shoppingListProvider).length, 1);
+    tester.semantics.performAction(find.semantics.byAction(SemanticsAction.customAction), SemanticsAction.customAction, args: actionId);
+    await tester.pumpAndSettle();
+    expect(c.read(shoppingListProvider), isEmpty);
+    handle.dispose();
   });
 }
