@@ -65,6 +65,11 @@ class AppStrings {
   String get shoppingCopied => _get('shoppingCopied', 'List copied to clipboard');
   String get surpriseMe => _get('surpriseMe', 'Surprise me');
   String get recentlyViewed => _get('recentlyViewed', 'Recently viewed');
+  String get a11ySave => _get('a11ySave', 'Save recipe');
+  String get a11yFewer => _get('a11yFewer', 'Fewer servings');
+  String get a11yMore => _get('a11yMore', 'More servings');
+  String get a11yClear => _get('a11yClear', 'Clear search');
+  String get a11yClose => _get('a11yClose', 'Close');
   String get shoppingOpen => _get('shoppingOpen', 'Open');
   String shoppingAdded(int n) => _get('shoppingAdded', '{n} items added to your list').replaceAll('{n}', '$n');
 

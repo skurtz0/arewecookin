@@ -380,6 +380,7 @@ class _CookingModeScreenState extends ConsumerState<CookingModeScreen> {
             ),
           ),
           IconButton(
+            tooltip: strings.a11yClose,
             icon: const Icon(Icons.close_rounded),
             onPressed: () => Navigator.of(context).pop(),
           ),

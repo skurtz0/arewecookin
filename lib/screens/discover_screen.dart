@@ -182,6 +182,7 @@ class DiscoverScreenState extends ConsumerState<DiscoverScreen> {
                             prefixIcon: const Icon(CookingIcons.search, color: Color(0xFFFF5722), size: 20),
                             suffixIcon: _searchController.text.isNotEmpty
                                 ? IconButton(
+                                    tooltip: strings.a11yClear,
                                     icon: const Icon(Icons.clear, size: 18),
                                     onPressed: () {
                                       _searchController.clear();

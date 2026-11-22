@@ -124,6 +124,7 @@ class _RecipeDetailScreenState extends ConsumerState<RecipeDetailScreen> {
               final isSaved = savedState.isSaved(recipe.id);
               final strings = ref.watch(appStringsProvider);
               return IconButton(
+                tooltip: strings.a11ySave,
                 icon: Icon(
                   isSaved ? Icons.bookmark_rounded : Icons.bookmark_border_rounded,
                   color: isSaved ? const Color(0xFFFF5722) : const Color(0xFF64748B),
@@ -306,6 +307,7 @@ class _RecipeDetailScreenState extends ConsumerState<RecipeDetailScreen> {
                   ),
                   const Spacer(),
                   IconButton(
+                    tooltip: strings.a11yFewer,
                     visualDensity: VisualDensity.compact,
                     icon: const Icon(Icons.remove_circle_outline_rounded),
                     color: _servings > 1 ? const Color(0xFFFF5722) : Colors.grey.shade300,
@@ -322,6 +324,7 @@ class _RecipeDetailScreenState extends ConsumerState<RecipeDetailScreen> {
                     ),
                   ),
                   IconButton(
+                    tooltip: strings.a11yMore,
                     visualDensity: VisualDensity.compact,
                     icon: const Icon(Icons.add_circle_outline_rounded),
                     color: const Color(0xFFFF5722),
