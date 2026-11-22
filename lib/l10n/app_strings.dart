@@ -138,6 +138,8 @@ class AppStrings {
   String get matchingRecipes => _get('matchingRecipes', 'Matching Recipes');
   String get matchRate => _get('matchRate', 'Match');
   String get clearAll => _get('clearAll', 'Clear All');
+  String get loadErrorTitle => _get('loadErrorTitle', 'Could not load recipes');
+  String get retry => _get('retry', 'Try again');
   String get noRecipesFound => _get('noRecipesFound', 'No matching recipes found');
   String get pantryEmptyTitle => _get('pantryEmptyTitle', 'Your pantry looks empty');
   String get pantryEmptyDesc => _get('pantryEmptyDesc', 'Select ingredients from above. Matching dishes will be listed instantly according to your cuisine preference.');

@@ -258,6 +258,11 @@ class DiscoverScreenState extends ConsumerState<DiscoverScreen> {
                   child: CircularProgressIndicator(color: Color(0xFFFF5722)),
                 ),
               )
+            else if (discoverState.recipes.isEmpty && discoverState.errorMessage != null)
+              SliverFillRemaining(
+                hasScrollBody: false,
+                child: _buildErrorState(context),
+              )
             else if (discoverState.recipes.isEmpty)
               SliverFillRemaining(
                 hasScrollBody: false,
@@ -474,6 +479,41 @@ class DiscoverScreenState extends ConsumerState<DiscoverScreen> {
     );
   }
 
+  Widget _buildErrorState(BuildContext context) {
+    final strings = ref.watch(appStringsProvider);
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(32),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.cloud_off_rounded, size: 64, color: Colors.grey.shade400),
+            const SizedBox(height: 16),
+            Semantics(
+              liveRegion: true,
+              child: Text(
+                strings.loadErrorTitle,
+                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Color(0xFF1E293B)),
+              ),
+            ),
+            const SizedBox(height: 20),
+            ElevatedButton.icon(
+              key: const Key('discover_retry'),
+              onPressed: () => ref.read(discoverProvider.notifier).loadInitial(),
+              icon: const Icon(Icons.refresh_rounded),
+              label: Text(strings.retry),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFFFF5722),
+                foregroundColor: Colors.white,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   Widget _buildEmptyState(BuildContext context) {
     final strings = ref.watch(appStringsProvider);
     return SingleChildScrollView(
@@ -508,6 +548,7 @@ class DiscoverScreenState extends ConsumerState<DiscoverScreen> {
                   ref.read(discoverProvider.notifier).setSearchQuery('');
                   ref.read(discoverProvider.notifier).setCategory('Tümü');
                   ref.read(discoverProvider.notifier).setCuisine('Tümü');
+                  ref.read(discoverProvider.notifier).setMaxMinutes(null);
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xFFFF5722),
