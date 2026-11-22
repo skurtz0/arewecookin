@@ -10,6 +10,7 @@ import '../utils/cooking_icons.dart';
 import '../widgets/cooking_technique_animation.dart';
 import '../providers/locale_provider.dart';
 import '../providers/recipe_progress_provider.dart';
+import '../providers/cook_history_provider.dart';
 import '../l10n/recipe_localization.dart';
 
 class CookingModeScreen extends ConsumerStatefulWidget {
@@ -328,6 +329,7 @@ class _CookingModeScreenState extends ConsumerState<CookingModeScreen> {
   void _showCompletionDialog() {
     // Finished: next time the recipe starts from step 1 again.
     ref.read(recipeProgressProvider.notifier).setStep(widget.recipe.id, 0);
+    ref.read(cookHistoryProvider.notifier).markCooked(widget.recipe.id);
     showDialog(
       context: context,
       builder: (context) {

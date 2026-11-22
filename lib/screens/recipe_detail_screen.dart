@@ -11,6 +11,7 @@ import '../providers/shopping_list_provider.dart';
 import '../providers/meal_plan_provider.dart';
 import '../providers/recent_recipes_provider.dart';
 import '../providers/recipe_notes_provider.dart';
+import '../providers/cook_history_provider.dart';
 import '../providers/recipe_progress_provider.dart';
 import '../providers/unit_system_provider.dart';
 import '../utils/unit_converter.dart';
@@ -731,6 +732,22 @@ class _RecipeDetailScreenState extends ConsumerState<RecipeDetailScreen> {
                         ),
                     ],
                   ),
+                  Builder(builder: (context) {
+                    final rec = ref.watch(cookHistoryProvider)[recipe.id];
+                    if (rec == null || rec.count == 0) return const SizedBox.shrink();
+                    final last = rec.last;
+                    final date = last == null
+                        ? ''
+                        : ' · ${last.day.toString().padLeft(2, '0')}.${last.month.toString().padLeft(2, '0')}.${last.year}';
+                    return Padding(
+                      padding: const EdgeInsets.only(bottom: 8),
+                      child: Text(
+                        '${strings.cookedTimes(rec.count)}$date',
+                        key: const Key('cooked_times'),
+                        style: TextStyle(color: Colors.grey.shade700, fontWeight: FontWeight.w600),
+                      ),
+                    );
+                  }),
                   TextField(
                     key: const Key('recipe_note_field'),
                     controller: _noteController,
