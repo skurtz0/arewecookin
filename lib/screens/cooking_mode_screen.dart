@@ -32,9 +32,10 @@ class _CookingModeScreenState extends ConsumerState<CookingModeScreen> {
   Timer? _ticker;
   final Map<int, int> _remaining = {};
   final Set<int> _runningSteps = {};
+  final Map<int, int> _extraSeconds = {}; // minutes added with "+1 min", per step
 
   int get _totalStepSeconds => _currentStepIndex < widget.recipe.steps.length
-      ? widget.recipe.steps[_currentStepIndex].timerSeconds
+      ? widget.recipe.steps[_currentStepIndex].timerSeconds + (_extraSeconds[_currentStepIndex] ?? 0)
       : 0;
   int get _remainingSeconds =>
       _remaining[_currentStepIndex] ?? _totalStepSeconds;
@@ -290,9 +291,19 @@ class _CookingModeScreenState extends ConsumerState<CookingModeScreen> {
     setState(() => _runningSteps.remove(_currentStepIndex));
   }
 
+  /// Adds one minute to the current step's timer (works while it runs or is finished).
+  void _addMinute() {
+    final i = _currentStepIndex;
+    setState(() {
+      _extraSeconds[i] = (_extraSeconds[i] ?? 0) + 60;
+      _remaining[i] = (_remaining[i] ?? 0) + 60;
+    });
+  }
+
   void _resetTimer() {
     setState(() {
       _runningSteps.remove(_currentStepIndex);
+      _extraSeconds.remove(_currentStepIndex);
       _remaining[_currentStepIndex] = _totalStepSeconds;
     });
   }
@@ -1013,6 +1024,25 @@ class _CookingModeScreenState extends ConsumerState<CookingModeScreen> {
                   ),
                 ),
               ),
+              if (_totalStepSeconds > 0) ...[
+                const SizedBox(width: 10),
+                Flexible(
+                  child: OutlinedButton(
+                    key: const Key('add_minute'),
+                    onPressed: _addMinute,
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: const Color(0xFF38BDF8),
+                      side: const BorderSide(color: Color(0xFF475569)),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                    ),
+                    child: FittedBox(
+                      fit: BoxFit.scaleDown,
+                      child: Text('+${strings.minutesShort(1)}'),
+                    ),
+                  ),
+                ),
+              ],
             ],
           ),
         ],

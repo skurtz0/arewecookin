@@ -158,6 +158,23 @@ void main() {
       await tester.pump();
     });
 
+    testWidgets('+1 min adds a minute to the step timer', (tester) async {
+      await tester.pumpWidget(
+        ProviderScope(
+          overrides: [localeProvider.overrideWith(() => FakeLocaleNotifier(const Locale('tr')))],
+          child: MaterialApp(home: CookingModeScreen(recipe: sampleRecipe)),
+        ),
+      );
+      await tester.pumpAndSettle();
+      expect(find.text('03:00'), findsOneWidget);
+      await tester.tap(find.byKey(const Key('add_minute')));
+      await tester.pump();
+      expect(find.text('04:00'), findsOneWidget);
+      await tester.tap(find.text('Sıfırla'));
+      await tester.pump();
+      expect(find.text('03:00'), findsOneWidget);
+    });
+
     testWidgets('displays step ingredients and full ingredients bottom sheet in cooking mode in Turkish', (tester) async {
       const detailedRecipe = Recipe(
         id: 'rec_00099',
