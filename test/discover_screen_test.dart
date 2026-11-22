@@ -5,6 +5,7 @@ import 'package:arewecookin/screens/discover_screen.dart';
 import 'package:arewecookin/screens/main_navigation_screen.dart';
 import 'package:arewecookin/screens/recipe_detail_screen.dart';
 import 'package:arewecookin/providers/discover_provider.dart';
+import 'package:arewecookin/providers/recipe_notes_provider.dart';
 import 'package:arewecookin/providers/user_recipes_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -78,6 +79,23 @@ void main() {
       await tester.pumpAndSettle();
       expect(find.byKey(const Key('saved_empty')), findsNothing);
       expect(find.textContaining(recipe.localizedTitle('en')), findsWidgets);
+    });
+
+    testWidgets('my rating shows on the recipe card', (tester) async {
+      SharedPreferences.setMockInitialValues({});
+      final container = ProviderContainer();
+      addTearDown(container.dispose);
+      await tester.pumpWidget(UncontrolledProviderScope(
+        container: container,
+        child: const MaterialApp(home: Scaffold(body: DiscoverScreen())),
+      ));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 300));
+      expect(find.text('5/5'), findsNothing);
+      final recipe = container.read(discoverProvider).recipes.first;
+      container.read(recipeNotesProvider.notifier).setRating(recipe.id, 5);
+      await tester.pump();
+      expect(find.text('5/5'), findsOneWidget);
     });
 
     testWidgets('Surprise me opens a recipe', (tester) async {

@@ -9,6 +9,7 @@ import '../l10n/recipe_localization.dart';
 import '../providers/discover_provider.dart';
 import '../repositories/recipe_repository.dart';
 import '../providers/recent_recipes_provider.dart';
+import '../providers/recipe_notes_provider.dart';
 import '../providers/user_recipes_provider.dart';
 import '../providers/locale_provider.dart';
 import '../providers/auth_provider.dart';
@@ -744,6 +745,7 @@ class _RecipeCard extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final strings = ref.watch(appStringsProvider);
     final catColor = _categoryColor(recipe.category);
+    final myRating = ref.watch(recipeNotesProvider.select((m) => m[recipe.id]?.rating ?? 0));
 
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
@@ -883,6 +885,8 @@ class _RecipeCard extends ConsumerWidget {
                             spacing: 12,
                             runSpacing: 6,
                             children: [
+                              if (myRating > 0)
+                                _InfoBadge(icon: Icons.star_rounded, label: '$myRating/5'),
                               _InfoBadge(
                                 icon: CookingIcons.clock,
                                 label: strings.minutesShort(recipe.totalTime),
