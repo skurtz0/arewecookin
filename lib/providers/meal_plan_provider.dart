@@ -61,6 +61,13 @@ class MealPlanNotifier extends Notifier<Map<int, List<Recipe>>> {
     return true;
   }
 
+  /// Moves a meal to another day. If the target day already has it, it is just removed from the old day.
+  void move(int from, int to, Recipe recipe) {
+    if (from == to || to < 1 || to > 7) return;
+    remove(from, recipe.id);
+    add(to, recipe);
+  }
+
   void remove(int day, String recipeId) {
     final current = state[day];
     if (current == null) return;

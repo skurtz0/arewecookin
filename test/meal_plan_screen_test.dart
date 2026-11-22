@@ -49,4 +49,24 @@ void main() {
     await tester.pumpAndSettle();
     expect(container.read(mealPlanProvider)[day]!.length, 1);
   });
+
+  testWidgets('a planned meal can be moved to another day', (tester) async {
+    SharedPreferences.setMockInitialValues({});
+    final recipe = (await RecipeRepository().getRecipes(limit: 1)).recipes.first;
+    final container = ProviderContainer();
+    addTearDown(container.dispose);
+    container.read(mealPlanProvider.notifier).add(1, recipe);
+    await tester.pumpWidget(UncontrolledProviderScope(
+      container: container,
+      child: const MaterialApp(home: MealPlanScreen()),
+    ));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(Key('plan_move_1_${recipe.id}')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const Key('plan_move_to_5')));
+    await tester.pumpAndSettle();
+    final plan = container.read(mealPlanProvider);
+    expect(plan.containsKey(1), isFalse);
+    expect(plan[5]!.single.id, recipe.id);
+  });
 }

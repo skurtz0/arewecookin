@@ -130,7 +130,43 @@ class MealPlanScreen extends ConsumerWidget {
                           subtitle: Text('${r.totalTime} min'),
                           onTap: () => Navigator.of(context).push(
                               MaterialPageRoute(builder: (_) => RecipeDetailScreen(recipe: r))),
-                          trailing: IconButton(
+                          trailing: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              IconButton(
+                                key: Key('plan_move_${day}_${r.id}'),
+                                tooltip: strings.mealPlanMove,
+                                icon: const Icon(Icons.swap_horiz_rounded),
+                                onPressed: () async {
+                                  final to = await showModalBottomSheet<int>(
+                                    context: context,
+                                    isScrollControlled: true,
+                                    builder: (ctx) => SafeArea(
+                                      child: SingleChildScrollView(
+                                        child: Column(
+                                          mainAxisSize: MainAxisSize.min,
+                                          children: [
+                                            Padding(
+                                              padding: const EdgeInsets.all(16),
+                                              child: Text(strings.mealPlanMove,
+                                                  style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                                            ),
+                                            for (var d = 1; d <= 7; d++)
+                                              if (d != day)
+                                                ListTile(
+                                                  key: Key('plan_move_to_$d'),
+                                                  title: Text(strings.weekdayName(d)),
+                                                  onTap: () => Navigator.of(ctx).pop(d),
+                                                ),
+                                          ],
+                                        ),
+                                      ),
+                                    ),
+                                  );
+                                  if (to != null) ref.read(mealPlanProvider.notifier).move(day, to, r);
+                                },
+                              ),
+                              IconButton(
                             key: Key('plan_remove_${day}_${r.id}'),
                             tooltip: strings.mealPlanRemove,
                             icon: const Icon(Icons.close_rounded),
@@ -147,6 +183,8 @@ class MealPlanScreen extends ConsumerWidget {
                                   ),
                                 ));
                             },
+                          ),
+                            ],
                           ),
                         ),
                       ),
