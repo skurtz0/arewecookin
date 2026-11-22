@@ -81,6 +81,7 @@ class AppStrings {
   String get pantryHint => _get('pantryHint', 'Select or add the ingredients you have. Filter by cuisine to instantly find recipes you can make.');
   String get savedOnly => _get('savedOnly', 'Saved');
   String get savedFilterEmpty => _get('savedFilterEmpty', 'No saved recipes yet. Tap the bookmark on a recipe to save it.');
+  String get shoppingAddMissing => _get('shoppingAddMissing', 'Add missing to shopping list');
   String get shoppingOpen => _get('shoppingOpen', 'Open');
   String shoppingAdded(int n) => _get('shoppingAdded', '{n} items added to your list').replaceAll('{n}', '$n');
 

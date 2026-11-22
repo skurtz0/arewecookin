@@ -7,6 +7,7 @@ import '../l10n/recipe_localization.dart';
 import '../models/models.dart';
 import '../providers/locale_provider.dart';
 import '../providers/pantry_provider.dart';
+import '../providers/shopping_list_provider.dart';
 import '../utils/cooking_icons.dart';
 import '../widgets/recipe_image.dart';
 import 'recipe_detail_screen.dart';
@@ -935,6 +936,30 @@ class _PantryRecipeCard extends ConsumerWidget {
                         ),
                       ),
                     ],
+                  ),
+                  Align(
+                    alignment: AlignmentDirectional.centerStart,
+                    child: TextButton.icon(
+                      key: Key('add_missing_${recipe.id}'),
+                      icon: const Icon(Icons.add_shopping_cart_rounded, size: 18),
+                      label: Text(strings.shoppingAddMissing),
+                      onPressed: () {
+                        final added = ref.read(shoppingListProvider.notifier).addAll([
+                          for (final key in missingKeys)
+                            ShoppingItem(
+                              name: RecipeLocalization.localizeIngredientName(key, strings.locale),
+                              recipeTitle: recipe.localizedTitle(strings.locale),
+                            ),
+                        ]);
+                        ScaffoldMessenger.of(context)
+                          ..hideCurrentSnackBar()
+                          ..showSnackBar(SnackBar(
+                            content: Text(added == 0
+                                ? strings.shoppingNothingNew
+                                : strings.shoppingAdded(added)),
+                          ));
+                      },
+                    ),
                   ),
                 ],
 
