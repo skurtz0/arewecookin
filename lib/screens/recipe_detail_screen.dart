@@ -496,8 +496,13 @@ class _RecipeDetailScreenState extends ConsumerState<RecipeDetailScreen> {
                 icon: const Icon(Icons.add_shopping_cart_rounded),
                 label: Text(strings.shoppingAdd),
                 onPressed: () {
+                  // Ingredients already ticked as "have it" are not added to the list.
+                  final needed = <Ingredient>[
+                    for (var n = 0; n < recipe.ingredients.length; n++)
+                      if (!_checkedIngredientIndices.contains(n)) recipe.ingredients[n],
+                  ];
                   final added = ref.read(shoppingListProvider.notifier).addAll(
-                        recipe.ingredients.where((i) => !i.isOptional).map((i) => ShoppingItem(
+                        needed.where((i) => !i.isOptional).map((i) => ShoppingItem(
                               name: i.localizedName(strings.locale),
                               amount: _formatScaledAmount(i.amount),
                               unit: i.localizedUnit(strings.locale),

@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:arewecookin/models/models.dart';
 import 'package:arewecookin/providers/locale_provider.dart';
+import 'package:arewecookin/providers/shopping_list_provider.dart';
 import 'package:arewecookin/screens/cooking_mode_screen.dart';
 import 'package:arewecookin/screens/recipe_detail_screen.dart';
 
@@ -159,6 +160,29 @@ void main() {
       expect(copied, isNotNull);
       expect(copied, contains('Kuru Fasulye'));
       expect(copied, contains('1.'));
+    });
+
+    testWidgets('add to shopping list skips ingredients already ticked as available', (tester) async {
+      final container = ProviderContainer(overrides: [
+        localeProvider.overrideWith(() => FakeLocaleNotifier(const Locale('tr'))),
+      ]);
+      addTearDown(container.dispose);
+      await tester.pumpWidget(UncontrolledProviderScope(
+        container: container,
+        child: MaterialApp(home: RecipeDetailScreen(recipe: sampleRecipe)),
+      ));
+      await tester.pumpAndSettle();
+      final first = sampleRecipe.ingredients.first.localizedName('tr');
+      await tester.ensureVisible(find.text(first));
+      await tester.tap(find.text(first));
+      await tester.pump();
+      final btn = find.byKey(const Key('add_to_shopping_list'));
+      await tester.ensureVisible(btn);
+      await tester.tap(btn);
+      await tester.pump();
+      final names = container.read(shoppingListProvider).map((e) => e.name).toList();
+      expect(names, isNot(contains(first)));
+      expect(names.length, sampleRecipe.ingredients.length - 1);
     });
   });
 }
