@@ -58,7 +58,21 @@ class MealPlanScreen extends ConsumerWidget {
                     ],
                   ),
                 );
-                if (ok == true) ref.read(mealPlanProvider.notifier).clear();
+                if (ok == true) {
+                  final notifier = ref.read(mealPlanProvider.notifier);
+                  final before = ref.read(mealPlanProvider);
+                  notifier.clear();
+                  if (!context.mounted) return;
+                  ScaffoldMessenger.of(context)
+                    ..hideCurrentSnackBar()
+                    ..showSnackBar(SnackBar(
+                      content: Text(strings.listCleared),
+                      action: SnackBarAction(
+                        label: strings.undoLabel,
+                        onPressed: () => notifier.restore(before),
+                      ),
+                    ));
+                }
               },
             ),
           if (total > 0)

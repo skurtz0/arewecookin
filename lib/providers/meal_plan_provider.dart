@@ -96,6 +96,12 @@ class MealPlanNotifier extends Notifier<Map<int, List<Recipe>>> {
     return b.toString().trimRight();
   }
 
+  /// Replaces the whole plan (used by "Undo" after clearing).
+  void restore(Map<int, List<Recipe>> plan) {
+    state = {for (final e in plan.entries) e.key: [...e.value]};
+    _save();
+  }
+
   void clear() {
     state = const {};
     _save();

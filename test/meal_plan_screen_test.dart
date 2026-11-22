@@ -28,6 +28,9 @@ void main() {
     await tester.pumpAndSettle();
     expect(container.read(mealPlanProvider), isEmpty);
     expect(find.byIcon(Icons.calendar_month_outlined), findsOneWidget);
+    await tester.tap(find.text('Undo'));
+    await tester.pumpAndSettle();
+    expect(container.read(mealPlanProvider)[DateTime.now().weekday]!.single.id, recipe.id);
   });
 
   testWidgets('removing a planned meal can be undone', (tester) async {
