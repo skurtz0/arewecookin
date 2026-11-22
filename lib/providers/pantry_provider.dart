@@ -43,10 +43,12 @@ class PantryNotifier extends Notifier<PantryState> {
   RecipeRepository get _repository => ref.read(recipeRepositoryProvider);
 
   static const _prefKey = 'pantry_keys_v1';
+  // Saving waits for the stored selection to be read first, so an early tap never overwrites it.
+  Future<void> _ready = Future.value();
 
   @override
   PantryState build() {
-    _restore();
+    _ready = _restore();
     return const PantryState();
   }
 
@@ -55,14 +57,17 @@ class PantryNotifier extends Notifier<PantryState> {
     try {
       final prefs = await SharedPreferences.getInstance();
       final saved = prefs.getStringList(_prefKey);
-      if (saved == null || saved.isEmpty || state.selectedKeys.isNotEmpty) return;
-      state = state.copyWith(selectedKeys: saved.toSet());
+      if (saved == null || saved.isEmpty) return;
+      final merged = {...saved, ...state.selectedKeys};
+      if (merged.length == state.selectedKeys.length) return;
+      state = state.copyWith(selectedKeys: merged);
       await _searchMatches();
     } catch (_) {}
   }
 
   Future<void> _persist() async {
     try {
+      await _ready;
       final prefs = await SharedPreferences.getInstance();
       await prefs.setStringList(_prefKey, state.selectedKeys.toList());
     } catch (_) {}

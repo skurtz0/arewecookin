@@ -1,3 +1,4 @@
+import 'package:arewecookin/providers/pantry_provider.dart';
 import 'package:arewecookin/providers/recipe_notes_provider.dart';
 import 'package:arewecookin/providers/recipe_progress_provider.dart';
 import 'package:arewecookin/providers/recent_searches_provider.dart';
@@ -33,5 +34,20 @@ void main() {
     expect(b.read(recipeNotesProvider)['old']!.rating, 5);
     expect(b.read(recipeNotesProvider)['new']!.rating, 3);
     expect(b.read(recentSearchesProvider), containsAll(['soup', 'pasta']));
+  });
+
+  test('pantry: an early selection is merged with the stored one', () async {
+    SharedPreferences.setMockInitialValues({'pantry_keys_v1': ['domates', 'soğan']});
+    final a = ProviderContainer();
+    addTearDown(a.dispose);
+    a.read(pantryProvider.notifier).addIngredient('yumurta');
+    await settle();
+    expect(a.read(pantryProvider).selectedKeys, {'domates', 'soğan', 'yumurta'});
+    a.dispose();
+    final b = ProviderContainer();
+    addTearDown(b.dispose);
+    b.read(pantryProvider);
+    await settle();
+    expect(b.read(pantryProvider).selectedKeys, {'domates', 'soğan', 'yumurta'});
   });
 }
