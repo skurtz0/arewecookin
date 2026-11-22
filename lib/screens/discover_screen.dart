@@ -311,15 +311,23 @@ class DiscoverScreenState extends ConsumerState<DiscoverScreen> {
                       }
 
                       final recipe = discoverState.recipes[index];
-                      return _RecipeCard(
-                        recipe: recipe,
-                        onTap: () {
-                          Navigator.of(context).push(
-                            MaterialPageRoute(
-                              builder: (_) => RecipeDetailScreen(recipe: recipe),
-                            ),
-                          );
-                        },
+                      return Semantics(
+                        button: true,
+                        excludeSemantics: true,
+                        label: '${recipe.localizedTitle(strings.locale)}, ${recipe.totalTime} min',
+                        onTap: () => Navigator.of(context).push(
+                          MaterialPageRoute(builder: (_) => RecipeDetailScreen(recipe: recipe)),
+                        ),
+                        child: _RecipeCard(
+                          recipe: recipe,
+                          onTap: () {
+                            Navigator.of(context).push(
+                              MaterialPageRoute(
+                                builder: (_) => RecipeDetailScreen(recipe: recipe),
+                              ),
+                            );
+                          },
+                        ),
                       );
                     },
                     childCount: discoverState.recipes.length + (discoverState.hasMore ? 1 : 0),

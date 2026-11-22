@@ -41,6 +41,17 @@ void main() {
       expect(find.byType(RecipeDetailScreen), findsOneWidget);
     });
 
+    testWidgets('recipe cards are exposed to screen readers as buttons with title and time', (tester) async {
+      final handle = tester.ensureSemantics();
+      await tester.pumpWidget(
+        const ProviderScope(child: MaterialApp(home: Scaffold(body: DiscoverScreen()))),
+      );
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 300));
+      expect(find.bySemanticsLabel(RegExp(r', \d+ min$')), findsWidgets);
+      handle.dispose();
+    });
+
     testWidgets('Surprise me opens a recipe', (tester) async {
       await tester.pumpWidget(
         const ProviderScope(child: MaterialApp(home: Scaffold(body: DiscoverScreen()))),
