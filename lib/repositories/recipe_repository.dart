@@ -334,16 +334,33 @@ class RecipeRepository {
     );
   }
 
+  /// Lower-cases and strips diacritics so "sutlac" finds "Sütlaç" and "ISPANAK" finds "ıspanak".
+  static String normalizeSearch(String input) {
+    const from = 'çğıöşüâîûéèêàáíóúñåäß';
+    const to = 'cgiosuaiueeeaaiounaas';
+    final lower = input.replaceAll('İ', 'i').replaceAll('I', 'ı').toLowerCase().replaceAll('\u0307', '');
+    final sb = StringBuffer();
+    for (final ch in lower.split('')) {
+      final i = from.indexOf(ch);
+      sb.write(i >= 0 ? to[i] : ch);
+    }
+    return sb.toString();
+  }
+
+  /// Every word of the query must appear in the title/category/cuisine,
+  /// or the whole query must be (part of) one ingredient name.
   bool _matchesQuery(Recipe r, String query) {
-    final q = query.toLowerCase().trim();
+    final q = normalizeSearch(query).trim();
     if (q.isEmpty) return true;
-    if (r.title.toLowerCase().contains(q)) return true;
-    if (r.cleanTitle.toLowerCase().contains(q)) return true;
-    if (r.localizedTitle('en').toLowerCase().contains(q)) return true;
-    if (r.category.toLowerCase().contains(q)) return true;
-    if (r.cuisine.toLowerCase().contains(q)) return true;
-    if (r.ingredientKeys.any((k) => k.toLowerCase().contains(q))) return true;
-    return false;
+    final words = q.split(RegExp(r'\s+'));
+    final titleHay = normalizeSearch(
+      [r.title, r.cleanTitle, r.localizedTitle('en'), r.category, r.cuisine].join(' '),
+    );
+    if (words.every(titleHay.contains)) return true;
+    return [
+      ...r.ingredientKeys,
+      for (final i in r.ingredients) ...[i.name, i.nameEn ?? ''],
+    ].any((k) => normalizeSearch(k).contains(q));
   }
 }
 
