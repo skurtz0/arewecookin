@@ -167,6 +167,7 @@ class _RecipeDetailScreenState extends ConsumerState<RecipeDetailScreen> {
     final strings = ref.watch(appStringsProvider);
     final imperial = ref.watch(imperialUnitsProvider);
     final recipe = widget.recipe;
+    final savedStep = ref.watch(recipeProgressProvider.select((m) => m[widget.recipe.id]?.step ?? 0));
     final totalIngredients = recipe.ingredients.length;
     final checkedCount = _checkedIngredientIndices.length;
     final progress = totalIngredients > 0
@@ -1130,7 +1131,10 @@ class _RecipeDetailScreenState extends ConsumerState<RecipeDetailScreen> {
                     const Icon(CookingIcons.play, size: 22),
                     const SizedBox(width: 8),
                     Text(
-                      '${strings.startCooking} 🍳',
+                      savedStep > 0 && savedStep < recipe.steps.length
+                          ? '${strings.resumeCooking(savedStep + 1)} 🍳'
+                          : '${strings.startCooking} 🍳',
+                      key: const Key('start_cooking_label'),
                       style: const TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.bold,

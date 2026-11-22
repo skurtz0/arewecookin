@@ -73,4 +73,22 @@ void main() {
     final strings = c.read(appStringsProvider);
     expect(find.textContaining('${strings.step} 3 / ${recipe.steps.length}'), findsOneWidget);
   });
+
+  testWidgets('detail screen offers to resume cooking at the saved step', (tester) async {
+    SharedPreferences.setMockInitialValues({});
+    final recipe = (await RecipeRepository().getRecipes(limit: 1)).recipes.first;
+    final c = ProviderContainer();
+    addTearDown(c.dispose);
+    await tester.pumpWidget(UncontrolledProviderScope(
+      container: c,
+      child: MaterialApp(home: RecipeDetailScreen(recipe: recipe)),
+    ));
+    await tester.pumpAndSettle();
+    final strings = c.read(appStringsProvider);
+    expect(find.textContaining(strings.startCooking), findsOneWidget);
+    c.read(recipeProgressProvider.notifier).setStep(recipe.id, 2);
+    await tester.pumpAndSettle();
+    expect(find.textContaining(strings.resumeCooking(3)), findsOneWidget);
+    expect(find.textContaining(strings.startCooking), findsNothing);
+  });
 }

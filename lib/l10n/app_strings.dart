@@ -55,6 +55,7 @@ class AppStrings {
   String timerLeft(int mins) => _get('timerLeftFmt', '~{n} min of timers left').replaceAll('{n}', '$mins');
   String get savedSortRating => _get('savedSortRating', 'My top rated');
   String get mealPlanMove => _get('mealPlanMove', 'Move to another day');
+  String resumeCooking(int step) => _get('resumeCookingFmt', 'Resume cooking (step {n})').replaceAll('{n}', '$step');
   String get shoppingClearAll => _get('shoppingClearAll', 'Clear list');
   String get shoppingClearAllConfirm => _get('shoppingClearAllConfirm', 'Remove all items from the shopping list?');
   String get shoppingEmptyTitle => _get('shoppingEmptyTitle', 'Your list is empty');
