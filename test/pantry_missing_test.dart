@@ -53,4 +53,12 @@ void main() {
     await tester.pumpAndSettle();
     expect(tester.widgetList(buttons).length, 0);
   });
+
+  testWidgets('custom ingredient hint follows the app language (English by default)', (tester) async {
+    SharedPreferences.setMockInitialValues({});
+    await tester.pumpWidget(const ProviderScope(child: MaterialApp(home: PantryScreen())));
+    await tester.pumpAndSettle();
+    expect(find.textContaining('Add another ingredient'), findsOneWidget);
+    expect(find.textContaining('Farklı malzeme ekle'), findsNothing);
+  });
 }

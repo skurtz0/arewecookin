@@ -352,7 +352,7 @@ class _PantryScreenState extends ConsumerState<PantryScreen> {
                       controller: _customIngredientController,
                       onSubmitted: (_) => _handleAddCustom(),
                       decoration: InputDecoration(
-                        hintText: 'Farklı malzeme ekle (örn: mantar, patlıcan, sucuk)...',
+                        hintText: strings.pantryCustomHint,
                         hintStyle: TextStyle(
                           color: Colors.grey.shade400,
                           fontSize: 13,

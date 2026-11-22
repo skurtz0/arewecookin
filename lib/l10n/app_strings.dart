@@ -64,6 +64,9 @@ class AppStrings {
   String doneBody(String title) => _get('doneBodyFmt', 'You finished {title}. Enjoy your meal!').replaceAll('{title}', title);
   String get doneBack => _get('doneBack', 'Back to recipes');
   String get doneRate => _get('doneRate', 'How was it? Rate it');
+  String get needIngredient => _get('needIngredient', 'Please add at least one ingredient.');
+  String get needStep => _get('needStep', 'Please add at least one preparation step.');
+  String get pantryCustomHint => _get('pantryCustomHint', 'Add another ingredient (e.g. mushroom, eggplant)...');
   String get shoppingClearAll => _get('shoppingClearAll', 'Clear list');
   String get shoppingClearAllConfirm => _get('shoppingClearAllConfirm', 'Remove all items from the shopping list?');
   String get shoppingEmptyTitle => _get('shoppingEmptyTitle', 'Your list is empty');

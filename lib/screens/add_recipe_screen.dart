@@ -172,7 +172,7 @@ class _AddRecipeScreenState extends ConsumerState<AddRecipeScreen> {
 
     if (parsedIngredients.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Lütfen en az bir malzeme ekleyin.')),
+        SnackBar(content: Text(ref.read(appStringsProvider).needIngredient)),
       );
       return;
     }
@@ -201,7 +201,7 @@ class _AddRecipeScreenState extends ConsumerState<AddRecipeScreen> {
 
     if (parsedSteps.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Lütfen en az bir hazırlık adımı ekleyin.')),
+        SnackBar(content: Text(ref.read(appStringsProvider).needStep)),
       );
       return;
     }
