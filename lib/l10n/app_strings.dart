@@ -70,6 +70,8 @@ class AppStrings {
   String get a11yMore => _get('a11yMore', 'More servings');
   String get a11yClear => _get('a11yClear', 'Clear search');
   String get a11yClose => _get('a11yClose', 'Close');
+  String timerDoneFor(int n) => _get('timerDone', 'Step {n} timer finished!').replaceAll('{n}', '$n');
+  String timersElsewhere(int n) => _get('timersRunningElsewhere', 'Timers running in other steps: {n}').replaceAll('{n}', '$n');
   String get shoppingOpen => _get('shoppingOpen', 'Open');
   String shoppingAdded(int n) => _get('shoppingAdded', '{n} items added to your list').replaceAll('{n}', '$n');
 

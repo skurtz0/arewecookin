@@ -131,6 +131,33 @@ void main() {
       await tester.pumpAndSettle();
     });
 
+    testWidgets('a running timer keeps counting after moving to the next step', (tester) async {
+      await tester.pumpWidget(
+        ProviderScope(
+          overrides: [
+            localeProvider.overrideWith(() => FakeLocaleNotifier(const Locale('tr'))),
+          ],
+          child: MaterialApp(home: CookingModeScreen(recipe: sampleRecipe)),
+        ),
+      );
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Sayacı Başlat'));
+      await tester.pump();
+      await tester.pump(const Duration(seconds: 2));
+      await tester.tap(find.text('Sonraki Adım'));
+      await tester.pump(const Duration(milliseconds: 400));
+      await tester.pump(const Duration(seconds: 3));
+      expect(find.byKey(const Key('timers_elsewhere')), findsOneWidget);
+      await tester.tap(find.text('Önceki'));
+      await tester.pump(const Duration(milliseconds: 400));
+      await tester.pump(const Duration(milliseconds: 400));
+      // 180 s minus about 6 s elapsed (timer kept running on the other step)
+      expect(find.text('02:54'), findsOneWidget);
+      // stop the ticker so the test ends cleanly
+      await tester.tap(find.text('Durdur'));
+      await tester.pump();
+    });
+
     testWidgets('displays step ingredients and full ingredients bottom sheet in cooking mode in Turkish', (tester) async {
       const detailedRecipe = Recipe(
         id: 'rec_00099',

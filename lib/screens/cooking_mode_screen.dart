@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/models.dart';
@@ -21,11 +22,17 @@ class _CookingModeScreenState extends ConsumerState<CookingModeScreen> {
   late final PageController _pageController;
   int _currentStepIndex = 0;
 
-  // Step timer state
-  Timer? _activeTimer;
-  int _remainingSeconds = 0;
-  bool _isTimerRunning = false;
-  int _totalStepSeconds = 0;
+  // Step timers: every step keeps its own countdown, so a timer keeps running
+  // (e.g. while the dish simmers) when the user moves to the next step.
+  Timer? _ticker;
+  final Map<int, int> _remaining = {};
+  final Set<int> _runningSteps = {};
+
+  int get _totalStepSeconds => _currentStepIndex < widget.recipe.steps.length
+      ? widget.recipe.steps[_currentStepIndex].timerSeconds
+      : 0;
+  int get _remainingSeconds => _remaining[_currentStepIndex] ?? _totalStepSeconds;
+  bool get _isTimerRunning => _runningSteps.contains(_currentStepIndex);
 
   // Ingredients checklist state
   final Set<int> _checkedIngredients = {};
@@ -169,80 +176,85 @@ class _CookingModeScreenState extends ConsumerState<CookingModeScreen> {
   @override
   void dispose() {
     _setKeepAwake(false);
-    _activeTimer?.cancel();
+    _ticker?.cancel();
     _pageController.dispose();
     super.dispose();
   }
 
   void _initTimerForStep(int stepIndex) {
-    _activeTimer?.cancel();
-    _isTimerRunning = false;
-
     if (stepIndex < widget.recipe.steps.length) {
-      final step = widget.recipe.steps[stepIndex];
-      _totalStepSeconds = step.timerSeconds;
-      _remainingSeconds = step.timerSeconds;
-    } else {
-      _totalStepSeconds = 0;
-      _remainingSeconds = 0;
+      _remaining.putIfAbsent(stepIndex, () => widget.recipe.steps[stepIndex].timerSeconds);
     }
   }
 
-  void _startTimer() {
-    if (_remainingSeconds <= 0) return;
-
-    setState(() => _isTimerRunning = true);
-
-    _activeTimer?.cancel();
-    _activeTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
+  void _ensureTicker() {
+    if (_ticker?.isActive ?? false) return;
+    _ticker = Timer.periodic(const Duration(seconds: 1), (timer) {
       if (!mounted) {
         timer.cancel();
         return;
       }
-
-      if (_remainingSeconds > 1) {
-        setState(() {
-          _remainingSeconds--;
-        });
-      } else {
-        timer.cancel();
-        setState(() {
-          _remainingSeconds = 0;
-          _isTimerRunning = false;
-        });
-
-        // Show snackbar alert when timer ends
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Row(
-              children: const [
-                Icon(Icons.alarm_on_rounded, color: Colors.white),
-                SizedBox(width: 8),
-                Text(
-                  'Süre doldu! Bir sonraki adıma geçebilirsiniz.',
-                  style: TextStyle(fontWeight: FontWeight.bold),
-                ),
-              ],
-            ),
-            backgroundColor: const Color(0xFF10B981),
-            behavior: SnackBarBehavior.floating,
-            duration: const Duration(seconds: 4),
-          ),
-        );
+      final finished = <int>[];
+      setState(() {
+        for (final step in _runningSteps.toList()) {
+          final left = (_remaining[step] ?? 0) - 1;
+          if (left <= 0) {
+            _remaining[step] = 0;
+            _runningSteps.remove(step);
+            finished.add(step);
+          } else {
+            _remaining[step] = left;
+          }
+        }
+      });
+      for (final step in finished) {
+        _alertTimerDone(step);
       }
+      if (_runningSteps.isEmpty) timer.cancel();
     });
   }
 
+  void _alertTimerDone(int step) {
+    try {
+      HapticFeedback.heavyImpact();
+      SystemSound.play(SystemSoundType.alert);
+    } catch (_) {}
+    final strings = ref.read(appStringsProvider);
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Row(
+          children: [
+            const Icon(Icons.alarm_on_rounded, color: Colors.white),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Text(
+                strings.timerDoneFor(step + 1),
+                style: const TextStyle(fontWeight: FontWeight.bold),
+              ),
+            ),
+          ],
+        ),
+        backgroundColor: const Color(0xFF10B981),
+        behavior: SnackBarBehavior.floating,
+        duration: const Duration(seconds: 6),
+      ),
+    );
+  }
+
+  void _startTimer() {
+    if (_remainingSeconds <= 0) return;
+    setState(() => _runningSteps.add(_currentStepIndex));
+    _ensureTicker();
+  }
+
   void _pauseTimer() {
-    _activeTimer?.cancel();
-    setState(() => _isTimerRunning = false);
+    setState(() => _runningSteps.remove(_currentStepIndex));
   }
 
   void _resetTimer() {
-    _activeTimer?.cancel();
     setState(() {
-      _isTimerRunning = false;
-      _remainingSeconds = _totalStepSeconds;
+      _runningSteps.remove(_currentStepIndex);
+      _remaining[_currentStepIndex] = _totalStepSeconds;
     });
   }
 
@@ -747,6 +759,15 @@ class _CookingModeScreenState extends ConsumerState<CookingModeScreen> {
               color: _isTimerRunning ? const Color(0xFFFF5722) : const Color(0xFF38BDF8),
             ),
           ),
+          if (_runningSteps.any((e) => e != _currentStepIndex))
+            Padding(
+              padding: const EdgeInsets.only(top: 8),
+              child: Text(
+                strings.timersElsewhere(_runningSteps.where((e) => e != _currentStepIndex).length),
+                key: const Key('timers_elsewhere'),
+                style: const TextStyle(fontSize: 12, color: Color(0xFFFBBF24)),
+              ),
+            ),
           const SizedBox(height: 14),
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
