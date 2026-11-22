@@ -4,6 +4,9 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:arewecookin/screens/discover_screen.dart';
 import 'package:arewecookin/screens/main_navigation_screen.dart';
 import 'package:arewecookin/screens/recipe_detail_screen.dart';
+import 'package:arewecookin/providers/discover_provider.dart';
+import 'package:arewecookin/providers/user_recipes_provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
   group('DiscoverScreen Widget Tests', () {
@@ -33,8 +36,13 @@ void main() {
       expect(find.byType(ListView), findsWidgets);
 
       // Tap on a recipe card to test navigation to RecipeDetailScreen
-      // The first 3 matches are the time-filter chips (15/30/60 min); the next one is a recipe card.
-      final firstCard = find.textContaining('min').at(3);
+      // A 'min' text inside the first recipe card (not a time-filter chip).
+      final firstCard = find.descendant(
+        of: find.byWidgetPredicate((w) => w.runtimeType.toString() == '_RecipeCard').first,
+        matching: find.textContaining('min'),
+      ).first;
+      await tester.ensureVisible(firstCard);
+      await tester.pumpAndSettle();
       await tester.tap(firstCard);
       await tester.pumpAndSettle();
 
@@ -50,6 +58,26 @@ void main() {
       await tester.pump(const Duration(milliseconds: 300));
       expect(find.bySemanticsLabel(RegExp(r', \d+ min$')), findsWidgets);
       handle.dispose();
+    });
+
+    testWidgets('Saved filter shows only bookmarked recipes', (tester) async {
+      SharedPreferences.setMockInitialValues({});
+      final container = ProviderContainer();
+      addTearDown(container.dispose);
+      await tester.pumpWidget(UncontrolledProviderScope(
+        container: container,
+        child: const MaterialApp(home: Scaffold(body: DiscoverScreen())),
+      ));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 300));
+      await tester.tap(find.byKey(const Key('saved_filter')));
+      await tester.pumpAndSettle();
+      expect(find.byKey(const Key('saved_empty')), findsOneWidget);
+      final recipe = container.read(discoverProvider).recipes.first;
+      await container.read(savedRecipesProvider.notifier).toggleSave(recipe);
+      await tester.pumpAndSettle();
+      expect(find.byKey(const Key('saved_empty')), findsNothing);
+      expect(find.textContaining(recipe.localizedTitle('en')), findsWidgets);
     });
 
     testWidgets('Surprise me opens a recipe', (tester) async {

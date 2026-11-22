@@ -7,7 +7,9 @@ import '../utils/cooking_icons.dart';
 import '../models/models.dart';
 import '../l10n/recipe_localization.dart';
 import '../providers/discover_provider.dart';
+import '../repositories/recipe_repository.dart';
 import '../providers/recent_recipes_provider.dart';
+import '../providers/user_recipes_provider.dart';
 import '../providers/locale_provider.dart';
 import '../providers/auth_provider.dart';
 import '../widgets/recipe_image.dart';
@@ -24,6 +26,7 @@ class DiscoverScreen extends ConsumerStatefulWidget {
 class DiscoverScreenState extends ConsumerState<DiscoverScreen> {
   final ScrollController _scrollController = ScrollController();
   final TextEditingController _searchController = TextEditingController();
+  bool _onlySaved = false;
   Timer? _debounceTimer;
 
   static final List<Map<String, String>> cuisineFilters = [
@@ -283,7 +286,9 @@ class DiscoverScreenState extends ConsumerState<DiscoverScreen> {
                   ],
                 ),
               ),
-            if (discoverState.isLoading)
+            if (_onlySaved)
+              _buildSavedSliver(context, strings)
+            else if (discoverState.isLoading)
               const SliverFillRemaining(
                 hasScrollBody: false,
                 child: Center(
@@ -427,6 +432,17 @@ class DiscoverScreenState extends ConsumerState<DiscoverScreen> {
                     },
                   ),
                 ),
+                Padding(
+                  padding: const EdgeInsetsDirectional.only(end: 8),
+                  child: FilterChip(
+                    key: const Key('saved_filter'),
+                    avatar: const Icon(Icons.bookmark_rounded, size: 16),
+                    label: Text(strings.savedOnly),
+                    selected: _onlySaved,
+                    selectedColor: const Color(0xFFFF5722).withValues(alpha: 0.18),
+                    onSelected: (v) => setState(() => _onlySaved = v),
+                  ),
+                ),
                 for (final m in const <int?>[null, 15, 30, 60])
                   Padding(
                     padding: const EdgeInsetsDirectional.only(end: 8),
@@ -502,6 +518,48 @@ class DiscoverScreenState extends ConsumerState<DiscoverScreen> {
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  /// Saved (bookmarked) recipes, narrowed by the search box. Works offline: they are stored on the device.
+  Widget _buildSavedSliver(BuildContext context, AppStrings strings) {
+    final query = RecipeRepository.normalizeSearch(_searchController.text).trim();
+    final saved = ref.watch(savedRecipesProvider).recipes.where((r) {
+      if (query.isEmpty) return true;
+      return RecipeRepository.normalizeSearch(r.localizedTitle(strings.locale)).contains(query);
+    }).toList();
+    if (saved.isEmpty) {
+      return SliverFillRemaining(
+        hasScrollBody: false,
+        child: Center(
+          child: Padding(
+            padding: const EdgeInsets.all(32),
+            child: Text(
+              strings.savedFilterEmpty,
+              key: const Key('saved_empty'),
+              textAlign: TextAlign.center,
+              style: TextStyle(color: Colors.grey.shade600),
+            ),
+          ),
+        ),
+      );
+    }
+    return SliverPadding(
+      padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
+      sliver: SliverList(
+        delegate: SliverChildBuilderDelegate(
+          (context, index) {
+            final recipe = saved[index];
+            return _RecipeCard(
+              recipe: recipe,
+              onTap: () => Navigator.of(context).push(
+                MaterialPageRoute(builder: (_) => RecipeDetailScreen(recipe: recipe)),
+              ),
+            );
+          },
+          childCount: saved.length,
+        ),
       ),
     );
   }
