@@ -78,18 +78,45 @@ class ShoppingListNotifier extends Notifier<List<ShoppingItem>> {
     } catch (_) {}
   }
 
-  /// Adds items, skipping ones whose name is already on the list. Returns how many were added.
+  static double? _num(String v) => double.tryParse(v.trim().replaceAll(',', '.'));
+
+  static String _fmt(double v) {
+    if (v == v.roundToDouble()) return v.round().toString();
+    return v.toStringAsFixed(2).replaceFirst(RegExp(r'0+$'), '').replaceFirst(RegExp(r'\.$'), '');
+  }
+
+  /// Adds items. An item that is already on the list is skipped, except when both have a
+  /// numeric amount in the same unit and come from a different recipe: then the amounts are summed.
+  /// Returns how many items were added or merged.
   int addAll(Iterable<ShoppingItem> items) {
-    final keys = state.map((e) => e.key).toSet();
-    final fresh = <ShoppingItem>[];
+    final next = [...state];
+    var changed = 0;
     for (final i in items) {
-      if (i.name.trim().isEmpty || !keys.add(i.key)) continue;
-      fresh.add(i);
+      if (i.name.trim().isEmpty) continue;
+      final idx = next.indexWhere((e) => e.key == i.key);
+      if (idx < 0) {
+        next.add(i);
+        changed++;
+        continue;
+      }
+      final old = next[idx];
+      final a = _num(old.amount), b = _num(i.amount);
+      final newSource = i.recipeTitle.isNotEmpty && !old.recipeTitle.split(', ').contains(i.recipeTitle);
+      if (a != null && b != null && old.unit.trim().toLowerCase() == i.unit.trim().toLowerCase() && newSource) {
+        next[idx] = ShoppingItem(
+          name: old.name,
+          amount: _fmt(a + b),
+          unit: old.unit,
+          recipeTitle: old.recipeTitle.isEmpty ? i.recipeTitle : '${old.recipeTitle}, ${i.recipeTitle}',
+          done: false,
+        );
+        changed++;
+      }
     }
-    if (fresh.isEmpty) return 0;
-    state = [...state, ...fresh];
+    if (changed == 0) return 0;
+    state = next;
     _save();
-    return fresh.length;
+    return changed;
   }
 
   void toggle(int index) {
