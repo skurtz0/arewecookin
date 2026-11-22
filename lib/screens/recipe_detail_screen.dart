@@ -10,6 +10,7 @@ import '../providers/locale_provider.dart';
 import '../providers/shopping_list_provider.dart';
 import '../providers/meal_plan_provider.dart';
 import '../providers/recent_recipes_provider.dart';
+import '../providers/recipe_notes_provider.dart';
 import '../l10n/recipe_localization.dart';
 import 'cooking_mode_screen.dart';
 
@@ -25,6 +26,13 @@ class RecipeDetailScreen extends ConsumerStatefulWidget {
 class _RecipeDetailScreenState extends ConsumerState<RecipeDetailScreen> {
   late int _servings;
   final Set<int> _checkedIngredientIndices = {};
+  final TextEditingController _noteController = TextEditingController();
+
+  @override
+  void dispose() {
+    _noteController.dispose();
+    super.dispose();
+  }
 
   @override
   void initState() {
@@ -649,6 +657,50 @@ class _RecipeDetailScreenState extends ConsumerState<RecipeDetailScreen> {
                 },
               ),
             ),
+
+            // Personal rating and notes (stored on the device)
+            const SizedBox(height: 24),
+            Text(strings.myNotes,
+                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Color(0xFF1E293B))),
+            const SizedBox(height: 8),
+            Builder(builder: (context) {
+              final note = ref.watch(recipeNotesProvider)[recipe.id] ?? const RecipeNote();
+              // Fill the field once when the stored note arrives (never while the user is typing).
+              if (_noteController.text.isEmpty && note.note.isNotEmpty) _noteController.text = note.note;
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      for (var n = 1; n <= 5; n++)
+                        IconButton(
+                          key: Key('rate_$n'),
+                          tooltip: strings.rateStarFor(n),
+                          visualDensity: VisualDensity.compact,
+                          icon: Icon(
+                            n <= note.rating ? Icons.star_rounded : Icons.star_border_rounded,
+                            color: const Color(0xFFF59E0B),
+                          ),
+                          onPressed: () => ref.read(recipeNotesProvider.notifier).setRating(recipe.id, n),
+                        ),
+                    ],
+                  ),
+                  TextField(
+                    key: const Key('recipe_note_field'),
+                    controller: _noteController,
+                    minLines: 2,
+                    maxLines: 6,
+                    onChanged: (v) => ref.read(recipeNotesProvider.notifier).setNote(recipe.id, v),
+                    decoration: InputDecoration(
+                      hintText: strings.myNotesHint,
+                      filled: true,
+                      fillColor: Colors.white,
+                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(14)),
+                    ),
+                  ),
+                ],
+              );
+            }),
 
             // Substitutions Section
             if (recipe.substitutions.isNotEmpty) ...[
