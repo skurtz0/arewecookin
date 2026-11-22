@@ -90,7 +90,7 @@ void main() {
       // Check servings updated to 5 Kişilik
       expect(find.text('5 Kişilik'), findsWidgets);
       // 2 * (5/4) = 2.5
-      expect(find.text('2.5 su bardağı'), findsOneWidget);
+      expect(find.text('2½ su bardağı'), findsOneWidget);
 
       // Test ingredient checklist toggle
       expect(find.text('0 / 3 hazır (0%)'), findsOneWidget);

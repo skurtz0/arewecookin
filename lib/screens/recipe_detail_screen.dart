@@ -107,29 +107,25 @@ class _RecipeDetailScreenState extends ConsumerState<RecipeDetailScreen> {
   }
 
   /// Scaled amount + unit, converted to US units when the user chose them.
-  ({String amount, String unit}) _qty(Ingredient i, String locale) {
-    final scaled = _formatScaledAmount(i.amount);
+  ({String amount, String unit}) _qty(Ingredient i, String locale, {bool fractions = true}) {
+    final scaled = _scaledNumber(i.amount);
     final unit = i.localizedUnit(locale);
-    if (!ref.read(imperialUnitsProvider)) return (amount: scaled, unit: unit);
-    final n = double.tryParse(scaled.replaceAll(',', '.'));
-    final conv = n == null ? null : UnitConverter.toImperial(n, i.unit.trim().isEmpty ? unit : i.unit);
-    if (conv == null) return (amount: scaled, unit: unit);
-    return (amount: UnitConverter.format(conv.amount), unit: conv.unit);
+    if (scaled == null) return (amount: i.amount, unit: unit);
+    if (ref.read(imperialUnitsProvider)) {
+      final conv = UnitConverter.toImperial(scaled, i.unit.trim().isEmpty ? unit : i.unit);
+      if (conv != null) return (amount: UnitConverter.format(conv.amount), unit: conv.unit);
+    }
+    return (amount: fractions ? AmountFormat.fraction(scaled) : _plain(scaled), unit: unit);
   }
 
-  String _formatScaledAmount(String rawAmount) {
-    final originalAmount = double.tryParse(rawAmount);
-    if (originalAmount == null || widget.recipe.servings <= 0) {
-      return rawAmount;
-    }
-    final factor = _servings / widget.recipe.servings;
-    final scaled = originalAmount * factor;
-    // Format nicely without trailing zeros
-    if (scaled == scaled.toInt()) {
-      return scaled.toInt().toString();
-    }
-    return scaled.toStringAsFixed(1);
+  /// Amount multiplied by the chosen servings, or null when the amount is not a plain number.
+  double? _scaledNumber(String rawAmount) {
+    final original = double.tryParse(rawAmount.replaceAll(',', '.'));
+    if (original == null || widget.recipe.servings <= 0) return null;
+    return original * (_servings / widget.recipe.servings);
   }
+
+  String _plain(double v) => v == v.toInt() ? v.toInt().toString() : v.toStringAsFixed(1);
 
   Color _categoryColor(String category) {
     switch (category) {
@@ -627,8 +623,8 @@ class _RecipeDetailScreenState extends ConsumerState<RecipeDetailScreen> {
                             .map(
                               (i) => ShoppingItem(
                                 name: i.localizedName(strings.locale),
-                                amount: _qty(i, strings.locale).amount,
-                                unit: _qty(i, strings.locale).unit,
+                                amount: _qty(i, strings.locale, fractions: false).amount,
+                                unit: _qty(i, strings.locale, fractions: false).unit,
                                 recipeTitle: recipe.localizedTitle(
                                   strings.locale,
                                 ),

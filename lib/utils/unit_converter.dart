@@ -33,3 +33,22 @@ class UnitConverter {
     return v.toStringAsFixed(1);
   }
 }
+
+/// Kitchen-style amounts: 2.5 -> "2½", 0.25 -> "¼", 3.0 -> "3". Other values keep one decimal.
+class AmountFormat {
+  AmountFormat._();
+
+  static final _fractions = {0.25: '¼', 1 / 3: '⅓', 0.5: '½', 2 / 3: '⅔', 0.75: '¾'};
+
+  static String fraction(double v) {
+    if (v < 0) return v.toString();
+    final whole = v.floor();
+    final frac = v - whole;
+    if (frac < 0.04) return '$whole';
+    if (frac > 0.96) return '${whole + 1}';
+    for (final e in _fractions.entries) {
+      if ((frac - e.key).abs() < 0.04) return whole == 0 ? e.value : '$whole${e.value}';
+    }
+    return v.toStringAsFixed(1);
+  }
+}

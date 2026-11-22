@@ -46,4 +46,14 @@ void main() {
     expect(find.text('7.1 oz'), findsOneWidget);
     expect(find.text('2 cup'), findsOneWidget);
   });
+
+  test('kitchen fractions', () {
+    expect(AmountFormat.fraction(2.5), '2½');
+    expect(AmountFormat.fraction(0.25), '¼');
+    expect(AmountFormat.fraction(1.75), '1¾');
+    expect(AmountFormat.fraction(1 / 3), '⅓');
+    expect(AmountFormat.fraction(3.0), '3');
+    expect(AmountFormat.fraction(2.98), '3');
+    expect(AmountFormat.fraction(1.1), '1.1');
+  });
 }
