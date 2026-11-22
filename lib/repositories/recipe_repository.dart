@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/models.dart';
 import '../data/world_recipes.dart';
+import '../data/world_countries.dart';
 import '../services/recipe_generator.dart';
 
 class PaginatedRecipes {
@@ -314,7 +315,7 @@ class RecipeRepository {
         continue;
       }
 
-      if (cuisine != null && recipe.cuisine != cuisine) {
+      if (cuisine != null && !cuisineMatches(recipe.cuisine, cuisine)) {
         continue;
       }
 
@@ -340,6 +341,34 @@ class RecipeRepository {
       hasMore: hasMore,
       nextOffset: currentIndex,
     );
+  }
+
+  static const _asia = {'Tayland', 'Japonya', 'Hindistan', 'Çin', 'Güney Kore', 'Vietnam', 'Endonezya', 'Filipinler', 'Singapur', 'Nepal', 'Pakistan', 'Kamboçya', 'Tayvan', 'Özbekistan'};
+  static const _mediterranean = {'Yunanistan', 'İspanya', 'Lübnan', 'Fas', 'Tunus', 'Mısır', 'Portekiz', 'İran'};
+
+  /// A recipe matches a cuisine filter directly, or through the broad legacy chip its country belongs to
+  /// (e.g. a recipe of "İtalya" also shows under "İtalyan Mutfağı", "Japonya" under "Asya & Uzak Doğu").
+  static bool cuisineMatches(String recipeCuisine, String filter) {
+    if (recipeCuisine == filter) return true;
+    switch (filter) {
+      case 'İtalyan Mutfağı':
+        return recipeCuisine == 'İtalya';
+      case 'Meksika Mutfağı':
+        return recipeCuisine == 'Meksika';
+      case 'Asya & Uzak Doğu':
+        return _asia.contains(recipeCuisine);
+      case 'Akdeniz Mutfağı':
+        return _mediterranean.contains(recipeCuisine);
+      case 'Fransız & Dünya':
+        return recipeCuisine == 'Fransa' ||
+            (WorldCountries.byId(recipeCuisine) != null &&
+                recipeCuisine != 'İtalya' &&
+                recipeCuisine != 'Meksika' &&
+                recipeCuisine != 'Türk Mutfağı' &&
+                !_asia.contains(recipeCuisine) &&
+                !_mediterranean.contains(recipeCuisine));
+    }
+    return false;
   }
 
   /// Difficulty groups used by the Discover filter: easy = Çok Kolay + Kolay, medium = Orta, hard = Zor.

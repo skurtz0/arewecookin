@@ -140,14 +140,14 @@ void main() {
 
       for (final cuisine in testCuisines) {
         final result = await repository.getRecipes(
-          limit: 10,
+          limit: 40,
           offset: 0,
           cuisine: cuisine,
         );
 
         expect(result.recipes, isNotEmpty, reason: '$cuisine should have recipes');
         for (final r in result.recipes) {
-          expect(r.cuisine, cuisine);
+          expect(RecipeRepository.cuisineMatches(r.cuisine, cuisine), isTrue, reason: '${r.id} ${r.cuisine} vs $cuisine');
           expect(r.baseDish, isNotEmpty);
           expect(r.imageUrl == null || r.imageUrl!.startsWith('http'), true);
         }
@@ -222,6 +222,16 @@ void main() {
           reason: 'Dishes should have distinct, dish-specific step titles');
       expect(totalStepsWithIngredients, greaterThan(0),
           reason: 'Steps should have step-specific ingredients listed');
+    });
+
+    test('country cuisines also appear under their broad legacy chip', () {
+      expect(RecipeRepository.cuisineMatches('İtalya', 'İtalyan Mutfağı'), isTrue);
+      expect(RecipeRepository.cuisineMatches('Japonya', 'Asya & Uzak Doğu'), isTrue);
+      expect(RecipeRepository.cuisineMatches('Yunanistan', 'Akdeniz Mutfağı'), isTrue);
+      expect(RecipeRepository.cuisineMatches('Fransa', 'Fransız & Dünya'), isTrue);
+      expect(RecipeRepository.cuisineMatches('Almanya', 'Fransız & Dünya'), isTrue);
+      expect(RecipeRepository.cuisineMatches('Japonya', 'İtalyan Mutfağı'), isFalse);
+      expect(RecipeRepository.cuisineMatches('Türk Mutfağı', 'Fransız & Dünya'), isFalse);
     });
   });
 }
