@@ -25,7 +25,7 @@ class _ShoppingListScreenState extends ConsumerState<ShoppingListScreen> {
   void _submit() {
     final text = _controller.text.trim();
     if (text.isEmpty) return;
-    ref.read(shoppingListProvider.notifier).addAll([ShoppingItem(name: text)]);
+    ref.read(shoppingListProvider.notifier).addAll([ShoppingItem.parse(text)]);
     _controller.clear();
   }
 

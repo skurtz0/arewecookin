@@ -21,6 +21,27 @@ class ShoppingItem {
 
   String get key => name.trim().toLowerCase();
 
+  static final _quick = RegExp(r'^(\d+(?:[.,]\d+)?)\s*([^\s\d]+)?\s+(.+)$');
+  static const _knownUnits = {
+    'kg', 'g', 'gr', 'l', 'lt', 'ml', 'adet', 'paket', 'kutu', 'şişe', 'bardak', 'kaşık',
+    'pcs', 'lb', 'oz', 'pack', 'can', 'bottle', 'cup', 'tbsp', 'tsp',
+  };
+
+  /// Parses typed text like "2 kg süt", "3 yumurta" or "süt" into amount, unit and name.
+  factory ShoppingItem.parse(String text) {
+    final t = text.trim();
+    final m = _quick.firstMatch(t);
+    if (m == null) return ShoppingItem(name: t);
+    final amount = m.group(1)!.replaceAll(',', '.');
+    final unit = m.group(2);
+    final rest = m.group(3)!.trim();
+    if (unit != null && _knownUnits.contains(unit.toLowerCase())) {
+      return ShoppingItem(name: rest, amount: amount, unit: unit);
+    }
+    // No known unit: the "unit" word belongs to the name ("3 büyük domates").
+    return ShoppingItem(name: [?unit, rest].join(' '), amount: amount);
+  }
+
   ShoppingItem copyWith({bool? done}) => ShoppingItem(
         name: name,
         amount: amount,
