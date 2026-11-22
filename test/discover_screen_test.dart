@@ -33,7 +33,8 @@ void main() {
       expect(find.byType(ListView), findsWidgets);
 
       // Tap on a recipe card to test navigation to RecipeDetailScreen
-      final firstCard = find.textContaining('min').first;
+      // The first 3 matches are the time-filter chips (15/30/60 min); the next one is a recipe card.
+      final firstCard = find.textContaining('min').at(3);
       await tester.tap(firstCard);
       await tester.pumpAndSettle();
 

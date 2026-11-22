@@ -63,6 +63,7 @@ class RecipeRepository {
     String? category,
     String? cuisine,
     String? searchQuery,
+    int? maxMinutes,
   }) async {
     final cleanCategory = (category == null || category == 'Tümü' || category.trim().isEmpty)
         ? null
@@ -72,7 +73,8 @@ class RecipeRepository {
         : cuisine.trim();
     final cleanQuery = searchQuery?.trim().toLowerCase();
 
-    final db = firestore;
+    // The time filter is applied on the local dataset (a Firestore range query would break paging/sorting).
+    final db = maxMinutes == null ? firestore : null;
     if (db != null) {
       try {
         Query<Map<String, dynamic>> query = db.collection('recipes');
@@ -136,6 +138,7 @@ class RecipeRepository {
       category: cleanCategory,
       cuisine: cleanCuisine,
       searchQuery: cleanQuery,
+      maxMinutes: maxMinutes,
     );
   }
 
@@ -277,6 +280,7 @@ class RecipeRepository {
     String? category,
     String? cuisine,
     String? searchQuery,
+    int? maxMinutes,
   }) {
     final List<Recipe> matching = [];
 
@@ -286,6 +290,7 @@ class RecipeRepository {
         if (category != null && r.category != category) continue;
         if (cuisine != null && r.cuisine != cuisine) continue;
         if (searchQuery != null && !_matchesQuery(r, searchQuery)) continue;
+        if (maxMinutes != null && r.totalTime > maxMinutes) continue;
         matching.add(r);
       }
     }
@@ -310,6 +315,10 @@ class RecipeRepository {
       }
 
       if (searchQuery != null && !_matchesQuery(recipe, searchQuery)) {
+        continue;
+      }
+
+      if (maxMinutes != null && recipe.totalTime > maxMinutes) {
         continue;
       }
 

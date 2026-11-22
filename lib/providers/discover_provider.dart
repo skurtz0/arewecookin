@@ -13,6 +13,7 @@ class DiscoverState {
   final String selectedCategory;
   final String selectedCuisine;
   final String searchQuery;
+  final int? maxMinutes;
   final String? errorMessage;
 
   const DiscoverState({
@@ -25,6 +26,7 @@ class DiscoverState {
     this.selectedCategory = 'Tümü',
     this.selectedCuisine = 'Tümü',
     this.searchQuery = '',
+    this.maxMinutes,
     this.errorMessage,
   });
 
@@ -38,6 +40,8 @@ class DiscoverState {
     String? selectedCategory,
     String? selectedCuisine,
     String? searchQuery,
+    int? maxMinutes,
+    bool clearMaxMinutes = false,
     String? errorMessage,
   }) {
     return DiscoverState(
@@ -50,6 +54,7 @@ class DiscoverState {
       selectedCategory: selectedCategory ?? this.selectedCategory,
       selectedCuisine: selectedCuisine ?? this.selectedCuisine,
       searchQuery: searchQuery ?? this.searchQuery,
+      maxMinutes: clearMaxMinutes ? null : (maxMinutes ?? this.maxMinutes),
       errorMessage: errorMessage,
     );
   }
@@ -81,6 +86,7 @@ class DiscoverNotifier extends Notifier<DiscoverState> {
         category: state.selectedCategory == 'Tümü' ? null : state.selectedCategory,
         cuisine: state.selectedCuisine == 'Tümü' ? null : state.selectedCuisine,
         searchQuery: state.searchQuery.isEmpty ? null : state.searchQuery,
+        maxMinutes: state.maxMinutes,
       );
 
       state = state.copyWith(
@@ -111,6 +117,7 @@ class DiscoverNotifier extends Notifier<DiscoverState> {
         category: state.selectedCategory == 'Tümü' ? null : state.selectedCategory,
         cuisine: state.selectedCuisine == 'Tümü' ? null : state.selectedCuisine,
         searchQuery: state.searchQuery.isEmpty ? null : state.searchQuery,
+        maxMinutes: state.maxMinutes,
       );
 
       final updatedList = [...state.recipes, ...result.recipes];
@@ -139,6 +146,12 @@ class DiscoverNotifier extends Notifier<DiscoverState> {
   void setCategory(String category) {
     if (state.selectedCategory == category) return;
     state = state.copyWith(selectedCategory: category);
+    loadInitial();
+  }
+
+  void setMaxMinutes(int? minutes) {
+    if (state.maxMinutes == minutes) return;
+    state = minutes == null ? state.copyWith(clearMaxMinutes: true) : state.copyWith(maxMinutes: minutes);
     loadInitial();
   }
 

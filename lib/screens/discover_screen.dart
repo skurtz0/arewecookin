@@ -158,7 +158,7 @@ class DiscoverScreenState extends ConsumerState<DiscoverScreen> {
               automaticallyImplyLeading: false,
               toolbarHeight: 0,
               bottom: PreferredSize(
-                preferredSize: const Size.fromHeight(196),
+                preferredSize: const Size.fromHeight(240),
                 child: Container(
                   color: Colors.white,
                   child: Column(
@@ -354,6 +354,28 @@ class DiscoverScreenState extends ConsumerState<DiscoverScreen> {
                           const Icon(Icons.close_rounded, size: 12, color: Color(0xFFFF5722)),
                         ],
                       ),
+                    ),
+                  ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 6),
+          SizedBox(
+            height: 38,
+            child: ListView(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              scrollDirection: Axis.horizontal,
+              children: [
+                for (final m in const <int?>[null, 15, 30, 60])
+                  Padding(
+                    padding: const EdgeInsetsDirectional.only(end: 8),
+                    child: ChoiceChip(
+                      key: Key('time_filter_${m ?? 'any'}'),
+                      avatar: m == null ? null : const Icon(Icons.timer_outlined, size: 16),
+                      label: Text(m == null ? strings.timeAny : strings.timeUpTo(m)),
+                      selected: discoverState.maxMinutes == m,
+                      selectedColor: const Color(0xFFFF5722).withValues(alpha: 0.18),
+                      onSelected: (_) => ref.read(discoverProvider.notifier).setMaxMinutes(m),
                     ),
                   ),
               ],
