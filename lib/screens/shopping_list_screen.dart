@@ -70,6 +70,30 @@ class _ShoppingListScreenState extends ConsumerState<ShoppingListScreen> {
                   );
               },
             ),
+          if (items.isNotEmpty)
+            IconButton(
+              key: const Key('shopping_clear_all'),
+              tooltip: strings.shoppingClearAll,
+              icon: const Icon(Icons.delete_sweep_outlined),
+              onPressed: () async {
+                final ok = await showDialog<bool>(
+                  context: context,
+                  builder: (ctx) => AlertDialog(
+                    title: Text(strings.shoppingClearAll),
+                    content: Text(strings.shoppingClearAllConfirm),
+                    actions: [
+                      TextButton(onPressed: () => Navigator.of(ctx).pop(false), child: Text(strings.cancel)),
+                      TextButton(
+                        key: const Key('shopping_clear_all_confirm'),
+                        onPressed: () => Navigator.of(ctx).pop(true),
+                        child: Text(strings.shoppingClearAll),
+                      ),
+                    ],
+                  ),
+                );
+                if (ok == true) notifier.clearAll();
+              },
+            ),
           if (doneCount > 0)
             TextButton(
               onPressed: notifier.clearDone,

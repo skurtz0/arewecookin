@@ -34,4 +34,23 @@ void main() {
     await tester.pumpAndSettle();
     expect(c.read(shoppingListProvider).map((e) => e.name), ['Alpha', 'Beta']);
   });
+
+  testWidgets('clear list asks for confirmation, then empties it', (tester) async {
+    SharedPreferences.setMockInitialValues({});
+    final c = ProviderContainer();
+    addTearDown(c.dispose);
+    c.read(shoppingListProvider.notifier).addAll(const [ShoppingItem(name: 'Alpha'), ShoppingItem(name: 'Beta')]);
+    await tester.pumpWidget(UncontrolledProviderScope(container: c, child: const MaterialApp(home: ShoppingListScreen())));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const Key('shopping_clear_all')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Cancel'));
+    await tester.pumpAndSettle();
+    expect(c.read(shoppingListProvider).length, 2);
+    await tester.tap(find.byKey(const Key('shopping_clear_all')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const Key('shopping_clear_all_confirm')));
+    await tester.pumpAndSettle();
+    expect(c.read(shoppingListProvider), isEmpty);
+  });
 }
