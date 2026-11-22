@@ -63,6 +63,7 @@ class AppStrings {
   String get shoppingAddHint => _get('shoppingAddHint', 'Add an item');
   String get shoppingCopy => _get('shoppingCopy', 'Copy list');
   String get shoppingCopied => _get('shoppingCopied', 'List copied to clipboard');
+  String get surpriseMe => _get('surpriseMe', 'Surprise me');
   String get shoppingOpen => _get('shoppingOpen', 'Open');
   String shoppingAdded(int n) => _get('shoppingAdded', '{n} items added to your list').replaceAll('{n}', '$n');
 

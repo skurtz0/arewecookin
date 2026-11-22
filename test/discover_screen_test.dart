@@ -41,6 +41,17 @@ void main() {
       expect(find.byType(RecipeDetailScreen), findsOneWidget);
     });
 
+    testWidgets('Surprise me opens a recipe', (tester) async {
+      await tester.pumpWidget(
+        const ProviderScope(child: MaterialApp(home: Scaffold(body: DiscoverScreen()))),
+      );
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 300));
+      await tester.tap(find.byKey(const Key('surprise_me')));
+      await tester.pumpAndSettle();
+      expect(find.byType(RecipeDetailScreen), findsOneWidget);
+    });
+
     testWidgets('filtering by category updates the list', (tester) async {
       await tester.pumpWidget(
         const ProviderScope(

@@ -1,3 +1,4 @@
+import 'dart:math';
 import '../data/world_countries.dart';
 import 'dart:async';
 import 'package:flutter/material.dart';
@@ -371,6 +372,22 @@ class DiscoverScreenState extends ConsumerState<DiscoverScreen> {
               padding: const EdgeInsets.symmetric(horizontal: 16),
               scrollDirection: Axis.horizontal,
               children: [
+                Padding(
+                  padding: const EdgeInsetsDirectional.only(end: 8),
+                  child: ActionChip(
+                    key: const Key('surprise_me'),
+                    avatar: const Icon(Icons.casino_outlined, size: 16),
+                    label: Text(strings.surpriseMe),
+                    onPressed: () {
+                      final list = ref.read(discoverProvider).recipes;
+                      if (list.isEmpty) return;
+                      final pick = list[Random().nextInt(list.length)];
+                      Navigator.of(context).push(
+                        MaterialPageRoute(builder: (_) => RecipeDetailScreen(recipe: pick)),
+                      );
+                    },
+                  ),
+                ),
                 for (final m in const <int?>[null, 15, 30, 60])
                   Padding(
                     padding: const EdgeInsetsDirectional.only(end: 8),
