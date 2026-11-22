@@ -77,6 +77,8 @@ class AppStrings {
   String get todayLabel => _get('todayLabel', 'Today');
   String get mealPlanClear => _get('mealPlanClear', 'Clear plan');
   String get mealPlanClearConfirm => _get('mealPlanClearConfirm', 'Remove all planned meals?');
+  String pantryHeader(int n) => _get('pantryHeaderFmt', 'What is in your kitchen? ({n} selected)').replaceAll('{n}', '$n');
+  String get pantryHint => _get('pantryHint', 'Select or add the ingredients you have. Filter by cuisine to instantly find recipes you can make.');
   String get shoppingOpen => _get('shoppingOpen', 'Open');
   String shoppingAdded(int n) => _get('shoppingAdded', '{n} items added to your list').replaceAll('{n}', '$n');
 

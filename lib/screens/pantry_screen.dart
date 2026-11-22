@@ -215,7 +215,7 @@ class _PantryScreenState extends ConsumerState<PantryScreen> {
                       const SizedBox(width: 8),
                       Expanded(
                         child: Text(
-                          'Dolabınızda Ne Var? (${pantryState.selectedKeys.length} Seçildi)',
+                          strings.pantryHeader(pantryState.selectedKeys.length),
                           style: const TextStyle(
                             color: Colors.white,
                             fontSize: 16,
@@ -226,8 +226,8 @@ class _PantryScreenState extends ConsumerState<PantryScreen> {
                     ],
                   ),
                   const SizedBox(height: 6),
-                  const Text(
-                    'Elinizdeki malzemeleri seçin veya ekleyin. İstediğiniz mutfağı filtreleyerek anında 100% uyumlu tarifleri keşfedin.',
+                  Text(
+                    strings.pantryHint,
                     style: TextStyle(
                       color: Colors.white70,
                       fontSize: 13,
