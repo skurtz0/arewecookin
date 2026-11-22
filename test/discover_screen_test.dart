@@ -78,6 +78,7 @@ void main() {
       await container.read(savedRecipesProvider.notifier).toggleSave(recipe);
       await tester.pumpAndSettle();
       expect(find.byKey(const Key('saved_empty')), findsNothing);
+      expect(find.textContaining('(1)'), findsOneWidget);
       expect(find.textContaining(recipe.localizedTitle('en')), findsWidgets);
     });
 
