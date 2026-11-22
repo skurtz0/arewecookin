@@ -4,11 +4,13 @@ import 'package:shared_preferences/shared_preferences.dart';
 /// Last searches (newest first, max 6), stored on the device.
 class RecentSearchesNotifier extends Notifier<List<String>> {
   static const _prefKey = 'recent_searches_v1';
+  // Saving waits for the stored data to be read first, so an early change never overwrites it.
+  Future<void> _ready = Future.value();
   static const maxItems = 6;
 
   @override
   List<String> build() {
-    _load();
+    _ready = _load();
     return const [];
   }
 
@@ -23,6 +25,7 @@ class RecentSearchesNotifier extends Notifier<List<String>> {
 
   Future<void> _save() async {
     try {
+      await _ready;
       final prefs = await SharedPreferences.getInstance();
       await prefs.setStringList(_prefKey, state);
     } catch (_) {}

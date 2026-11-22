@@ -27,10 +27,12 @@ class RecipeProgress {
 
 class RecipeProgressNotifier extends Notifier<Map<String, RecipeProgress>> {
   static const _prefKey = 'recipe_progress_v1';
+  // Saving waits for the stored data to be read first, so an early change never overwrites it.
+  Future<void> _ready = Future.value();
 
   @override
   Map<String, RecipeProgress> build() {
-    _load();
+    _ready = _load();
     return const {};
   }
 
@@ -52,6 +54,7 @@ class RecipeProgressNotifier extends Notifier<Map<String, RecipeProgress>> {
 
   Future<void> _save() async {
     try {
+      await _ready;
       final prefs = await SharedPreferences.getInstance();
       await prefs.setString(_prefKey, jsonEncode(state.map((k, v) => MapEntry(k, v.toMap()))));
     } catch (_) {}

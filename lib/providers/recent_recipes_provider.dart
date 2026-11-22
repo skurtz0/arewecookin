@@ -6,11 +6,13 @@ import '../models/models.dart';
 /// Last viewed recipes (newest first, max 10). Stored locally, so it works offline.
 class RecentRecipesNotifier extends Notifier<List<Recipe>> {
   static const _prefKey = 'recent_recipes_v1';
+  // Saving waits for the stored data to be read first, so an early change never overwrites it.
+  Future<void> _ready = Future.value();
   static const maxItems = 10;
 
   @override
   List<Recipe> build() {
-    _load();
+    _ready = _load();
     return const [];
   }
 
@@ -33,6 +35,7 @@ class RecentRecipesNotifier extends Notifier<List<Recipe>> {
     state = [recipe, ...state.where((r) => r.id != recipe.id)].take(maxItems).toList();
     () async {
       try {
+        await _ready;
         final prefs = await SharedPreferences.getInstance();
         await prefs.setStringList(_prefKey, state.map((r) => jsonEncode(r.toMap())).toList());
       } catch (_) {}

@@ -19,10 +19,12 @@ class RecipeNote {
 /// Notes and ratings keyed by recipe id; stored on the device (works offline).
 class RecipeNotesNotifier extends Notifier<Map<String, RecipeNote>> {
   static const _prefKey = 'recipe_notes_v1';
+  // Saving waits for the stored data to be read first, so an early change never overwrites it.
+  Future<void> _ready = Future.value();
 
   @override
   Map<String, RecipeNote> build() {
-    _load();
+    _ready = _load();
     return const {};
   }
 
@@ -46,6 +48,7 @@ class RecipeNotesNotifier extends Notifier<Map<String, RecipeNote>> {
 
   Future<void> _save() async {
     try {
+      await _ready;
       final prefs = await SharedPreferences.getInstance();
       await prefs.setString(_prefKey, jsonEncode(state.map((k, v) => MapEntry(k, v.toMap()))));
     } catch (_) {}
