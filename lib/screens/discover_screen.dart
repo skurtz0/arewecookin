@@ -161,7 +161,7 @@ class DiscoverScreenState extends ConsumerState<DiscoverScreen> {
               automaticallyImplyLeading: false,
               toolbarHeight: 0,
               bottom: PreferredSize(
-                preferredSize: const Size.fromHeight(240),
+                preferredSize: Size.fromHeight(240 + 48 * (MediaQuery.textScalerOf(context).scale(14) / 14 - 1).clamp(0.0, 2.0)),
                 child: Container(
                   color: Colors.white,
                   child: Column(
@@ -802,22 +802,28 @@ class _RecipeCard extends ConsumerWidget {
                     ),
                     const SizedBox(height: 12),
                     Row(
+                      crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
-                        _InfoBadge(
-                          icon: CookingIcons.clock,
-                          label: strings.minutesShort(recipe.totalTime),
+                        Expanded(
+                          child: Wrap(
+                            spacing: 12,
+                            runSpacing: 6,
+                            children: [
+                              _InfoBadge(
+                                icon: CookingIcons.clock,
+                                label: strings.minutesShort(recipe.totalTime),
+                              ),
+                              _InfoBadge(
+                                icon: CookingIcons.users,
+                                label: strings.servingsFormat(recipe.servings),
+                              ),
+                              _InfoBadge(
+                                icon: CookingIcons.utensils,
+                                label: strings.ingredientsCountFormat(recipe.ingredients.length),
+                              ),
+                            ],
+                          ),
                         ),
-                        const SizedBox(width: 12),
-                        _InfoBadge(
-                          icon: CookingIcons.users,
-                          label: strings.servingsFormat(recipe.servings),
-                        ),
-                        const SizedBox(width: 12),
-                        _InfoBadge(
-                          icon: CookingIcons.utensils,
-                          label: strings.ingredientsCountFormat(recipe.ingredients.length),
-                        ),
-                        const Spacer(),
                         Container(
                           padding: const EdgeInsets.all(4),
                           decoration: BoxDecoration(
