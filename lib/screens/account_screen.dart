@@ -62,7 +62,7 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
     final phone = _phoneController.text.trim();
     if (phone.length < 9) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Lütfen geçerli bir telefon numarası girin.')),
+        SnackBar(content: Text(ref.read(appStringsProvider).phoneInvalid)),
       );
       return;
     }
@@ -73,7 +73,7 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
     final code = _otpController.text.trim();
     if (code.length != 6) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Lütfen 6 haneli doğrulama kodunu girin.')),
+        SnackBar(content: Text(ref.read(appStringsProvider).codeInvalid)),
       );
       return;
     }
@@ -658,8 +658,8 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
                 icon: Icons.restaurant_rounded,
               ),
               Container(width: 1, height: 36, color: Colors.grey.shade200),
-              const _ProfileStat(
-                label: 'Usta Puanı',
+              _ProfileStat(
+                label: strings.masterScore,
                 count: '185',
                 icon: Icons.stars_rounded,
               ),
@@ -946,7 +946,7 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
               leading: _iconBox(Icons.badge_outlined, Colors.purple),
               title: Text(strings.updateName,
                   style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
-              subtitle: Text('Görünür profil isminizi düzenleyin',
+              subtitle: Text(strings.editNameHint,
                   style: TextStyle(fontSize: 12, color: Colors.grey.shade600)),
               trailing: const Icon(Icons.arrow_forward_ios_rounded, size: 14),
               onTap: () => _showChangeNameDialog(context, user.displayName),
@@ -958,7 +958,7 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
             title: Text(strings.changeEmail,
                 style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
             subtitle: Text(
-              user.email.isNotEmpty ? user.email : 'E-posta tanımlanmamış',
+              user.email.isNotEmpty ? user.email : strings.noEmail,
               style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
             ),
             trailing: const Icon(Icons.arrow_forward_ios_rounded, size: 14),
@@ -970,7 +970,7 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
             leading: _iconBox(Icons.lock_reset_rounded, Colors.orange),
             title: Text(strings.changePassword,
                 style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
-            subtitle: Text('Güvenliğinizi güncel tutun',
+            subtitle: Text(strings.securityHint,
                 style: TextStyle(fontSize: 12, color: Colors.grey.shade600)),
             trailing: const Icon(Icons.arrow_forward_ios_rounded, size: 14),
             onTap: () => _showChangePasswordDialog(context),
@@ -984,7 +984,7 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
                     fontSize: 14,
                     fontWeight: FontWeight.w600,
                     color: Colors.red)),
-            subtitle: const Text('Hesabı ve tüm verileri sil',
+            subtitle: Text(strings.deleteDataHint,
                 style: TextStyle(fontSize: 12, color: Colors.redAccent)),
             trailing: const Icon(Icons.arrow_forward_ios_rounded,
                 size: 14, color: Colors.red),
@@ -1125,7 +1125,7 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 10),
                 child: Text(
-                  'veya diğer seçenekler',
+                  strings.orOtherOptions,
                   style: TextStyle(fontSize: 12, color: Colors.grey.shade500),
                 ),
               ),
@@ -1346,14 +1346,14 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
                     const SizedBox(width: 8),
                     Expanded(
                       child: Text(
-                        '${authState.pendingPhoneNumber} numarasına kod gönderildi.',
+                        strings.codeSent(authState.pendingPhoneNumber ?? ''),
                         style: const TextStyle(fontSize: 12),
                       ),
                     ),
                     TextButton(
                       onPressed: () =>
                           ref.read(authProvider.notifier).cancelPhoneOtp(),
-                      child: const Text('Değiştir', style: TextStyle(fontSize: 12)),
+                      child: Text(strings.changeLabel, style: const TextStyle(fontSize: 12)),
                     ),
                   ],
                 ),
@@ -1465,12 +1465,12 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
             ListTile(
               contentPadding: EdgeInsets.zero,
               leading: _iconBox(Icons.notifications_active_outlined, const Color(0xFFFF5722)),
-              title: const Text(
-                'Yemek Pişirme Bildirimleri',
-                style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+              title: Text(
+                strings.notifTitle,
+                style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
               ),
               subtitle: Text(
-                'Adım sayaçları ve tarif tavsiyeleri',
+                strings.notifDesc,
                 style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
               ),
               trailing: Switch.adaptive(

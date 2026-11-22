@@ -13,6 +13,14 @@ void main() {
       binding.platformDispatcher.localesTestValue = const [Locale('tr')];
     });
 
+    testWidgets('divider text follows the app language', (tester) async {
+      tester.platformDispatcher.localesTestValue = const [Locale('en')];
+      await tester.pumpWidget(const ProviderScope(child: MaterialApp(home: AccountScreen())));
+      await tester.pumpAndSettle();
+      expect(find.text('or other options'), findsOneWidget);
+      expect(find.text('veya diğer seçenekler'), findsNothing);
+    });
+
     testWidgets('renders account screen with Google one-tap, email form, and language toggle', (tester) async {
       tester.platformDispatcher.localesTestValue = const [Locale('tr')];
       await tester.pumpWidget(
