@@ -168,8 +168,11 @@ class Recipe {
   }
 
   /// Calculates pantry match percentage: (Available Required / Total Required) * 100
+  /// Basics every kitchen has; they never count as missing in pantry matching.
+  static const Set<String> pantryStaples = {'tuz', 'su', 'karabiber'};
+
   double calculateMatchScore(List<String> userKeys) {
-    final normalizedUser = userKeys.map((k) => k.toLowerCase().trim()).toSet();
+    final normalizedUser = {...userKeys.map((k) => k.toLowerCase().trim()), ...pantryStaples};
     if (ingredientKeys.isEmpty) return 100.0;
 
     int matchedCount = 0;
@@ -184,7 +187,7 @@ class Recipe {
 
   /// Returns list of missing ingredient keys given the user's pantry
   List<String> getMissingKeys(List<String> userKeys) {
-    final normalizedUser = userKeys.map((k) => k.toLowerCase().trim()).toSet();
+    final normalizedUser = {...userKeys.map((k) => k.toLowerCase().trim()), ...pantryStaples};
     return ingredientKeys
         .where((key) => !normalizedUser.contains(key.toLowerCase().trim()))
         .toList();
