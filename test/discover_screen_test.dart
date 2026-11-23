@@ -364,6 +364,33 @@ void main() {
       expect(find.byKey(const Key('results_count')), findsOneWidget);
     });
 
+    testWidgets('a multi-word search with no results offers each word on its own', (tester) async {
+      tester.view.physicalSize = const Size(1200, 6000);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(tester.view.reset);
+      SharedPreferences.setMockInitialValues({});
+      final container = ProviderContainer();
+      addTearDown(container.dispose);
+      await tester.pumpWidget(UncontrolledProviderScope(
+        container: container,
+        child: const MaterialApp(home: Scaffold(body: DiscoverScreen())),
+      ));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 300));
+      container.read(discoverProvider.notifier).setSearchQuery('menemen zzzxyzqq');
+      await tester.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 100)));
+      await tester.pump(const Duration(milliseconds: 600));
+      await tester.pumpAndSettle();
+      expect(container.read(discoverProvider).recipes, isEmpty);
+      expect(find.byKey(const Key('try_word_menemen')), findsOneWidget);
+      await tester.tap(find.byKey(const Key('try_word_menemen')));
+      await tester.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 100)));
+      await tester.pumpAndSettle();
+      expect(container.read(discoverProvider).searchQuery, 'menemen');
+      expect(container.read(discoverProvider).recipes, isNotEmpty);
+      expect(find.byKey(const Key('try_word_menemen')), findsNothing);
+    });
+
     testWidgets('the chosen Saved order is remembered', (tester) async {
       tester.view.physicalSize = const Size(1200, 6000);
       tester.view.devicePixelRatio = 1.0;

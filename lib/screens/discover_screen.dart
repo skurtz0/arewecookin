@@ -1113,6 +1113,35 @@ class DiscoverScreenState extends ConsumerState<DiscoverScreen> with WidgetsBind
                 textAlign: TextAlign.center,
                 style: TextStyle(fontSize: 13, color: Colors.grey.shade500),
               ),
+              // A multi-word search that finds nothing: offer each word on its own.
+              Builder(builder: (_) {
+                final q = ref.read(discoverProvider).searchQuery.trim();
+                final words = (q.contains(',') ? <String>[] : q.split(RegExp(r'\s+')))
+                    .where((w) => w.length > 1 && !w.startsWith('-'))
+                    .toSet()
+                    .take(3)
+                    .toList();
+                if (words.length < 2) return const SizedBox.shrink();
+                return Padding(
+                  padding: const EdgeInsets.only(top: 12),
+                  child: Wrap(
+                    alignment: WrapAlignment.center,
+                    spacing: 8,
+                    runSpacing: 4,
+                    children: [
+                      for (final w in words)
+                        ActionChip(
+                          key: Key('try_word_$w'),
+                          label: Text(strings.tryWord(w)),
+                          onPressed: () {
+                            _searchController.text = w;
+                            ref.read(discoverProvider.notifier).setSearchQuery(w);
+                          },
+                        ),
+                    ],
+                  ),
+                );
+              }),
               const SizedBox(height: 20),
               ElevatedButton(
                 onPressed: () {
