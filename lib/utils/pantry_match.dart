@@ -3,8 +3,12 @@ import '../models/models.dart';
 /// Light English plural folding so "tomato" and "tomatoes" match.
 /// Applied to both sides of the comparison, so it only needs to be consistent.
 String foldPlural(String s) {
-  final t = s.trim().toLowerCase();
+  var t = s.trim().toLowerCase();
   if (t.length < 4) return t;
+  // Turkish plural: domatesler -> domates, yumurtalar -> yumurta (long words only, to avoid false matches).
+  if (t.length >= 7 && (t.endsWith('ler') || t.endsWith('lar'))) {
+    t = t.substring(0, t.length - 3);
+  }
   if (t.endsWith('ies')) return '${t.substring(0, t.length - 3)}y';
   if (t.endsWith('oes')) return t.substring(0, t.length - 2);
   if (t.endsWith('ss')) return t;

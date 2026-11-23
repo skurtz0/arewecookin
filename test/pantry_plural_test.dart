@@ -8,6 +8,11 @@ void main() {
     expect(foldPlural('berries'), foldPlural('berry'));
     expect(foldPlural('eggs'), foldPlural('egg'));
     expect(foldPlural('glass'), 'glass');
+    // Turkish plurals fold too; short words are left alone.
+    expect(foldPlural('Domatesler'), foldPlural('domates'));
+    expect(foldPlural('yumurtalar'), foldPlural('yumurta'));
+    expect(foldPlural('bilgiler'), 'bilgiler'.substring(0, 5));
+    expect(foldPlural('lar'), 'lar');
     expect(foldPlural('un'), 'un');
   });
 
