@@ -501,7 +501,9 @@ class _RecipeDetailScreenState extends ConsumerState<RecipeDetailScreen> {
                         : null,
                   ),
                   Flexible(
-                    child: FittedBox(
+                    child: Semantics(
+                      liveRegion: true,
+                      child: FittedBox(
                       fit: BoxFit.scaleDown,
                       child: Text(
                         strings.servingsFormat(_servings),
@@ -511,7 +513,7 @@ class _RecipeDetailScreenState extends ConsumerState<RecipeDetailScreen> {
                           color: Color(0xFF0F172A),
                         ),
                       ),
-                    ),
+                    )),
                   ),
                   IconButton(
                     tooltip: strings.a11yMore,

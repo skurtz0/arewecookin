@@ -1651,10 +1651,13 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
                   strings.householdServings,
                   style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
                 ),
-                subtitle: Text(
-                  household == null ? strings.householdOff : strings.servingsFormat(household),
-                  key: const Key('household_value'),
-                  style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
+                subtitle: Semantics(
+                  liveRegion: true,
+                  child: Text(
+                    household == null ? strings.householdOff : strings.servingsFormat(household),
+                    key: const Key('household_value'),
+                    style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
+                  ),
                 ),
                 trailing: Row(
                   mainAxisSize: MainAxisSize.min,
