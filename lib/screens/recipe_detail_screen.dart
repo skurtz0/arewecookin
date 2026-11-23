@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/semantics.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -727,12 +728,43 @@ class _RecipeDetailScreenState extends ConsumerState<RecipeDetailScreen> {
                   final qty = _qty(ing, strings.locale);
                   final havePantry = _inPantry(ing, pantryKeys, strings.locale);
 
+                  // Long press (or the screen reader action) adds this ingredient to "Ingredients I avoid".
+                  void avoidIngredient() {
+                    final name = ing.localizedName(strings.locale);
+                    final notifier = ref.read(avoidedIngredientsProvider.notifier);
+                    final before = [...ref.read(avoidedIngredientsProvider)];
+                    final added = notifier.add(name);
+                    final words = ref.read(avoidedIngredientsProvider).where((w) => !before.contains(w)).toList();
+                    ScaffoldMessenger.of(context)
+                      ..hideCurrentSnackBar()
+                      ..showSnackBar(SnackBar(
+                        content: Text(added == 0
+                            ? strings.pantryNothingNew
+                            : '${strings.avoidedTitle}: ${words.join(', ')}'),
+                        action: added == 0
+                            ? null
+                            : SnackBarAction(
+                                key: const Key('avoid_undo'),
+                                label: strings.undoLabel,
+                                onPressed: () {
+                                  for (final w in words) {
+                                    notifier.remove(w);
+                                  }
+                                },
+                              ),
+                      ));
+                  }
+
                   return Semantics(
                     key: Key('ingredient_$index'),
                     checked: isChecked,
                     container: true,
+                    customSemanticsActions: {
+                      CustomSemanticsAction(label: strings.avoidedTitle): avoidIngredient,
+                    },
                     child: InkWell(
                     onTap: () => _toggleIngredient(index),
+                    onLongPress: avoidIngredient,
                     borderRadius: BorderRadius.circular(16),
                     child: Padding(
                       padding: const EdgeInsets.symmetric(
