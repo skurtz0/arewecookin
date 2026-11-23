@@ -1,3 +1,4 @@
+import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/social_post.dart';
@@ -152,6 +153,19 @@ class _ComposeSheetState extends ConsumerState<_ComposeSheet> {
   final _title = TextEditingController();
   final _text = TextEditingController();
   bool _busy = false;
+  Uint8List? _photo;
+  String _photoType = 'image/jpeg';
+
+  Future<void> _pick() async {
+    try {
+      final x = await ref.read(photoPickerProvider)();
+      if (x == null || !mounted) return;
+      setState(() {
+        _photo = x.$1;
+        _photoType = x.$2;
+      });
+    } catch (_) {}
+  }
 
   @override
   void dispose() {
@@ -163,7 +177,7 @@ class _ComposeSheetState extends ConsumerState<_ComposeSheet> {
   Future<void> _publish() async {
     if (_busy || _title.text.trim().isEmpty) return;
     setState(() => _busy = true);
-    final ok = await ref.read(socialProvider.notifier).publish(title: _title.text, text: _text.text);
+    final ok = await ref.read(socialProvider.notifier).publish(title: _title.text, text: _text.text, photo: _photo, photoType: _photoType);
     if (!mounted) return;
     if (ok) {
       Navigator.of(context).pop();
@@ -196,13 +210,26 @@ class _ComposeSheetState extends ConsumerState<_ComposeSheet> {
             maxLines: 4,
             decoration: InputDecoration(labelText: strings.socialPostTextHint),
           ),
-          Align(
-            alignment: Alignment.centerRight,
-            child: FilledButton(
+          if (_photo != null)
+            Padding(
+              padding: const EdgeInsets.only(bottom: 8),
+              child: ClipRRect(borderRadius: BorderRadius.circular(8), child: Image.memory(_photo!, height: 140, fit: BoxFit.cover, errorBuilder: (_, _, _) => const SizedBox(height: 140, child: Icon(Icons.broken_image_outlined)))),
+            ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              TextButton.icon(
+                key: const Key('post_pick_photo'),
+                onPressed: _busy ? null : _pick,
+                icon: const Icon(Icons.add_photo_alternate_outlined),
+                label: Text(strings.socialAddPhoto),
+              ),
+              FilledButton(
               key: const Key('post_publish'),
               onPressed: _busy ? null : _publish,
               child: Text(strings.socialPublish),
             ),
+            ],
           ),
         ],
       ),

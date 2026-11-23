@@ -61,6 +61,7 @@ class AppStrings {
   String get socialUnblock => _get('socialUnblock', 'Unblock');
   String get socialBlockedNote => _get('socialBlockedNote', 'You blocked this user');
   String get socialMore => _get('socialMore', 'More');
+  String get socialAddPhoto => _get('socialAddPhoto', 'Add photo');
   String get tabAccount => _get('tabAccount', 'Account');
   String get shoppingListTitle => _get('shoppingListTitle', 'Shopping list');
   String get shoppingClearDone => _get('shoppingClearDone', 'Clear checked');

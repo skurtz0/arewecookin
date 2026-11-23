@@ -1,10 +1,27 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/social_post.dart';
+import 'dart:typed_data';
+import 'package:image_picker/image_picker.dart';
+import '../services/photo_uploader.dart';
 import '../services/social_service.dart';
 import 'auth_provider.dart';
 import 'moderation_provider.dart';
 
 final socialServiceProvider = Provider<SocialService>((ref) => FirestoreSocialService());
+
+final photoUploaderProvider = Provider<PhotoUploader>((ref) => WorkerPhotoUploader());
+
+/// Opens the photo library; returns (bytes, content type) or null. Replaced in tests.
+final photoPickerProvider = Provider<Future<(Uint8List, String)?> Function()>((ref) {
+  return () async {
+    final x = await ImagePicker().pickImage(source: ImageSource.gallery, maxWidth: 1280, imageQuality: 80);
+    if (x == null) return null;
+    final bytes = await x.readAsBytes();
+    final name = x.name.toLowerCase();
+    final type = name.endsWith('.png') ? 'image/png' : (name.endsWith('.webp') ? 'image/webp' : 'image/jpeg');
+    return (bytes, type);
+  };
+});
 
 final feedProvider = StreamProvider<List<SocialPost>>(
   (ref) => ref.watch(socialServiceProvider).watchFeed(),
@@ -54,16 +71,22 @@ class SocialNotifier extends Notifier<SocialState> {
     }
   }
 
-  Future<bool> publish({required String title, required String text}) async {
+  Future<bool> publish({required String title, required String text, Uint8List? photo, String photoType = 'image/jpeg'}) async {
     final user = ref.read(authProvider).user;
     if (!user.isLoggedIn || title.trim().isEmpty) return false;
     try {
+      String? photoUrl;
+      if (photo != null) {
+        photoUrl = await ref.read(photoUploaderProvider).upload(photo, photoType);
+        if (photoUrl == null) return false;
+      }
       await _service.createPost(SocialPost(
         id: '',
         authorId: user.id,
         authorName: user.displayName,
         title: title.trim(),
         text: text.trim(),
+        photoUrl: photoUrl,
         createdAtMs: DateTime.now().millisecondsSinceEpoch,
       ));
       return true;

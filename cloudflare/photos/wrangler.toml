@@ -1,0 +1,11 @@
+name = "arewecookin-photos"
+main = "src/index.js"
+compatibility_date = "2026-11-01"
+
+[[r2_buckets]]
+binding = "PHOTOS"
+bucket_name = "arewecookin-photos"
+
+[vars]
+FIREBASE_PROJECT = "arewecookin"
+MAX_BYTES = "1500000"

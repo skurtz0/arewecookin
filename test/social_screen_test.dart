@@ -1,3 +1,4 @@
+import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -7,7 +8,15 @@ import 'package:arewecookin/models/user_profile.dart';
 import 'package:arewecookin/providers/auth_provider.dart';
 import 'package:arewecookin/providers/social_provider.dart';
 import 'package:arewecookin/screens/social_screen.dart';
+import 'package:arewecookin/services/photo_uploader.dart';
 import 'helpers/fake_social.dart';
+
+final _png = Uint8List.fromList(const [
+  0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a, 0x00, 0x00, 0x00, 0x0d, 0x49, 0x48, 0x44, 0x52, 0x00, 0x00, 0x00, 0x01,
+  0x00, 0x00, 0x00, 0x01, 0x08, 0x06, 0x00, 0x00, 0x00, 0x1f, 0x15, 0xc4, 0x89, 0x00, 0x00, 0x00, 0x0d, 0x49, 0x44, 0x41,
+  0x54, 0x78, 0x9c, 0x63, 0xf8, 0xff, 0xff, 0x3f, 0x00, 0x05, 0xfe, 0x02, 0xfe, 0xa7, 0x35, 0x81, 0x84, 0x00, 0x00, 0x00,
+  0x00, 0x49, 0x45, 0x4e, 0x44, 0xae, 0x42, 0x60, 0x82,
+]);
 
 SocialPost _post() => const SocialPost(
       id: 'a',
@@ -151,4 +160,47 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text('Menemen'), findsOneWidget);
   });
+
+  for (final fails in [false, true]) {
+    testWidgets('post with a photo ${fails ? "is not published when the upload fails" : "stores the uploaded URL"}', (tester) async {
+      SharedPreferences.setMockInitialValues({});
+      final fake = FakeSocialService();
+      final uploaded = <int>[];
+      await tester.pumpWidget(ProviderScope(
+        overrides: [
+          socialServiceProvider.overrideWithValue(fake),
+          authServiceProvider.overrideWithValue(FakeAuthService(signedInUser)),
+          photoPickerProvider.overrideWithValue(() async => (_png, 'image/png')),
+          photoUploaderProvider.overrideWithValue(_FakeUploader(fails, uploaded)),
+        ],
+        child: const MaterialApp(home: SocialScreen()),
+      ));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const Key('social_new_post')));
+      await tester.pumpAndSettle();
+      await tester.enterText(find.byKey(const Key('post_title')), 'Mantı');
+      await tester.tap(find.byKey(const Key('post_pick_photo')));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const Key('post_publish')));
+      await tester.pumpAndSettle();
+      expect(uploaded, [_png.length]);
+      if (fails) {
+        expect(fake.posts, isEmpty);
+        expect(find.byKey(const Key('post_title')), findsOneWidget, reason: 'sheet stays open');
+      } else {
+        expect(fake.posts.single.photoUrl, 'https://photos.test/x.jpg');
+      }
+    });
+  }
+}
+
+class _FakeUploader implements PhotoUploader {
+  final bool fails;
+  final List<int> log;
+  _FakeUploader(this.fails, this.log);
+  @override
+  Future<String?> upload(Uint8List bytes, String contentType) async {
+    log.add(bytes.length);
+    return fails ? null : 'https://photos.test/x.jpg';
+  }
 }

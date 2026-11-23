@@ -14,6 +14,8 @@ service cloud.firestore {
         && validText(request.resource.data.title, 80)
         && request.resource.data.title.size() > 0
         && validText(request.resource.data.text, 1000)
+        && (!('photoUrl' in request.resource.data)
+            || request.resource.data.photoUrl.matches('https://arewecookin-photos[.]areyouskurtz[.]workers[.]dev/p/.*'))
         && request.resource.data.likeCount == 0
         && request.resource.data.commentCount == 0;
       allow delete: if signedIn() && resource.data.authorId == request.auth.uid;
