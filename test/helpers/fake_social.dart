@@ -8,6 +8,7 @@ class FakeSocialService implements SocialService {
   final List<SocialPost> posts;
   final Map<String, Set<String>> likes = {};
   final Map<String, List<SocialComment>> comments = {};
+  final List<String> reports = [];
   final _feed = StreamController<List<SocialPost>>.broadcast();
   int _n = 0;
 
@@ -52,6 +53,11 @@ class FakeSocialService implements SocialService {
     final i = posts.indexWhere((p) => p.id == postId);
     posts[i] = posts[i].copyWith(commentCount: posts[i].commentCount + 1);
     _emit();
+  }
+
+  @override
+  Future<void> reportPost({required String postId, required String reporterId, required String reason}) async {
+    reports.add('$postId:$reporterId:$reason');
   }
 
   @override

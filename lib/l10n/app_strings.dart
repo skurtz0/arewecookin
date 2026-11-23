@@ -53,6 +53,14 @@ class AppStrings {
   String get socialComments => _get('socialComments', 'Comments');
   String get socialCommentHint => _get('socialCommentHint', 'Write a comment');
   String get socialUnavailable => _get('socialUnavailable', 'Community is unavailable right now');
+  String get socialDelete => _get('socialDelete', 'Delete post');
+  String get socialDeleteConfirm => _get('socialDeleteConfirm', 'Delete this post?');
+  String get socialReport => _get('socialReport', 'Report');
+  String get socialReported => _get('socialReported', 'Reported. The post is hidden for you.');
+  String get socialBlock => _get('socialBlock', 'Block this user');
+  String get socialUnblock => _get('socialUnblock', 'Unblock');
+  String get socialBlockedNote => _get('socialBlockedNote', 'You blocked this user');
+  String get socialMore => _get('socialMore', 'More');
   String get tabAccount => _get('tabAccount', 'Account');
   String get shoppingListTitle => _get('shoppingListTitle', 'Shopping list');
   String get shoppingClearDone => _get('shoppingClearDone', 'Clear checked');

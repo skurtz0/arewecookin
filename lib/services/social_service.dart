@@ -11,6 +11,7 @@ abstract class SocialService {
   Stream<List<SocialComment>> watchComments(String postId);
   Future<void> addComment(String postId, SocialComment comment);
   Future<void> deletePost(String postId);
+  Future<void> reportPost({required String postId, required String reporterId, required String reason});
 }
 
 class FirestoreSocialService implements SocialService {
@@ -89,5 +90,15 @@ class FirestoreSocialService implements SocialService {
   @override
   Future<void> deletePost(String postId) async {
     await _posts.doc(postId).delete();
+  }
+
+  @override
+  Future<void> reportPost({required String postId, required String reporterId, required String reason}) async {
+    await _db.collection('reports').add({
+      'postId': postId,
+      'reporterId': reporterId,
+      'reason': reason,
+      'createdAtMs': DateTime.now().millisecondsSinceEpoch,
+    });
   }
 }

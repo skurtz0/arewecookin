@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/social_post.dart';
 import '../providers/auth_provider.dart';
 import '../providers/locale_provider.dart';
+import '../providers/moderation_provider.dart';
 import '../providers/social_provider.dart';
 
 /// Community tab: people share recipes as posts, others like and comment.
@@ -47,13 +48,19 @@ class SocialScreen extends ConsumerWidget {
           ),
         ),
         error: (_, _) => Center(child: Text(strings.socialUnavailable)),
-        data: (posts) => posts.isEmpty
-            ? Center(child: Padding(padding: const EdgeInsets.all(24), child: Text(strings.socialEmpty, textAlign: TextAlign.center)))
-            : ListView.builder(
-                padding: const EdgeInsets.only(bottom: 96),
-                itemCount: posts.length,
-                itemBuilder: (_, i) => _PostCard(post: posts[i]),
-              ),
+        data: (all) {
+          final mod = ref.watch(moderationProvider);
+          final posts = all
+              .where((p) => !mod.blockedAuthors.contains(p.authorId) && !mod.hiddenPosts.contains(p.id))
+              .toList();
+          return posts.isEmpty
+              ? Center(child: Padding(padding: const EdgeInsets.all(24), child: Text(strings.socialEmpty, textAlign: TextAlign.center)))
+              : ListView.builder(
+                  padding: const EdgeInsets.only(bottom: 96),
+                  itemCount: posts.length,
+                  itemBuilder: (_, i) => _PostCard(post: posts[i]),
+                );
+        },
       ),
     );
   }
@@ -75,8 +82,13 @@ class _PostCard extends ConsumerWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           ListTile(
+            key: Key('author_${post.id}'),
             leading: ExcludeSemantics(child: CircleAvatar(child: Text(initial))),
             title: Text(post.authorName.isEmpty ? '—' : post.authorName),
+            onTap: () => Navigator.of(context).push(MaterialPageRoute<void>(
+              builder: (_) => AuthorScreen(authorId: post.authorId, authorName: post.authorName),
+            )),
+            trailing: _PostMenu(post: post),
           ),
           if (post.photoUrl != null)
             Image.network(
@@ -274,6 +286,97 @@ class _CommentsSheetState extends ConsumerState<_CommentsSheet> {
           ),
         ],
       ),
+    );
+  }
+}
+
+class _PostMenu extends ConsumerWidget {
+  final SocialPost post;
+  const _PostMenu({required this.post});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final strings = ref.watch(appStringsProvider);
+    final user = ref.watch(authProvider).user;
+    final mine = user.isLoggedIn && user.id == post.authorId;
+    return PopupMenuButton<String>(
+      key: Key('menu_${post.id}'),
+      tooltip: strings.socialMore,
+      onSelected: (v) async {
+        final messenger = ScaffoldMessenger.of(context);
+        if (v == 'delete') {
+          final ok = await showDialog<bool>(
+            context: context,
+            builder: (ctx) => AlertDialog(
+              content: Text(strings.socialDeleteConfirm),
+              actions: [
+                TextButton(onPressed: () => Navigator.pop(ctx, false), child: Text(strings.cancel)),
+                TextButton(key: const Key('confirm_delete'), onPressed: () => Navigator.pop(ctx, true), child: Text(strings.socialDelete)),
+              ],
+            ),
+          );
+          if (ok == true) await ref.read(socialProvider.notifier).deletePost(post.id);
+        } else if (v == 'report') {
+          await ref.read(socialProvider.notifier).report(post.id, 'report');
+          messenger
+            ..hideCurrentSnackBar()
+            ..showSnackBar(SnackBar(content: Text(strings.socialReported)));
+        } else if (v == 'block') {
+          ref.read(moderationProvider.notifier).blockAuthor(post.authorId);
+        }
+      },
+      itemBuilder: (_) => [
+        if (mine)
+          PopupMenuItem(value: 'delete', child: Text(strings.socialDelete))
+        else ...[
+          PopupMenuItem(value: 'report', child: Text(strings.socialReport)),
+          PopupMenuItem(value: 'block', child: Text(strings.socialBlock)),
+        ],
+      ],
+    );
+  }
+}
+
+/// One author's posts, with block / unblock.
+class AuthorScreen extends ConsumerWidget {
+  final String authorId;
+  final String authorName;
+  const AuthorScreen({super.key, required this.authorId, required this.authorName});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final strings = ref.watch(appStringsProvider);
+    final mod = ref.watch(moderationProvider);
+    final blocked = mod.blockedAuthors.contains(authorId);
+    final me = ref.watch(authProvider).user;
+    final isMe = me.isLoggedIn && me.id == authorId;
+    final posts = ref.watch(feedProvider).asData?.value
+            .where((p) => p.authorId == authorId && !mod.hiddenPosts.contains(p.id))
+            .toList() ??
+        const <SocialPost>[];
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(authorName.isEmpty ? '—' : authorName),
+        actions: [
+          if (!isMe)
+            TextButton(
+              key: const Key('author_block_toggle'),
+              onPressed: () {
+                final n = ref.read(moderationProvider.notifier);
+                blocked ? n.unblockAuthor(authorId) : n.blockAuthor(authorId);
+              },
+              child: Text(blocked ? strings.socialUnblock : strings.socialBlock),
+            ),
+        ],
+      ),
+      body: blocked
+          ? Center(child: Text(strings.socialBlockedNote))
+          : posts.isEmpty
+              ? Center(child: Text(strings.socialEmpty))
+              : ListView.builder(
+                  itemCount: posts.length,
+                  itemBuilder: (_, i) => _PostCard(post: posts[i]),
+                ),
     );
   }
 }

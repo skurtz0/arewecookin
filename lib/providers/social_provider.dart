@@ -2,6 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/social_post.dart';
 import '../services/social_service.dart';
 import 'auth_provider.dart';
+import 'moderation_provider.dart';
 
 final socialServiceProvider = Provider<SocialService>((ref) => FirestoreSocialService());
 
@@ -69,6 +70,27 @@ class SocialNotifier extends Notifier<SocialState> {
     } catch (_) {
       return false;
     }
+  }
+
+  Future<bool> deletePost(String postId) async {
+    final user = ref.read(authProvider).user;
+    if (!user.isLoggedIn) return false;
+    try {
+      await _service.deletePost(postId);
+      return true;
+    } catch (_) {
+      return false;
+    }
+  }
+
+  /// Sends a report and hides the post on this device either way.
+  Future<void> report(String postId, String reason) async {
+    ref.read(moderationProvider.notifier).hidePost(postId);
+    final user = ref.read(authProvider).user;
+    if (!user.isLoggedIn) return;
+    try {
+      await _service.reportPost(postId: postId, reporterId: user.id, reason: reason);
+    } catch (_) {}
   }
 
   Future<bool> comment(String postId, String text) async {

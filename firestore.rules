@@ -36,5 +36,12 @@ service cloud.firestore {
         allow delete: if signedIn() && resource.data.authorId == request.auth.uid;
       }
     }
+
+    // Reports: anyone signed in can file one about a post; nobody can read them from the app.
+    match /reports/{reportId} {
+      allow create: if signedIn()
+        && request.resource.data.reporterId == request.auth.uid
+        && validText(request.resource.data.reason, 100);
+    }
   }
 }
