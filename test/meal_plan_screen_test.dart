@@ -72,4 +72,18 @@ void main() {
     expect(plan.containsKey(1), isFalse);
     expect(plan[5]!.single.id, recipe.id);
   });
+
+  testWidgets('planned meals show a thumbnail', (tester) async {
+    SharedPreferences.setMockInitialValues({});
+    final recipe = (await RecipeRepository().getRecipes(limit: 1)).recipes.first;
+    final container = ProviderContainer();
+    addTearDown(container.dispose);
+    container.read(mealPlanProvider.notifier).add(2, recipe);
+    await tester.pumpWidget(UncontrolledProviderScope(
+      container: container,
+      child: const MaterialApp(home: MealPlanScreen()),
+    ));
+    await tester.pumpAndSettle();
+    expect(find.byKey(Key('plan_thumb_2_${recipe.id}')), findsOneWidget);
+  });
 }

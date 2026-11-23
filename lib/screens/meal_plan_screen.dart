@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../providers/locale_provider.dart';
 import '../providers/meal_plan_provider.dart';
 import '../providers/shopping_list_provider.dart';
+import '../widgets/recipe_image.dart';
 import 'recipe_detail_screen.dart';
 
 class MealPlanScreen extends ConsumerWidget {
@@ -140,6 +141,14 @@ class MealPlanScreen extends ConsumerWidget {
                       Card(
                         margin: const EdgeInsets.only(bottom: 8),
                         child: ListTile(
+                          leading: RecipeImage(
+                            key: Key('plan_thumb_${day}_${r.id}'),
+                            imageUrl: r.imageUrl,
+                            category: r.category,
+                            width: 52,
+                            height: 52,
+                            borderRadius: BorderRadius.circular(10),
+                          ),
                           title: Text(r.localizedTitle(strings.locale)),
                           subtitle: Text('${r.totalTime} min'),
                           onTap: () => Navigator.of(context).push(
