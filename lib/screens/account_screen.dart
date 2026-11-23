@@ -68,6 +68,23 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
     }
   }
 
+  Future<void> _resendVerification() async {
+    final tr = ref.read(appStringsProvider).isTurkish;
+    final messenger = ScaffoldMessenger.of(context);
+    try {
+      final ok = await ref.read(authProvider.notifier).refreshEmailVerification();
+      messenger.showSnackBar(SnackBar(
+        content: Text(ok
+            ? (tr ? 'E-postanız doğrulandı.' : 'Your email is verified.')
+            : (tr
+                ? 'Doğrulama e-postası gönderildi. Bağlantıya tıkladıktan sonra buraya tekrar dokunun.'
+                : 'Verification email sent. After opening the link, tap here again.')),
+      ));
+    } catch (e) {
+      messenger.showSnackBar(SnackBar(content: Text(e.toString().replaceFirst('Exception: ', ''))));
+    }
+  }
+
   Future<void> _sendPasswordReset() async {
     final strings = ref.read(appStringsProvider);
     final messenger = ScaffoldMessenger.of(context);
@@ -602,7 +619,14 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
     IconData providerIcon = Icons.verified_user_rounded;
     Color providerColor = const Color(0xFFFF5722);
 
-    if (isGoogle) {
+    // An e-mail account whose address is not confirmed yet must not look "verified".
+    final unverified = !isGoogle && !isPhone && user.emailVerified == false;
+
+    if (unverified) {
+      providerLabel = strings.isTurkish ? 'E-posta doğrulanmadı (dokun)' : 'Email not verified (tap)';
+      providerIcon = Icons.mark_email_unread_outlined;
+      providerColor = Colors.amber.shade800;
+    } else if (isGoogle) {
       providerLabel = strings.isTurkish ? 'Google Hesabı' : 'Google Account';
       providerIcon = Icons.g_mobiledata_rounded;
       providerColor = Colors.blue.shade700;
@@ -668,7 +692,11 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
                       ),
                     ),
                     const SizedBox(height: 8),
-                    Container(
+                    InkWell(
+                      key: const Key('verify_email_badge'),
+                      borderRadius: BorderRadius.circular(8),
+                      onTap: unverified ? _resendVerification : null,
+                      child: Container(
                       padding: const EdgeInsets.symmetric(
                           horizontal: 8, vertical: 3),
                       decoration: BoxDecoration(
@@ -691,6 +719,7 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
                           )),
                         ],
                       ),
+                    ),
                     ),
                   ],
                 ),

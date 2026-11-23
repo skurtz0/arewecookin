@@ -9,6 +9,9 @@ class UserProfile {
   final int savedRecipesCount;
   final int cookedCount;
 
+  /// False only for an e-mail/password account whose address is not confirmed yet.
+  final bool emailVerified;
+
   const UserProfile({
     required this.id,
     required this.email,
@@ -19,6 +22,7 @@ class UserProfile {
     required this.isLoggedIn,
     this.savedRecipesCount = 0,
     this.cookedCount = 0,
+    this.emailVerified = true,
   });
 
   static const guest = UserProfile(
@@ -42,6 +46,7 @@ class UserProfile {
     bool? isLoggedIn,
     int? savedRecipesCount,
     int? cookedCount,
+    bool? emailVerified,
   }) {
     return UserProfile(
       id: id ?? this.id,
@@ -53,6 +58,7 @@ class UserProfile {
       isLoggedIn: isLoggedIn ?? this.isLoggedIn,
       savedRecipesCount: savedRecipesCount ?? this.savedRecipesCount,
       cookedCount: cookedCount ?? this.cookedCount,
+      emailVerified: emailVerified ?? this.emailVerified,
     );
   }
 }

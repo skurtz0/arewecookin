@@ -40,6 +40,7 @@ class AuthService {
       isLoggedIn: true,
       savedRecipesCount: 0,
       cookedCount: 0,
+      emailVerified: (provider ?? (u.providerData.isNotEmpty ? u.providerData.first.providerId : 'password')) != 'password' || u.emailVerified,
     );
   }
 
@@ -216,6 +217,23 @@ class AuthService {
       } catch (_) {}
       return _profileOf(u, provider: 'password', fallbackName: cleanName)
           .copyWith(displayName: cleanName);
+    } catch (e) {
+      throw _friendly(e);
+    }
+  }
+
+  /// Re-reads the account (the user may have confirmed the e-mail meanwhile); if it is still
+  /// unconfirmed a new confirmation mail is sent. Returns true when the address is confirmed.
+  Future<bool> refreshEmailVerification() async {
+    if (_offlineMock) return true;
+    final user = _firebaseAuth!.currentUser;
+    if (user == null) throw Exception('Önce giriş yapmalısınız.');
+    try {
+      await user.reload();
+      final fresh = _firebaseAuth!.currentUser;
+      if (fresh != null && fresh.emailVerified) return true;
+      await (fresh ?? user).sendEmailVerification();
+      return false;
     } catch (e) {
       throw _friendly(e);
     }

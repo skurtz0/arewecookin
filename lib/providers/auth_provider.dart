@@ -58,6 +58,13 @@ class AuthNotifier extends Notifier<AuthState> {
     return AuthState(user: _authService.currentUser);
   }
 
+  /// Checks again whether the e-mail is confirmed; sends a new mail when it is not. True = confirmed.
+  Future<bool> refreshEmailVerification() async {
+    final ok = await _authService.refreshEmailVerification();
+    state = state.copyWith(user: _authService.currentUser);
+    return ok;
+  }
+
   void clearMessages() {
     state = state.copyWith(clearError: true, clearSuccess: true);
   }
