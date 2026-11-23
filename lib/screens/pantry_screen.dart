@@ -12,6 +12,7 @@ import '../providers/pantry_provider.dart';
 import '../providers/user_recipes_provider.dart';
 import '../providers/shopping_list_provider.dart';
 import '../utils/cooking_icons.dart';
+import '../utils/quick_plan.dart';
 import '../widgets/recipe_image.dart';
 import 'recipe_detail_screen.dart';
 
@@ -879,6 +880,7 @@ class _PantryRecipeCard extends ConsumerWidget {
         child: InkWell(
           borderRadius: BorderRadius.circular(16),
           onTap: onTap,
+          onLongPress: () => quickAddToPlan(context, ref, recipe),
           child: Padding(
             padding: const EdgeInsets.all(14),
             child: Column(
