@@ -282,4 +282,18 @@ void main() {
     await tester.pump();
     expect(done('Flour'), isFalse);
   });
+
+  testWidgets('the progress count is announced when it changes (live region)', (tester) async {
+    SharedPreferences.setMockInitialValues({});
+    final handle = tester.ensureSemantics();
+    final c = ProviderContainer();
+    addTearDown(c.dispose);
+    c.read(shoppingListProvider.notifier).addAll(const [ShoppingItem(name: 'Alpha'), ShoppingItem(name: 'Beta')]);
+    await tester.pumpWidget(UncontrolledProviderScope(container: c, child: const MaterialApp(home: ShoppingListScreen())));
+    await tester.pumpAndSettle();
+    final node = tester.getSemantics(find.byKey(const Key('shopping_progress')));
+    expect(node.getSemanticsData().flagsCollection.isLiveRegion, isTrue);
+    expect(node.label, contains('0 / 2'));
+    handle.dispose();
+  });
 }

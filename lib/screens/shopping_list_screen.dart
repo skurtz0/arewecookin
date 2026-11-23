@@ -152,13 +152,16 @@ class _ShoppingListScreenState extends ConsumerState<ShoppingListScreen> {
           children: [
             Text(strings.shoppingListTitle),
             if (items.isNotEmpty)
-              Text(
-                '$doneCount / ${items.length}',
-                key: const Key('shopping_progress'),
-                style: TextStyle(
-                  fontSize: 12,
-                  color: Colors.grey.shade600,
-                  fontWeight: FontWeight.normal,
+              Semantics(
+                liveRegion: true,
+                child: Text(
+                  '$doneCount / ${items.length}',
+                  key: const Key('shopping_progress'),
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: Colors.grey.shade600,
+                    fontWeight: FontWeight.normal,
+                  ),
                 ),
               ),
           ],
