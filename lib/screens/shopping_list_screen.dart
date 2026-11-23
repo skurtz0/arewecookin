@@ -231,6 +231,7 @@ class _ShoppingListScreenState extends ConsumerState<ShoppingListScreen> {
               ),
               onPressed: () {
                 final before = List.of(ref.read(shoppingListProvider));
+                HapticFeedback.selectionClick();
                 notifier.toggleAll();
                 ScaffoldMessenger.of(context)
                   ..hideCurrentSnackBar()
@@ -419,6 +420,7 @@ class _ShoppingListScreenState extends ConsumerState<ShoppingListScreen> {
                                     icon: const Icon(Icons.done_all_rounded, size: 20),
                                     onPressed: () {
                                       final before = [...ref.read(shoppingListProvider)];
+                                      HapticFeedback.selectionClick();
                                       notifier.checkGroup(groupKey);
                                       ScaffoldMessenger.of(context)
                                         ..hideCurrentSnackBar()

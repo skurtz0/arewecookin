@@ -137,4 +137,26 @@ void main() {
     await tester.pump();
     expect(calls, isNotEmpty);
   });
+
+  testWidgets('check / uncheck all in the shopping list gives a light tap', (tester) async {
+    SharedPreferences.setMockInitialValues({});
+    final calls = <String>[];
+    tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(SystemChannels.platform, (call) async {
+      if (call.method == 'HapticFeedback.vibrate') calls.add('${call.arguments}');
+      return null;
+    });
+    addTearDown(() => tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(SystemChannels.platform, null));
+    final c = ProviderContainer();
+    addTearDown(c.dispose);
+    c.read(shoppingListProvider.notifier).addAll(const [ShoppingItem(name: 'Alpha'), ShoppingItem(name: 'Beta')]);
+    await tester.pumpWidget(UncontrolledProviderScope(
+      container: c,
+      child: const MaterialApp(home: ShoppingListScreen()),
+    ));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byIcon(Icons.done_all_rounded).first);
+    await tester.pump();
+    expect(calls, isNotEmpty);
+    expect(c.read(shoppingListProvider).every((e) => e.done), isTrue);
+  });
 }
