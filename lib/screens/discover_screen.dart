@@ -179,7 +179,12 @@ class DiscoverScreenState extends ConsumerState<DiscoverScreen> with WidgetsBind
     final discoverState = ref.watch(discoverProvider);
     final strings = ref.watch(appStringsProvider);
     final recent = ref.watch(recentRecipesProvider);
-    final searches = ref.watch(recentSearchesProvider);
+    final allSearches = ref.watch(recentSearchesProvider);
+    // While typing, earlier searches that contain the typed text are offered as suggestions.
+    final typed = discoverState.searchQuery.trim().toLowerCase();
+    final searches = typed.isEmpty
+        ? allSearches
+        : allSearches.where((e) => e.toLowerCase().contains(typed) && e.toLowerCase() != typed).toList();
     final todayPlan = ref.watch(mealPlanProvider)[DateTime.now().weekday] ?? const <Recipe>[];
 
     return Scaffold(
@@ -333,7 +338,7 @@ class DiscoverScreenState extends ConsumerState<DiscoverScreen> with WidgetsBind
                 ),
               ),
             ),
-            if (searches.isNotEmpty && discoverState.searchQuery.isEmpty && !_onlySaved && !_onlyCooked && !_onlyRated)
+            if (searches.isNotEmpty && !_onlySaved && !_onlyCooked && !_onlyRated)
               SliverToBoxAdapter(
                 child: Padding(
                   padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
@@ -355,6 +360,7 @@ class DiscoverScreenState extends ConsumerState<DiscoverScreen> with WidgetsBind
                             ref.read(discoverProvider.notifier).setSearchQuery(q);
                           },
                         ),
+                      if (typed.isEmpty)
                       IconButton(
                         key: const Key('clear_recent_searches'),
                         tooltip: strings.clearHistory,

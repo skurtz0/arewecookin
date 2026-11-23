@@ -83,4 +83,31 @@ void main() {
     await tester.pump();
     expect(c.read(recentSearchesProvider), ['pilav', 'makarna']);
   });
+
+  testWidgets('while typing, earlier searches that contain the text are suggested', (tester) async {
+    SharedPreferences.setMockInitialValues({});
+    final c = ProviderContainer();
+    addTearDown(c.dispose);
+    c.read(recentSearchesProvider.notifier).add('menemen tarifi');
+    c.read(recentSearchesProvider.notifier).add('pilav');
+    await tester.pumpWidget(UncontrolledProviderScope(
+      container: c,
+      child: const MaterialApp(home: Scaffold(body: DiscoverScreen())),
+    ));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 300));
+    await tester.enterText(find.byType(TextField).first, 'men');
+    await tester.pump(const Duration(milliseconds: 500));
+    await tester.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 100)));
+    await tester.pump(const Duration(milliseconds: 500));
+    expect(find.byKey(const Key('recent_search_menemen tarifi')), findsOneWidget);
+    expect(find.byKey(const Key('recent_search_pilav')), findsNothing);
+    expect(find.byKey(const Key('clear_recent_searches')), findsNothing);
+    // The exact text is not suggested back to itself.
+    await tester.enterText(find.byType(TextField).first, 'menemen tarifi');
+    await tester.pump(const Duration(milliseconds: 500));
+    await tester.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 100)));
+    await tester.pump(const Duration(milliseconds: 500));
+    expect(find.byKey(const Key('recent_search_menemen tarifi')), findsNothing);
+  });
 }
