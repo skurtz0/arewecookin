@@ -164,7 +164,41 @@ class _CookingModeScreenState extends ConsumerState<CookingModeScreen> {
                         ),
                       ],
                     ),
-                    const SizedBox(height: 16),
+                    Align(
+                      alignment: AlignmentDirectional.centerEnd,
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          IconButton(
+                            key: const Key('cook_servings_less'),
+                            tooltip: strings.a11yFewer,
+                            icon: const Icon(Icons.remove_circle_outline_rounded, color: Color(0xFFFF5722)),
+                            onPressed: _shownServings() > 1
+                                ? () {
+                                    ref.read(recipeProgressProvider.notifier).setServings(
+                                        widget.recipe.id, _shownServings() - 1);
+                                    setSheetState(() {});
+                                    setState(() {});
+                                  }
+                                : null,
+                          ),
+                          IconButton(
+                            key: const Key('cook_servings_more'),
+                            tooltip: strings.a11yMore,
+                            icon: const Icon(Icons.add_circle_outline_rounded, color: Color(0xFFFF5722)),
+                            onPressed: _shownServings() < 99
+                                ? () {
+                                    ref.read(recipeProgressProvider.notifier).setServings(
+                                        widget.recipe.id, _shownServings() + 1);
+                                    setSheetState(() {});
+                                    setState(() {});
+                                  }
+                                : null,
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 8),
                     // The user's own note for this recipe (tweaks, tips) is handy while cooking.
                     Builder(builder: (_) {
                       final note = (ref.read(recipeNotesProvider)[widget.recipe.id]?.note ?? '').trim();

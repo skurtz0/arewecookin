@@ -95,6 +95,26 @@ void main() {
       expect(container.read(recipeProgressProvider)[sampleRecipe.id]!.checked, {0, 1});
     });
 
+    testWidgets('servings can be changed from the ingredient sheet in cooking mode', (tester) async {
+      SharedPreferences.setMockInitialValues({});
+      final container = ProviderContainer(overrides: [
+        localeProvider.overrideWith(() => FakeLocaleNotifier(const Locale('tr'))),
+      ]);
+      addTearDown(container.dispose);
+      await tester.pumpWidget(UncontrolledProviderScope(
+        container: container,
+        child: MaterialApp(home: CookingModeScreen(recipe: sampleRecipe)),
+      ));
+      await tester.pumpAndSettle();
+      await tester.tap(find.textContaining('Malzeme').first);
+      await tester.pumpAndSettle();
+      final before = sampleRecipe.servings > 0 ? sampleRecipe.servings : 4;
+      await tester.tap(find.byKey(const Key('cook_servings_more')));
+      await tester.pumpAndSettle();
+      expect(container.read(recipeProgressProvider)[sampleRecipe.id]!.servings, before + 1);
+      expect(find.textContaining('${before + 1} '), findsWidgets);
+    });
+
     testWidgets('tapping the step counter lists all steps and jumps to the chosen one', (tester) async {
       SharedPreferences.setMockInitialValues({});
       await tester.pumpWidget(ProviderScope(
