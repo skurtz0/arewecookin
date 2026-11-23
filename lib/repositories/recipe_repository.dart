@@ -32,6 +32,10 @@ class RecipeRepository {
   }
   final List<Recipe> _customRecipes = [];
 
+  /// When a Firestore query last came back empty (key: category|cuisine). Skips the network round trip
+  /// on every page while the shared collection has nothing for that filter.
+  final Map<String, DateTime> _remoteEmptyAt = {};
+
   RecipeRepository({this.firestore});
 
   List<Recipe> get customRecipes => List.unmodifiable(_customRecipes);
@@ -84,7 +88,12 @@ class RecipeRepository {
     final cleanQuery = searchQuery?.trim().toLowerCase();
 
     // The time filter is applied on the local dataset (a Firestore range query would break paging/sorting).
-    final db = (maxMinutes == null && difficulty == null) ? firestore : null;
+    final remoteKey = '${cleanCategory ?? ''}|${cleanCuisine ?? ''}';
+    final emptyAt = _remoteEmptyAt[remoteKey];
+    final remoteKnownEmpty = startAfter == null &&
+        emptyAt != null &&
+        DateTime.now().difference(emptyAt) < const Duration(minutes: 10);
+    final db = (maxMinutes == null && difficulty == null && !remoteKnownEmpty) ? firestore : null;
     if (db != null) {
       try {
         Query<Map<String, dynamic>> query = db.collection('recipes');
@@ -105,7 +114,10 @@ class RecipeRepository {
 
         query = query.limit(limit);
 
-        final querySnapshot = await query.get();
+        final querySnapshot = await query.get().timeout(const Duration(seconds: 4));
+        if (querySnapshot.docs.isEmpty) {
+          _remoteEmptyAt[remoteKey] = DateTime.now();
+        }
         if (querySnapshot.docs.isNotEmpty) {
           List<Recipe> recipes = querySnapshot.docs
               .map((doc) => Recipe.fromDocumentSnapshot(doc))
@@ -142,7 +154,7 @@ class RecipeRepository {
     }
 
     // Offline / Mock 10,000 recipe generator with infinite pagination
-    return _getFallbackPaginatedRecipes(
+    return await _getFallbackPaginatedRecipes(
       limit: limit,
       offset: offset,
       category: cleanCategory,
@@ -188,7 +200,7 @@ class RecipeRepository {
           query = query.where('cuisine', isEqualTo: cleanCuisine);
         }
 
-        final querySnapshot = await query.limit(limit * 2).get();
+        final querySnapshot = await query.limit(limit * 2).get().timeout(const Duration(seconds: 4));
 
         if (querySnapshot.docs.isNotEmpty) {
           candidateRecipes = querySnapshot.docs
@@ -263,7 +275,7 @@ class RecipeRepository {
     final db = firestore;
     if (db != null) {
       try {
-        final doc = await db.collection('recipes').doc(id).get();
+        final doc = await db.collection('recipes').doc(id).get().timeout(const Duration(seconds: 4));
         if (doc.exists) {
           return Recipe.fromDocumentSnapshot(doc);
         }
@@ -285,7 +297,7 @@ class RecipeRepository {
     return null;
   }
 
-  PaginatedRecipes _getFallbackPaginatedRecipes({
+  Future<PaginatedRecipes> _getFallbackPaginatedRecipes({
     required int limit,
     required int offset,
     String? category,
@@ -293,7 +305,7 @@ class RecipeRepository {
     String? searchQuery,
     int? maxMinutes,
     String? difficulty,
-  }) {
+  }) async {
     final List<Recipe> matching = [];
 
     // Prepend custom recipes when at initial offset
@@ -310,7 +322,10 @@ class RecipeRepository {
 
     int currentIndex = offset;
 
+    var scanned = 0;
     while (currentIndex < totalCapacity && matching.length < limit) {
+      // Let the UI draw a frame now and then: a rare filter or search scans thousands of dishes.
+      if (++scanned % 150 == 0) await Future<void>.delayed(Duration.zero);
       final recipe = _recipeAt(currentIndex);
       currentIndex++;
 

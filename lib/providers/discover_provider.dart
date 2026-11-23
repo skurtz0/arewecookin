@@ -133,7 +133,11 @@ class DiscoverNotifier extends Notifier<DiscoverState> {
     } catch (_) {}
   }
 
+  /// Bumped on every new load; a slower, older answer must not overwrite a newer one.
+  int _loadSeq = 0;
+
   Future<void> loadInitial() async {
+    final seq = ++_loadSeq;
     state = state.copyWith(
       isLoading: true,
       recipes: [],
@@ -153,6 +157,7 @@ class DiscoverNotifier extends Notifier<DiscoverState> {
         maxMinutes: state.maxMinutes,
         difficulty: state.difficulty,
       );
+      if (seq != _loadSeq) return;
 
       state = state.copyWith(
         recipes: result.recipes,
@@ -162,6 +167,7 @@ class DiscoverNotifier extends Notifier<DiscoverState> {
         isLoading: false,
       );
     } catch (e) {
+      if (seq != _loadSeq) return;
       state = state.copyWith(
         isLoading: false,
         errorMessage: 'Tarifler yüklenirken hata oluştu: $e',
@@ -172,6 +178,7 @@ class DiscoverNotifier extends Notifier<DiscoverState> {
   Future<void> loadMore() async {
     if (state.isLoading || state.isLoadingMore || !state.hasMore) return;
 
+    final seq = _loadSeq;
     state = state.copyWith(isLoadingMore: true);
 
     try {
@@ -186,6 +193,10 @@ class DiscoverNotifier extends Notifier<DiscoverState> {
         difficulty: state.difficulty,
       );
 
+      if (seq != _loadSeq) {
+        state = state.copyWith(isLoadingMore: false);
+        return;
+      }
       final updatedList = [...state.recipes, ...result.recipes];
 
       state = state.copyWith(

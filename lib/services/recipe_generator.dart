@@ -564,6 +564,9 @@ class RecipeGenerator {
   /// Wikipedia/Wikimedia Commons photos, each checked by eye to show the dish itself.
   /// Dishes without a verified photo are left out and show the category artwork.
   static const Map<String, String> dishImages = {
+    'Fırın Pancar & Keçi Peynirli Salata': 'https://thumb.wikimedia.org/wikipedia/commons/thumb/2/22/Beetroot%2C_spinach%2C_rocket%2C_goat_cheese_and_pumpkin_seeds_salad.jpg/500px-Beetroot%2C_spinach%2C_rocket%2C_goat_cheese_and_pumpkin_seeds_salad.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail',
+    'Kremalı Mantarlı Ekmek Üstü': 'https://thumb.wikimedia.org/wikipedia/commons/thumb/9/9a/Selfpicked_Porcino_Mushroom_In_Creamy_Sauce_On_Toast_%286195783856%29.jpg/500px-Selfpicked_Porcino_Mushroom_In_Creamy_Sauce_On_Toast_%286195783856%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail',
+    'Körili Sebzeli Noodle': 'https://thumb.wikimedia.org/wikipedia/commons/thumb/7/75/Vegan_curried_coconut_milk_noodles_-_Fideos_de_arroz_con_leche_de_coco_y_curry_%286545808205%29.jpg/500px-Vegan_curried_coconut_milk_noodles_-_Fideos_de_arroz_con_leche_de_coco_y_curry_%286545808205%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail',
     '5 Dakikalık Peynirli Quesadilla': 'https://thumb.wikimedia.org/wikipedia/commons/thumb/0/01/Empanada_flor_de_Calabaza.jpg/500px-Empanada_flor_de_Calabaza.jpg',
     'Akdeniz Yeşillikleri Salatası': 'https://thumb.wikimedia.org/wikipedia/commons/thumb/9/94/Salad_platter.jpg/500px-Salad_platter.jpg',
     'Ali Nazik Kebabı': 'https://thumb.wikimedia.org/wikipedia/commons/thumb/c/c3/Ali-nazik-2.jpg/500px-Ali-nazik-2.jpg',
