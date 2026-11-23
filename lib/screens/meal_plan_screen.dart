@@ -9,6 +9,8 @@ import '../providers/locale_provider.dart';
 import '../providers/recipe_notes_provider.dart';
 import '../providers/household_servings_provider.dart';
 import '../providers/meal_plan_provider.dart';
+import '../providers/pantry_provider.dart';
+import '../utils/pantry_match.dart';
 import '../providers/shopping_list_provider.dart';
 import '../providers/user_recipes_provider.dart';
 import '../widgets/avoided_badge.dart';
@@ -25,6 +27,7 @@ class MealPlanScreen extends ConsumerWidget {
     final strings = ref.watch(appStringsProvider);
     final plan = ref.watch(mealPlanProvider);
     final cookHistory = ref.watch(cookHistoryProvider);
+    final pantryHave = ref.watch(pantryProvider.select((p) => p.selectedKeys));
     final notes = ref.watch(recipeNotesProvider);
     final total = plan.values.fold<int>(0, (a, l) => a + l.length);
 
@@ -407,6 +410,25 @@ class MealPlanScreen extends ConsumerWidget {
                             crossAxisAlignment: WrapCrossAlignment.center,
                             children: [
                               Text(strings.minutesShort(r.totalTime)),
+                              if (pantryHave.isNotEmpty && pantryCoverageCount(r, pantryHave, strings.locale) > 0)
+                                ConstrainedBox(
+                                  constraints: const BoxConstraints(maxWidth: 80),
+                                  child: Row(
+                                    key: Key('plan_pantry_${day}_${r.id}'),
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      const Icon(Icons.kitchen_outlined, size: 14),
+                                      const SizedBox(width: 3),
+                                      Flexible(
+                                        child: Text(
+                                          '${pantryCoverageCount(r, pantryHave, strings.locale)}/${r.ingredients.length}',
+                                          maxLines: 1,
+                                          overflow: TextOverflow.ellipsis,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
                               if ((cookHistory[r.id]?.count ?? 0) > 0)
                                 ConstrainedBox(
                                   constraints: const BoxConstraints(maxWidth: 110),

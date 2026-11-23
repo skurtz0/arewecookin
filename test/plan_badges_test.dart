@@ -1,5 +1,6 @@
 import 'package:arewecookin/providers/cook_history_provider.dart';
 import 'package:arewecookin/providers/meal_plan_provider.dart';
+import 'package:arewecookin/providers/pantry_provider.dart';
 import 'package:arewecookin/providers/recipe_notes_provider.dart';
 import 'package:arewecookin/repositories/recipe_repository.dart';
 import 'package:arewecookin/screens/meal_plan_screen.dart';
@@ -32,11 +33,14 @@ void main() {
       await tester.pumpAndSettle();
       expect(find.byKey(Key('plan_cooked_2_${recipe.id}')), findsNothing);
       expect(find.byKey(Key('plan_note_2_${recipe.id}')), findsNothing);
+      expect(find.byKey(Key('plan_pantry_2_${recipe.id}')), findsNothing);
+      await c.read(pantryProvider.notifier).addIngredient(recipe.ingredients.first.name.trim().toLowerCase());
       c.read(cookHistoryProvider.notifier).markCooked(recipe.id);
       c.read(recipeNotesProvider.notifier).setNote(recipe.id, 'less salt');
       await tester.pumpAndSettle();
       expect(find.byKey(Key('plan_cooked_2_${recipe.id}')), findsOneWidget);
       expect(find.byKey(Key('plan_note_2_${recipe.id}')), findsOneWidget);
+      expect(find.byKey(Key('plan_pantry_2_${recipe.id}')), findsOneWidget);
       expect(tester.takeException(), isNull);
     });
   }
