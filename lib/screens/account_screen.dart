@@ -6,6 +6,8 @@ import '../providers/cook_history_provider.dart';
 import '../providers/avoided_ingredients_provider.dart';
 import '../providers/household_servings_provider.dart';
 import '../providers/locale_provider.dart';
+import '../providers/pantry_provider.dart';
+import '../utils/pantry_match.dart';
 import '../widgets/avoided_badge.dart';
 import '../providers/user_recipes_provider.dart';
 import '../widgets/recipe_image.dart';
@@ -988,7 +990,30 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
                       ConstrainedBox(
                         constraints: const BoxConstraints(maxWidth: 150),
                         child: AvoidedBadge(recipe: recipe),
-                      ),
+                      ),                      Builder(builder: (_) {
+                        final have = ref.watch(pantryProvider.select((p) => p.selectedKeys));
+                        final n = have.isEmpty ? 0 : pantryCoverageCount(recipe, have, strings.locale);
+                        if (n == 0) return const SizedBox.shrink();
+                        return ConstrainedBox(
+                          constraints: const BoxConstraints(maxWidth: 80),
+                          child: Row(
+                            key: Key('account_pantry_${recipe.id}'),
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(Icons.kitchen_outlined, size: 12, color: Colors.grey.shade600),
+                              const SizedBox(width: 3),
+                              Flexible(
+                                child: Text(
+                                  '$n/${recipe.ingredients.length}',
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: TextStyle(fontSize: 11, color: Colors.grey.shade600),
+                                ),
+                              ),
+                            ],
+                          ),
+                        );
+                      }),
                     ],
                   ),
                 ],

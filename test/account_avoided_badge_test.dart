@@ -1,5 +1,6 @@
 import 'package:arewecookin/providers/auth_provider.dart';
 import 'package:arewecookin/providers/avoided_ingredients_provider.dart';
+import 'package:arewecookin/providers/pantry_provider.dart';
 import 'package:arewecookin/providers/user_recipes_provider.dart';
 import 'package:arewecookin/repositories/recipe_repository.dart';
 import 'package:arewecookin/screens/account_screen.dart';
@@ -35,6 +36,10 @@ void main() {
       c.read(avoidedIngredientsProvider.notifier).add(recipe.ingredients.first.name);
       await tester.pumpAndSettle();
       expect(find.byKey(Key('avoided_badge_${recipe.id}')), findsOneWidget);
+      expect(find.byKey(Key('account_pantry_${recipe.id}')), findsNothing);
+      await c.read(pantryProvider.notifier).addIngredient(recipe.ingredients.first.name.trim().toLowerCase());
+      await tester.pumpAndSettle();
+      expect(find.byKey(Key('account_pantry_${recipe.id}')), findsOneWidget);
       expect(tester.takeException(), isNull);
     });
   }
