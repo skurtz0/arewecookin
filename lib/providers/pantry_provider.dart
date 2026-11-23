@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../models/models.dart';
+import 'avoided_ingredients_provider.dart';
 import '../repositories/recipe_repository.dart';
 
 class PantryState {
@@ -192,6 +193,12 @@ class PantryNotifier extends Notifier<PantryState> {
         cuisine: state.selectedCuisine == 'Tümü' ? null : state.selectedCuisine,
         limit: 50,
       );
+
+      // Recipes with a word the user avoids are left out here too.
+      final avoid = ref.read(avoidedIngredientsProvider);
+      if (avoid.isNotEmpty) {
+        recipes = recipes.where((r) => !avoid.any((w) => RecipeRepository.mentionsWord(r, w))).toList();
+      }
 
       if (state.onlyFullMatches) {
         final userKeys = state.selectedKeys.toList();

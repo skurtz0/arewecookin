@@ -384,6 +384,18 @@ class RecipeRepository {
     return true;
   }
 
+  /// True when [word] appears in the recipe's title or in any ingredient name (diacritics ignored).
+  static bool mentionsWord(Recipe r, String word) {
+    final w = normalizeSearch(word).trim();
+    if (w.isEmpty) return false;
+    final title = normalizeSearch([r.title, r.cleanTitle, r.localizedTitle('en')].join(' '));
+    if (title.contains(w)) return true;
+    return [
+      ...r.ingredientKeys,
+      for (final i in r.ingredients) ...[i.name, i.nameEn ?? ''],
+    ].any((k) => normalizeSearch(k).contains(w));
+  }
+
   /// Lower-cases and strips diacritics so "sutlac" finds "Sütlaç" and "ISPANAK" finds "ıspanak".
   static String normalizeSearch(String input) {
     const from = 'çğıöşüâîûéèêàáíóúñåäß';

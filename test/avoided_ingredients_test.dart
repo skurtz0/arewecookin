@@ -1,5 +1,6 @@
 import 'package:arewecookin/providers/avoided_ingredients_provider.dart';
 import 'package:arewecookin/providers/discover_provider.dart';
+import 'package:arewecookin/providers/pantry_provider.dart';
 import 'package:arewecookin/repositories/recipe_repository.dart';
 import 'package:arewecookin/screens/account_screen.dart';
 import 'package:flutter/material.dart';
@@ -73,5 +74,20 @@ void main() {
     await tester.tap(find.descendant(of: find.byKey(const Key('avoided_peanut')), matching: find.byTooltip('Delete item')));
     await tester.pumpAndSettle();
     expect(c.read(avoidedIngredientsProvider), ['milk']);
+  });
+
+  test('pantry matches also leave out recipes with an avoided word', () async {
+    SharedPreferences.setMockInitialValues({});
+    final base = (await RecipeRepository().getRecipes(limit: 1)).recipes.first;
+    final word = RecipeRepository.normalizeSearch(base.ingredients.firstWhere((i) => i.name.trim().length > 3).name.trim());
+    final c = ProviderContainer();
+    addTearDown(c.dispose);
+    await c.read(pantryProvider.notifier).addIngredients(base.ingredientKeys);
+    expect(c.read(pantryProvider).matchedRecipes.any((r) => r.id == base.id), isTrue);
+    c.read(avoidedIngredientsProvider.notifier).add(word);
+    await c.read(pantryProvider.notifier).addIngredients(['zzzunique']);
+    await c.read(pantryProvider.notifier).addIngredient('zzzunique2');
+    final matched = c.read(pantryProvider).matchedRecipes;
+    expect(matched.any((r) => r.id == base.id), isFalse);
   });
 }
