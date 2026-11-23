@@ -6,6 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../l10n/recipe_localization.dart';
 import '../models/models.dart';
+import '../providers/cook_history_provider.dart';
 import '../providers/locale_provider.dart';
 import '../providers/pantry_provider.dart';
 import '../providers/user_recipes_provider.dart';
@@ -961,6 +962,26 @@ class _PantryRecipeCard extends ConsumerWidget {
                                   ),
                                 ],
                               ),
+                              if ((ref.watch(cookHistoryProvider.select((m) => m[recipe.id]?.count ?? 0))) > 0)
+                                ConstrainedBox(
+                                  constraints: const BoxConstraints(maxWidth: 120),
+                                  child: Row(
+                                    key: Key('pantry_cooked_${recipe.id}'),
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      const Icon(Icons.check_circle_outline_rounded, size: 12, color: Color(0xFF059669)),
+                                      const SizedBox(width: 3),
+                                      Flexible(
+                                        child: Text(
+                                          strings.cookedTimes(ref.watch(cookHistoryProvider.select((m) => m[recipe.id]?.count ?? 0))),
+                                          maxLines: 1,
+                                          overflow: TextOverflow.ellipsis,
+                                          style: TextStyle(fontSize: 11, color: Colors.grey.shade600),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
                             ],
                           ),
                           const SizedBox(height: 8),

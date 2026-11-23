@@ -1,3 +1,4 @@
+import 'package:arewecookin/providers/cook_history_provider.dart';
 import 'package:arewecookin/providers/pantry_provider.dart';
 import 'package:arewecookin/providers/user_recipes_provider.dart';
 import 'package:arewecookin/screens/pantry_screen.dart';
@@ -40,6 +41,12 @@ void main() {
       await tester.tap(btn);
       await tester.pump();
       expect(c.read(savedRecipesProvider).savedIds, isNotEmpty);
+      // A cooked recipe gets a "cooked" mark on its card.
+      expect(find.byWidgetPredicate((w) => w.key is ValueKey<String> && (w.key as ValueKey<String>).value.startsWith('pantry_cooked_')), findsNothing);
+      final shownId = c.read(pantryProvider).matchedRecipes.map((r) => r.id).firstWhere((id) => find.byKey(Key('pantry_save_$id')).evaluate().isNotEmpty);
+      c.read(cookHistoryProvider.notifier).markCooked(shownId);
+      await tester.pump();
+      expect(find.byKey(Key('pantry_cooked_$shownId')), findsOneWidget);
       expect(tester.takeException(), isNull);
     });
   }
