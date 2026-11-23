@@ -33,14 +33,14 @@ class DiscoverScreenState extends ConsumerState<DiscoverScreen> {
   /// Spoken description of a recipe card: title, time, difficulty, and my rating / cooked marks when present.
   String _cardLabel(Recipe recipe, AppStrings strings) {
     final rating = ref.watch(recipeNotesProvider.select((m) => m[recipe.id]?.rating ?? 0));
-    final cooked = ref.watch(cookHistoryProvider.select((m) => (m[recipe.id]?.count ?? 0) > 0));
+    final cookedCount = ref.watch(cookHistoryProvider.select((m) => m[recipe.id]?.count ?? 0));
     final hasNote = ref.watch(recipeNotesProvider.select((m) => (m[recipe.id]?.note ?? '').trim().isNotEmpty));
     return [
       recipe.localizedTitle(strings.locale),
       strings.minutesShort(recipe.totalTime),
       recipe.localizedDifficulty(strings),
       if (rating > 0) '$rating/5',
-      if (cooked) strings.cookedDishes,
+      if (cookedCount > 0) strings.cookedTimes(cookedCount),
       if (hasNote) strings.myNotes,
     ].join(', ');
   }

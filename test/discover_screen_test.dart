@@ -358,6 +358,28 @@ void main() {
       expect(find.byKey(Key('note_badge_${first.id}')), findsNothing);
     });
 
+    testWidgets('the spoken card label says how often the recipe was cooked', (tester) async {
+      final handle = tester.ensureSemantics();
+      tester.view.physicalSize = const Size(1200, 6000);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(tester.view.reset);
+      SharedPreferences.setMockInitialValues({});
+      final container = ProviderContainer();
+      addTearDown(container.dispose);
+      await tester.pumpWidget(UncontrolledProviderScope(
+        container: container,
+        child: const MaterialApp(home: Scaffold(body: DiscoverScreen())),
+      ));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 300));
+      final recipe = container.read(discoverProvider).recipes.first;
+      container.read(cookHistoryProvider.notifier).markCooked(recipe.id);
+      container.read(cookHistoryProvider.notifier).markCooked(recipe.id);
+      await tester.pump(const Duration(milliseconds: 300));
+      expect(find.bySemanticsLabel(RegExp('Cooked 2 times')), findsOneWidget);
+      handle.dispose();
+    });
+
     testWidgets('Rated filter lists rated recipes, best first, and explains when empty', (tester) async {
       tester.view.physicalSize = const Size(1200, 6000);
       tester.view.devicePixelRatio = 1.0;
