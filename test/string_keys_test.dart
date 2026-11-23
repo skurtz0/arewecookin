@@ -37,8 +37,8 @@ void main() {
     expect(problems, isEmpty);
   });
 
-  test('German, French and Spanish have real translations for the core action texts', () {
-    for (final lang in ['de', 'fr', 'es']) {
+  test('These nine languages have real translations for the core action texts', () {
+    for (final lang in ['de', 'fr', 'es', 'it', 'ru', 'pl', 'uk', 'ja', 'ko']) {
       for (final k in ['undoLabel', 'itemRemoved', 'mealPlanTitle', 'allSteps', 'resultsCountFmt']) {
         expect(appTranslations[lang]![k], isNot(appTranslations['en']![k]), reason: '$lang.$k');
       }
