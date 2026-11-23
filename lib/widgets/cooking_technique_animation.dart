@@ -595,6 +595,7 @@ class _CookingTechniqueAnimationState extends State<CookingTechniqueAnimation>
                     ),
                   ),
                   IconButton(
+                    tooltip: MaterialLocalizations.of(context).closeButtonTooltip,
                     icon: Icon(
                       Icons.close_rounded,
                       color: widget.isDarkMode

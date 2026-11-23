@@ -106,6 +106,27 @@ void main() {
       expect(find.text('Anladım, Uygulayalım'), findsNothing);
     });
 
+    testWidgets('technique modal close button is labeled and closes it', (tester) async {
+      await tester.pumpWidget(
+        const MaterialApp(
+          home: Scaffold(
+            body: CookingTechniqueAnimation(
+              technique: CookingTechniqueType.clawGripKnife,
+              height: 160,
+              isDarkMode: false,
+            ),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+      await tester.tap(find.byIcon(Icons.fullscreen_rounded));
+      await tester.pumpAndSettle();
+      expect(find.byTooltip('Close'), findsOneWidget);
+      await tester.tap(find.byTooltip('Close'));
+      await tester.pumpAndSettle();
+      expect(find.text('Anladım, Uygulayalım'), findsNothing);
+    });
+
     test('CookingTechniqueType.detect maps keywords accurately', () {
       expect(
         CookingTechniqueType.detect(toolIcon: 'knife', proTip: 'bıçak ile parmakları koruyun'),
