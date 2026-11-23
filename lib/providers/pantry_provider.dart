@@ -43,6 +43,9 @@ class PantryNotifier extends Notifier<PantryState> {
   RecipeRepository get _repository => ref.read(recipeRepositoryProvider);
 
   static const _prefKey = 'pantry_keys_v1';
+  static const _cuisineKey = 'pantry_cuisine_v1';
+  static const _fullKey = 'pantry_full_only_v1';
+  bool _filtersTouched = false;
   // Saving waits for the stored selection to be read first, so an early tap never overwrites it.
   Future<void> _ready = Future.value();
 
@@ -56,12 +59,28 @@ class PantryNotifier extends Notifier<PantryState> {
   Future<void> _restore() async {
     try {
       final prefs = await SharedPreferences.getInstance();
+      // Filters the user already changed before the load finished win over the stored ones.
+      if (!_filtersTouched) {
+        final cuisine = prefs.getString(_cuisineKey);
+        final full = prefs.getBool(_fullKey);
+        if (cuisine != null || full != null) {
+          state = state.copyWith(selectedCuisine: cuisine, onlyFullMatches: full);
+        }
+      }
       final saved = prefs.getStringList(_prefKey);
-      if (saved == null || saved.isEmpty) return;
-      final merged = {...saved, ...state.selectedKeys};
-      if (merged.length == state.selectedKeys.length) return;
-      state = state.copyWith(selectedKeys: merged);
-      await _searchMatches();
+      final merged = {...?saved, ...state.selectedKeys};
+      final keysChanged = merged.length != state.selectedKeys.length;
+      if (keysChanged) state = state.copyWith(selectedKeys: merged);
+      if (keysChanged || (!_filtersTouched && merged.isNotEmpty)) await _searchMatches();
+    } catch (_) {}
+  }
+
+  Future<void> _persistFilters() async {
+    try {
+      await _ready;
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString(_cuisineKey, state.selectedCuisine);
+      await prefs.setBool(_fullKey, state.onlyFullMatches);
     } catch (_) {}
   }
 
@@ -75,12 +94,16 @@ class PantryNotifier extends Notifier<PantryState> {
 
   Future<void> setCuisine(String cuisine) async {
     if (state.selectedCuisine == cuisine) return;
+    _filtersTouched = true;
     state = state.copyWith(selectedCuisine: cuisine);
+    _persistFilters();
     await _searchMatches();
   }
 
   Future<void> toggleOnlyFullMatches() async {
+    _filtersTouched = true;
     state = state.copyWith(onlyFullMatches: !state.onlyFullMatches);
+    _persistFilters();
     await _searchMatches();
   }
 
