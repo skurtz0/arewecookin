@@ -7,6 +7,12 @@ service cloud.firestore {
     function signedIn() { return request.auth != null; }
     function validText(v, max) { return v is string && v.size() <= max; }
 
+    // Existing behaviour kept as it was: the app syncs custom recipes here, also for
+    // guests who are not signed in. (Open to everyone - tighten when recipes get an owner field.)
+    match /recipes/{recipeId} {
+      allow read, write: if true;
+    }
+
     match /posts/{postId} {
       allow read: if true;
       allow create: if signedIn()
