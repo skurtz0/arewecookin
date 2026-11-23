@@ -15,14 +15,14 @@ class ThemeToggleButton extends ConsumerWidget {
     final strings = ref.watch(appStringsProvider);
     final dark = isDark(ref.watch(themeModeProvider));
     final label = dark ? strings.themeLight : strings.themeDark;
-    final icon = Icon(dark ? Icons.light_mode_rounded : Icons.dark_mode_rounded, size: 20, color: AppColors.slate(500));
+    final icon = Icon(dark ? Icons.light_mode_rounded : Icons.dark_mode_rounded, size: withLabel ? 24 : 28, color: withLabel ? AppColors.slate(600) : const Color(0xFFFF5722));
     void toggle() => ref.read(themeModeProvider.notifier).toggle();
     if (withLabel) {
       return TextButton.icon(
         key: const Key('theme_toggle'),
         onPressed: toggle,
         icon: icon,
-        label: Text(label, style: TextStyle(color: AppColors.slate(500), fontSize: 13)),
+        label: Text(label, style: TextStyle(color: AppColors.slate(600), fontSize: 15, fontWeight: FontWeight.w600)),
       );
     }
     return IconButton(
@@ -31,8 +31,7 @@ class ThemeToggleButton extends ConsumerWidget {
       onPressed: toggle,
       icon: icon,
       padding: EdgeInsets.zero,
-      constraints: const BoxConstraints(minWidth: 40, minHeight: 24),
-      style: IconButton.styleFrom(tapTargetSize: MaterialTapTargetSize.shrinkWrap),
+      constraints: const BoxConstraints(minWidth: 48, minHeight: 48),
     );
   }
 }

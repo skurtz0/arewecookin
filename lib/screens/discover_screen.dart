@@ -252,7 +252,7 @@ class DiscoverScreenState extends ConsumerState<DiscoverScreen> with WidgetsBind
               automaticallyImplyLeading: false,
               toolbarHeight: 0,
               bottom: PreferredSize(
-                preferredSize: Size.fromHeight(246 + 48 * (MediaQuery.textScalerOf(context).scale(14) / 14 - 1).clamp(0.0, 2.0)),
+                preferredSize: Size.fromHeight(270 + 56 * (MediaQuery.textScalerOf(context).scale(14) / 14 - 1).clamp(0.0, 2.0)),
                 child: Container(
                   color: AppColors.surface,
                   child: Column(
@@ -606,20 +606,20 @@ class DiscoverScreenState extends ConsumerState<DiscoverScreen> with WidgetsBind
               children: [
                 const Icon(
                   Icons.public_rounded,
-                  size: 15,
+                  size: 24,
                   color: Color(0xFFFF5722),
                 ),
-                const SizedBox(width: 6),
+                const SizedBox(width: 8),
                 Flexible(
                   child: Text(
                     strings.worldCuisines,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w700,
-                      letterSpacing: 0.3,
-                      color: AppColors.slate(500),
+                      fontSize: 18,
+                      fontWeight: FontWeight.w800,
+                      letterSpacing: 0.2,
+                      color: AppColors.slate(700),
                     ),
                   ),
                 ),
@@ -1238,6 +1238,56 @@ class DiscoverScreenState extends ConsumerState<DiscoverScreen> with WidgetsBind
                         ),
                     ],
                   ),
+                );
+              }),
+              // Every active filter as a chip: one tap drops just that one, so a long combination
+              // that matches nothing is easy to loosen.
+              Consumer(builder: (context, ref, _) {
+                final d = ref.watch(discoverProvider);
+                final n = ref.read(discoverProvider.notifier);
+                final chips = <Widget>[
+                  if (d.selectedCategory != 'Tümü')
+                    InputChip(
+                      key: const Key('drop_category'),
+                      label: Text(RecipeLocalization.localizeCategory(d.selectedCategory, strings)),
+                      onDeleted: () => n.setCategory('Tümü'),
+                    ),
+                  if (d.selectedCuisine != 'Tümü')
+                    InputChip(
+                      key: const Key('drop_cuisine'),
+                      label: Text(RecipeLocalization.localizeCuisine(d.selectedCuisine, strings)),
+                      onDeleted: () => n.setCuisine('Tümü'),
+                    ),
+                  if (d.maxMinutes != null)
+                    InputChip(
+                      key: const Key('drop_time'),
+                      label: Text(strings.timeUpTo(d.maxMinutes!)),
+                      onDeleted: () => n.setMaxMinutes(null),
+                    ),
+                  if (d.difficulty != null)
+                    InputChip(
+                      key: const Key('drop_difficulty'),
+                      label: Text(d.difficulty == 'easy'
+                          ? strings.diffFilterEasy
+                          : d.difficulty == 'medium'
+                              ? strings.diffFilterMedium
+                              : strings.diffFilterHard),
+                      onDeleted: () => n.setDifficulty(null),
+                    ),
+                  if (d.searchQuery.trim().isNotEmpty)
+                    InputChip(
+                      key: const Key('drop_search'),
+                      label: Text('"${d.searchQuery.trim()}"'),
+                      onDeleted: () {
+                        _searchController.clear();
+                        n.setSearchQuery('');
+                      },
+                    ),
+                ];
+                if (chips.length < 2) return const SizedBox.shrink();
+                return Padding(
+                  padding: const EdgeInsets.only(top: 16),
+                  child: Wrap(alignment: WrapAlignment.center, spacing: 8, runSpacing: 4, children: chips),
                 );
               }),
               const SizedBox(height: 20),

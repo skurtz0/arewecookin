@@ -404,6 +404,36 @@ void main() {
       expect(find.byKey(const Key('search_tip')), findsOneWidget);
     });
 
+    testWidgets('an empty filter combination lists each filter so one tap can drop it', (tester) async {
+      tester.view.physicalSize = const Size(1200, 6000);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(tester.view.reset);
+      SharedPreferences.setMockInitialValues({});
+      final container = ProviderContainer();
+      addTearDown(container.dispose);
+      await tester.pumpWidget(UncontrolledProviderScope(
+        container: container,
+        child: const MaterialApp(home: Scaffold(body: DiscoverScreen())),
+      ));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 300));
+      final n = container.read(discoverProvider.notifier);
+      n.setCategory('Çorba');
+      n.setCuisine('Meksika Mutfağı');
+      await tester.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 300)));
+      await tester.pump(const Duration(milliseconds: 600));
+      await tester.pump(const Duration(milliseconds: 300));
+      expect(find.byKey(const Key('drop_category')), findsOneWidget);
+      expect(find.byKey(const Key('drop_cuisine')), findsOneWidget);
+      // Dropping the cuisine leaves the soup filter and brings recipes back.
+      await tester.tap(find.descendant(of: find.byKey(const Key('drop_cuisine')), matching: find.byType(Icon)).last);
+      await tester.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 300)));
+      await tester.pump(const Duration(milliseconds: 600));
+      await tester.pump(const Duration(milliseconds: 300));
+      expect(container.read(discoverProvider).selectedCuisine, 'Tümü');
+      expect(container.read(discoverProvider).recipes, isNotEmpty);
+    });
+
     testWidgets('a search shows how many recipes were found', (tester) async {
       tester.view.physicalSize = const Size(1200, 6000);
       tester.view.devicePixelRatio = 1.0;
