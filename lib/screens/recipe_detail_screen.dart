@@ -1,3 +1,4 @@
+import '../data/photo_credits.dart';
 import '../utils/deep_link.dart';
 import '../widgets/readable_width.dart';
 import 'package:flutter/material.dart';
@@ -369,6 +370,15 @@ class _RecipeDetailScreenState extends ConsumerState<RecipeDetailScreen> {
                 borderRadius: BorderRadius.circular(20),
               ),
             ),
+            if (photoCreditFor(recipe.imageUrl) != null)
+              Padding(
+                padding: const EdgeInsets.only(bottom: 12, left: 4),
+                child: Text(
+                  photoCreditFor(recipe.imageUrl)!,
+                  key: const Key('photo_credit'),
+                  style: TextStyle(fontSize: 10, color: Colors.grey.shade600),
+                ),
+              ),
 
             // Hero Info Card
             Container(
