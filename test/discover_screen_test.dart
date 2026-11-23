@@ -272,6 +272,27 @@ void main() {
       expect(container.read(discoverProvider).difficulty, isNull);
     });
 
+    testWidgets('a search without results shows the search tip', (tester) async {
+      tester.view.physicalSize = const Size(1200, 6000);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(tester.view.reset);
+      SharedPreferences.setMockInitialValues({});
+      final container = ProviderContainer();
+      addTearDown(container.dispose);
+      await tester.pumpWidget(UncontrolledProviderScope(
+        container: container,
+        child: const MaterialApp(home: Scaffold(body: DiscoverScreen())),
+      ));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 300));
+      expect(find.byKey(const Key('search_tip')), findsNothing);
+      container.read(discoverProvider.notifier).setSearchQuery('zzzxyzqq');
+      await tester.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 100)));
+      await tester.pump(const Duration(milliseconds: 600));
+      await tester.pumpAndSettle();
+      expect(find.byKey(const Key('search_tip')), findsOneWidget);
+    });
+
     testWidgets('Rated filter lists rated recipes, best first, and explains when empty', (tester) async {
       tester.view.physicalSize = const Size(1200, 6000);
       tester.view.devicePixelRatio = 1.0;

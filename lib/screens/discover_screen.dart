@@ -997,6 +997,13 @@ class DiscoverScreenState extends ConsumerState<DiscoverScreen> {
                 textAlign: TextAlign.center,
                 style: TextStyle(fontSize: 14, color: Colors.grey.shade600),
               ),
+              const SizedBox(height: 8),
+              Text(
+                strings.searchTip,
+                key: const Key('search_tip'),
+                textAlign: TextAlign.center,
+                style: TextStyle(fontSize: 13, color: Colors.grey.shade500),
+              ),
               const SizedBox(height: 20),
               ElevatedButton(
                 onPressed: () {
