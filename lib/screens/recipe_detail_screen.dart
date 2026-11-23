@@ -113,6 +113,25 @@ class _RecipeDetailScreenState extends ConsumerState<RecipeDetailScreen> {
   }
 
   void _toggleAllIngredients() {
+    final before = Set<int>.from(_checkedIngredientIndices);
+    final clearing = before.length == widget.recipe.ingredients.length;
+    if (clearing) {
+      final strings = ref.read(appStringsProvider);
+      ScaffoldMessenger.of(context)
+        ..hideCurrentSnackBar()
+        ..showSnackBar(SnackBar(
+          content: Text(strings.ticksCleared),
+          action: SnackBarAction(
+            key: const Key('ticks_undo'),
+            label: strings.undoLabel,
+            onPressed: () {
+              if (!mounted) return;
+              setState(() => _checkedIngredientIndices.addAll(before));
+              _persistChecked();
+            },
+          ),
+        ));
+    }
     setState(() {
       if (_checkedIngredientIndices.length ==
           widget.recipe.ingredients.length) {
@@ -540,6 +559,7 @@ class _RecipeDetailScreenState extends ConsumerState<RecipeDetailScreen> {
                   ),
                 ),
                 TextButton(
+                  key: const Key('toggle_all_ingredients'),
                   onPressed: _toggleAllIngredients,
                   style: TextButton.styleFrom(
                     visualDensity: VisualDensity.compact,

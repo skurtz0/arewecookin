@@ -1,3 +1,4 @@
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -23,6 +24,7 @@ void main() {
     late Recipe sampleRecipe;
 
     setUp(() {
+      SharedPreferences.setMockInitialValues({});
       sampleRecipe = const Recipe(
         id: 'rec_00001',
         title: 'Özel Güveçte Kuru Fasulye #1',
@@ -223,6 +225,32 @@ void main() {
       final names = container.read(shoppingListProvider).map((e) => e.name).toList();
       expect(names, isNot(contains(first)));
       expect(names.length, sampleRecipe.ingredients.length - 1);
+    });
+
+    testWidgets('clearing all ingredient ticks can be undone', (tester) async {
+      SharedPreferences.setMockInitialValues({});
+      final container = ProviderContainer(overrides: [
+        localeProvider.overrideWith(() => FakeLocaleNotifier(const Locale('tr'))),
+      ]);
+      addTearDown(container.dispose);
+      await tester.pumpWidget(UncontrolledProviderScope(
+        container: container,
+        child: MaterialApp(home: RecipeDetailScreen(recipe: sampleRecipe)),
+      ));
+      await tester.pumpAndSettle();
+      final n = sampleRecipe.ingredients.length;
+      final toggle = find.byKey(const Key('toggle_all_ingredients'));
+      await tester.ensureVisible(toggle);
+      await tester.tap(toggle);
+      await tester.pumpAndSettle();
+      expect(find.textContaining('$n / $n'), findsOneWidget);
+      await tester.ensureVisible(toggle);
+      await tester.tap(toggle);
+      await tester.pump(const Duration(seconds: 1));
+      expect(find.textContaining('0 / $n'), findsOneWidget);
+      tester.widget<SnackBarAction>(find.byKey(const Key('ticks_undo'))).onPressed();
+      await tester.pump(const Duration(seconds: 1));
+      expect(find.textContaining('$n / $n'), findsOneWidget);
     });
 
     testWidgets('ingredients in the pantry show a pantry marker', (tester) async {
