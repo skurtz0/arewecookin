@@ -100,6 +100,14 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
           controller: controller,
           autofocus: true,
           textCapitalization: TextCapitalization.words,
+          textInputAction: TextInputAction.done,
+          onSubmitted: (v) {
+            final newName = v.trim();
+            if (newName.isNotEmpty) {
+              ref.read(authProvider.notifier).updateDisplayName(newName);
+            }
+            Navigator.of(ctx).pop();
+          },
           decoration: InputDecoration(
             labelText: strings.fullName,
             border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
@@ -140,6 +148,13 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
           controller: controller,
           obscureText: true,
           autofocus: true,
+          textInputAction: TextInputAction.done,
+          onSubmitted: (v) {
+            if (v.length >= 6) {
+              ref.read(authProvider.notifier).changePassword(v);
+            }
+            Navigator.of(ctx).pop();
+          },
           decoration: InputDecoration(
             labelText: strings.newPassword,
             hintText: strings.passwordLength,
@@ -181,6 +196,14 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
           controller: controller,
           keyboardType: TextInputType.emailAddress,
           autofocus: true,
+          textInputAction: TextInputAction.done,
+          onSubmitted: (v) {
+            final newEmail = v.trim();
+            if (newEmail.contains('@')) {
+              ref.read(authProvider.notifier).changeEmail(newEmail);
+            }
+            Navigator.of(ctx).pop();
+          },
           decoration: InputDecoration(
             labelText: strings.newEmail,
             border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
