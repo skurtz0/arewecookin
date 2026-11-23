@@ -282,6 +282,7 @@ class MealPlanScreen extends ConsumerWidget {
                             onPressed: () {
                               final before = ref.read(mealPlanProvider);
                               ref.read(mealPlanProvider.notifier).clearDay(day);
+                              HapticFeedback.selectionClick();
                               ScaffoldMessenger.of(context)
                                 ..hideCurrentSnackBar()
                                 ..showSnackBar(SnackBar(
@@ -380,6 +381,7 @@ class MealPlanScreen extends ConsumerWidget {
                         onDismissed: (_) {
                           final notifier = ref.read(mealPlanProvider.notifier);
                           notifier.remove(day, r.id);
+                          HapticFeedback.selectionClick();
                           ScaffoldMessenger.of(context)
                             ..hideCurrentSnackBar()
                             ..showSnackBar(
@@ -545,6 +547,7 @@ class MealPlanScreen extends ConsumerWidget {
                                     mealPlanProvider.notifier,
                                   );
                                   notifier.remove(day, r.id);
+                                  HapticFeedback.selectionClick();
                                   ScaffoldMessenger.of(context)
                                     ..hideCurrentSnackBar()
                                     ..showSnackBar(

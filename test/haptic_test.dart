@@ -1,4 +1,6 @@
+import 'package:arewecookin/providers/meal_plan_provider.dart';
 import 'package:arewecookin/providers/user_recipes_provider.dart';
+import 'package:arewecookin/screens/meal_plan_screen.dart';
 import 'package:arewecookin/providers/shopping_list_provider.dart';
 import 'package:arewecookin/repositories/recipe_repository.dart';
 import 'package:arewecookin/screens/cooking_mode_screen.dart';
@@ -175,5 +177,27 @@ void main() {
     final recipe = (await RecipeRepository().getRecipeById('rec_00042'))!;
     await c.read(savedRecipesProvider.notifier).toggleSave(recipe);
     expect(calls, isNotEmpty);
+  });
+  testWidgets('clearing a day in the meal plan gives a light tap', (tester) async {
+    SharedPreferences.setMockInitialValues({});
+    final calls = <String>[];
+    tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(SystemChannels.platform, (call) async {
+      if (call.method == 'HapticFeedback.vibrate') calls.add('${call.arguments}');
+      return null;
+    });
+    addTearDown(() => tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(SystemChannels.platform, null));
+    final recipe = (await RecipeRepository().getRecipes(limit: 1)).recipes.first;
+    final c = ProviderContainer();
+    addTearDown(c.dispose);
+    c.read(mealPlanProvider.notifier).add(DateTime.now().weekday, recipe);
+    await tester.pumpWidget(UncontrolledProviderScope(
+      container: c,
+      child: const MaterialApp(home: MealPlanScreen()),
+    ));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(Key('plan_day_clear_${DateTime.now().weekday}')));
+    await tester.pump();
+    expect(calls, isNotEmpty);
+    expect(c.read(mealPlanProvider), isEmpty);
   });
 }
