@@ -2,6 +2,7 @@ import 'dart:math';
 import '../data/world_countries.dart';
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../utils/cooking_icons.dart';
 import '../models/models.dart';
@@ -80,6 +81,33 @@ class DiscoverScreenState extends ConsumerState<DiscoverScreen> {
   void initState() {
     super.initState();
     _scrollController.addListener(_onScroll);
+    _restoreSavedSort();
+  }
+
+  static const _savedSortKey = 'saved_sort_v1';
+
+  /// The chosen order of the Saved list (fastest / top rated) is remembered on the device.
+  Future<void> _restoreSavedSort() async {
+    try {
+      final v = (await SharedPreferences.getInstance()).getString(_savedSortKey);
+      if (!mounted || (_savedQuickest || _savedTopRated)) return;
+      setState(() {
+        _savedQuickest = v == 'quick';
+        _savedTopRated = v == 'rating';
+      });
+    } catch (_) {}
+  }
+
+  Future<void> _persistSavedSort() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final v = _savedTopRated ? 'rating' : (_savedQuickest ? 'quick' : null);
+      if (v == null) {
+        await prefs.remove(_savedSortKey);
+      } else {
+        await prefs.setString(_savedSortKey, v);
+      }
+    } catch (_) {}
   }
 
   @override
@@ -857,20 +885,26 @@ class DiscoverScreenState extends ConsumerState<DiscoverScreen> {
                       avatar: const Icon(Icons.bolt_rounded, size: 16),
                       label: Text(strings.savedSortQuick),
                       selected: _savedQuickest && !_savedTopRated,
-                      onSelected: (v) => setState(() {
-                        _savedQuickest = v;
-                        if (v) _savedTopRated = false;
-                      }),
+                      onSelected: (v) {
+                        setState(() {
+                          _savedQuickest = v;
+                          if (v) _savedTopRated = false;
+                        });
+                        _persistSavedSort();
+                      },
                     ),
                     FilterChip(
                       key: const Key('saved_sort_rating'),
                       avatar: const Icon(Icons.star_rounded, size: 16),
                       label: Text(strings.savedSortRating),
                       selected: _savedTopRated,
-                      onSelected: (v) => setState(() {
-                        _savedTopRated = v;
-                        if (v) _savedQuickest = false;
-                      }),
+                      onSelected: (v) {
+                        setState(() {
+                          _savedTopRated = v;
+                          if (v) _savedQuickest = false;
+                        });
+                        _persistSavedSort();
+                      },
                     ),
                   ],
                 ),

@@ -293,6 +293,44 @@ void main() {
       expect(find.byKey(const Key('search_tip')), findsOneWidget);
     });
 
+    testWidgets('the chosen Saved order is remembered', (tester) async {
+      tester.view.physicalSize = const Size(1200, 6000);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(tester.view.reset);
+      SharedPreferences.setMockInitialValues({});
+      final container = ProviderContainer();
+      addTearDown(container.dispose);
+      await tester.pumpWidget(UncontrolledProviderScope(
+        container: container,
+        child: const MaterialApp(home: Scaffold(body: DiscoverScreen())),
+      ));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 300));
+      final seed = container.read(discoverProvider).recipes.first;
+      await container.read(savedRecipesProvider.notifier).toggleSave(seed);
+      await tester.tap(find.byKey(const Key('saved_filter')));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const Key('saved_sort_rating')));
+      await tester.pumpAndSettle();
+      await tester.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 50)));
+      expect((await SharedPreferences.getInstance()).getString('saved_sort_v1'), 'rating');
+      // A new screen starts with the remembered order.
+      await tester.pumpWidget(const SizedBox());
+      await tester.pumpWidget(UncontrolledProviderScope(
+        container: container,
+        child: const MaterialApp(home: Scaffold(body: DiscoverScreen())),
+      ));
+      await tester.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 50)));
+      await tester.pump(const Duration(milliseconds: 300));
+      await tester.tap(find.byKey(const Key('saved_filter')));
+      await tester.pumpAndSettle();
+      expect(tester.widget<FilterChip>(find.byKey(const Key('saved_sort_rating'))).selected, isTrue);
+      await tester.tap(find.byKey(const Key('saved_sort_rating')));
+      await tester.pumpAndSettle();
+      await tester.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 50)));
+      expect((await SharedPreferences.getInstance()).getString('saved_sort_v1'), isNull);
+    });
+
     testWidgets('Rated filter lists rated recipes, best first, and explains when empty', (tester) async {
       tester.view.physicalSize = const Size(1200, 6000);
       tester.view.devicePixelRatio = 1.0;
