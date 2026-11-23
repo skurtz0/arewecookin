@@ -6,6 +6,7 @@ import '../providers/cook_history_provider.dart';
 import '../providers/avoided_ingredients_provider.dart';
 import '../providers/household_servings_provider.dart';
 import '../providers/locale_provider.dart';
+import '../widgets/avoided_badge.dart';
 import '../providers/user_recipes_provider.dart';
 import '../widgets/recipe_image.dart';
 import 'add_recipe_screen.dart';
@@ -983,6 +984,10 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
                         strings.minutesShort(recipe.totalTime),
                         style: TextStyle(
                             fontSize: 11, color: Colors.grey.shade600),
+                      ),
+                      ConstrainedBox(
+                        constraints: const BoxConstraints(maxWidth: 150),
+                        child: AvoidedBadge(recipe: recipe),
                       ),
                     ],
                   ),
