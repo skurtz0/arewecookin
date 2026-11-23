@@ -741,9 +741,13 @@ class DiscoverScreenState extends ConsumerState<DiscoverScreen> {
                     ? '$flag ${RecipeLocalization.localizeCuisine(c['id']!, strings)}'
                     : RecipeLocalization.localizeCuisine(c['id']!, strings);
 
-                return Material(
+                return Semantics(
+                  button: true,
+                  selected: isSelected,
+                  child: Material(
                   color: Colors.transparent,
                   child: InkWell(
+                    key: Key('cuisine_${c['id']}'),
                     borderRadius: BorderRadius.circular(12),
                     onTap: () {
                       ref.read(discoverProvider.notifier).setCuisine(c['id']!);
@@ -780,7 +784,7 @@ class DiscoverScreenState extends ConsumerState<DiscoverScreen> {
                       ),
                     ),
                   ),
-                );
+                ));
               },
             ),
           ),
