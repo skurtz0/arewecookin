@@ -13,6 +13,9 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
   group('DiscoverScreen Widget Tests', () {
+    // Filters are remembered on the device; start every test from a clean store.
+    setUp(() => SharedPreferences.setMockInitialValues({}));
+
     testWidgets('renders search bar, category chips, and initial recipes with infinite scroll', (tester) async {
       await tester.pumpWidget(
         const ProviderScope(

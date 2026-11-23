@@ -1,4 +1,6 @@
+import 'dart:convert';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/models.dart';
 import '../repositories/recipe_repository.dart';
@@ -68,10 +70,51 @@ class DiscoverState {
 class DiscoverNotifier extends Notifier<DiscoverState> {
   RecipeRepository get _repository => ref.read(recipeRepositoryProvider);
 
+  static const _prefKey = 'discover_filters_v1';
+  bool _filtersTouched = false;
+  Future<void> _ready = Future.value();
+
   @override
   DiscoverState build() {
-    Future.microtask(() => loadInitial());
+    _ready = _restoreFiltersAndLoad();
     return const DiscoverState();
+  }
+
+  /// Category, cuisine, time and difficulty filters survive app restarts. Filters the user
+  /// changed before the stored ones were read win.
+  Future<void> _restoreFiltersAndLoad() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final raw = prefs.getString(_prefKey);
+      if (raw != null && !_filtersTouched) {
+        final m = jsonDecode(raw) as Map<String, dynamic>;
+        state = DiscoverState(
+          selectedCategory: m['c'] as String? ?? 'Tümü',
+          selectedCuisine: m['u'] as String? ?? 'Tümü',
+          maxMinutes: (m['m'] as num?)?.toInt(),
+          difficulty: m['d'] as String?,
+        );
+      }
+    } catch (_) {}
+    if (!_filtersTouched || state.recipes.isEmpty) {
+      await loadInitial();
+    }
+  }
+
+  Future<void> _persistFilters() async {
+    try {
+      await _ready;
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString(
+        _prefKey,
+        jsonEncode({
+          'c': state.selectedCategory,
+          'u': state.selectedCuisine,
+          if (state.maxMinutes != null) 'm': state.maxMinutes,
+          if (state.difficulty != null) 'd': state.difficulty,
+        }),
+      );
+    } catch (_) {}
   }
 
   Future<void> loadInitial() async {
@@ -146,25 +189,33 @@ class DiscoverNotifier extends Notifier<DiscoverState> {
 
   void setCuisine(String cuisine) {
     if (state.selectedCuisine == cuisine) return;
+    _filtersTouched = true;
     state = state.copyWith(selectedCuisine: cuisine);
+    _persistFilters();
     loadInitial();
   }
 
   void setCategory(String category) {
     if (state.selectedCategory == category) return;
+    _filtersTouched = true;
     state = state.copyWith(selectedCategory: category);
+    _persistFilters();
     loadInitial();
   }
 
   void setMaxMinutes(int? minutes) {
     if (state.maxMinutes == minutes) return;
+    _filtersTouched = true;
     state = minutes == null ? state.copyWith(clearMaxMinutes: true) : state.copyWith(maxMinutes: minutes);
+    _persistFilters();
     loadInitial();
   }
 
   void setDifficulty(String? group) {
     if (state.difficulty == group) return;
+    _filtersTouched = true;
     state = group == null ? state.copyWith(clearDifficulty: true) : state.copyWith(difficulty: group);
+    _persistFilters();
     loadInitial();
   }
 
