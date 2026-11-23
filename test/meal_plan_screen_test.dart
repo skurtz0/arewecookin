@@ -233,6 +233,9 @@ void main() {
         .toSet();
     expect(titles, isNotEmpty);
     expect(titles.any((t) => t.contains(recipes[1].title)), isFalse);
+    await tester.tap(find.byKey(const Key('shopping_add_undo')));
+    await tester.pumpAndSettle();
+    expect(container.read(shoppingListProvider), isEmpty);
   });
 
   testWidgets('a day can be copied to another day without duplicates', (tester) async {

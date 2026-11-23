@@ -198,6 +198,10 @@ void main() {
       final names = container.read(shoppingListProvider).map((e) => e.name).toList();
       expect(names, isNot(contains(first)));
       expect(names.length, sampleRecipe.ingredients.length - 1);
+      await tester.pump(const Duration(milliseconds: 400));
+      await tester.tap(find.byKey(const Key('shopping_add_undo')));
+      await tester.pump();
+      expect(container.read(shoppingListProvider), isEmpty);
     });
 
     testWidgets('add to shopping list skips ingredients that are in the pantry', (tester) async {

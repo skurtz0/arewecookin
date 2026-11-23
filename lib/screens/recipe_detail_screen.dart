@@ -722,6 +722,7 @@ class _RecipeDetailScreenState extends ConsumerState<RecipeDetailScreen> {
                           !inPantry(recipe.ingredients[n]))
                         recipe.ingredients[n],
                   ];
+                  final before = List.of(ref.read(shoppingListProvider));
                   final added = ref
                       .read(shoppingListProvider.notifier)
                       .addAll(
@@ -747,6 +748,15 @@ class _RecipeDetailScreenState extends ConsumerState<RecipeDetailScreen> {
                               ? strings.shoppingNothingNew
                               : strings.shoppingAdded(added),
                         ),
+                        action: added == 0
+                            ? null
+                            : SnackBarAction(
+                                key: const Key('shopping_add_undo'),
+                                label: strings.undoLabel,
+                                onPressed: () => ref
+                                    .read(shoppingListProvider.notifier)
+                                    .restore(before),
+                              ),
                       ),
                     );
                 },

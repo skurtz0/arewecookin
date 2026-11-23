@@ -435,6 +435,7 @@ void _addToShopping(
       );
     }
   }
+  final before = List.of(ref.read(shoppingListProvider));
   final added = ref.read(shoppingListProvider.notifier).addAll(items);
   ScaffoldMessenger.of(context)
     ..hideCurrentSnackBar()
@@ -445,6 +446,14 @@ void _addToShopping(
               ? strings.shoppingNothingNew
               : strings.shoppingAdded(added),
         ),
+        action: added == 0
+            ? null
+            : SnackBarAction(
+                key: const Key('shopping_add_undo'),
+                label: strings.undoLabel,
+                onPressed: () =>
+                    ref.read(shoppingListProvider.notifier).restore(before),
+              ),
       ),
     );
 }
