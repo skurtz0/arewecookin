@@ -636,14 +636,15 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
                         children: [
                           Icon(providerIcon, size: 16, color: providerColor),
                           const SizedBox(width: 4),
-                          Text(
+                          Flexible(child: Text(
                             providerLabel,
+                            overflow: TextOverflow.ellipsis,
                             style: TextStyle(
                               fontSize: 11,
                               fontWeight: FontWeight.w600,
                               color: providerColor,
                             ),
-                          ),
+                          )),
                         ],
                       ),
                     ),
@@ -659,24 +660,24 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
-              _ProfileStat(
+              Expanded(child: _ProfileStat(
                 label: strings.savedRecipes,
                 count: '$savedCount',
                 icon: Icons.bookmark_rounded,
-              ),
+              )),
               Container(width: 1, height: 36, color: Colors.grey.shade200),
-              _ProfileStat(
+              Expanded(child: _ProfileStat(
                 label: strings.myCreatedRecipes,
                 count: '$myRecipesCount',
                 icon: Icons.restaurant_rounded,
-              ),
+              )),
               Container(width: 1, height: 36, color: Colors.grey.shade200),
-              _ProfileStat(
+              Expanded(child: _ProfileStat(
                 key: const Key('cooked_total_stat'),
                 label: strings.cookedDishes,
                 count: '${ref.watch(cookHistoryProvider).values.fold<int>(0, (a, r) => a + r.count)}',
                 icon: Icons.stars_rounded,
-              ),
+              )),
             ],
           ),
         ],
@@ -783,15 +784,17 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Text(
+                const Expanded(child: Text(
                   'Kendi Tariflerim',
+                  overflow: TextOverflow.ellipsis,
                   style: TextStyle(
                     fontSize: 15,
                     fontWeight: FontWeight.bold,
                     color: Color(0xFF1E293B),
                   ),
-                ),
-                ElevatedButton.icon(
+                )),
+                const SizedBox(width: 8),
+                Flexible(child: ElevatedButton.icon(
                   onPressed: () => Navigator.of(context).push(
                     MaterialPageRoute(
                       builder: (context) => const AddRecipeScreen(),
@@ -808,7 +811,7 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
                       borderRadius: BorderRadius.circular(10),
                     ),
                   ),
-                ),
+                )),
               ],
             ),
             const SizedBox(height: 12),
@@ -913,7 +916,10 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
                     ),
                   ),
                   const SizedBox(height: 4),
-                  Row(
+                  Wrap(
+                    crossAxisAlignment: WrapCrossAlignment.center,
+                    spacing: 8,
+                    runSpacing: 2,
                     children: [
                       Container(
                         padding: const EdgeInsets.symmetric(
@@ -931,7 +937,6 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
                           ),
                         ),
                       ),
-                      const SizedBox(width: 8),
                       Text(
                         strings.minutesShort(recipe.totalTime),
                         style: TextStyle(
@@ -1767,6 +1772,9 @@ class _ProfileStat extends StatelessWidget {
         ),
         Text(
           label,
+          textAlign: TextAlign.center,
+          maxLines: 2,
+          overflow: TextOverflow.ellipsis,
           style: TextStyle(
             fontSize: 11,
             color: Colors.grey.shade600,
