@@ -131,6 +131,7 @@ class _PantryScreenState extends ConsumerState<PantryScreen> with WidgetsBinding
         ..showSnackBar(SnackBar(content: Text(strings.pantryNothingNew)));
       return;
     }
+    HapticFeedback.selectionClick();
     ScaffoldMessenger.of(context)
       ..hideCurrentSnackBar()
       ..showSnackBar(SnackBar(

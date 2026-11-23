@@ -31,6 +31,7 @@ class _ShoppingListScreenState extends ConsumerState<ShoppingListScreen> {
         .read(shoppingListProvider.notifier)
         .addAll(ShoppingItem.parseMany(text));
     _controller.clear();
+    if (added > 0) HapticFeedback.selectionClick();
     if (added == 0) {
       // Typed items that are already on the list are merged silently otherwise, which looks like nothing happened.
       final strings = ref.read(appStringsProvider);

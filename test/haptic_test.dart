@@ -54,6 +54,49 @@ void main() {
     expect(c.read(shoppingListProvider).first.done, isTrue);
   });
 
+  testWidgets('adding a shopping item gives a light tap only when something was added', (tester) async {
+    SharedPreferences.setMockInitialValues({});
+    final calls = <String>[];
+    tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(SystemChannels.platform, (call) async {
+      if (call.method == 'HapticFeedback.vibrate') calls.add('${call.arguments}');
+      return null;
+    });
+    addTearDown(() => tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(SystemChannels.platform, null));
+    tester.view.physicalSize = const Size(1000, 2400);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(tester.view.reset);
+    await tester.pumpWidget(const ProviderScope(child: MaterialApp(home: ShoppingListScreen())));
+    await tester.pumpAndSettle();
+    await tester.enterText(find.byKey(const Key('shopping_add_field')), 'Milk');
+    await tester.testTextInput.receiveAction(TextInputAction.done);
+    await tester.pump();
+    expect(calls, isNotEmpty);
+    calls.clear();
+    await tester.enterText(find.byKey(const Key('shopping_add_field')), 'Milk');
+    await tester.testTextInput.receiveAction(TextInputAction.done);
+    await tester.pump();
+    expect(calls, isEmpty, reason: 'nothing new was added');
+  });
+
+  testWidgets('adding a custom pantry ingredient gives a light tap', (tester) async {
+    SharedPreferences.setMockInitialValues({});
+    final calls = <String>[];
+    tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(SystemChannels.platform, (call) async {
+      if (call.method == 'HapticFeedback.vibrate') calls.add('${call.arguments}');
+      return null;
+    });
+    addTearDown(() => tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(SystemChannels.platform, null));
+    tester.view.physicalSize = const Size(1000, 2400);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(tester.view.reset);
+    await tester.pumpWidget(const ProviderScope(child: MaterialApp(home: PantryScreen())));
+    await tester.pumpAndSettle();
+    await tester.enterText(find.byKey(const Key('pantry_custom_field')), 'zzcustom');
+    await tester.testTextInput.receiveAction(TextInputAction.done);
+    await tester.pumpAndSettle();
+    expect(calls, isNotEmpty);
+  });
+
   testWidgets('moving to the next cooking step gives a light tap', (tester) async {
     SharedPreferences.setMockInitialValues({});
     final calls = <String>[];
