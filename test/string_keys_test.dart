@@ -21,4 +21,27 @@ void main() {
     // Informational ceiling so new dead keys are noticed, not a hard rule on old ones.
     expect(dead.length, lessThan(200), reason: 'dead keys: $dead');
   });
+
+  test('every translation keeps the {placeholders} of the English text', () {
+    final ph = RegExp(r'\{[a-zA-Z]+\}');
+    final en = appTranslations['en']!;
+    final problems = <String>[];
+    for (final lang in appTranslations.entries) {
+      for (final e in en.entries) {
+        final want = ph.allMatches(e.value).map((m) => m.group(0)).toSet();
+        if (want.isEmpty) continue;
+        final got = ph.allMatches(lang.value[e.key] ?? '').map((m) => m.group(0)).toSet();
+        if (!got.containsAll(want)) problems.add('${lang.key}.${e.key}');
+      }
+    }
+    expect(problems, isEmpty);
+  });
+
+  test('German, French and Spanish have real translations for the core action texts', () {
+    for (final lang in ['de', 'fr', 'es']) {
+      for (final k in ['undoLabel', 'itemRemoved', 'mealPlanTitle', 'allSteps', 'resultsCountFmt']) {
+        expect(appTranslations[lang]![k], isNot(appTranslations['en']![k]), reason: '$lang.$k');
+      }
+    }
+  });
 }
