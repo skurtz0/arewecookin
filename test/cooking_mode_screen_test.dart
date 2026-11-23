@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:arewecookin/models/models.dart';
+import 'package:arewecookin/providers/household_servings_provider.dart';
 import 'package:arewecookin/providers/locale_provider.dart';
 import 'package:arewecookin/providers/recipe_progress_provider.dart';
 import 'package:arewecookin/providers/recipe_notes_provider.dart';
@@ -392,7 +393,7 @@ void main() {
       await tester.pumpAndSettle();
 
       // Verify bottom sheet content
-      expect(find.text('Gerekli Malzemeler'), findsOneWidget);
+      expect(find.textContaining('Gerekli Malzemeler'), findsOneWidget);
       expect(find.text('2 su bardağı Kuru Fasulye'), findsWidgets);
       expect(find.text('2 yemek kaşığı Tereyağı'), findsOneWidget);
 
@@ -418,6 +419,29 @@ void main() {
       expect(find.text('Start Timer'), findsOneWidget);
       expect(find.text('Next Step'), findsOneWidget);
       expect(find.text('2 Ingredients'), findsOneWidget);
+    });
+
+    testWidgets('ingredients sheet says which servings the amounts are scaled to', (tester) async {
+      tester.view.physicalSize = const Size(800, 2000);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(tester.view.reset);
+      final c = ProviderContainer(overrides: [
+        localeProvider.overrideWith(() => FakeLocaleNotifier(const Locale('en'))),
+      ]);
+      addTearDown(c.dispose);
+      c.read(householdServingsProvider.notifier).set(7);
+      await tester.pumpWidget(UncontrolledProviderScope(
+        container: c,
+        child: MaterialApp(home: CookingModeScreen(recipe: sampleRecipe)),
+      ));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const Key('cook_ingredients_button')));
+      await tester.pumpAndSettle();
+      expect(find.textContaining('7 '), findsWidgets);
+      final title = tester.widget<Text>(find.byKey(const Key('cook_ingredients_title'))).data!;
+      expect(title, contains('7'));
+      // The number chosen for this recipe wins over the preference.
+      c.read(recipeProgressProvider.notifier).setServings(sampleRecipe.id, 3);
     });
   });
 }

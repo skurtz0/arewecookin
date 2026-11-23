@@ -96,6 +96,13 @@ class _CookingModeScreenState extends ConsumerState<CookingModeScreen> {
     return (seconds / 60).ceil();
   }
 
+  /// Servings the ingredient amounts are scaled to: the number chosen for this recipe, else the
+  /// default servings preference, else the recipe's own.
+  int _shownServings() =>
+      ref.read(recipeProgressProvider)[widget.recipe.id]?.servings ??
+      ref.read(householdServingsProvider) ??
+      (widget.recipe.servings > 0 ? widget.recipe.servings : 4);
+
   void _showAllIngredientsSheet(BuildContext context) {
     final strings = ref.read(appStringsProvider);
     showModalBottomSheet(
@@ -133,12 +140,17 @@ class _CookingModeScreenState extends ConsumerState<CookingModeScreen> {
                           size: 20,
                         ),
                         const SizedBox(width: 10),
-                        Text(
-                          strings.ingredientsTitle,
-                          style: const TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.white,
+                        Flexible(
+                          child: Text(
+                            // The servings the amounts below are scaled to.
+                            '${strings.ingredientsTitle} · ${strings.servingsFormat(_shownServings())}',
+                            key: const Key('cook_ingredients_title'),
+                            overflow: TextOverflow.ellipsis,
+                            style: const TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                            ),
                           ),
                         ),
                         const Spacer(),
@@ -593,6 +605,7 @@ class _CookingModeScreenState extends ConsumerState<CookingModeScreen> {
         ),
         actions: [
           TextButton.icon(
+            key: const Key('cook_ingredients_button'),
             onPressed: () => _showAllIngredientsSheet(context),
             icon: const Icon(
               CookingIcons.pantry,
