@@ -396,11 +396,28 @@ class _ShoppingListScreenState extends ConsumerState<ShoppingListScreen> {
                       ].where((e) => e.trim().isNotEmpty).join(' ');
                       return Dismissible(
                         key: ValueKey('shop_${item.key}'),
-                        direction: DismissDirection.endToStart,
+                        direction: DismissDirection.horizontal,
+                        // Swiping right ticks the item (it stays in the list); swiping left deletes it.
+                        confirmDismiss: (dir) async {
+                          if (dir == DismissDirection.startToEnd) {
+                            notifier.toggle(i);
+                            return false;
+                          }
+                          return true;
+                        },
                         background: Container(
+                          color: const Color(0xFF10B981),
+                          alignment: AlignmentDirectional.centerStart,
+                          padding: const EdgeInsetsDirectional.only(start: 20),
+                          child: Icon(
+                            item.done ? Icons.remove_done_rounded : Icons.done_rounded,
+                            color: Colors.white,
+                          ),
+                        ),
+                        secondaryBackground: Container(
                           color: Colors.red.shade400,
-                          alignment: Alignment.centerRight,
-                          padding: const EdgeInsets.only(right: 20),
+                          alignment: AlignmentDirectional.centerEnd,
+                          padding: const EdgeInsetsDirectional.only(end: 20),
                           child: const Icon(
                             Icons.delete_outline,
                             color: Colors.white,

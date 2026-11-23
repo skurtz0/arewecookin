@@ -236,4 +236,21 @@ void main() {
     await tester.pump(const Duration(seconds: 1));
     expect(c.read(shoppingListProvider).length, 2);
   });
+
+  testWidgets('swiping an item right ticks it, swiping left deletes it', (tester) async {
+    SharedPreferences.setMockInitialValues({});
+    final c = ProviderContainer();
+    addTearDown(c.dispose);
+    c.read(shoppingListProvider.notifier).addAll(const [ShoppingItem(name: 'Alpha'), ShoppingItem(name: 'Beta')]);
+    await tester.pumpWidget(UncontrolledProviderScope(container: c, child: const MaterialApp(home: ShoppingListScreen())));
+    await tester.pumpAndSettle();
+    await tester.drag(find.text('Alpha'), const Offset(400, 0));
+    await tester.pumpAndSettle();
+    final list = c.read(shoppingListProvider);
+    expect(list.length, 2);
+    expect(list.firstWhere((e) => e.name == 'Alpha').done, isTrue);
+    await tester.drag(find.text('Beta'), const Offset(-400, 0));
+    await tester.pumpAndSettle();
+    expect(c.read(shoppingListProvider).map((e) => e.name), ['Alpha']);
+  });
 }
