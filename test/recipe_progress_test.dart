@@ -123,6 +123,10 @@ void main() {
     final half = find.byKey(const Key('servings_half'));
     final dbl = find.byKey(const Key('servings_double'));
     await tester.ensureVisible(half);
+    // The buttons announce the servings they lead to.
+    String tip(Finder f) => tester.widget<Tooltip>(find.ancestor(of: f, matching: find.byType(Tooltip)).first).message!;
+    expect(tip(half), startsWith('3 '));
+    expect(tip(dbl), startsWith('10 '));
     await tester.tap(half);
     await tester.pumpAndSettle();
     expect(servings(), 3); // 5 -> ceil(5/2)

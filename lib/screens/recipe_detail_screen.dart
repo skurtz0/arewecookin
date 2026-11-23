@@ -492,15 +492,21 @@ class _RecipeDetailScreenState extends ConsumerState<RecipeDetailScreen> {
               child: Wrap(
                 spacing: 4,
                 children: [
-                  TextButton(
-                    key: const Key('servings_half'),
-                    onPressed: _servings > 1 ? () => _changeServings(-(_servings - (_servings + 1) ~/ 2)) : null,
-                    child: const Text('½×'),
+                  Tooltip(
+                    message: strings.servingsFormat((_servings + 1) ~/ 2),
+                    child: TextButton(
+                      key: const Key('servings_half'),
+                      onPressed: _servings > 1 ? () => _changeServings(-(_servings - (_servings + 1) ~/ 2)) : null,
+                      child: const Text('½×'),
+                    ),
                   ),
-                  TextButton(
-                    key: const Key('servings_double'),
-                    onPressed: _servings < 99 ? () => _changeServings(_servings) : null,
-                    child: const Text('2×'),
+                  Tooltip(
+                    message: strings.servingsFormat((_servings * 2).clamp(1, 99)),
+                    child: TextButton(
+                      key: const Key('servings_double'),
+                      onPressed: _servings < 99 ? () => _changeServings(_servings) : null,
+                      child: const Text('2×'),
+                    ),
                   ),
                   if (widget.recipe.servings > 0 && _servings != widget.recipe.servings)
                     TextButton.icon(
