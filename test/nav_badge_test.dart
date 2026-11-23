@@ -1,3 +1,4 @@
+import 'package:arewecookin/providers/pantry_provider.dart';
 import 'package:arewecookin/providers/shopping_list_provider.dart';
 import 'package:arewecookin/screens/main_navigation_screen.dart';
 import 'package:flutter/material.dart';
@@ -19,5 +20,19 @@ void main() {
     await tester.pump();
     expect(badge().isLabelVisible, isTrue);
     expect((badge().label as Text).data, '1');
+  });
+
+  testWidgets('pantry tab shows how many ingredients are in the pantry', (tester) async {
+    SharedPreferences.setMockInitialValues({});
+    final c = ProviderContainer();
+    addTearDown(c.dispose);
+    await tester.pumpWidget(UncontrolledProviderScope(container: c, child: const MaterialApp(home: MainNavigationScreen())));
+    await tester.pump(const Duration(milliseconds: 300));
+    Badge badge() => tester.widget<Badge>(find.byKey(const Key('pantry_badge')));
+    expect(badge().isLabelVisible, isFalse);
+    await c.read(pantryProvider.notifier).addIngredients(['yumurta', 'süt', 'un']);
+    await tester.pump(const Duration(milliseconds: 300));
+    expect(badge().isLabelVisible, isTrue);
+    expect((badge().label as Text).data, '3');
   });
 }

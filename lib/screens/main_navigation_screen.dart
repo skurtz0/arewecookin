@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../utils/cooking_icons.dart';
 import '../providers/locale_provider.dart';
 import '../providers/discover_provider.dart';
+import '../providers/pantry_provider.dart';
 import '../providers/shopping_list_provider.dart';
 import 'discover_screen.dart';
 import 'pantry_screen.dart';
@@ -30,6 +31,7 @@ class _MainNavigationScreenState extends ConsumerState<MainNavigationScreen> {
   Widget build(BuildContext context) {
     final strings = ref.watch(appStringsProvider);
     final openItems = ref.watch(shoppingListProvider).where((e) => !e.done).length;
+    final pantryCount = ref.watch(pantryProvider.select((p) => p.selectedKeys.length));
 
     return Scaffold(
       body: IndexedStack(
@@ -76,8 +78,19 @@ class _MainNavigationScreenState extends ConsumerState<MainNavigationScreen> {
             ),
             NavigationDestination(
               key: ValueKey('tab_pantry_${strings.locale}'),
-              icon: const Icon(CookingIcons.pantry, color: Color(0xFF64748B)),
-              selectedIcon: const Icon(CookingIcons.pantry, color: Color(0xFF059669)),
+              icon: Badge(
+                key: const Key('pantry_badge'),
+                isLabelVisible: pantryCount > 0,
+                label: Text('$pantryCount'),
+                backgroundColor: const Color(0xFF059669),
+                child: const Icon(CookingIcons.pantry, color: Color(0xFF64748B)),
+              ),
+              selectedIcon: Badge(
+                isLabelVisible: pantryCount > 0,
+                label: Text('$pantryCount'),
+                backgroundColor: const Color(0xFF059669),
+                child: const Icon(CookingIcons.pantry, color: Color(0xFF059669)),
+              ),
               label: strings.tabPantry,
             ),
             NavigationDestination(
