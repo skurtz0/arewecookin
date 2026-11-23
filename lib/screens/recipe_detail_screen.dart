@@ -276,7 +276,7 @@ class _RecipeDetailScreenState extends ConsumerState<RecipeDetailScreen> {
               final strings = ref.watch(appStringsProvider);
               return IconButton(
                 key: const Key('save_toggle'),
-                tooltip: strings.a11ySave,
+                tooltip: isSaved ? strings.removeFavorite : strings.a11ySave,
                 isSelected: isSaved,
                 icon: Icon(
                   isSaved

@@ -1270,7 +1270,26 @@ class _RecipeCard extends ConsumerWidget {
                             isSaved ? Icons.bookmark_rounded : Icons.bookmark_border_rounded,
                             color: isSaved ? const Color(0xFFFF5722) : const Color(0xFF64748B),
                           ),
-                          onPressed: () => ref.read(savedRecipesProvider.notifier).toggleSave(recipe),
+                          onPressed: () async {
+                            final notifier = ref.read(savedRecipesProvider.notifier);
+                            final nowSaved = await notifier.toggleSave(recipe);
+                            if (!context.mounted) return;
+                            ScaffoldMessenger.of(context)
+                              ..hideCurrentSnackBar()
+                              ..showSnackBar(SnackBar(
+                                content: Text(nowSaved ? strings.addedToFavorites : strings.removedFromFavorites),
+                                duration: const Duration(seconds: 3),
+                                action: SnackBarAction(
+                                  key: Key('card_save_undo_${recipe.id}'),
+                                  label: strings.undoLabel,
+                                  onPressed: () {
+                                    if (ref.read(savedRecipesProvider).isSaved(recipe.id) == nowSaved) {
+                                      notifier.toggleSave(recipe);
+                                    }
+                                  },
+                                ),
+                              ));
+                          },
                         ),
                       );
                     }),

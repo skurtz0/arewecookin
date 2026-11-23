@@ -248,6 +248,11 @@ void main() {
       await tester.tap(btn);
       await tester.pump();
       expect(container.read(savedRecipesProvider).isSaved(recipe.id), isFalse);
+      // The last tap's "Undo" puts it back.
+      await tester.pump(const Duration(milliseconds: 300));
+      tester.widget<SnackBarAction>(find.byKey(Key('card_save_undo_${recipe.id}'))).onPressed();
+      await tester.pump();
+      expect(container.read(savedRecipesProvider).isSaved(recipe.id), isTrue);
     });
 
     testWidgets('Quick & easy chip sets both filters and clears them', (tester) async {
