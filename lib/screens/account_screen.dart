@@ -265,16 +265,25 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
               ),
             ),
             const SizedBox(width: 12),
-            Text(
-              strings.myAccount,
-              style: const TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-                color: Color(0xFF1E293B),
+            Expanded(
+              child: Text(
+                strings.myAccount,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: const TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFF1E293B),
+                ),
               ),
             ),
-            const Spacer(),
-            _buildLanguageToggle(currentLocale.languageCode),
+            const SizedBox(width: 8),
+            Flexible(
+              child: FittedBox(
+                fit: BoxFit.scaleDown,
+                child: _buildLanguageToggle(currentLocale.languageCode),
+              ),
+            ),
           ],
         ),
       ),
@@ -1110,12 +1119,15 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
                   ),
                 ),
                 const SizedBox(width: 12),
-                Text(
-                  strings.googleAutoLogin,
-                  style: const TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.bold,
-                    color: Color(0xFF1E293B),
+                Flexible(
+                  child: Text(
+                    strings.googleAutoLogin,
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.bold,
+                      color: Color(0xFF1E293B),
+                    ),
                   ),
                 ),
               ],
@@ -1128,11 +1140,15 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
           Row(
             children: [
               Expanded(child: Divider(color: Colors.grey.shade300)),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 10),
-                child: Text(
-                  strings.orOtherOptions,
-                  style: TextStyle(fontSize: 12, color: Colors.grey.shade500),
+              Flexible(
+                flex: 4,
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 10),
+                  child: Text(
+                    strings.orOtherOptions,
+                    textAlign: TextAlign.center,
+                    style: TextStyle(fontSize: 12, color: Colors.grey.shade500),
+                  ),
                 ),
               ),
               Expanded(child: Divider(color: Colors.grey.shade300)),
@@ -1465,7 +1481,13 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
                 '${AppLanguages.findByLocale(ref.watch(localeProvider))?.nativeName ?? currentLang} ${AppLanguages.findByLocale(ref.watch(localeProvider))?.flag ?? ''}',
                 style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
               ),
-              trailing: _buildLanguageToggle(currentLang),
+              trailing: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 150),
+                child: FittedBox(
+                  fit: BoxFit.scaleDown,
+                  child: _buildLanguageToggle(currentLang),
+                ),
+              ),
               onTap: () => _showLanguagePickerModal(context),
             ),
             const Divider(),
@@ -1577,12 +1599,15 @@ class _MethodSelector extends StatelessWidget {
           children: [
             Icon(icon, size: 18, color: isSelected ? const Color(0xFFFF5722) : Colors.grey.shade700),
             const SizedBox(width: 8),
-            Text(
-              title,
-              style: TextStyle(
-                fontSize: 13,
-                fontWeight: isSelected ? FontWeight.bold : FontWeight.w600,
-                color: isSelected ? const Color(0xFFFF5722) : Colors.grey.shade800,
+            Flexible(
+              child: Text(
+                title,
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 13,
+                  fontWeight: isSelected ? FontWeight.bold : FontWeight.w600,
+                  color: isSelected ? const Color(0xFFFF5722) : Colors.grey.shade800,
+                ),
               ),
             ),
           ],
