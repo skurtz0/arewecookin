@@ -95,6 +95,14 @@ class MealPlanNotifier extends Notifier<Map<int, List<Recipe>>> {
     _save();
   }
 
+  /// Removes every meal of one day.
+  void clearDay(int day) {
+    if (!state.containsKey(day)) return;
+    final copy = {...state}..remove(day);
+    state = copy;
+    _save();
+  }
+
   /// Plain-text week plan (days with meals only), for pasting into notes or chats.
   String asText(String Function(int day) dayName, String Function(Recipe r) title,
       [String Function(int minutes)? minutes]) {

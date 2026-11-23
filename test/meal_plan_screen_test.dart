@@ -265,4 +265,27 @@ void main() {
     expect(container.read(mealPlanProvider.notifier).copyDay(1, 3), 1);
     expect(container.read(mealPlanProvider.notifier).copyDay(1, 3), 0);
   });
+
+  testWidgets('a single day can be cleared and restored', (tester) async {
+    SharedPreferences.setMockInitialValues({});
+    final recipes = (await RecipeRepository().getRecipes(limit: 2)).recipes;
+    final container = ProviderContainer();
+    addTearDown(container.dispose);
+    final n = container.read(mealPlanProvider.notifier);
+    n.add(1, recipes[0]);
+    n.add(2, recipes[1]);
+    await tester.pumpWidget(UncontrolledProviderScope(
+      container: container,
+      child: const MaterialApp(home: MealPlanScreen()),
+    ));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const Key('plan_day_clear_1')));
+    await tester.pump(const Duration(seconds: 1));
+    final plan = container.read(mealPlanProvider);
+    expect(plan.containsKey(1), isFalse);
+    expect(plan[2]!.length, 1);
+    tester.widget<SnackBarAction>(find.byKey(const Key('plan_day_clear_undo'))).onPressed();
+    await tester.pump();
+    expect(container.read(mealPlanProvider)[1]!.single.id, recipes[0].id);
+  });
 }

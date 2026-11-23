@@ -246,6 +246,27 @@ class MealPlanScreen extends ConsumerWidget {
                             ),
                           ),
                           IconButton(
+                            key: Key('plan_day_clear_$day'),
+                            tooltip: strings.mealPlanClearDay,
+                            icon: const Icon(Icons.delete_sweep_outlined, size: 20),
+                            onPressed: () {
+                              final before = ref.read(mealPlanProvider);
+                              ref.read(mealPlanProvider.notifier).clearDay(day);
+                              ScaffoldMessenger.of(context)
+                                ..hideCurrentSnackBar()
+                                ..showSnackBar(SnackBar(
+                                  content: Text(strings.mealPlanClearDay),
+                                  action: SnackBarAction(
+                                    key: const Key('plan_day_clear_undo'),
+                                    label: strings.undoLabel,
+                                    onPressed: () => ref
+                                        .read(mealPlanProvider.notifier)
+                                        .restore(before),
+                                  ),
+                                ));
+                            },
+                          ),
+                          IconButton(
                             key: Key('plan_day_copy_$day'),
                             tooltip: strings.mealPlanCopyDay,
                             icon: const Icon(Icons.copy_all_rounded, size: 20),
