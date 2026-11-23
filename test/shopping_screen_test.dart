@@ -218,4 +218,22 @@ void main() {
     await tester.pumpAndSettle();
     expect(value(), 0.5);
   });
+
+  testWidgets('typing an item that is already on the list says so', (tester) async {
+    SharedPreferences.setMockInitialValues({});
+    final c = ProviderContainer();
+    addTearDown(c.dispose);
+    c.read(shoppingListProvider.notifier).addAll(const [ShoppingItem(name: 'Milk')]);
+    await tester.pumpWidget(UncontrolledProviderScope(container: c, child: const MaterialApp(home: ShoppingListScreen())));
+    await tester.pumpAndSettle();
+    await tester.enterText(find.byKey(const Key('shopping_add_field')), 'milk');
+    await tester.testTextInput.receiveAction(TextInputAction.done);
+    await tester.pump(const Duration(seconds: 1));
+    expect(c.read(shoppingListProvider).length, 1);
+    expect(find.byType(SnackBar), findsOneWidget);
+    await tester.enterText(find.byKey(const Key('shopping_add_field')), 'bread');
+    await tester.testTextInput.receiveAction(TextInputAction.done);
+    await tester.pump(const Duration(seconds: 1));
+    expect(c.read(shoppingListProvider).length, 2);
+  });
 }

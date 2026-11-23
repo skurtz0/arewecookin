@@ -27,10 +27,17 @@ class _ShoppingListScreenState extends ConsumerState<ShoppingListScreen> {
   void _submit() {
     final text = _controller.text.trim();
     if (text.isEmpty) return;
-    ref
+    final added = ref
         .read(shoppingListProvider.notifier)
         .addAll(ShoppingItem.parseMany(text));
     _controller.clear();
+    if (added == 0) {
+      // Typed items that are already on the list are merged silently otherwise, which looks like nothing happened.
+      final strings = ref.read(appStringsProvider);
+      ScaffoldMessenger.of(context)
+        ..hideCurrentSnackBar()
+        ..showSnackBar(SnackBar(content: Text(strings.shoppingNothingNew)));
+    }
   }
 
   @override
