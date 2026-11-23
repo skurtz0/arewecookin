@@ -126,7 +126,21 @@ class _ShoppingListScreenState extends ConsumerState<ShoppingListScreen> {
           ],
         ),
       );
-      if (text != null) notifier.replaceAt(i, ShoppingItem.parse(text));
+      if (text == null || !context.mounted) return;
+      final before = [...ref.read(shoppingListProvider)];
+      final ok = notifier.replaceAt(i, ShoppingItem.parse(text));
+      ScaffoldMessenger.of(context)
+        ..hideCurrentSnackBar()
+        ..showSnackBar(SnackBar(
+          content: Text(ok ? strings.shoppingEdited : strings.shoppingNothingNew),
+          action: ok
+              ? SnackBarAction(
+                  key: const Key('shopping_edit_undo'),
+                  label: strings.undoLabel,
+                  onPressed: () => notifier.restore(before),
+                )
+              : null,
+        ));
     }
 
     void removeItem(int i, ShoppingItem removed) {

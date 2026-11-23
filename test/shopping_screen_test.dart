@@ -114,6 +114,27 @@ void main() {
     final item = c.read(shoppingListProvider).single;
     expect([item.amount, item.unit, item.name], ['2', 'kg', 'oat milk']);
     expect(item.done, isTrue);
+    // The edit can be undone.
+    tester.widget<SnackBarAction>(find.byKey(const Key('shopping_edit_undo'))).onPressed();
+    await tester.pumpAndSettle();
+    expect(c.read(shoppingListProvider).single.name, 'Milk');
+  });
+
+  testWidgets('editing an item to the name of another item says nothing changed', (tester) async {
+    SharedPreferences.setMockInitialValues({});
+    final c = ProviderContainer();
+    addTearDown(c.dispose);
+    c.read(shoppingListProvider.notifier).addAll(const [ShoppingItem(name: 'Milk'), ShoppingItem(name: 'Eggs')]);
+    await tester.pumpWidget(UncontrolledProviderScope(container: c, child: const MaterialApp(home: ShoppingListScreen())));
+    await tester.pumpAndSettle();
+    await tester.longPress(find.text('Milk'));
+    await tester.pumpAndSettle();
+    await tester.enterText(find.byKey(const Key('shopping_edit_field')), 'eggs');
+    await tester.tap(find.byKey(const Key('shopping_edit_save')));
+    await tester.pumpAndSettle();
+    expect(c.read(shoppingListProvider).map((e) => e.name), ['Milk', 'Eggs']);
+    expect(find.byKey(const Key('shopping_edit_undo')), findsNothing);
+    expect(find.text('Everything is already on your list'), findsOneWidget);
   });
 
   testWidgets('title shows checked / total count', (tester) async {

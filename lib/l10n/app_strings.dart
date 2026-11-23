@@ -247,6 +247,7 @@ class AppStrings {
   String get shoppingCheckGroup => _get('shoppingCheckGroup', 'Check off this group');
   String get allSteps => _get('allSteps', 'All steps');
   String resultsCount(int n, bool more) => _get('resultsCountFmt', '{n} recipes').replaceAll('{n}', more ? '$n+' : '$n');
+  String get shoppingEdited => _get('shoppingEdited', 'Item updated');
   String get savedSearchHint => _get('savedSearchHint', 'Search saved recipes');
   String get pantryNothingNew => _get('pantryNothingNew', 'Already in your pantry');
   String get searchTip => _get('searchTip', 'Tip: separate ingredients with commas (tomato, onion) and exclude one with a minus (-milk).');
