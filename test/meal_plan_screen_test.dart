@@ -1,4 +1,5 @@
 import 'package:arewecookin/providers/meal_plan_provider.dart';
+import 'package:arewecookin/providers/user_recipes_provider.dart';
 import 'package:arewecookin/repositories/recipe_repository.dart';
 import 'package:arewecookin/screens/meal_plan_screen.dart';
 import 'package:flutter/material.dart';
@@ -85,5 +86,39 @@ void main() {
     ));
     await tester.pumpAndSettle();
     expect(find.byKey(Key('plan_thumb_2_${recipe.id}')), findsOneWidget);
+  });
+
+  testWidgets('a favorite can be added to a chosen day from the plan screen', (tester) async {
+    SharedPreferences.setMockInitialValues({});
+    final recipe = (await RecipeRepository().getRecipes(limit: 1)).recipes.first;
+    final container = ProviderContainer();
+    addTearDown(container.dispose);
+    await container.read(savedRecipesProvider.notifier).toggleSave(recipe);
+    await tester.pumpWidget(UncontrolledProviderScope(
+      container: container,
+      child: const MaterialApp(home: MealPlanScreen()),
+    ));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const Key('plan_add_from_saved')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(Key('plan_saved_${recipe.id}')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const Key('plan_add_day_4')));
+    await tester.pumpAndSettle();
+    expect(container.read(mealPlanProvider)[4]!.single.id, recipe.id);
+  });
+
+  testWidgets('with no favorites the plan screen explains what to do', (tester) async {
+    SharedPreferences.setMockInitialValues({});
+    final container = ProviderContainer();
+    addTearDown(container.dispose);
+    await tester.pumpWidget(UncontrolledProviderScope(
+      container: container,
+      child: const MaterialApp(home: MealPlanScreen()),
+    ));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const Key('plan_add_from_saved')));
+    await tester.pumpAndSettle();
+    expect(find.text('Save a recipe to favorites first.'), findsOneWidget);
   });
 }

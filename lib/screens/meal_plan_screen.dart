@@ -4,8 +4,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../providers/locale_provider.dart';
 import '../providers/meal_plan_provider.dart';
 import '../providers/shopping_list_provider.dart';
+import '../providers/user_recipes_provider.dart';
 import '../widgets/recipe_image.dart';
 import 'recipe_detail_screen.dart';
+import '../models/models.dart';
 
 class MealPlanScreen extends ConsumerWidget {
   const MealPlanScreen({super.key});
@@ -16,8 +18,81 @@ class MealPlanScreen extends ConsumerWidget {
     final plan = ref.watch(mealPlanProvider);
     final total = plan.values.fold<int>(0, (a, l) => a + l.length);
 
+    Future<void> addFromSaved() async {
+      final saved = ref.read(savedRecipesProvider).recipes;
+      if (saved.isEmpty) {
+        ScaffoldMessenger.of(context)
+          ..hideCurrentSnackBar()
+          ..showSnackBar(SnackBar(content: Text(strings.planFromSavedEmpty)));
+        return;
+      }
+      final recipe = await showModalBottomSheet<Recipe>(
+        context: context,
+        isScrollControlled: true,
+        builder: (ctx) => SafeArea(
+          child: ListView(
+            key: const Key('plan_saved_list'),
+            shrinkWrap: true,
+            children: [
+              Padding(
+                padding: const EdgeInsets.all(16),
+                child: Text(strings.planFromSaved,
+                    style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+              ),
+              for (final r in saved)
+                ListTile(
+                  key: Key('plan_saved_${r.id}'),
+                  title: Text(r.localizedTitle(strings.locale)),
+                  subtitle: Text(strings.minutesShort(r.totalTime)),
+                  onTap: () => Navigator.of(ctx).pop(r),
+                ),
+            ],
+          ),
+        ),
+      );
+      if (recipe == null || !context.mounted) return;
+      final day = await showModalBottomSheet<int>(
+        context: context,
+        isScrollControlled: true,
+        builder: (ctx) => SafeArea(
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Text(strings.mealPlanPickDay,
+                      style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                ),
+                for (var d = 1; d <= 7; d++)
+                  ListTile(
+                    key: Key('plan_add_day_$d'),
+                    title: Text(strings.weekdayName(d)),
+                    onTap: () => Navigator.of(ctx).pop(d),
+                  ),
+              ],
+            ),
+          ),
+        ),
+      );
+      if (day == null || !context.mounted) return;
+      final ok = ref.read(mealPlanProvider.notifier).add(day, recipe);
+      ScaffoldMessenger.of(context)
+        ..hideCurrentSnackBar()
+        ..showSnackBar(SnackBar(
+          content: Text(ok ? strings.mealPlanAddedTo(strings.weekdayName(day)) : strings.mealPlanAlready),
+        ));
+    }
+
     return Scaffold(
       backgroundColor: const Color(0xFFF8FAFC),
+      floatingActionButton: FloatingActionButton.extended(
+        key: const Key('plan_add_from_saved'),
+        heroTag: 'plan_add_fab',
+        onPressed: addFromSaved,
+        icon: const Icon(Icons.bookmark_add_outlined),
+        label: Text(strings.planFromSaved),
+      ),
       appBar: AppBar(
         title: Text(strings.mealPlanTitle),
         actions: [
@@ -124,7 +199,7 @@ class MealPlanScreen extends ConsumerWidget {
               ),
             )
           : ListView(
-              padding: const EdgeInsets.all(16),
+              padding: const EdgeInsets.fromLTRB(16, 16, 16, 96),
               children: [
                 for (var day = 1; day <= 7; day++)
                   if ((plan[day] ?? const []).isNotEmpty) ...[
