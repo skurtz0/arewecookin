@@ -397,20 +397,27 @@ class RecipeRepository {
     return sb.toString();
   }
 
-  /// Every word of the query must appear in the title/category/cuisine,
-  /// or the whole query must be (part of) one ingredient name.
+  /// Every word of the query must appear in the title/category/cuisine, or the whole query must be
+  /// (part of) one ingredient name. A query with commas, semicolons or "+" ("tomato, onion") lists
+  /// several terms: each must be in the title or in an ingredient, so recipes holding all of them match.
   bool _matchesQuery(Recipe r, String query) {
     final q = normalizeSearch(query).trim();
     if (q.isEmpty) return true;
-    final words = q.split(RegExp(r'\s+'));
     final titleHay = normalizeSearch(
       [r.title, r.cleanTitle, r.localizedTitle('en'), r.category, r.cuisine].join(' '),
     );
-    if (words.every(titleHay.contains)) return true;
-    return [
+    final ingredientHay = [
       ...r.ingredientKeys,
       for (final i in r.ingredients) ...[i.name, i.nameEn ?? ''],
-    ].any((k) => normalizeSearch(k).contains(q));
+    ].map(normalizeSearch).toList();
+    if (ingredientHay.any((k) => k.contains(q))) return true;
+    final terms = q.split(RegExp(r'[,;+]'));
+    if (terms.length > 1) {
+      return terms.map((t) => t.trim()).where((t) => t.isNotEmpty).every(
+            (t) => titleHay.contains(t) || ingredientHay.any((k) => k.contains(t)),
+          );
+    }
+    return q.split(RegExp(r'\s+')).every(titleHay.contains);
   }
 }
 
