@@ -561,6 +561,99 @@ class RecipeGenerator {
     'Pratik & Sokak',
   ];
 
+  /// Wikipedia/Wikimedia Commons photos, each checked by eye to show the dish itself.
+  /// Dishes without a verified photo are left out and show the category artwork.
+  static const Map<String, String> dishImages = {
+    '5 Dakikalık Peynirli Quesadilla': 'https://thumb.wikimedia.org/wikipedia/commons/thumb/0/01/Empanada_flor_de_Calabaza.jpg/500px-Empanada_flor_de_Calabaza.jpg',
+    'Akdeniz Yeşillikleri Salatası': 'https://thumb.wikimedia.org/wikipedia/commons/thumb/9/94/Salad_platter.jpg/500px-Salad_platter.jpg',
+    'Antalya Usulü Tahinli Piyaz': 'https://thumb.wikimedia.org/wikipedia/commons/thumb/9/9b/Piyaz_01.jpg/500px-Piyaz_01.jpg',
+    'Baklava Dilimli Revani': 'https://thumb.wikimedia.org/wikipedia/commons/thumb/8/82/Basboosa.jpg/500px-Basboosa.jpg',
+    'Beyran Usulü Et Çorbası': 'https://thumb.wikimedia.org/wikipedia/commons/thumb/2/20/Beyran_again.jpg/500px-Beyran_again.jpg',
+    'Bodrum Çökertme Kebabı': 'https://thumb.wikimedia.org/wikipedia/commons/thumb/1/18/%C3%87%C3%B6kertme_kebab%C4%B1.jpg/500px-%C3%87%C3%B6kertme_kebab%C4%B1.jpg',
+    'Buharda Edamame & Pirinç': 'https://thumb.wikimedia.org/wikipedia/commons/thumb/e/e7/Edamame_by_Zesmerelda_in_Chicago.jpg/500px-Edamame_by_Zesmerelda_in_Chicago.jpg',
+    'Bursa İskender Kebabı': 'https://thumb.wikimedia.org/wikipedia/commons/thumb/3/3e/%C4%B0skender_Kebap.jpg/500px-%C4%B0skender_Kebap.jpg',
+    'Cevizli Revani': 'https://thumb.wikimedia.org/wikipedia/commons/thumb/8/82/Basboosa.jpg/500px-Basboosa.jpg',
+    'Düğün Çorbası': 'https://thumb.wikimedia.org/wikipedia/commons/thumb/b/b2/Wedding_soup_from_the_Turkish_cuisine.jpg/500px-Wedding_soup_from_the_Turkish_cuisine.jpg',
+    'Etli Burrito Dürüm': 'https://thumb.wikimedia.org/wikipedia/commons/thumb/6/60/Burrito.JPG/500px-Burrito.JPG',
+    'Ev Yapımı Fındık Lahmacun': 'https://thumb.wikimedia.org/wikipedia/commons/thumb/c/c7/Lahmacun.jpg/500px-Lahmacun.jpg',
+    'Falafel Tabağı': 'https://thumb.wikimedia.org/wikipedia/commons/thumb/5/57/Falafels_2.jpg/500px-Falafels_2.jpg',
+    'Fesleğenli Domates Çorbası': 'https://thumb.wikimedia.org/wikipedia/commons/thumb/8/8c/Tomato_soup%2C_plant-based_%2844040252791%29.jpg/500px-Tomato_soup%2C_plant-based_%2844040252791%29.jpg',
+    'Fransız Karamelize Soğan Çorbası': 'https://thumb.wikimedia.org/wikipedia/commons/thumb/5/5a/Soupe_%C3%A0_l%27oignon.jpg/500px-Soupe_%C3%A0_l%27oignon.jpg',
+    'Fırın Sütlaç': 'https://thumb.wikimedia.org/wikipedia/commons/thumb/4/40/Kheer_with_condensed_milk..JPG/500px-Kheer_with_condensed_milk..JPG',
+    'Fırında Baharatlı Elma Dilim Patates': 'https://thumb.wikimedia.org/wikipedia/commons/thumb/0/04/Potato_wedges_at_Mensa_Paderborn_%2811956794164%29.jpg/500px-Potato_wedges_at_Mensa_Paderborn_%2811956794164%29.jpg',
+    'Fırında Yumurtalı Kaşarlı Ekmek': 'https://thumb.wikimedia.org/wikipedia/commons/thumb/2/25/Egg_in_the_basket-01.jpg/500px-Egg_in_the_basket-01.jpg',
+    'Fıstık Soslu Sebze Yahnisi': 'https://thumb.wikimedia.org/wikipedia/commons/thumb/2/26/Gado_gado_jakarta.jpg/500px-Gado_gado_jakarta.jpg',
+    'Geleneksel Ezogelin': 'https://thumb.wikimedia.org/wikipedia/commons/thumb/9/9a/Ezogelin_soup%2C_bread%2C_and_water.jpg/500px-Ezogelin_soup%2C_bread%2C_and_water.jpg',
+    'Geleneksel Fırın Ratatouille': 'https://thumb.wikimedia.org/wikipedia/commons/thumb/3/37/Ratatouille_home_cooked.jpg/500px-Ratatouille_home_cooked.jpg',
+    'Geleneksel Grek Salatası': 'https://thumb.wikimedia.org/wikipedia/commons/thumb/f/f2/Greece_Food_Horiatiki.JPG/500px-Greece_Food_Horiatiki.JPG',
+    'Geleneksel Kazandibi': 'https://thumb.wikimedia.org/wikipedia/commons/thumb/0/0c/Kazandibi_Dessert.jpg/500px-Kazandibi_Dessert.jpg',
+    'Geleneksel Mercimek Köftesi': 'https://thumb.wikimedia.org/wikipedia/commons/thumb/5/51/Mercimekkoftesi.jpg/500px-Mercimekkoftesi.jpg',
+    'Geleneksel Miso Çorbası': 'https://thumb.wikimedia.org/wikipedia/commons/thumb/e/e8/Miso_Soup_001.jpg/500px-Miso_Soup_001.jpg',
+    'Geleneksel Pad Thai': 'https://thumb.wikimedia.org/wikipedia/commons/thumb/3/39/Phat_Thai_kung_Chang_Khien_street_stall.jpg/500px-Phat_Thai_kung_Chang_Khien_street_stall.jpg',
+    'Geleneksel Tiramisu': 'https://thumb.wikimedia.org/wikipedia/commons/thumb/5/58/Tiramisu_-_Raffaele_Diomede.jpg/500px-Tiramisu_-_Raffaele_Diomede.jpg',
+    'Geleneksel Çoban Salatası': 'https://thumb.wikimedia.org/wikipedia/commons/thumb/8/85/Bira_ve_%C3%A7oban_salata.jpg/500px-Bira_ve_%C3%A7oban_salata.jpg',
+    'Gyoza (Japon Mantısı)': 'https://thumb.wikimedia.org/wikipedia/commons/thumb/8/88/%E5%8F%B0%E7%81%A3%E5%8D%97%E6%8A%95%E8%8D%89%E5%B1%AF%E6%B0%B4%E9%A4%83Nantou%2C_Taiwan_Caotun_dumplings.jpg/500px-%E5%8F%B0%E7%81%A3%E5%8D%97%E6%8A%95%E8%8D%89%E5%B1%AF%E6%B0%B4%E9%A4%83Nantou%2C_Taiwan_Caotun_dumplings.jpg',
+    'Gözleme (Ispanaklı Peynirli)': 'https://thumb.wikimedia.org/wikipedia/commons/thumb/d/d0/G%C3%B6zleme.JPG/500px-G%C3%B6zleme.JPG',
+    'Güveçte Kuru Fasulye': 'https://thumb.wikimedia.org/wikipedia/commons/thumb/8/81/Kuru_Fasulye...JPG/500px-Kuru_Fasulye...JPG',
+    'Havuçlu Tarçınlı Kek': 'https://thumb.wikimedia.org/wikipedia/commons/thumb/f/fe/Carrot_cake_at_America_Graffiti_%28cropped%29.jpg/500px-Carrot_cake_at_America_Graffiti_%28cropped%29.jpg',
+    'Hünkar Beğendi': 'https://thumb.wikimedia.org/wikipedia/commons/thumb/e/e9/H%C3%BCnkarbe%C4%9Fendi.jpg/500px-H%C3%BCnkarbe%C4%9Fendi.jpg',
+    'Izgara Kasap Köfte': 'https://thumb.wikimedia.org/wikipedia/commons/thumb/0/05/%C4%B0neg%C3%B6l_k%C3%B6fte.jpg/500px-%C4%B0neg%C3%B6l_k%C3%B6fte.jpg',
+    'Kakaolu Islak Kek': 'https://thumb.wikimedia.org/wikipedia/commons/thumb/5/55/Chocolate_fudge_cake.jpg/500px-Chocolate_fudge_cake.jpg',
+    'Karaköy Poğaçası': 'https://thumb.wikimedia.org/wikipedia/commons/thumb/5/57/Turkish_pogachas.jpg/500px-Turkish_pogachas.jpg',
+    'Karamelli Trileçe': 'https://thumb.wikimedia.org/wikipedia/commons/thumb/c/ca/Pastel_de_Tres_Leches.jpg/500px-Pastel_de_Tres_Leches.jpg',
+    'Karnıyarık': 'https://thumb.wikimedia.org/wikipedia/commons/thumb/3/31/Meal_in_Turkey.jpg/500px-Meal_in_Turkey.jpg',
+    'Kaşarlı Peynirli Krep': 'https://thumb.wikimedia.org/wikipedia/commons/thumb/0/09/Crepes_dsc07085.jpg/500px-Crepes_dsc07085.jpg',
+    'Klasik Fırın Lazanya': 'https://thumb.wikimedia.org/wikipedia/commons/thumb/b/ba/Lasagne_-_stonesoup.jpg/500px-Lasagne_-_stonesoup.jpg',
+    'Kremalı Dağ Mantarı': 'https://thumb.wikimedia.org/wikipedia/commons/thumb/9/98/Cream_mushroom_soup_3.jpg/500px-Cream_mushroom_soup_3.jpg',
+    'Kremalı Mantarlı Risotto': 'https://thumb.wikimedia.org/wikipedia/commons/thumb/a/a5/Risotto_with_speck_and_goat_cheese_%286101067436%29.jpg/500px-Risotto_with_speck_and_goat_cheese_%286101067436%29.jpg',
+    'Köz Patlıcanlı Babagannuş': 'https://thumb.wikimedia.org/wikipedia/commons/thumb/5/5f/Baba_Ganoush_05of05_%288735238183%29.jpg/500px-Baba_Ganoush_05of05_%288735238183%29.jpg',
+    'Kıymalı Biber Dolması': 'https://thumb.wikimedia.org/wikipedia/commons/thumb/c/c8/Speca_te_mbushura_me_mish.JPG/500px-Speca_te_mbushura_me_mish.JPG',
+    'Kıymalı Kol Böreği': 'https://thumb.wikimedia.org/wikipedia/commons/thumb/0/08/Motani_burek_1.gif/500px-Motani_burek_1.gif',
+    'Kıymalı Çıtır Taco': 'https://thumb.wikimedia.org/wikipedia/commons/thumb/7/73/001_Tacos_de_carnitas%2C_carne_asada_y_al_pastor.jpg/500px-001_Tacos_de_carnitas%2C_carne_asada_y_al_pastor.jpg',
+    'Limonlu Cheesecake': 'https://thumb.wikimedia.org/wikipedia/commons/thumb/e/ea/Baked_cheesecake_with_raspberries_and_blueberries.jpg/500px-Baked_cheesecake_with_raspberries_and_blueberries.jpg',
+    'Mayasız Puf Poğaça': 'https://thumb.wikimedia.org/wikipedia/commons/thumb/5/57/Turkish_pogachas.jpg/500px-Turkish_pogachas.jpg',
+    'Meksika Usulü Chili con Carne': 'https://thumb.wikimedia.org/wikipedia/commons/thumb/5/50/Bowl_of_chili.jpg/500px-Bowl_of_chili.jpg',
+    'Menemen Usulü Shakshuka': 'https://thumb.wikimedia.org/wikipedia/commons/thumb/1/18/Shakshuka_by_Calliopejen1.jpg/500px-Shakshuka_by_Calliopejen1.jpg',
+    'Meyveli Çıtır Tartalet': 'https://thumb.wikimedia.org/wikipedia/commons/thumb/7/70/Raspberry_tart.jpg/500px-Raspberry_tart.jpg',
+    'Naneli Yayla Çorbası': 'https://thumb.wikimedia.org/wikipedia/commons/thumb/9/96/Yayla_%C3%A7orbas%C4%B1.jpg/500px-Yayla_%C3%A7orbas%C4%B1.jpg',
+    'Otlu Çörek': 'https://thumb.wikimedia.org/wikipedia/commons/thumb/4/44/Christopsomo_-_Greek_Christmas_Bread_-_Flickr_-_pellaea.jpg/500px-Christopsomo_-_Greek_Christmas_Bread_-_Flickr_-_pellaea.jpg',
+    'Patatesli Gnocchi': 'https://thumb.wikimedia.org/wikipedia/commons/thumb/8/86/Gnocchi_di_ricotta_burro_e_salvia.jpg/500px-Gnocchi_di_ricotta_burro_e_salvia.jpg',
+    'Patatesli Köy Omleti': 'https://thumb.wikimedia.org/wikipedia/commons/thumb/b/b1/FoodOmelete.jpg/500px-FoodOmelete.jpg',
+    'Peynirli Tepsi Böreği': 'https://thumb.wikimedia.org/wikipedia/commons/thumb/1/13/Burek_trokut_1.png/500px-Burek_trokut_1.png',
+    'Peynirli Çıtır Gözleme': 'https://thumb.wikimedia.org/wikipedia/commons/thumb/d/d0/G%C3%B6zleme.JPG/500px-G%C3%B6zleme.JPG',
+    'Pratik Tavada Pizza': 'https://thumb.wikimedia.org/wikipedia/commons/thumb/9/91/Pizza-3007395.jpg/500px-Pizza-3007395.jpg',
+    'Profiterol': 'https://thumb.wikimedia.org/wikipedia/commons/thumb/7/75/Paris_2e_-_Rue_Vivienne_-_Restaurant_Le_Vaudeville_-_Profiteroles_au_chocolat.jpg/500px-Paris_2e_-_Rue_Vivienne_-_Restaurant_Le_Vaudeville_-_Profiteroles_au_chocolat.jpg',
+    'Saray Muhallebisi': 'https://thumb.wikimedia.org/wikipedia/commons/thumb/f/f8/Mhallabiyyeh_%28Arabic_milk_pudding%29.jpg/500px-Mhallabiyyeh_%28Arabic_milk_pudding%29.jpg',
+    'Sarımsaklı Domatesli Makarna': 'https://thumb.wikimedia.org/wikipedia/commons/thumb/3/33/Spaghettata.JPG/500px-Spaghettata.JPG',
+    'Sebzeli Tavuklu Wok': 'https://thumb.wikimedia.org/wikipedia/commons/thumb/6/62/Making_Stir-Fry_%283286445383%29.jpg/500px-Making_Stir-Fry_%283286445383%29.jpg',
+    'Susamlı Çıtır Simit': 'https://thumb.wikimedia.org/wikipedia/commons/thumb/0/07/Simit-2x.JPG/500px-Simit-2x.JPG',
+    'Tabule (Bulgur Salatası)': 'https://thumb.wikimedia.org/wikipedia/commons/thumb/a/ac/Tabouleh_1.JPG/500px-Tabouleh_1.JPG',
+    'Tarçınlı Meksika Churros': 'https://thumb.wikimedia.org/wikipedia/commons/thumb/c/c6/Chocolate_con_churros_%2827343655726%29.jpg/500px-Chocolate_con_churros_%2827343655726%29.jpg',
+    'Tas Kebabı': 'https://thumb.wikimedia.org/wikipedia/commons/thumb/e/ef/Tasqebap.jpg/500px-Tasqebap.jpg',
+    'Tavuklu & Pırasalı Quiche': 'https://thumb.wikimedia.org/wikipedia/commons/thumb/2/29/Quiche.jpg/500px-Quiche.jpg',
+    'Tavuklu Fajita Wrap': 'https://thumb.wikimedia.org/wikipedia/commons/thumb/e/e2/Chicken_fajita_platter%2C_Lone_Star_Texas_Grill%2C_Windsor%2C_Ontario%2C_2025-06-14_03.jpg/500px-Chicken_fajita_platter%2C_Lone_Star_Texas_Grill%2C_Windsor%2C_Ontario%2C_2025-06-14_03.jpg',
+    'Tavuklu Fırın Enchilada': 'https://thumb.wikimedia.org/wikipedia/commons/thumb/e/ec/Enchilada_Rice_Beans.jpg/500px-Enchilada_Rice_Beans.jpg',
+    'Tavuklu Japon Rameni': 'https://thumb.wikimedia.org/wikipedia/commons/thumb/c/c3/Shoyu_Ramen%EF%BC%88Tokyo_Ramen%EF%BC%89_-_01.jpg/500px-Shoyu_Ramen%EF%BC%88Tokyo_Ramen%EF%BC%89_-_01.jpg',
+    'Tavuklu Sezar Salata': 'https://thumb.wikimedia.org/wikipedia/commons/thumb/2/23/Caesar_salad_%282%29.jpg/500px-Caesar_salad_%282%29.jpg',
+    'Taş Fırın Bazlama': 'https://thumb.wikimedia.org/wikipedia/commons/thumb/1/1d/Bazlama.jpg/500px-Bazlama.jpg',
+    'Terbiyeli Tavuk Çorbası': 'https://thumb.wikimedia.org/wikipedia/commons/thumb/b/b3/Chicken_Noodle_Soup.jpg/500px-Chicken_Noodle_Soup.jpg',
+    'Tom Yum Usulü Tavuk Çorbası': 'https://thumb.wikimedia.org/wikipedia/commons/thumb/e/e8/Tom_yam_kung_maenam.jpg/500px-Tom_yam_kung_maenam.jpg',
+    'Ton Balıklı Akdeniz Sandviç': 'https://thumb.wikimedia.org/wikipedia/commons/thumb/4/46/Tuna_fish_sandwiches_for_the_National_School_Lunch_Program_%281%29.jpg/500px-Tuna_fish_sandwiches_for_the_National_School_Lunch_Program_%281%29.jpg',
+    'Vanilyalı Panna Cotta': 'https://thumb.wikimedia.org/wikipedia/commons/thumb/8/80/Panna_Cotta_with_cream_and_garnish.jpg/500px-Panna_Cotta_with_cream_and_garnish.jpg',
+    'Vişneli Ekmek Kadayıfı': 'https://thumb.wikimedia.org/wikipedia/commons/thumb/9/90/Vi%C5%9Fneli_ekmek_kaday%C4%B1f%C4%B1_-_Ankara.jpg/500px-Vi%C5%9Fneli_ekmek_kaday%C4%B1f%C4%B1_-_Ankara.jpg',
+    'Yulaflı Pankek': 'https://thumb.wikimedia.org/wikipedia/commons/thumb/4/40/Foodiesfeed.com_pouring-honey-on-pancakes-with-walnuts.jpg/500px-Foodiesfeed.com_pouring-honey-on-pancakes-with-walnuts.jpg',
+    'Yumurtalı Fried Rice': 'https://thumb.wikimedia.org/wikipedia/commons/thumb/c/c3/Koh_Mak%2C_Thailand%2C_Fried_rice_with_seafood%2C_Thai_fried_rice.jpg/500px-Koh_Mak%2C_Thailand%2C_Fried_rice_with_seafood%2C_Thai_fried_rice.jpg',
+    'Zeytin Ezmeli Bruschetta': 'https://thumb.wikimedia.org/wikipedia/commons/thumb/1/1f/2014_Bruschetta_The_Larder_Chiang_Mai.jpg/500px-2014_Bruschetta_The_Larder_Chiang_Mai.jpg',
+    'Zeytinli Açma': 'https://thumb.wikimedia.org/wikipedia/commons/thumb/e/e5/Achma-Pogaca.jpg/500px-Achma-Pogaca.jpg',
+    'Çılbır (Yoğurtlu Poşe Yumurta)': 'https://thumb.wikimedia.org/wikipedia/commons/thumb/1/13/%C3%87%C4%B1lb%C4%B1r_with_duck-fat_saut%C3%A9ed_Ramps_%2814826584557%29.jpg/500px-%C3%87%C4%B1lb%C4%B1r_with_duck-fat_saut%C3%A9ed_Ramps_%2814826584557%29.jpg',
+    'Çıtır Ev Yapımı Smash Burger': 'https://thumb.wikimedia.org/wikipedia/commons/thumb/0/0b/RedDot_Burger.jpg/500px-RedDot_Burger.jpg',
+    'Çıtır Sebzeli Spring Roll': 'https://thumb.wikimedia.org/wikipedia/commons/thumb/1/1e/Spring_Rolls_%283357696061%29.jpg/500px-Spring_Rolls_%283357696061%29.jpg',
+    'Çıtır Tavuk Dürüm': 'https://thumb.wikimedia.org/wikipedia/commons/thumb/f/f8/Smoked_chicken_and_avocado_wrap.jpg/500px-Smoked_chicken_and_avocado_wrap.jpg',
+    'İmam Bayıldı': 'https://thumb.wikimedia.org/wikipedia/commons/thumb/7/7b/%C4%B0mam_bay%C4%B1ld%C4%B1_AvL.JPG/500px-%C4%B0mam_bay%C4%B1ld%C4%B1_AvL.JPG',
+    'İtalyan Pizza Margherita': 'https://thumb.wikimedia.org/wikipedia/commons/thumb/5/57/Neapolitan_pizza_at_Trappica_%2848701940197%29.jpg/500px-Neapolitan_pizza_at_Trappica_%2848701940197%29.jpg',
+    'Şekerpare': 'https://thumb.wikimedia.org/wikipedia/commons/thumb/4/4e/Wasserweltfest_2012_-_T%C3%BCrkische_Mehlspeise.jpg/500px-Wasserweltfest_2012_-_T%C3%BCrkische_Mehlspeise.jpg',
+  };
+
   static const Map<String, String> dishCuisines = {
     // Ana Yemek (28)
     'Güveçte Kuru Fasulye': 'Türk Mutfağı',
@@ -1097,9 +1190,8 @@ class RecipeGenerator {
       difficulty = 'Zor';
     }
 
-    // Guessed stock photos did not match the dishes; leave null so the app
-    // shows its category artwork instead of a wrong picture.
-    const String? imageUrl = null;
+    // Only photos verified to match the dish; otherwise null (category artwork).
+    final String? imageUrl = dishImages[baseDish];
     final cuisine = dishCuisines[baseDish] ?? 'Türk Mutfağı';
 
     final List<String> selectedKeys = pickKeysForDish(baseDish, category);
