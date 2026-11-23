@@ -1,0 +1,40 @@
+rules_version = '2';
+// Community feed. Posts and comments are readable by everyone and written
+// only as the signed-in user. Counters may only change by one, together with the
+// matching like/comment document.
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function signedIn() { return request.auth != null; }
+    function validText(v, max) { return v is string && v.size() <= max; }
+
+    match /posts/{postId} {
+      allow read: if true;
+      allow create: if signedIn()
+        && request.resource.data.authorId == request.auth.uid
+        && validText(request.resource.data.title, 80)
+        && request.resource.data.title.size() > 0
+        && validText(request.resource.data.text, 1000)
+        && request.resource.data.likeCount == 0
+        && request.resource.data.commentCount == 0;
+      allow delete: if signedIn() && resource.data.authorId == request.auth.uid;
+      // Only the counters can change, and only by 1.
+      allow update: if signedIn()
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['likeCount', 'commentCount'])
+        && (request.resource.data.likeCount - resource.data.likeCount) in [-1, 0, 1]
+        && (request.resource.data.commentCount - resource.data.commentCount) in [0, 1];
+
+      match /likes/{uid} {
+        allow read: if signedIn() && request.auth.uid == uid;
+        allow create, delete: if signedIn() && request.auth.uid == uid;
+      }
+      match /comments/{commentId} {
+        allow read: if true;
+        allow create: if signedIn()
+          && request.resource.data.authorId == request.auth.uid
+          && validText(request.resource.data.text, 500)
+          && request.resource.data.text.size() > 0;
+        allow delete: if signedIn() && resource.data.authorId == request.auth.uid;
+      }
+    }
+  }
+}

@@ -42,6 +42,17 @@ class AppStrings {
   // Navigation
   String get tabDiscover => _get('tabDiscover', 'Discover');
   String get tabPantry => _get('tabPantry', 'Pantry');
+  String get tabSocial => _get('tabSocial', 'Community');
+  String get socialNewPost => _get('socialNewPost', 'Share a recipe');
+  String get socialEmpty => _get('socialEmpty', 'No posts yet. Be the first to share a recipe!');
+  String get socialSignInToShare => _get('socialSignInToShare', 'Sign in from the Account tab to share, like or comment');
+  String get socialPostTitleHint => _get('socialPostTitleHint', 'Recipe name');
+  String get socialPostTextHint => _get('socialPostTextHint', 'Tell us about it');
+  String get socialPublish => _get('socialPublish', 'Share');
+  String get socialLike => _get('socialLike', 'Like');
+  String get socialComments => _get('socialComments', 'Comments');
+  String get socialCommentHint => _get('socialCommentHint', 'Write a comment');
+  String get socialUnavailable => _get('socialUnavailable', 'Community is unavailable right now');
   String get tabAccount => _get('tabAccount', 'Account');
   String get shoppingListTitle => _get('shoppingListTitle', 'Shopping list');
   String get shoppingClearDone => _get('shoppingClearDone', 'Clear checked');

@@ -1,0 +1,95 @@
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../models/social_post.dart';
+import '../services/social_service.dart';
+import 'auth_provider.dart';
+
+final socialServiceProvider = Provider<SocialService>((ref) => FirestoreSocialService());
+
+final feedProvider = StreamProvider<List<SocialPost>>(
+  (ref) => ref.watch(socialServiceProvider).watchFeed(),
+  retry: (_, _) => null,
+);
+
+final commentsProvider = StreamProvider.family<List<SocialComment>, String>(
+  (ref, postId) => ref.watch(socialServiceProvider).watchComments(postId),
+  retry: (_, _) => null,
+);
+
+class SocialState {
+  final Set<String> liked;
+  const SocialState({this.liked = const {}});
+}
+
+/// Which posts the signed-in user has liked, plus actions that need a signed-in user.
+class SocialNotifier extends Notifier<SocialState> {
+  SocialService get _service => ref.read(socialServiceProvider);
+
+  @override
+  SocialState build() => const SocialState();
+
+  String? get _uid {
+    final u = ref.read(authProvider).user;
+    return u.isLoggedIn ? u.id : null;
+  }
+
+  Future<void> loadLikes(Iterable<String> postIds) async {
+    final uid = _uid;
+    if (uid == null) return;
+    try {
+      final liked = await _service.likedPostIds(uid, postIds);
+      state = SocialState(liked: {...state.liked, ...liked});
+    } catch (_) {}
+  }
+
+  Future<void> toggleLike(String postId) async {
+    final uid = _uid;
+    if (uid == null) return;
+    final now = !state.liked.contains(postId);
+    state = SocialState(liked: now ? {...state.liked, postId} : ({...state.liked}..remove(postId)));
+    try {
+      await _service.setLike(postId: postId, uid: uid, liked: now);
+    } catch (_) {
+      state = SocialState(liked: now ? ({...state.liked}..remove(postId)) : {...state.liked, postId});
+    }
+  }
+
+  Future<bool> publish({required String title, required String text}) async {
+    final user = ref.read(authProvider).user;
+    if (!user.isLoggedIn || title.trim().isEmpty) return false;
+    try {
+      await _service.createPost(SocialPost(
+        id: '',
+        authorId: user.id,
+        authorName: user.displayName,
+        title: title.trim(),
+        text: text.trim(),
+        createdAtMs: DateTime.now().millisecondsSinceEpoch,
+      ));
+      return true;
+    } catch (_) {
+      return false;
+    }
+  }
+
+  Future<bool> comment(String postId, String text) async {
+    final user = ref.read(authProvider).user;
+    if (!user.isLoggedIn || text.trim().isEmpty) return false;
+    try {
+      await _service.addComment(
+        postId,
+        SocialComment(
+          id: '',
+          authorId: user.id,
+          authorName: user.displayName,
+          text: text.trim(),
+          createdAtMs: DateTime.now().millisecondsSinceEpoch,
+        ),
+      );
+      return true;
+    } catch (_) {
+      return false;
+    }
+  }
+}
+
+final socialProvider = NotifierProvider<SocialNotifier, SocialState>(SocialNotifier.new);
