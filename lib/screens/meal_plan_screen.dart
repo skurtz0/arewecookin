@@ -275,6 +275,7 @@ class MealPlanScreen extends ConsumerWidget {
                                 ),
                               );
                               if (to == null || !context.mounted) return;
+                              final before = ref.read(mealPlanProvider);
                               final n = ref.read(mealPlanProvider.notifier).copyDay(day, to);
                               ScaffoldMessenger.of(context)
                                 ..hideCurrentSnackBar()
@@ -282,6 +283,15 @@ class MealPlanScreen extends ConsumerWidget {
                                   content: Text(n > 0
                                       ? strings.mealPlanAddedTo(strings.weekdayName(to))
                                       : strings.mealPlanAlready),
+                                  action: n == 0
+                                      ? null
+                                      : SnackBarAction(
+                                          key: const Key('plan_copy_undo'),
+                                          label: strings.undoLabel,
+                                          onPressed: () => ref
+                                              .read(mealPlanProvider.notifier)
+                                              .restore(before),
+                                        ),
                                 ));
                             },
                           ),

@@ -259,6 +259,10 @@ void main() {
     final plan = container.read(mealPlanProvider);
     expect(plan[3]!.map((r) => r.id).toList(), [recipes[0].id, recipes[1].id]);
     expect(plan[1]!.length, 2);
+    await tester.tap(find.byKey(const Key('plan_copy_undo')));
+    await tester.pumpAndSettle();
+    expect(container.read(mealPlanProvider)[3]!.map((r) => r.id).toList(), [recipes[0].id]);
+    expect(container.read(mealPlanProvider.notifier).copyDay(1, 3), 1);
     expect(container.read(mealPlanProvider.notifier).copyDay(1, 3), 0);
   });
 }
