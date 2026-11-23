@@ -57,7 +57,10 @@ class AreWeCookinApp extends ConsumerWidget {
         ),
       ),
       // Always start on the splash screen; a shared link (#/recipe/ID) is opened from there.
-      initialRoute: '/',
+      // Flutter would split a shared link (/recipe/ID) into several initial routes; always start on one splash.
+      onGenerateInitialRoutes: (_) => [
+        MaterialPageRoute<void>(builder: (_) => const SplashScreen(), settings: const RouteSettings(name: '/')),
+      ],
       onGenerateRoute: (settings) => MaterialPageRoute<void>(
         builder: (_) => const SplashScreen(),
         settings: settings,
