@@ -11,6 +11,7 @@ import '../providers/pantry_provider.dart';
 import '../utils/pantry_match.dart';
 import '../widgets/avoided_badge.dart';
 import '../providers/admin_provider.dart';
+import '../providers/moderation_provider.dart';
 import '../providers/user_recipes_provider.dart';
 import '../widgets/recipe_image.dart';
 import 'add_recipe_screen.dart';
@@ -1210,6 +1211,19 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
                 size: 14, color: Colors.red),
             onTap: () => _showDeleteAccountDialog(context),
           ),
+          if (ref.watch(moderationProvider).blockedAuthors.isNotEmpty)
+            ListTile(
+              key: const Key('blocked_tile'),
+              contentPadding: EdgeInsets.zero,
+              leading: const Icon(Icons.block_rounded),
+              title: Text(
+                  '${ref.watch(appStringsProvider).isTurkish ? 'Engellenenler' : 'Blocked users'} (${ref.watch(moderationProvider).blockedAuthors.length})'),
+              trailing: const Icon(Icons.arrow_forward_ios_rounded, size: 14),
+              onTap: () => showDialog<void>(
+                context: context,
+                builder: (_) => const _BlockedUsersDialog(),
+              ),
+            ),
           if (ref.watch(isAdminProvider).value == true)
             ListTile(
               contentPadding: EdgeInsets.zero,
@@ -2080,5 +2094,40 @@ class _ProfileStat extends StatelessWidget {
         ),
       ],
     ));
+  }
+}
+
+/// Lists the blocked authors and lets the user unblock them again.
+class _BlockedUsersDialog extends ConsumerWidget {
+  const _BlockedUsersDialog();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final tr = ref.watch(appStringsProvider).isTurkish;
+    final blocked = ref.watch(moderationProvider).blockedAuthors.toList()..sort();
+    return AlertDialog(
+      title: Text(tr ? 'Engellenenler' : 'Blocked users'),
+      content: SizedBox(
+        width: double.maxFinite,
+        child: blocked.isEmpty
+            ? Text(tr ? 'Engellenen kimse yok.' : 'Nobody is blocked.')
+            : ListView(
+                shrinkWrap: true,
+                children: [
+                  for (final id in blocked)
+                    ListTile(
+                      dense: true,
+                      title: Text('${tr ? 'Kullanıcı' : 'User'} …${id.length > 6 ? id.substring(id.length - 6) : id}'),
+                      trailing: TextButton(
+                        key: Key('unblock_$id'),
+                        onPressed: () => ref.read(moderationProvider.notifier).unblockAuthor(id),
+                        child: Text(tr ? 'Engeli kaldır' : 'Unblock'),
+                      ),
+                    ),
+                ],
+              ),
+      ),
+      actions: [TextButton(onPressed: () => Navigator.pop(context), child: Text(tr ? 'Kapat' : 'Close'))],
+    );
   }
 }
