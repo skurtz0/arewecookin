@@ -487,10 +487,13 @@ class DiscoverScreenState extends ConsumerState<DiscoverScreen> with WidgetsBind
             else if (_onlySaved)
               _buildSavedSliver(context, strings)
             else if (discoverState.isLoading)
-              const SliverFillRemaining(
+              SliverFillRemaining(
                 hasScrollBody: false,
                 child: Center(
-                  child: CircularProgressIndicator(color: Color(0xFFFF5722)),
+                  child: CircularProgressIndicator(
+                    color: const Color(0xFFFF5722),
+                    semanticsLabel: strings.splashLoading,
+                  ),
                 ),
               )
             else if (discoverState.recipes.isEmpty && discoverState.errorMessage != null)
@@ -871,9 +874,14 @@ class DiscoverScreenState extends ConsumerState<DiscoverScreen> with WidgetsBind
               if (query.isEmpty || RecipeRepository.normalizeSearch(r.localizedTitle(strings.locale)).contains(query)) r,
           ];
           if (snap.connectionState != ConnectionState.done && recipes.isEmpty) {
-            return const Padding(
-              padding: EdgeInsets.all(32),
-              child: Center(child: CircularProgressIndicator(color: Color(0xFFFF5722))),
+            return Padding(
+              padding: const EdgeInsets.all(32),
+              child: Center(
+                child: CircularProgressIndicator(
+                  color: const Color(0xFFFF5722),
+                  semanticsLabel: strings.splashLoading,
+                ),
+              ),
             );
           }
           if (recipes.isEmpty) {
