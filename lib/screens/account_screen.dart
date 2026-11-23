@@ -38,6 +38,7 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
 
   // Selected tab for recipes: 0 = Saved, 1 = My Created
   int _recipeTab = 0;
+  String _savedQuery = '';
 
   @override
   void dispose() {
@@ -694,6 +695,10 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
     List<Recipe> customRecipes,
     dynamic strings,
   ) {
+    final q = savedRecipes.length > 5 ? _savedQuery.trim().toLowerCase() : '';
+    final shownSaved = q.isEmpty
+        ? savedRecipes
+        : savedRecipes.where((r) => r.title.toLowerCase().contains(q)).toList();
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
@@ -742,14 +747,28 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
                 icon: Icons.bookmark_border_rounded,
                 message: strings.noSavedRecipesYet,
               )
-            else
+            else ...[
+              if (savedRecipes.length > 5)
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 12),
+                  child: TextField(
+                    key: const Key('saved_search'),
+                    onChanged: (v) => setState(() => _savedQuery = v),
+                    decoration: InputDecoration(
+                      isDense: true,
+                      prefixIcon: const Icon(Icons.search_rounded, size: 20),
+                      hintText: strings.savedSearchHint,
+                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                    ),
+                  ),
+                ),
               ListView.separated(
                 shrinkWrap: true,
                 physics: const NeverScrollableScrollPhysics(),
-                itemCount: savedRecipes.length,
+                itemCount: shownSaved.length,
                 separatorBuilder: (context, index) => const Divider(height: 16),
                 itemBuilder: (context, index) {
-                  final recipe = savedRecipes[index];
+                  final recipe = shownSaved[index];
                   void unsave() {
                     final notifier = ref.read(savedRecipesProvider.notifier);
                     notifier.remove(recipe.id);
@@ -796,6 +815,7 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
                   ));
                 },
               ),
+            ],
           ] else ...[
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
