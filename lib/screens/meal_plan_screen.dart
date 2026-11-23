@@ -3,7 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../providers/cook_history_provider.dart';
 import '../providers/locale_provider.dart';
+import '../providers/recipe_notes_provider.dart';
 import '../providers/household_servings_provider.dart';
 import '../providers/meal_plan_provider.dart';
 import '../providers/shopping_list_provider.dart';
@@ -21,6 +23,8 @@ class MealPlanScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final strings = ref.watch(appStringsProvider);
     final plan = ref.watch(mealPlanProvider);
+    final cookHistory = ref.watch(cookHistoryProvider);
+    final notes = ref.watch(recipeNotesProvider);
     final total = plan.values.fold<int>(0, (a, l) => a + l.length);
 
     Future<void> addFromSaved() async {
@@ -398,6 +402,30 @@ class MealPlanScreen extends ConsumerWidget {
                             crossAxisAlignment: WrapCrossAlignment.center,
                             children: [
                               Text(strings.minutesShort(r.totalTime)),
+                              if ((cookHistory[r.id]?.count ?? 0) > 0)
+                                ConstrainedBox(
+                                  constraints: const BoxConstraints(maxWidth: 110),
+                                  child: Row(
+                                  key: Key('plan_cooked_${day}_${r.id}'),
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    const Icon(Icons.check_circle_outline_rounded, size: 14, color: Color(0xFF059669)),
+                                    const SizedBox(width: 3),
+                                    Flexible(child: Text(strings.cookedTimes(cookHistory[r.id]!.count), maxLines: 1, overflow: TextOverflow.ellipsis)),
+                                  ],
+                                )),
+                              if ((notes[r.id]?.note ?? '').trim().isNotEmpty)
+                                ConstrainedBox(
+                                  constraints: const BoxConstraints(maxWidth: 110),
+                                  child: Row(
+                                  key: Key('plan_note_${day}_${r.id}'),
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    const Icon(Icons.sticky_note_2_outlined, size: 14),
+                                    const SizedBox(width: 3),
+                                    Flexible(child: Text(strings.myNotes, maxLines: 1, overflow: TextOverflow.ellipsis)),
+                                  ],
+                                )),
                               AvoidedBadge(recipe: r),
                             ],
                           ),
