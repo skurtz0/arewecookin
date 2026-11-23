@@ -92,6 +92,7 @@ class AppStrings {
   String get timerSoundOff => _get('timerSoundOff', 'Timer sound off');
   String get cookedFilterEmpty => _get('cookedFilterEmpty', 'You have not cooked anything yet. Finish cooking mode and it shows up here.');
   String get tickPantryIngredients => _get('tickPantryIngredients', 'Tick what is in my pantry');
+  String pantryCoverage(int n, int total) => _get('pantryCoverageFmt', '{n} of {total} ingredients in your pantry').replaceAll('{n}', '$n').replaceAll('{total}', '$total');
   String get inPantryLabel => _get('inPantryLabel', 'In your pantry');
   String get shoppingManual => _get('shoppingManual', 'Added by hand');
   String get shoppingClearAll => _get('shoppingClearAll', 'Clear list');

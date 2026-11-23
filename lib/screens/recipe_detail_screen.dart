@@ -578,6 +578,21 @@ class _RecipeDetailScreenState extends ConsumerState<RecipeDetailScreen> {
 
             const SizedBox(height: 16),
 
+            Builder(builder: (_) {
+              final have = recipe.ingredients
+                  .where((i) => _inPantry(i, pantryKeys, strings.locale))
+                  .length;
+              if (have == 0) return const SizedBox.shrink();
+              return Padding(
+                padding: const EdgeInsets.only(bottom: 4),
+                child: Text(
+                  strings.pantryCoverage(have, recipe.ingredients.length),
+                  key: const Key('pantry_coverage'),
+                  style: TextStyle(color: Colors.grey.shade700, fontSize: 13),
+                ),
+              );
+            }),
+
             if (recipe.ingredients.asMap().entries.any((e) =>
                 !_checkedIngredientIndices.contains(e.key) && _inPantry(e.value, pantryKeys, strings.locale)))
               Align(

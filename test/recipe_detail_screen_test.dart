@@ -232,10 +232,13 @@ void main() {
       ));
       await tester.pumpAndSettle();
       expect(find.byKey(const Key('ingredient_pantry_0')), findsNothing);
+      expect(find.byKey(const Key('pantry_coverage')), findsNothing);
       await container.read(pantryProvider.notifier).toggleIngredient(sampleRecipe.ingredients.first.localizedName('tr'));
       await tester.pumpAndSettle();
       expect(find.byKey(const Key('ingredient_pantry_0')), findsOneWidget);
       expect(find.byKey(const Key('ingredient_pantry_1')), findsNothing);
+      expect(find.byKey(const Key('pantry_coverage')), findsOneWidget);
+      expect(find.textContaining('1/${sampleRecipe.ingredients.length}'), findsOneWidget);
     });
 
     testWidgets('one tap ticks the ingredients that are in the pantry', (tester) async {
