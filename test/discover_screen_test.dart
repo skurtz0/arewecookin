@@ -263,11 +263,41 @@ void main() {
       await tester.pump(const Duration(milliseconds: 300));
       expect(container.read(discoverProvider).maxMinutes, 30);
       expect(container.read(discoverProvider).difficulty, 'easy');
+      await tester.ensureVisible(chip);
+      await tester.pump();
       await tester.tap(chip);
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 300));
       expect(container.read(discoverProvider).maxMinutes, isNull);
       expect(container.read(discoverProvider).difficulty, isNull);
+    });
+
+    testWidgets('Cooked filter lists cooked recipes, newest first, and explains when empty', (tester) async {
+      tester.view.physicalSize = const Size(1200, 6000);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(tester.view.reset);
+      SharedPreferences.setMockInitialValues({});
+      final container = ProviderContainer();
+      addTearDown(container.dispose);
+      await tester.pumpWidget(UncontrolledProviderScope(
+        container: container,
+        child: const MaterialApp(home: Scaffold(body: DiscoverScreen())),
+      ));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 300));
+      final chip = find.byKey(const Key('cooked_filter'));
+      await tester.ensureVisible(chip);
+      await tester.tap(chip);
+      await tester.pumpAndSettle();
+      expect(find.byKey(const Key('cooked_empty')), findsOneWidget);
+      final all = container.read(discoverProvider).recipes;
+      container.read(cookHistoryProvider.notifier).markCooked(all[0].id, at: DateTime(2026, 1, 1));
+      container.read(cookHistoryProvider.notifier).markCooked(all[1].id, at: DateTime(2026, 6, 1));
+      await tester.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 50)));
+      await tester.pumpAndSettle();
+      expect(find.byKey(const Key('cooked_empty')), findsNothing);
+      double y(r) => tester.getTopLeft(find.text(r.localizedTitle('en')).first).dy;
+      expect(y(all[1]), lessThan(y(all[0])));
     });
 
     testWidgets('my rating shows on the recipe card', (tester) async {

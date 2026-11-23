@@ -44,6 +44,7 @@ class DiscoverScreenState extends ConsumerState<DiscoverScreen> {
   final ScrollController _scrollController = ScrollController();
   final TextEditingController _searchController = TextEditingController();
   bool _onlySaved = false;
+  bool _onlyCooked = false;
   bool _savedQuickest = false;
   bool _savedTopRated = false;
   Timer? _debounceTimer;
@@ -280,7 +281,7 @@ class DiscoverScreenState extends ConsumerState<DiscoverScreen> {
                 ),
               ),
             ),
-            if (searches.isNotEmpty && discoverState.searchQuery.isEmpty && !_onlySaved)
+            if (searches.isNotEmpty && discoverState.searchQuery.isEmpty && !_onlySaved && !_onlyCooked)
               SliverToBoxAdapter(
                 child: Padding(
                   padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
@@ -313,7 +314,7 @@ class DiscoverScreenState extends ConsumerState<DiscoverScreen> {
                   ),
                 ),
               ),
-            if (todayPlan.isNotEmpty && discoverState.searchQuery.isEmpty && !_onlySaved)
+            if (todayPlan.isNotEmpty && discoverState.searchQuery.isEmpty && !_onlySaved && !_onlyCooked)
               SliverToBoxAdapter(
                 child: Padding(
                   padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
@@ -385,7 +386,9 @@ class DiscoverScreenState extends ConsumerState<DiscoverScreen> {
                   ],
                 ),
               ),
-            if (_onlySaved)
+            if (_onlyCooked)
+              _buildCookedSliver(context, strings)
+            else if (_onlySaved)
               _buildSavedSliver(context, strings)
             else if (discoverState.isLoading)
               const SliverFillRemaining(
@@ -565,7 +568,24 @@ class DiscoverScreenState extends ConsumerState<DiscoverScreen> {
                     label: Text(savedCount > 0 ? '${strings.savedOnly} ($savedCount)' : strings.savedOnly),
                     selected: _onlySaved,
                     selectedColor: const Color(0xFFFF5722).withValues(alpha: 0.18),
-                    onSelected: (v) => setState(() => _onlySaved = v),
+                    onSelected: (v) => setState(() {
+                      _onlySaved = v;
+                      if (v) _onlyCooked = false;
+                    }),
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsetsDirectional.only(end: 8),
+                  child: FilterChip(
+                    key: const Key('cooked_filter'),
+                    avatar: const Icon(Icons.check_circle_outline_rounded, size: 16),
+                    label: Text(strings.cookedDishes),
+                    selected: _onlyCooked,
+                    selectedColor: const Color(0xFFFF5722).withValues(alpha: 0.18),
+                    onSelected: (v) => setState(() {
+                      _onlyCooked = v;
+                      if (v) _onlySaved = false;
+                    }),
                   ),
                 ),
                 Padding(
@@ -673,6 +693,55 @@ class DiscoverScreenState extends ConsumerState<DiscoverScreen> {
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  /// Recipes the user has cooked, most recent first. Resolved by id, so it also works offline for local recipes.
+  Widget _buildCookedSliver(BuildContext context, AppStrings strings) {
+    final history = ref.watch(cookHistoryProvider);
+    final ids = history.keys.toList()
+      ..sort((a, b) => (history[b]!.last ?? DateTime(0)).compareTo(history[a]!.last ?? DateTime(0)));
+    final repo = ref.read(recipeRepositoryProvider);
+    return SliverToBoxAdapter(
+      child: FutureBuilder<List<Recipe>>(
+        key: ValueKey(ids.join(',')),
+        future: Future.wait(ids.map(repo.getRecipeById)).then((l) => [for (final r in l) ?r]),
+        builder: (context, snap) {
+          final recipes = snap.data ?? const <Recipe>[];
+          if (snap.connectionState != ConnectionState.done && recipes.isEmpty) {
+            return const Padding(
+              padding: EdgeInsets.all(32),
+              child: Center(child: CircularProgressIndicator(color: Color(0xFFFF5722))),
+            );
+          }
+          if (recipes.isEmpty) {
+            return Padding(
+              padding: const EdgeInsets.all(32),
+              child: Text(
+                strings.cookedFilterEmpty,
+                key: const Key('cooked_empty'),
+                textAlign: TextAlign.center,
+                style: TextStyle(color: Colors.grey.shade600),
+              ),
+            );
+          }
+          return Padding(
+            padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
+            child: Column(
+              key: const Key('cooked_list'),
+              children: [
+                for (final recipe in recipes)
+                  _RecipeCard(
+                    recipe: recipe,
+                    onTap: () => Navigator.of(context).push(
+                      MaterialPageRoute(builder: (_) => RecipeDetailScreen(recipe: recipe)),
+                    ),
+                  ),
+              ],
+            ),
+          );
+        },
       ),
     );
   }
