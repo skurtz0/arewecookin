@@ -37,6 +37,29 @@ void main() {
         all[0].title.toLowerCase().contains(target.title.toLowerCase()) ? findsOneWidget : findsNothing);
   });
 
+  testWidgets('saved search also finds recipes by ingredient', (tester) async {
+    SharedPreferences.setMockInitialValues({});
+    tester.view.physicalSize = const Size(1000, 6000);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(tester.view.reset);
+    final all = (await RecipeRepository().getRecipes(limit: 6)).recipes;
+    final c = ProviderContainer();
+    addTearDown(c.dispose);
+    await c.read(authProvider.notifier).signInWithEmail('test@arewecookin.com', '123456');
+    for (final r in all) {
+      await c.read(savedRecipesProvider.notifier).toggleSave(r);
+    }
+    final ing = all[0].ingredients.first.name;
+    await tester.pumpWidget(UncontrolledProviderScope(
+      container: c,
+      child: const MaterialApp(home: AccountScreen()),
+    ));
+    await tester.pumpAndSettle();
+    await tester.enterText(find.byKey(const Key('saved_search')), ing);
+    await tester.pumpAndSettle();
+    expect(find.byKey(Key('unsave_${all[0].id}')), findsOneWidget);
+  });
+
   testWidgets('saved search box does not overflow at 360px and 1.8x text', (tester) async {
     SharedPreferences.setMockInitialValues({});
     tester.view.physicalSize = const Size(360, 3000);

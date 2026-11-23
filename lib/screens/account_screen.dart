@@ -698,7 +698,12 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
     final q = savedRecipes.length > 5 ? _savedQuery.trim().toLowerCase() : '';
     final shownSaved = q.isEmpty
         ? savedRecipes
-        : savedRecipes.where((r) => r.title.toLowerCase().contains(q)).toList();
+        : savedRecipes
+            .where((r) =>
+                r.title.toLowerCase().contains(q) ||
+                r.localizedTitle(strings.locale).toLowerCase().contains(q) ||
+                r.ingredients.any((i) => i.name.toLowerCase().contains(q)))
+            .toList();
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
