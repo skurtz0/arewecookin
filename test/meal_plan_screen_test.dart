@@ -94,6 +94,11 @@ void main() {
     final plan = container.read(mealPlanProvider);
     expect(plan.containsKey(1), isFalse);
     expect(plan[5]!.single.id, recipe.id);
+    tester.widget<SnackBarAction>(find.byKey(const Key('plan_move_undo'))).onPressed();
+    await tester.pumpAndSettle();
+    final back = container.read(mealPlanProvider);
+    expect(back[1]!.single.id, recipe.id);
+    expect(back.containsKey(5), isFalse);
   });
 
   testWidgets('planned meals show a thumbnail', (tester) async {

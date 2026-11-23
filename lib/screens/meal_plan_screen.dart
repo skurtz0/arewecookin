@@ -447,10 +447,23 @@ class MealPlanScreen extends ConsumerWidget {
                                       ),
                                     ),
                                   );
-                                  if (to != null) {
+                                  if (to != null && context.mounted) {
+                                    final before = ref.read(mealPlanProvider);
                                     ref
                                         .read(mealPlanProvider.notifier)
                                         .move(day, to, r);
+                                    ScaffoldMessenger.of(context)
+                                      ..hideCurrentSnackBar()
+                                      ..showSnackBar(SnackBar(
+                                        content: Text(strings.mealPlanAddedTo(strings.weekdayName(to))),
+                                        action: SnackBarAction(
+                                          key: const Key('plan_move_undo'),
+                                          label: strings.undoLabel,
+                                          onPressed: () => ref
+                                              .read(mealPlanProvider.notifier)
+                                              .restore(before),
+                                        ),
+                                      ));
                                   }
                                 },
                               ),
