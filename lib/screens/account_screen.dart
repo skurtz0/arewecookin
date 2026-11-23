@@ -758,6 +758,7 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
                   padding: const EdgeInsets.only(bottom: 12),
                   child: TextField(
                     key: const Key('saved_search'),
+                    textInputAction: TextInputAction.search,
                     onChanged: (v) => setState(() => _savedQuery = v),
                     decoration: InputDecoration(
                       isDense: true,

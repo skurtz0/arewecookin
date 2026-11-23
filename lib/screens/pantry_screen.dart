@@ -384,7 +384,9 @@ class _PantryScreenState extends ConsumerState<PantryScreen> {
                 children: [
                   Expanded(
                     child: TextField(
+                      key: const Key('pantry_custom_field'),
                       controller: _customIngredientController,
+                      textInputAction: TextInputAction.done,
                       onSubmitted: (_) => _handleAddCustom(),
                       decoration: InputDecoration(
                         hintText: strings.pantryCustomHint,

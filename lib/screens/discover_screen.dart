@@ -231,7 +231,9 @@ class DiscoverScreenState extends ConsumerState<DiscoverScreen> {
                       Padding(
                         padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
                         child: TextField(
+                          key: const Key('discover_search_field'),
                           controller: _searchController,
+                          textInputAction: TextInputAction.search,
                           onChanged: _onSearchChanged,
                           onSubmitted: (v) => ref.read(recentSearchesProvider.notifier).add(v),
                           decoration: InputDecoration(
