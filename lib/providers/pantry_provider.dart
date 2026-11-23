@@ -50,6 +50,7 @@ class PantryNotifier extends Notifier<PantryState> {
   static const _prefKey = 'pantry_keys_v1';
   static const _cuisineKey = 'pantry_cuisine_v1';
   static const _fullKey = 'pantry_full_only_v1';
+  static const _sortKey = 'pantry_sort_time_v1';
   bool _filtersTouched = false;
   // Saving waits for the stored selection to be read first, so an early tap never overwrites it.
   Future<void> _ready = Future.value();
@@ -71,6 +72,9 @@ class PantryNotifier extends Notifier<PantryState> {
         if (cuisine != null || full != null) {
           state = state.copyWith(selectedCuisine: cuisine, onlyFullMatches: full);
         }
+      }
+      if (!state.sortByTime && prefs.getBool(_sortKey) == true) {
+        state = state.copyWith(sortByTime: true);
       }
       final saved = prefs.getStringList(_prefKey);
       final merged = {...?saved, ...state.selectedKeys};
@@ -113,7 +117,21 @@ class PantryNotifier extends Notifier<PantryState> {
   }
 
   /// Orders the shown matches quickest-first (view only, no new search).
-  void toggleSortByTime() => state = state.copyWith(sortByTime: !state.sortByTime);
+  void toggleSortByTime() {
+    state = state.copyWith(sortByTime: !state.sortByTime);
+    final on = state.sortByTime;
+    () async {
+      try {
+        await _ready;
+        final prefs = await SharedPreferences.getInstance();
+        if (on) {
+          await prefs.setBool(_sortKey, true);
+        } else {
+          await prefs.remove(_sortKey);
+        }
+      } catch (_) {}
+    }();
+  }
 
   Future<void> toggleIngredient(String key) async {
     final normalized = key.toLowerCase().trim();
