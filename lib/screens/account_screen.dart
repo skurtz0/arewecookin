@@ -1778,7 +1778,10 @@ class _MethodSelector extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return InkWell(
+    return Semantics(
+      button: true,
+      selected: isSelected,
+      child: InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(12),
       child: Container(
@@ -1810,7 +1813,7 @@ class _MethodSelector extends StatelessWidget {
           ],
         ),
       ),
-    );
+    ));
   }
 }
 
@@ -1862,7 +1865,10 @@ class _TabToggleButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return InkWell(
+    return Semantics(
+      button: true,
+      selected: isSelected,
+      child: InkWell(
       borderRadius: BorderRadius.circular(10),
       onTap: onTap,
       child: AnimatedContainer(
@@ -1890,7 +1896,7 @@ class _TabToggleButton extends StatelessWidget {
           ),
         ),
       ),
-    );
+    ));
   }
 }
 

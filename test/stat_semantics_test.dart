@@ -70,4 +70,23 @@ void main() {
     expect(selectedOf(counts.at(1)), isFalse);
     handle.dispose();
   });
+
+  testWidgets('sign-in screen toggles report which one is selected', (tester) async {
+    SharedPreferences.setMockInitialValues({});
+    tester.platformDispatcher.localesTestValue = const [Locale('en')];
+    addTearDown(tester.platformDispatcher.clearLocalesTestValue);
+    final handle = tester.ensureSemantics();
+    tester.view.physicalSize = const Size(1000, 3000);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(tester.view.reset);
+    await tester.pumpWidget(const ProviderScope(child: MaterialApp(home: AccountScreen())));
+    await tester.pumpAndSettle();
+    final selected = find.byWidgetPredicate(
+        (w) => w is Semantics && w.properties.button == true && w.properties.selected == true);
+    final notSelected = find.byWidgetPredicate(
+        (w) => w is Semantics && w.properties.button == true && w.properties.selected == false);
+    expect(selected, findsWidgets);
+    expect(notSelected, findsWidgets);
+    handle.dispose();
+  });
 }
