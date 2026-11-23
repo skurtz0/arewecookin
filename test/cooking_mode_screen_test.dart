@@ -21,6 +21,7 @@ void main() {
     late Recipe sampleRecipe;
 
     setUp(() {
+      SharedPreferences.setMockInitialValues({});
       sampleRecipe = const Recipe(
         id: 'rec_00001',
         title: 'Özel Menemen #1',
@@ -144,6 +145,19 @@ void main() {
       await tester.pumpAndSettle();
       expect(checked(), 'isTrue');
       handle.dispose();
+    });
+
+    testWidgets('a step previews the next one, the last step does not', (tester) async {
+      SharedPreferences.setMockInitialValues({});
+      await tester.pumpWidget(ProviderScope(
+        overrides: [localeProvider.overrideWith(() => FakeLocaleNotifier(const Locale('tr')))],
+        child: MaterialApp(home: CookingModeScreen(recipe: sampleRecipe)),
+      ));
+      await tester.pumpAndSettle();
+      expect(find.text('Sonraki: Yumurtaları Kırma'), findsOneWidget);
+      await tester.tap(find.byIcon(Icons.arrow_forward_rounded).first);
+      await tester.pumpAndSettle();
+      expect(find.byKey(const Key('next_step_preview')), findsNothing);
     });
 
     testWidgets('renders step 1 with tool icon, instruction, pro tip, timer and navigates through wizard in Turkish', (tester) async {

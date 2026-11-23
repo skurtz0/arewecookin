@@ -791,6 +791,15 @@ class _CookingModeScreenState extends ConsumerState<CookingModeScreen> {
                     ),
                   ),
                 ),
+                if (index < totalSteps - 1)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 10),
+                    child: Text(
+                      strings.nextStepPreview(steps[index + 1].localizedTitle(strings.locale)),
+                      key: const Key('next_step_preview'),
+                      style: const TextStyle(fontSize: 13, color: Color(0xFF94A3B8)),
+                    ),
+                  ),
 
                 const SizedBox(height: 20),
 
