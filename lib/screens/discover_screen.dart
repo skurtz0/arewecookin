@@ -900,6 +900,27 @@ class DiscoverScreenState extends ConsumerState<DiscoverScreen> {
 
   Widget _buildBottomLoader() {
     final strings = ref.watch(appStringsProvider);
+    final failed = ref.watch(discoverProvider.select((d) => d.errorMessage != null && !d.isLoadingMore));
+    if (failed) {
+      // Loading the next batch failed (usually no connection): say so and let the user retry.
+      return Padding(
+        padding: const EdgeInsets.symmetric(vertical: 12),
+        child: Wrap(
+          alignment: WrapAlignment.center,
+          crossAxisAlignment: WrapCrossAlignment.center,
+          spacing: 8,
+          children: [
+            Icon(Icons.cloud_off_rounded, size: 18, color: Colors.grey.shade600),
+            Text(strings.loadErrorTitle, style: TextStyle(fontSize: 13, color: Colors.grey.shade700)),
+            TextButton(
+              key: const Key('load_more_retry'),
+              onPressed: () => ref.read(discoverProvider.notifier).loadMore(),
+              child: Text(strings.retry),
+            ),
+          ],
+        ),
+      );
+    }
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 24),
       alignment: Alignment.center,
