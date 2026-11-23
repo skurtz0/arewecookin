@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
 import '../providers/locale_provider.dart';
 import '../providers/meal_plan_provider.dart';
 import '../providers/shopping_list_provider.dart';
@@ -37,8 +38,13 @@ class MealPlanScreen extends ConsumerWidget {
             children: [
               Padding(
                 padding: const EdgeInsets.all(16),
-                child: Text(strings.planFromSaved,
-                    style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                child: Text(
+                  strings.planFromSaved,
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
               ),
               for (final r in saved)
                 ListTile(
@@ -62,8 +68,13 @@ class MealPlanScreen extends ConsumerWidget {
               children: [
                 Padding(
                   padding: const EdgeInsets.all(16),
-                  child: Text(strings.mealPlanPickDay,
-                      style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                  child: Text(
+                    strings.mealPlanPickDay,
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
                 ),
                 for (var d = 1; d <= 7; d++)
                   ListTile(
@@ -80,9 +91,15 @@ class MealPlanScreen extends ConsumerWidget {
       final ok = ref.read(mealPlanProvider.notifier).add(day, recipe);
       ScaffoldMessenger.of(context)
         ..hideCurrentSnackBar()
-        ..showSnackBar(SnackBar(
-          content: Text(ok ? strings.mealPlanAddedTo(strings.weekdayName(day)) : strings.mealPlanAlready),
-        ));
+        ..showSnackBar(
+          SnackBar(
+            content: Text(
+              ok
+                  ? strings.mealPlanAddedTo(strings.weekdayName(day))
+                  : strings.mealPlanAlready,
+            ),
+          ),
+        );
     }
 
     return Scaffold(
@@ -103,7 +120,9 @@ class MealPlanScreen extends ConsumerWidget {
               tooltip: strings.planCopy,
               icon: const Icon(Icons.copy_rounded),
               onPressed: () async {
-                final text = ref.read(mealPlanProvider.notifier).asText(
+                final text = ref
+                    .read(mealPlanProvider.notifier)
+                    .asText(
                       strings.weekdayName,
                       (r) => r.localizedTitle(strings.locale),
                       strings.minutesShort,
@@ -127,7 +146,10 @@ class MealPlanScreen extends ConsumerWidget {
                     title: Text(strings.mealPlanClear),
                     content: Text(strings.mealPlanClearConfirm),
                     actions: [
-                      TextButton(onPressed: () => Navigator.of(ctx).pop(false), child: Text(strings.cancel)),
+                      TextButton(
+                        onPressed: () => Navigator.of(ctx).pop(false),
+                        child: Text(strings.cancel),
+                      ),
                       TextButton(
                         key: const Key('plan_clear_confirm'),
                         onPressed: () => Navigator.of(ctx).pop(true),
@@ -143,13 +165,15 @@ class MealPlanScreen extends ConsumerWidget {
                   if (!context.mounted) return;
                   ScaffoldMessenger.of(context)
                     ..hideCurrentSnackBar()
-                    ..showSnackBar(SnackBar(
-                      content: Text(strings.listCleared),
-                      action: SnackBarAction(
-                        label: strings.undoLabel,
-                        onPressed: () => notifier.restore(before),
+                    ..showSnackBar(
+                      SnackBar(
+                        content: Text(strings.listCleared),
+                        action: SnackBarAction(
+                          label: strings.undoLabel,
+                          onPressed: () => notifier.restore(before),
+                        ),
                       ),
-                    ));
+                    );
                 }
               },
             ),
@@ -158,29 +182,12 @@ class MealPlanScreen extends ConsumerWidget {
               key: const Key('plan_to_shopping_list'),
               tooltip: strings.mealPlanToList,
               icon: const Icon(Icons.add_shopping_cart_rounded),
-              onPressed: () {
-                final items = <ShoppingItem>[];
-                for (final recipes in plan.values) {
-                  for (final r in recipes) {
-                    for (final i in r.ingredients.where((i) => !i.isOptional)) {
-                      items.add(ShoppingItem(
-                        name: i.localizedName(strings.locale),
-                        amount: i.amount,
-                        unit: i.localizedUnit(strings.locale),
-                        recipeTitle: r.localizedTitle(strings.locale),
-                      ));
-                    }
-                  }
-                }
-                final added = ref.read(shoppingListProvider.notifier).addAll(items);
-                ScaffoldMessenger.of(context)
-                  ..hideCurrentSnackBar()
-                  ..showSnackBar(SnackBar(
-                    content: Text(added == 0
-                        ? strings.shoppingNothingNew
-                        : strings.shoppingAdded(added)),
-                  ));
-              },
+              onPressed: () => _addToShopping(
+                ref,
+                context,
+                strings,
+                plan.values.expand((e) => e),
+              ),
             ),
         ],
       ),
@@ -188,16 +195,30 @@ class MealPlanScreen extends ConsumerWidget {
           ? Center(
               child: Padding(
                 padding: const EdgeInsets.all(32),
-                child: Column(mainAxisSize: MainAxisSize.min, children: [
-                  Icon(Icons.calendar_month_outlined, size: 64, color: Colors.grey.shade400),
-                  const SizedBox(height: 16),
-                  Text(strings.mealPlanEmptyTitle,
-                      style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-                  const SizedBox(height: 8),
-                  Text(strings.mealPlanEmptyHint,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      Icons.calendar_month_outlined,
+                      size: 64,
+                      color: Colors.grey.shade400,
+                    ),
+                    const SizedBox(height: 16),
+                    Text(
+                      strings.mealPlanEmptyTitle,
+                      style: const TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      strings.mealPlanEmptyHint,
                       textAlign: TextAlign.center,
-                      style: TextStyle(color: Colors.grey.shade600)),
-                ]),
+                      style: TextStyle(color: Colors.grey.shade600),
+                    ),
+                  ],
+                ),
               ),
             )
           : ListView(
@@ -207,12 +228,39 @@ class MealPlanScreen extends ConsumerWidget {
                   if ((plan[day] ?? const []).isNotEmpty) ...[
                     Padding(
                       padding: const EdgeInsets.only(top: 8, bottom: 6),
-                      child: Semantics(header: true, child: Text(
-                          '${day == DateTime.now().weekday ? '${strings.weekdayName(day)} · ${strings.todayLabel}' : strings.weekdayName(day)}'
-                          ' · ${strings.minutesShort(plan[day]!.fold<int>(0, (a, r) => a + r.totalTime))}',
-                          key: Key('plan_day_total_$day'),
-                          style: const TextStyle(
-                              fontSize: 16, fontWeight: FontWeight.bold, color: Color(0xFFFF5722)))),
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: Semantics(
+                              header: true,
+                              child: Text(
+                                '${day == DateTime.now().weekday ? '${strings.weekdayName(day)} · ${strings.todayLabel}' : strings.weekdayName(day)}'
+                                ' · ${strings.minutesShort(plan[day]!.fold<int>(0, (a, r) => a + r.totalTime))}',
+                                key: Key('plan_day_total_$day'),
+                                style: const TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                  color: Color(0xFFFF5722),
+                                ),
+                              ),
+                            ),
+                          ),
+                          IconButton(
+                            key: Key('plan_day_to_list_$day'),
+                            tooltip: strings.mealPlanDayToList,
+                            icon: const Icon(
+                              Icons.add_shopping_cart_rounded,
+                              size: 20,
+                            ),
+                            onPressed: () => _addToShopping(
+                              ref,
+                              context,
+                              strings,
+                              plan[day]!,
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                     for (final r in plan[day]!)
                       Card(
@@ -229,16 +277,25 @@ class MealPlanScreen extends ConsumerWidget {
                           title: Text(r.localizedTitle(strings.locale)),
                           subtitle: Text(strings.minutesShort(r.totalTime)),
                           onTap: () => Navigator.of(context).push(
-                              MaterialPageRoute(builder: (_) => RecipeDetailScreen(recipe: r))),
+                            MaterialPageRoute(
+                              builder: (_) => RecipeDetailScreen(recipe: r),
+                            ),
+                          ),
                           trailing: Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
                               IconButton(
                                 key: Key('plan_cook_${day}_${r.id}'),
                                 tooltip: strings.startCooking,
-                                icon: const Icon(Icons.play_circle_outline_rounded, color: Color(0xFFFF5722)),
+                                icon: const Icon(
+                                  Icons.play_circle_outline_rounded,
+                                  color: Color(0xFFFF5722),
+                                ),
                                 onPressed: () => Navigator.of(context).push(
-                                  MaterialPageRoute(builder: (_) => CookingModeScreen(recipe: r)),
+                                  MaterialPageRoute(
+                                    builder: (_) =>
+                                        CookingModeScreen(recipe: r),
+                                  ),
                                 ),
                               ),
                               IconButton(
@@ -256,42 +313,58 @@ class MealPlanScreen extends ConsumerWidget {
                                           children: [
                                             Padding(
                                               padding: const EdgeInsets.all(16),
-                                              child: Text(strings.mealPlanMove,
-                                                  style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                                              child: Text(
+                                                strings.mealPlanMove,
+                                                style: const TextStyle(
+                                                  fontSize: 16,
+                                                  fontWeight: FontWeight.bold,
+                                                ),
+                                              ),
                                             ),
                                             for (var d = 1; d <= 7; d++)
                                               if (d != day)
                                                 ListTile(
                                                   key: Key('plan_move_to_$d'),
-                                                  title: Text(strings.weekdayName(d)),
-                                                  onTap: () => Navigator.of(ctx).pop(d),
+                                                  title: Text(
+                                                    strings.weekdayName(d),
+                                                  ),
+                                                  onTap: () =>
+                                                      Navigator.of(ctx).pop(d),
                                                 ),
                                           ],
                                         ),
                                       ),
                                     ),
                                   );
-                                  if (to != null) ref.read(mealPlanProvider.notifier).move(day, to, r);
+                                  if (to != null) {
+                                    ref
+                                        .read(mealPlanProvider.notifier)
+                                        .move(day, to, r);
+                                  }
                                 },
                               ),
                               IconButton(
-                            key: Key('plan_remove_${day}_${r.id}'),
-                            tooltip: strings.mealPlanRemove,
-                            icon: const Icon(Icons.close_rounded),
-                            onPressed: () {
-                              final notifier = ref.read(mealPlanProvider.notifier);
-                              notifier.remove(day, r.id);
-                              ScaffoldMessenger.of(context)
-                                ..hideCurrentSnackBar()
-                                ..showSnackBar(SnackBar(
-                                  content: Text(strings.mealPlanRemove),
-                                  action: SnackBarAction(
-                                    label: strings.undoLabel,
-                                    onPressed: () => notifier.add(day, r),
-                                  ),
-                                ));
-                            },
-                          ),
+                                key: Key('plan_remove_${day}_${r.id}'),
+                                tooltip: strings.mealPlanRemove,
+                                icon: const Icon(Icons.close_rounded),
+                                onPressed: () {
+                                  final notifier = ref.read(
+                                    mealPlanProvider.notifier,
+                                  );
+                                  notifier.remove(day, r.id);
+                                  ScaffoldMessenger.of(context)
+                                    ..hideCurrentSnackBar()
+                                    ..showSnackBar(
+                                      SnackBar(
+                                        content: Text(strings.mealPlanRemove),
+                                        action: SnackBarAction(
+                                          label: strings.undoLabel,
+                                          onPressed: () => notifier.add(day, r),
+                                        ),
+                                      ),
+                                    );
+                                },
+                              ),
                             ],
                           ),
                         ),
@@ -301,4 +374,37 @@ class MealPlanScreen extends ConsumerWidget {
             ),
     );
   }
+}
+
+void _addToShopping(
+  WidgetRef ref,
+  BuildContext context,
+  AppStrings strings,
+  Iterable<Recipe> recipes,
+) {
+  final items = <ShoppingItem>[];
+  for (final r in recipes) {
+    for (final i in r.ingredients.where((i) => !i.isOptional)) {
+      items.add(
+        ShoppingItem(
+          name: i.localizedName(strings.locale),
+          amount: i.amount,
+          unit: i.localizedUnit(strings.locale),
+          recipeTitle: r.localizedTitle(strings.locale),
+        ),
+      );
+    }
+  }
+  final added = ref.read(shoppingListProvider.notifier).addAll(items);
+  ScaffoldMessenger.of(context)
+    ..hideCurrentSnackBar()
+    ..showSnackBar(
+      SnackBar(
+        content: Text(
+          added == 0
+              ? strings.shoppingNothingNew
+              : strings.shoppingAdded(added),
+        ),
+      ),
+    );
 }
