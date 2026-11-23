@@ -485,8 +485,13 @@ class _CookingModeScreenState extends ConsumerState<CookingModeScreen> {
     _initTimerForStep(index);
   }
 
+  // Users who turned animations off in the system settings get an instant step change.
   void _goToPreviousStep() {
     if (_currentStepIndex > 0) {
+      if (MediaQuery.of(context).disableAnimations) {
+        _pageController.jumpToPage(_currentStepIndex - 1);
+        return;
+      }
       _pageController.previousPage(
         duration: const Duration(milliseconds: 300),
         curve: Curves.easeInOut,
@@ -496,6 +501,10 @@ class _CookingModeScreenState extends ConsumerState<CookingModeScreen> {
 
   void _goToNextStep() {
     if (_currentStepIndex < widget.recipe.steps.length - 1) {
+      if (MediaQuery.of(context).disableAnimations) {
+        _pageController.jumpToPage(_currentStepIndex + 1);
+        return;
+      }
       _pageController.nextPage(
         duration: const Duration(milliseconds: 300),
         curve: Curves.easeInOut,
