@@ -302,6 +302,28 @@ void main() {
       expect(find.byKey(const Key('search_tip')), findsOneWidget);
     });
 
+    testWidgets('a search shows how many recipes were found', (tester) async {
+      tester.view.physicalSize = const Size(1200, 6000);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(tester.view.reset);
+      SharedPreferences.setMockInitialValues({});
+      final container = ProviderContainer();
+      addTearDown(container.dispose);
+      await tester.pumpWidget(UncontrolledProviderScope(
+        container: container,
+        child: const MaterialApp(home: Scaffold(body: DiscoverScreen())),
+      ));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 300));
+      expect(find.byKey(const Key('results_count')), findsNothing);
+      container.read(discoverProvider.notifier).setSearchQuery('menemen');
+      await tester.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 100)));
+      await tester.pump(const Duration(milliseconds: 600));
+      await tester.pumpAndSettle();
+      expect(container.read(discoverProvider).recipes, isNotEmpty);
+      expect(find.byKey(const Key('results_count')), findsOneWidget);
+    });
+
     testWidgets('the chosen Saved order is remembered', (tester) async {
       tester.view.physicalSize = const Size(1200, 6000);
       tester.view.devicePixelRatio = 1.0;

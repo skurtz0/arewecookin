@@ -429,6 +429,25 @@ class DiscoverScreenState extends ConsumerState<DiscoverScreen> {
                   ],
                 ),
               ),
+            if (!_onlyRated &&
+                !_onlyCooked &&
+                !_onlySaved &&
+                !discoverState.isLoading &&
+                discoverState.searchQuery.trim().isNotEmpty &&
+                discoverState.recipes.isNotEmpty)
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(20, 8, 20, 0),
+                  child: Semantics(
+                    liveRegion: true,
+                    child: Text(
+                      strings.resultsCount(discoverState.recipes.length, discoverState.hasMore),
+                      key: const Key('results_count'),
+                      style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
+                    ),
+                  ),
+                ),
+              ),
             if (_onlyRated)
               _buildRatedSliver(context, strings)
             else if (_onlyCooked)
