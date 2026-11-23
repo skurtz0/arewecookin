@@ -1,3 +1,5 @@
+import '../widgets/theme_toggle.dart';
+import '../utils/app_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../utils/cooking_icons.dart';
@@ -51,7 +53,7 @@ class _MainNavigationScreenState extends ConsumerState<MainNavigationScreen> {
     final strings = ref.watch(appStringsProvider);
     final openItems = ref.watch(shoppingListProvider).where((e) => !e.done).length;
     final pantryCount = ref.watch(pantryProvider.select((p) => p.selectedKeys.length));
-    const grey = Color(0xFF64748B);
+    final grey = AppColors.slate(500);
     const orange = Color(0xFFFF5722);
     const green = Color(0xFF059669);
 
@@ -59,7 +61,7 @@ class _MainNavigationScreenState extends ConsumerState<MainNavigationScreen> {
     final tabs = <_Tab>[
       _Tab(
         key: 'tab_discover_${strings.locale}',
-        icon: const Icon(CookingIcons.compass, color: grey),
+        icon: Icon(CookingIcons.compass, color: grey),
         selectedIcon: const Icon(CookingIcons.compass, color: orange),
         label: strings.tabDiscover,
       ),
@@ -70,7 +72,7 @@ class _MainNavigationScreenState extends ConsumerState<MainNavigationScreen> {
           isLabelVisible: pantryCount > 0,
           label: Text('$pantryCount'),
           backgroundColor: green,
-          child: const Icon(CookingIcons.pantry, color: grey),
+          child: Icon(CookingIcons.pantry, color: grey),
         ),
         selectedIcon: Badge(
           isLabelVisible: pantryCount > 0,
@@ -86,7 +88,7 @@ class _MainNavigationScreenState extends ConsumerState<MainNavigationScreen> {
           key: const Key('shopping_badge'),
           isLabelVisible: openItems > 0,
           label: Text('$openItems'),
-          child: const Icon(Icons.shopping_basket_outlined, color: grey),
+          child: Icon(Icons.shopping_basket_outlined, color: grey),
         ),
         selectedIcon: Badge(
           isLabelVisible: openItems > 0,
@@ -97,13 +99,13 @@ class _MainNavigationScreenState extends ConsumerState<MainNavigationScreen> {
       ),
       _Tab(
         key: 'tab_social_${strings.locale}',
-        icon: const Icon(Icons.groups_outlined, color: grey),
+        icon: Icon(Icons.groups_outlined, color: grey),
         selectedIcon: const Icon(Icons.groups_rounded, color: orange),
         label: strings.tabSocial,
       ),
       _Tab(
         key: 'tab_account_${strings.locale}',
-        icon: const Icon(Icons.person_outline_rounded, color: grey),
+        icon: Icon(Icons.person_outline_rounded, color: grey),
         selectedIcon: const Icon(Icons.person_rounded, color: orange),
         label: strings.tabAccount,
       ),
@@ -119,26 +121,63 @@ class _MainNavigationScreenState extends ConsumerState<MainNavigationScreen> {
         if (!didPop && _currentIndex != 0) setState(() => _currentIndex = 0);
       },
       child: Scaffold(
+        backgroundColor: AppColors.background,
         body: wide
             ? Row(
                 children: [
-                  NavigationRail(
-                    key: ValueKey('main_nav_rail_${strings.locale}'),
-                    selectedIndex: _currentIndex,
-                    onDestinationSelected: _select,
-                    labelType: NavigationRailLabelType.all,
-                    backgroundColor: Colors.white,
-                    indicatorColor: orange.withValues(alpha: 0.15),
-                    destinations: [
-                      for (final t in tabs)
-                        NavigationRailDestination(
-                          icon: t.icon,
-                          selectedIcon: t.selectedIcon,
-                          label: Text(t.label),
+                  Builder(builder: (context) {
+                    final extended = MediaQuery.sizeOf(context).width >= 1100;
+                    return NavigationRail(
+                      key: ValueKey('main_nav_rail_${strings.locale}'),
+                      selectedIndex: _currentIndex,
+                      onDestinationSelected: _select,
+                      extended: extended,
+                      minExtendedWidth: 220,
+                      labelType: extended ? NavigationRailLabelType.none : NavigationRailLabelType.all,
+                      backgroundColor: AppColors.surface,
+                      indicatorColor: orange.withValues(alpha: 0.15),
+                      indicatorShape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                      selectedLabelTextStyle: const TextStyle(color: orange, fontWeight: FontWeight.w700, fontSize: 13),
+                      unselectedLabelTextStyle: TextStyle(color: AppColors.slate(500), fontWeight: FontWeight.w500, fontSize: 12),
+                      leading: Padding(
+                        padding: const EdgeInsets.fromLTRB(8, 20, 8, 20),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Container(
+                              width: 38,
+                              height: 38,
+                              decoration: BoxDecoration(color: orange, borderRadius: BorderRadius.circular(12)),
+                              child: const Icon(Icons.restaurant_rounded, color: Colors.white, size: 22),
+                            ),
+                            if (extended) ...[
+                              const SizedBox(width: 10),
+                              Text('AreWeCookin', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: AppColors.slate(800))),
+                            ],
+                          ],
                         ),
-                    ],
-                  ),
-                  VerticalDivider(width: 1, color: Colors.grey.shade200),
+                      ),
+                      trailing: Expanded(
+                        child: Align(
+                          alignment: Alignment.bottomCenter,
+                          child: Padding(
+                            padding: const EdgeInsets.only(bottom: 20),
+                            child: ThemeToggleButton(withLabel: extended),
+                          ),
+                        ),
+                      ),
+                      destinations: [
+                        for (final t in tabs)
+                          NavigationRailDestination(
+                            icon: t.icon,
+                            selectedIcon: t.selectedIcon,
+                            label: Text(t.label),
+                            padding: const EdgeInsets.symmetric(vertical: 2),
+                          ),
+                      ],
+                    );
+                  }),
+                  VerticalDivider(width: 1, color: AppColors.grey(200)),
                   Expanded(
                     child: Align(
                       alignment: Alignment.topCenter,
@@ -155,8 +194,8 @@ class _MainNavigationScreenState extends ConsumerState<MainNavigationScreen> {
             ? null
             : Container(
                 decoration: BoxDecoration(
-                  color: Colors.white,
-                  border: Border(top: BorderSide(color: Colors.grey.shade200)),
+                  color: AppColors.surface,
+                  border: Border(top: BorderSide(color: AppColors.grey(200))),
                   boxShadow: [
                     BoxShadow(
                       color: Colors.black.withValues(alpha: 0.04),
@@ -169,7 +208,7 @@ class _MainNavigationScreenState extends ConsumerState<MainNavigationScreen> {
                   key: ValueKey('main_nav_bar_${strings.locale}'),
                   selectedIndex: _currentIndex,
                   onDestinationSelected: _select,
-                  backgroundColor: Colors.white,
+                  backgroundColor: AppColors.surface,
                   indicatorColor: orange.withValues(alpha: 0.15),
                   destinations: [
                     for (final t in tabs)

@@ -1,3 +1,4 @@
+import '../utils/app_colors.dart';
 import '../data/photo_credits.dart';
 import '../utils/deep_link.dart';
 import '../widgets/readable_width.dart';
@@ -233,17 +234,17 @@ class _RecipeDetailScreenState extends ConsumerState<RecipeDetailScreen> {
     final catColor = _categoryColor(recipe.category);
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF9F9FB),
+      backgroundColor: AppColors.background,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: AppColors.surface,
         elevation: 0,
         surfaceTintColor: Colors.transparent,
         title: Text(
           recipe.localizedTitle(strings.locale),
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.bold,
-            color: Color(0xFF1E293B),
+            color: AppColors.slate(800),
           ),
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
@@ -255,7 +256,7 @@ class _RecipeDetailScreenState extends ConsumerState<RecipeDetailScreen> {
               return IconButton(
                 key: const Key('share_link'),
                 tooltip: strings.copyLink,
-                icon: const Icon(Icons.link_rounded, size: 22, color: Color(0xFF64748B)),
+                icon: Icon(Icons.link_rounded, size: 22, color: AppColors.slate(500)),
                 onPressed: () async {
                   await Clipboard.setData(ClipboardData(text: recipeShareUrl(recipe.id)));
                   if (!context.mounted) return;
@@ -272,10 +273,10 @@ class _RecipeDetailScreenState extends ConsumerState<RecipeDetailScreen> {
               return IconButton(
                 key: const Key('copy_recipe'),
                 tooltip: strings.copyRecipe,
-                icon: const Icon(
+                icon: Icon(
                   Icons.copy_rounded,
                   size: 22,
-                  color: Color(0xFF64748B),
+                  color: AppColors.slate(500),
                 ),
                 onPressed: () async {
                   await Clipboard.setData(
@@ -306,7 +307,7 @@ class _RecipeDetailScreenState extends ConsumerState<RecipeDetailScreen> {
                       : Icons.bookmark_border_rounded,
                   color: isSaved
                       ? const Color(0xFFFF5722)
-                      : const Color(0xFF64748B),
+                      : AppColors.slate(500),
                   size: 24,
                 ),
                 onPressed: () async {
@@ -376,7 +377,7 @@ class _RecipeDetailScreenState extends ConsumerState<RecipeDetailScreen> {
                 child: Text(
                   photoCreditFor(recipe.imageUrl)!,
                   key: const Key('photo_credit'),
-                  style: TextStyle(fontSize: 10, color: Colors.grey.shade600),
+                  style: TextStyle(fontSize: 10, color: AppColors.grey(600)),
                 ),
               ),
 
@@ -384,9 +385,9 @@ class _RecipeDetailScreenState extends ConsumerState<RecipeDetailScreen> {
             Container(
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: AppColors.surface,
                 borderRadius: BorderRadius.circular(20),
-                border: Border.all(color: Colors.grey.shade200),
+                border: Border.all(color: AppColors.grey(200)),
                 boxShadow: [
                   BoxShadow(
                     color: Colors.black.withValues(alpha: 0.03),
@@ -426,14 +427,14 @@ class _RecipeDetailScreenState extends ConsumerState<RecipeDetailScreen> {
                           vertical: 6,
                         ),
                         decoration: BoxDecoration(
-                          color: Colors.grey.shade100,
+                          color: AppColors.grey(100),
                           borderRadius: BorderRadius.circular(10),
                         ),
                         child: Text(
                           recipe.localizedDifficulty(strings),
                           style: TextStyle(
                             fontSize: 13,
-                            color: Colors.grey.shade800,
+                            color: AppColors.grey(800),
                             fontWeight: FontWeight.w600,
                           ),
                         ),
@@ -443,10 +444,10 @@ class _RecipeDetailScreenState extends ConsumerState<RecipeDetailScreen> {
                   const SizedBox(height: 14),
                   Text(
                     recipe.localizedTitle(strings.locale),
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 22,
                       fontWeight: FontWeight.bold,
-                      color: Color(0xFF0F172A),
+                      color: AppColors.slate(900),
                     ),
                   ),
                   const SizedBox(height: 16),
@@ -495,9 +496,9 @@ class _RecipeDetailScreenState extends ConsumerState<RecipeDetailScreen> {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: AppColors.surface,
                 borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: Colors.grey.shade200),
+                border: Border.all(color: AppColors.grey(200)),
               ),
               child: Row(
                 children: [
@@ -512,10 +513,10 @@ class _RecipeDetailScreenState extends ConsumerState<RecipeDetailScreen> {
                       '${strings.servings}:',
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.w600,
-                        color: Color(0xFF1E293B),
+                        color: AppColors.slate(800),
                       ),
                     ),
                   ),
@@ -525,7 +526,7 @@ class _RecipeDetailScreenState extends ConsumerState<RecipeDetailScreen> {
                     icon: const Icon(Icons.remove_circle_outline_rounded),
                     color: _servings > 1
                         ? const Color(0xFFFF5722)
-                        : Colors.grey.shade300,
+                        : AppColors.grey(300),
                     onPressed: _servings > 1
                         ? () => _changeServings(-1)
                         : null,
@@ -537,10 +538,10 @@ class _RecipeDetailScreenState extends ConsumerState<RecipeDetailScreen> {
                       fit: BoxFit.scaleDown,
                       child: Text(
                         strings.servingsFormat(_servings),
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 15,
                           fontWeight: FontWeight.bold,
-                          color: Color(0xFF0F172A),
+                          color: AppColors.slate(900),
                         ),
                       ),
                     )),
@@ -613,10 +614,10 @@ class _RecipeDetailScreenState extends ConsumerState<RecipeDetailScreen> {
                     children: [
                       Semantics(header: true, child: Text(
                         strings.ingredientsTitle,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
-                          color: Color(0xFF1E293B),
+                          color: AppColors.slate(800),
                         ),
                       )),
                       const SizedBox(height: 4),
@@ -626,7 +627,7 @@ class _RecipeDetailScreenState extends ConsumerState<RecipeDetailScreen> {
                           fontSize: 13,
                           color: progress == 1.0
                               ? Colors.green.shade700
-                              : Colors.grey.shade600,
+                              : AppColors.grey(600),
                           fontWeight: FontWeight.w500,
                         ),
                       ),
@@ -664,7 +665,7 @@ class _RecipeDetailScreenState extends ConsumerState<RecipeDetailScreen> {
               child: LinearProgressIndicator(
                 value: progress,
                 minHeight: 8,
-                backgroundColor: Colors.grey.shade200,
+                backgroundColor: AppColors.grey(200),
                 color: progress == 1.0
                     ? const Color(0xFF10B981)
                     : const Color(0xFFFF5722),
@@ -678,7 +679,7 @@ class _RecipeDetailScreenState extends ConsumerState<RecipeDetailScreen> {
                 child: Text(
                   strings.ingredientHoldHint,
                   key: const Key('avoid_hint'),
-                  style: TextStyle(fontSize: 11, color: Colors.grey.shade500),
+                  style: TextStyle(fontSize: 11, color: AppColors.grey(500)),
                 ),
               ),
 
@@ -723,7 +724,7 @@ class _RecipeDetailScreenState extends ConsumerState<RecipeDetailScreen> {
                 child: Text(
                   strings.pantryCoverage(have, recipe.ingredients.length),
                   key: const Key('pantry_coverage'),
-                  style: TextStyle(color: Colors.grey.shade700, fontSize: 13),
+                  style: TextStyle(color: AppColors.grey(700), fontSize: 13),
                 ),
               );
             }),
@@ -752,9 +753,9 @@ class _RecipeDetailScreenState extends ConsumerState<RecipeDetailScreen> {
             // Ingredients Interactive List
             Container(
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: AppColors.surface,
                 borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: Colors.grey.shade200),
+                border: Border.all(color: AppColors.grey(200)),
               ),
               child: ListView.separated(
                 physics: const NeverScrollableScrollPhysics(),
@@ -819,7 +820,7 @@ class _RecipeDetailScreenState extends ConsumerState<RecipeDetailScreen> {
                                 : Icons.radio_button_unchecked_rounded,
                             color: isChecked
                                 ? const Color(0xFF10B981)
-                                : Colors.grey.shade400,
+                                : AppColors.grey(400),
                             size: 22,
                           ),
                           const SizedBox(width: 14),
@@ -833,8 +834,8 @@ class _RecipeDetailScreenState extends ConsumerState<RecipeDetailScreen> {
                                     ? TextDecoration.lineThrough
                                     : null,
                                 color: isChecked
-                                    ? Colors.grey.shade400
-                                    : const Color(0xFF1E293B),
+                                    ? AppColors.grey(400)
+                                    : AppColors.slate(800),
                               ),
                             ),
                           ),
@@ -869,7 +870,7 @@ class _RecipeDetailScreenState extends ConsumerState<RecipeDetailScreen> {
                               fontSize: 14,
                               fontWeight: FontWeight.bold,
                               color: isChecked
-                                  ? Colors.grey.shade400
+                                  ? AppColors.grey(400)
                                   : const Color(0xFFFF5722),
                             ),
                           ),
@@ -1025,7 +1026,7 @@ class _RecipeDetailScreenState extends ConsumerState<RecipeDetailScreen> {
                 child: Text(
                   strings.plannedOn(days.join(', ')),
                   key: const Key('planned_on'),
-                  style: TextStyle(fontSize: 12.5, color: Colors.grey.shade700),
+                  style: TextStyle(fontSize: 12.5, color: AppColors.grey(700)),
                 ),
               );
             }),
@@ -1042,7 +1043,7 @@ class _RecipeDetailScreenState extends ConsumerState<RecipeDetailScreen> {
                 children: [
                   const SizedBox(height: 24),
                   Semantics(header: true, child: Text(strings.similarRecipes,
-                      style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Color(0xFF1E293B)))),
+                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.slate(800)))),
                   const SizedBox(height: 8),
                   Wrap(
                     key: const Key('similar_recipes'),
@@ -1066,7 +1067,7 @@ class _RecipeDetailScreenState extends ConsumerState<RecipeDetailScreen> {
             // Personal rating and notes (stored on the device)
             const SizedBox(height: 24),
             Semantics(header: true, child: Text(strings.myNotes,
-                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Color(0xFF1E293B)))),
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.slate(800)))),
             const SizedBox(height: 8),
             Builder(builder: (context) {
               final note = ref.watch(recipeNotesProvider)[recipe.id] ?? const RecipeNote();
@@ -1105,7 +1106,7 @@ class _RecipeDetailScreenState extends ConsumerState<RecipeDetailScreen> {
                             child: Text(
                               '${strings.cookedTimes(rec.count)}$date',
                               key: const Key('cooked_times'),
-                              style: TextStyle(color: Colors.grey.shade700, fontWeight: FontWeight.w600),
+                              style: TextStyle(color: AppColors.grey(700), fontWeight: FontWeight.w600),
                             ),
                           ),
                           IconButton(
@@ -1128,7 +1129,7 @@ class _RecipeDetailScreenState extends ConsumerState<RecipeDetailScreen> {
                     decoration: InputDecoration(
                       hintText: strings.myNotesHint,
                       filled: true,
-                      fillColor: Colors.white,
+                      fillColor: AppColors.surface,
                       border: OutlineInputBorder(borderRadius: BorderRadius.circular(14)),
                     ),
                   ),
@@ -1149,10 +1150,10 @@ class _RecipeDetailScreenState extends ConsumerState<RecipeDetailScreen> {
                   const SizedBox(width: 8),
                   Semantics(header: true, child: Text(
                     strings.substitutionsTitle,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
-                      color: Color(0xFF1E293B),
+                      color: AppColors.slate(800),
                     ),
                   )),
                 ],
@@ -1223,10 +1224,10 @@ class _RecipeDetailScreenState extends ConsumerState<RecipeDetailScreen> {
                 Expanded(
                   child: Semantics(header: true, child: Text(
                     strings.stepsTitle,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
-                      color: Color(0xFF1E293B),
+                      color: AppColors.slate(800),
                     ),
                   )),
                 ),
@@ -1235,7 +1236,7 @@ class _RecipeDetailScreenState extends ConsumerState<RecipeDetailScreen> {
                   style: TextStyle(
                     fontSize: 13,
                     fontWeight: FontWeight.bold,
-                    color: Colors.grey.shade600,
+                    color: AppColors.grey(600),
                   ),
                 ),
               ],
@@ -1268,9 +1269,9 @@ class _RecipeDetailScreenState extends ConsumerState<RecipeDetailScreen> {
                   child: Container(
                   padding: const EdgeInsets.all(14),
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: AppColors.surface,
                     borderRadius: BorderRadius.circular(14),
-                    border: Border.all(color: Colors.grey.shade200),
+                    border: Border.all(color: AppColors.grey(200)),
                   ),
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -1297,10 +1298,10 @@ class _RecipeDetailScreenState extends ConsumerState<RecipeDetailScreen> {
                                 Expanded(
                                   child: Text(
                                     step.localizedTitle(strings.locale),
-                                    style: const TextStyle(
+                                    style: TextStyle(
                                       fontWeight: FontWeight.bold,
                                       fontSize: 14,
-                                      color: Color(0xFF1E293B),
+                                      color: AppColors.slate(800),
                                     ),
                                     maxLines: 1,
                                     overflow: TextOverflow.ellipsis,
@@ -1314,7 +1315,7 @@ class _RecipeDetailScreenState extends ConsumerState<RecipeDetailScreen> {
                                       vertical: 3,
                                     ),
                                     decoration: BoxDecoration(
-                                      color: Colors.grey.shade100,
+                                      color: AppColors.grey(100),
                                       borderRadius: BorderRadius.circular(6),
                                     ),
                                     child: Row(
@@ -1323,7 +1324,7 @@ class _RecipeDetailScreenState extends ConsumerState<RecipeDetailScreen> {
                                         Icon(
                                           toolIcon,
                                           size: 13,
-                                          color: Colors.grey.shade600,
+                                          color: AppColors.grey(600),
                                         ),
                                         const SizedBox(width: 4),
                                         Flexible(
@@ -1333,7 +1334,7 @@ class _RecipeDetailScreenState extends ConsumerState<RecipeDetailScreen> {
                                             overflow: TextOverflow.ellipsis,
                                             style: TextStyle(
                                               fontSize: 11,
-                                              color: Colors.grey.shade600,
+                                              color: AppColors.grey(600),
                                             ),
                                           ),
                                         ),
@@ -1346,9 +1347,9 @@ class _RecipeDetailScreenState extends ConsumerState<RecipeDetailScreen> {
                             const SizedBox(height: 6),
                             Text(
                               step.localizedInstruction(strings.locale),
-                              style: const TextStyle(
+                              style: TextStyle(
                                 fontSize: 13,
-                                color: Color(0xFF334155),
+                                color: AppColors.slate(700),
                                 height: 1.45,
                               ),
                             ),
@@ -1364,10 +1365,10 @@ class _RecipeDetailScreenState extends ConsumerState<RecipeDetailScreen> {
                                       vertical: 4,
                                     ),
                                     decoration: BoxDecoration(
-                                      color: const Color(0xFFF1F5F9),
+                                      color: AppColors.slate(100),
                                       borderRadius: BorderRadius.circular(8),
                                       border: Border.all(
-                                        color: Colors.grey.shade200,
+                                        color: AppColors.grey(200),
                                       ),
                                     ),
                                     child: Row(
@@ -1385,9 +1386,9 @@ class _RecipeDetailScreenState extends ConsumerState<RecipeDetailScreen> {
                                               item,
                                               strings.locale,
                                             ),
-                                            style: const TextStyle(
+                                            style: TextStyle(
                                               fontSize: 11,
-                                              color: Color(0xFF475569),
+                                              color: AppColors.slate(600),
                                               fontWeight: FontWeight.w600,
                                             ),
                                           ),
@@ -1449,7 +1450,7 @@ class _RecipeDetailScreenState extends ConsumerState<RecipeDetailScreen> {
       bottomSheet: Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: AppColors.surface,
           boxShadow: [
             BoxShadow(
               color: Colors.black.withValues(alpha: 0.06),
@@ -1530,15 +1531,15 @@ class _StatColumn extends StatelessWidget {
         const SizedBox(height: 4),
         Text(
           value,
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 14,
             fontWeight: FontWeight.bold,
-            color: Color(0xFF1E293B),
+            color: AppColors.slate(800),
           ),
         ),
         Text(
           label,
-          style: TextStyle(fontSize: 11, color: Colors.grey.shade500),
+          style: TextStyle(fontSize: 11, color: AppColors.grey(500)),
         ),
       ],
     ));

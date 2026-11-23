@@ -1,3 +1,4 @@
+import '../utils/app_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/semantics.dart';
 import 'package:flutter/services.dart';
@@ -162,7 +163,7 @@ class _ShoppingListScreenState extends ConsumerState<ShoppingListScreen> {
     }
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFC),
+      backgroundColor: AppColors.slate(50),
       appBar: AppBar(
         title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -176,7 +177,7 @@ class _ShoppingListScreenState extends ConsumerState<ShoppingListScreen> {
                   key: const Key('shopping_progress'),
                   style: TextStyle(
                     fontSize: 12,
-                    color: Colors.grey.shade600,
+                    color: AppColors.grey(600),
                     fontWeight: FontWeight.normal,
                   ),
                 ),
@@ -192,7 +193,7 @@ class _ShoppingListScreenState extends ConsumerState<ShoppingListScreen> {
                     key: const Key('shopping_progress_bar'),
                     value: doneCount / items.length,
                     minHeight: 3,
-                    backgroundColor: Colors.grey.shade200,
+                    backgroundColor: AppColors.grey(200),
                     color: const Color(0xFF059669),
                   ),
                 ),
@@ -335,7 +336,7 @@ class _ShoppingListScreenState extends ConsumerState<ShoppingListScreen> {
                   onPressed: _submit,
                 ),
                 filled: true,
-                fillColor: Colors.white,
+                fillColor: AppColors.surface,
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(14),
                 ),
@@ -350,7 +351,7 @@ class _ShoppingListScreenState extends ConsumerState<ShoppingListScreen> {
                 child: Text(
                   strings.shoppingHint,
                   key: const Key('shopping_hint'),
-                  style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
+                  style: TextStyle(fontSize: 12, color: AppColors.grey(600)),
                 ),
               ),
             ),
@@ -366,7 +367,7 @@ class _ShoppingListScreenState extends ConsumerState<ShoppingListScreen> {
                             Icon(
                               Icons.shopping_basket_outlined,
                               size: 64,
-                              color: Colors.grey.shade400,
+                              color: AppColors.grey(400),
                             ),
                             const SizedBox(height: 16),
                             Text(
@@ -380,7 +381,7 @@ class _ShoppingListScreenState extends ConsumerState<ShoppingListScreen> {
                             Text(
                               strings.shoppingEmptyHint,
                               textAlign: TextAlign.center,
-                              style: TextStyle(color: Colors.grey.shade600),
+                              style: TextStyle(color: AppColors.grey(600)),
                             ),
                           ],
                         ),
@@ -505,8 +506,8 @@ class _ShoppingListScreenState extends ConsumerState<ShoppingListScreen> {
                                       ? TextDecoration.lineThrough
                                       : null,
                                   color: item.done
-                                      ? Colors.grey
-                                      : const Color(0xFF1E293B),
+                                      ? AppColors.grey(500)
+                                      : AppColors.slate(800),
                                 ),
                               ),
                               subtitle: item.recipeTitle.isEmpty

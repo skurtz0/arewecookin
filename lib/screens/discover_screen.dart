@@ -1,3 +1,6 @@
+import '../widgets/theme_toggle.dart';
+import 'main_navigation_screen.dart' show wideLayoutBreakpoint;
+import '../utils/app_colors.dart';
 import 'dart:math';
 import '../data/world_countries.dart';
 import 'dart:async';
@@ -196,7 +199,7 @@ class DiscoverScreenState extends ConsumerState<DiscoverScreen> with WidgetsBind
     final todayPlan = ref.watch(mealPlanProvider)[DateTime.now().weekday] ?? const <Recipe>[];
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF9F9FB),
+      backgroundColor: AppColors.background,
       floatingActionButton: FloatingActionButton.extended(
         heroTag: 'discover_add_recipe_fab',
         onPressed: () {
@@ -243,15 +246,15 @@ class DiscoverScreenState extends ConsumerState<DiscoverScreen> with WidgetsBind
               floating: true,
               snap: true,
               pinned: false,
-              backgroundColor: Colors.white,
+              backgroundColor: AppColors.surface,
               elevation: 0,
               surfaceTintColor: Colors.transparent,
               automaticallyImplyLeading: false,
               toolbarHeight: 0,
               bottom: PreferredSize(
-                preferredSize: Size.fromHeight(240 + 48 * (MediaQuery.textScalerOf(context).scale(14) / 14 - 1).clamp(0.0, 2.0)),
+                preferredSize: Size.fromHeight(246 + 48 * (MediaQuery.textScalerOf(context).scale(14) / 14 - 1).clamp(0.0, 2.0)),
                 child: Container(
-                  color: Colors.white,
+                  color: AppColors.surface,
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
@@ -269,7 +272,7 @@ class DiscoverScreenState extends ConsumerState<DiscoverScreen> with WidgetsBind
                           onSubmitted: (v) => ref.read(recentSearchesProvider.notifier).add(v),
                           decoration: InputDecoration(
                             hintText: strings.searchPlaceholder,
-                            hintStyle: TextStyle(color: Colors.grey.shade400, fontSize: 14),
+                            hintStyle: TextStyle(color: AppColors.grey(400), fontSize: 14),
                             prefixIcon: const Icon(CookingIcons.search, color: Color(0xFFFF5722), size: 20),
                             suffixIcon: _searchController.text.isNotEmpty
                                 ? IconButton(
@@ -282,15 +285,15 @@ class DiscoverScreenState extends ConsumerState<DiscoverScreen> with WidgetsBind
                                   )
                                 : null,
                             filled: true,
-                            fillColor: const Color(0xFFF1F5F9),
+                            fillColor: AppColors.slate(100),
                             contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(14),
-                              borderSide: BorderSide(color: Colors.grey.shade200),
+                              borderSide: BorderSide(color: AppColors.grey(200)),
                             ),
                             enabledBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(14),
-                              borderSide: BorderSide(color: Colors.grey.shade200),
+                              borderSide: BorderSide(color: AppColors.grey(200)),
                             ),
                             focusedBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(14),
@@ -320,13 +323,13 @@ class DiscoverScreenState extends ConsumerState<DiscoverScreen> with WidgetsBind
                               },
                               selectedColor: const Color(0xFFFF5722),
                               labelStyle: TextStyle(
-                                color: isSelected ? Colors.white : const Color(0xFF475569),
+                                color: isSelected ? Colors.white : AppColors.slate(600),
                                 fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
                                 fontSize: 13,
                               ),
-                              backgroundColor: Colors.white,
+                              backgroundColor: AppColors.surface,
                               side: BorderSide(
-                                color: isSelected ? const Color(0xFFFF5722) : Colors.grey.shade200,
+                                color: isSelected ? const Color(0xFFFF5722) : AppColors.grey(200),
                               ),
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(20),
@@ -339,7 +342,7 @@ class DiscoverScreenState extends ConsumerState<DiscoverScreen> with WidgetsBind
                       const SizedBox(height: 6),
                       Container(
                         height: 1,
-                        color: Colors.grey.shade200,
+                        color: AppColors.grey(200),
                       ),
                     ],
                   ),
@@ -475,7 +478,7 @@ class DiscoverScreenState extends ConsumerState<DiscoverScreen> with WidgetsBind
                     child: Text(
                       strings.resultsCount(discoverState.recipes.length, discoverState.hasMore),
                       key: const Key('results_count'),
-                      style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
+                      style: TextStyle(fontSize: 12, color: AppColors.grey(600)),
                     ),
                   ),
                 ),
@@ -587,9 +590,9 @@ class DiscoverScreenState extends ConsumerState<DiscoverScreen> with WidgetsBind
     return Container(
       width: double.infinity,
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.surface,
         border: Border(
-          bottom: BorderSide(color: Colors.grey.shade200),
+          bottom: BorderSide(color: AppColors.grey(200)),
         ),
       ),
       padding: const EdgeInsets.symmetric(vertical: 8),
@@ -607,16 +610,21 @@ class DiscoverScreenState extends ConsumerState<DiscoverScreen> with WidgetsBind
                   color: Color(0xFFFF5722),
                 ),
                 const SizedBox(width: 6),
-                Text(
-                  strings.worldCuisines,
-                  style: const TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w700,
-                    letterSpacing: 0.3,
-                    color: Color(0xFF64748B),
+                Flexible(
+                  child: Text(
+                    strings.worldCuisines,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w700,
+                      letterSpacing: 0.3,
+                      color: AppColors.slate(500),
+                    ),
                   ),
                 ),
                 const Spacer(),
+                if (MediaQuery.sizeOf(context).width < wideLayoutBreakpoint) const ThemeToggleButton(),
                 if (discoverState.selectedCuisine != 'Tümü')
                   Semantics(
                     button: true,
@@ -826,7 +834,7 @@ class DiscoverScreenState extends ConsumerState<DiscoverScreen> with WidgetsBind
                       duration: const Duration(milliseconds: 200),
                       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                       decoration: BoxDecoration(
-                        color: isSelected ? const Color(0xFFFF5722) : const Color(0xFFF1F5F9),
+                        color: isSelected ? const Color(0xFFFF5722) : AppColors.slate(100),
                         borderRadius: BorderRadius.circular(12),
                         border: Border.all(
                           color: isSelected ? const Color(0xFFFF5722) : Colors.transparent,
@@ -848,7 +856,7 @@ class DiscoverScreenState extends ConsumerState<DiscoverScreen> with WidgetsBind
                           style: TextStyle(
                             fontSize: 12.5,
                             fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
-                            color: isSelected ? Colors.white : const Color(0xFF334155),
+                            color: isSelected ? Colors.white : AppColors.slate(700),
                           ),
                         ),
                       ),
@@ -923,7 +931,7 @@ class DiscoverScreenState extends ConsumerState<DiscoverScreen> with WidgetsBind
                 emptyText,
                 key: Key(emptyKey),
                 textAlign: TextAlign.center,
-                style: TextStyle(color: Colors.grey.shade600),
+                style: TextStyle(color: AppColors.grey(600)),
               ),
             );
           }
@@ -985,7 +993,7 @@ class DiscoverScreenState extends ConsumerState<DiscoverScreen> with WidgetsBind
               strings.savedFilterEmpty,
               key: const Key('saved_empty'),
               textAlign: TextAlign.center,
-              style: TextStyle(color: Colors.grey.shade600),
+              style: TextStyle(color: AppColors.grey(600)),
             ),
           ),
         ),
@@ -1088,8 +1096,8 @@ class DiscoverScreenState extends ConsumerState<DiscoverScreen> with WidgetsBind
           crossAxisAlignment: WrapCrossAlignment.center,
           spacing: 8,
           children: [
-            Icon(Icons.cloud_off_rounded, size: 18, color: Colors.grey.shade600),
-            Text(strings.loadErrorTitle, style: TextStyle(fontSize: 13, color: Colors.grey.shade700)),
+            Icon(Icons.cloud_off_rounded, size: 18, color: AppColors.grey(600)),
+            Text(strings.loadErrorTitle, style: TextStyle(fontSize: 13, color: AppColors.grey(700))),
             TextButton(
               key: const Key('load_more_retry'),
               onPressed: () => ref.read(discoverProvider.notifier).loadMore(),
@@ -1118,7 +1126,7 @@ class DiscoverScreenState extends ConsumerState<DiscoverScreen> with WidgetsBind
             strings.loadingMoreRecipes,
             style: TextStyle(
               fontSize: 13,
-              color: Colors.grey.shade600,
+              color: AppColors.grey(600),
             ),
           ),
         ],
@@ -1134,13 +1142,13 @@ class DiscoverScreenState extends ConsumerState<DiscoverScreen> with WidgetsBind
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.cloud_off_rounded, size: 64, color: Colors.grey.shade400),
+            Icon(Icons.cloud_off_rounded, size: 64, color: AppColors.grey(400)),
             const SizedBox(height: 16),
             Semantics(
               liveRegion: true,
               child: Text(
                 strings.loadErrorTitle,
-                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Color(0xFF1E293B)),
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.slate(800)),
               ),
             ),
             const SizedBox(height: 20),
@@ -1180,28 +1188,28 @@ class DiscoverScreenState extends ConsumerState<DiscoverScreen> with WidgetsBind
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               const SizedBox(height: 48),
-              Icon(CookingIcons.utensils, size: 64, color: Colors.grey.shade300),
+              Icon(CookingIcons.utensils, size: 64, color: AppColors.grey(300)),
               const SizedBox(height: 16),
               Text(
                 strings.noRecipesFound,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
-                  color: Color(0xFF1E293B),
+                  color: AppColors.slate(800),
                 ),
               ),
               const SizedBox(height: 8),
               Text(
                 strings.tryDifferentFilter,
                 textAlign: TextAlign.center,
-                style: TextStyle(fontSize: 14, color: Colors.grey.shade600),
+                style: TextStyle(fontSize: 14, color: AppColors.grey(600)),
               ),
               const SizedBox(height: 8),
               Text(
                 strings.searchTip,
                 key: const Key('search_tip'),
                 textAlign: TextAlign.center,
-                style: TextStyle(fontSize: 13, color: Colors.grey.shade500),
+                style: TextStyle(fontSize: 13, color: AppColors.grey(500)),
               ),
               // A multi-word search that finds nothing: offer each word on its own.
               Builder(builder: (_) {
@@ -1298,7 +1306,7 @@ class _RecipeCard extends ConsumerWidget {
       case 'Vegan':
         return const Color(0xFF14B8A6);
       default:
-        return const Color(0xFF64748B);
+        return AppColors.slate(500);
     }
   }
 
@@ -1317,9 +1325,9 @@ class _RecipeCard extends ConsumerWidget {
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.surface,
         borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: Colors.grey.shade200),
+        border: Border.all(color: AppColors.grey(200)),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.04),
@@ -1400,7 +1408,7 @@ class _RecipeCard extends ConsumerWidget {
                     child: Container(
                       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
                       decoration: BoxDecoration(
-                        color: Colors.white.withValues(alpha: 0.95),
+                        color: AppColors.surface.withValues(alpha: 0.95),
                         borderRadius: BorderRadius.circular(10),
                         boxShadow: [
                           BoxShadow(
@@ -1412,13 +1420,13 @@ class _RecipeCard extends ConsumerWidget {
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          Icon(CookingIcons.gauge, size: 13, color: Colors.grey.shade800),
+                          Icon(CookingIcons.gauge, size: 13, color: AppColors.grey(800)),
                           const SizedBox(width: 4),
                           Text(
                             recipe.localizedDifficulty(strings),
                             style: TextStyle(
                               fontSize: 11,
-                              color: Colors.grey.shade800,
+                              color: AppColors.grey(800),
                               fontWeight: FontWeight.bold,
                             ),
                           ),
@@ -1432,7 +1440,7 @@ class _RecipeCard extends ConsumerWidget {
                     child: Consumer(builder: (context, ref, _) {
                       final isSaved = ref.watch(savedRecipesProvider.select((s) => s.isSaved(recipe.id)));
                       return Material(
-                        color: Colors.white.withValues(alpha: 0.95),
+                        color: AppColors.surface.withValues(alpha: 0.95),
                         shape: const CircleBorder(),
                         child: IconButton(
                           key: Key('card_save_${recipe.id}'),
@@ -1440,7 +1448,7 @@ class _RecipeCard extends ConsumerWidget {
                           visualDensity: VisualDensity.compact,
                           icon: Icon(
                             isSaved ? Icons.bookmark_rounded : Icons.bookmark_border_rounded,
-                            color: isSaved ? const Color(0xFFFF5722) : const Color(0xFF64748B),
+                            color: isSaved ? const Color(0xFFFF5722) : AppColors.slate(500),
                           ),
                           onPressed: () async {
                             final notifier = ref.read(savedRecipesProvider.notifier);
@@ -1475,10 +1483,10 @@ class _RecipeCard extends ConsumerWidget {
                   children: [
                     Text(
                       recipe.localizedTitle(strings.locale),
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 17,
                         fontWeight: FontWeight.bold,
-                        color: Color(0xFF0F172A),
+                        color: AppColors.slate(900),
                         height: 1.3,
                       ),
                       maxLines: 2,
@@ -1565,14 +1573,14 @@ class _InfoBadge extends StatelessWidget {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Icon(icon, size: 14, color: Colors.grey.shade600),
+        Icon(icon, size: 14, color: AppColors.grey(600)),
         const SizedBox(width: 4),
         Flexible(
           child: Text(
             label,
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
-            style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
+            style: TextStyle(fontSize: 12, color: AppColors.grey(600)),
           ),
         ),
       ],

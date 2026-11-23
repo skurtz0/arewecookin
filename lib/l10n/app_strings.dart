@@ -64,6 +64,8 @@ class AppStrings {
   String get socialAddPhoto => _get('socialAddPhoto', 'Add photo');
   String get copyLink => _get('copyLink', 'Copy link');
   String get linkCopied => _get('linkCopied', 'Link copied');
+  String get themeDark => _get('themeDark', 'Dark mode');
+  String get themeLight => _get('themeLight', 'Light mode');
   String get tabAccount => _get('tabAccount', 'Account');
   String get shoppingListTitle => _get('shoppingListTitle', 'Shopping list');
   String get shoppingClearDone => _get('shoppingClearDone', 'Clear checked');

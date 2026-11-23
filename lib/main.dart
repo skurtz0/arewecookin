@@ -1,3 +1,5 @@
+import 'providers/theme_provider.dart';
+import 'utils/app_colors.dart';
 import 'utils/deep_link.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -31,6 +33,26 @@ class AreWeCookinApp extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final locale = ref.watch(localeProvider);
+    final themeMode = ref.watch(themeModeProvider);
+    applyThemeToPalette(themeMode);
+
+    ThemeData themeFor(Brightness brightness) => ThemeData(
+          useMaterial3: true,
+          colorScheme: ColorScheme.fromSeed(
+            seedColor: const Color(0xFFFF5722), // Warm culinary orange
+            brightness: brightness,
+          ),
+          scaffoldBackgroundColor: AppColors.background,
+          appBarTheme: AppBarTheme(
+            centerTitle: true,
+            elevation: 0,
+            backgroundColor: AppColors.surface,
+            foregroundColor: AppColors.slate(800),
+            surfaceTintColor: Colors.transparent,
+          ),
+          dialogTheme: DialogThemeData(backgroundColor: AppColors.surface),
+          bottomSheetTheme: BottomSheetThemeData(backgroundColor: AppColors.surface),
+        );
 
     return MaterialApp(
       title: 'AreWeCookin',
@@ -45,17 +67,15 @@ class AreWeCookinApp extends ConsumerWidget {
         GlobalWidgetsLocalizations.delegate,
         GlobalCupertinoLocalizations.delegate,
       ],
-      theme: ThemeData(
-        useMaterial3: true,
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: const Color(0xFFFF5722), // Warm culinary orange
-          brightness: Brightness.light,
-        ),
-        appBarTheme: const AppBarTheme(
-          centerTitle: true,
-          elevation: 0,
-        ),
-      ),
+      theme: themeFor(Brightness.light),
+      darkTheme: themeFor(Brightness.dark),
+      themeMode: themeMode,
+      builder: (context, child) {
+        // Also follow the system when it switches while the app is open.
+        MediaQuery.platformBrightnessOf(context);
+        applyThemeToPalette(themeMode);
+        return child ?? const SizedBox.shrink();
+      },
       // Always start on the splash screen; a shared link (#/recipe/ID) is opened from there.
       // Flutter would split a shared link (/recipe/ID) into several initial routes; always start on one splash.
       onGenerateInitialRoutes: (_) => [

@@ -1,3 +1,4 @@
+import '../utils/app_colors.dart';
 import '../widgets/readable_width.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -369,17 +370,17 @@ class _AddRecipeScreenState extends ConsumerState<AddRecipeScreen> {
         if (!didPop) Future.microtask(() => _confirmLeave(strings));
       },
       child: Scaffold(
-      backgroundColor: const Color(0xFFF9F9FB),
+      backgroundColor: AppColors.background,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: AppColors.surface,
         elevation: 0,
         surfaceTintColor: Colors.transparent,
         title: Text(
           widget.recipe == null ? strings.newRecipe : strings.editRecipe,
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.bold,
-            color: Color(0xFF0F172A),
+            color: AppColors.slate(900),
           ),
         ),
         actions: [
@@ -588,7 +589,7 @@ class _AddRecipeScreenState extends ConsumerState<AddRecipeScreen> {
                             diff,
                             style: TextStyle(
                               fontSize: 12,
-                              color: isSelected ? Colors.white : Colors.black87,
+                              color: isSelected ? Colors.white : AppColors.slate(800),
                             ),
                           ),
                           selected: isSelected,
@@ -713,10 +714,10 @@ class _AddRecipeScreenState extends ConsumerState<AddRecipeScreen> {
                           tooltip: ref
                               .read(appStringsProvider)
                               .shoppingDeleteItem,
-                          icon: const Icon(
+                          icon: Icon(
                             Icons.close_rounded,
                             size: 18,
-                            color: Colors.grey,
+                            color: AppColors.grey(500),
                           ),
                           onPressed: () => _removeIngredient(i),
                         ),
@@ -746,9 +747,9 @@ class _AddRecipeScreenState extends ConsumerState<AddRecipeScreen> {
                   Container(
                     padding: const EdgeInsets.all(12),
                     decoration: BoxDecoration(
-                      color: const Color(0xFFF8FAFC),
+                      color: AppColors.slate(50),
                       borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: Colors.grey.shade200),
+                      border: Border.all(color: AppColors.grey(200)),
                     ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -806,10 +807,10 @@ class _AddRecipeScreenState extends ConsumerState<AddRecipeScreen> {
                         const SizedBox(height: 8),
                         Row(
                           children: [
-                            const Icon(
+                            Icon(
                               Icons.timer_outlined,
                               size: 16,
-                              color: Colors.grey,
+                              color: AppColors.grey(500),
                             ),
                             const SizedBox(width: 6),
                             SizedBox(
@@ -877,9 +878,9 @@ class _AddRecipeScreenState extends ConsumerState<AddRecipeScreen> {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.surface,
         borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: Colors.grey.shade200),
+        border: Border.all(color: AppColors.grey(200)),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.03),
@@ -898,10 +899,10 @@ class _AddRecipeScreenState extends ConsumerState<AddRecipeScreen> {
               Flexible(
                 child: Text(
                   title,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
-                    color: Color(0xFF1E293B),
+                    color: AppColors.slate(800),
                   ),
                 ),
               ),

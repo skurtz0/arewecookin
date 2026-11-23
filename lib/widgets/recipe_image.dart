@@ -1,3 +1,4 @@
+import '../utils/app_colors.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 
@@ -103,7 +104,7 @@ class RecipeImage extends StatelessWidget {
             child: Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: 0.2),
+                color: AppColors.surface.withValues(alpha: 0.2),
                 shape: BoxShape.circle,
               ),
               child: Icon(
@@ -140,7 +141,7 @@ class RecipeImage extends StatelessWidget {
           return Container(
             width: width,
             height: height,
-            color: Colors.grey.shade100,
+            color: AppColors.grey(100),
             child: Center(
               child: SizedBox(
                 width: 22,

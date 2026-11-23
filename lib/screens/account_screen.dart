@@ -1,3 +1,4 @@
+import '../utils/app_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/models.dart';
@@ -277,9 +278,9 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
     final user = authState.user;
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF9F9FB),
+      backgroundColor: AppColors.background,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: AppColors.surface,
         elevation: 0,
         surfaceTintColor: Colors.transparent,
         title: Row(
@@ -302,10 +303,10 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
                 strings.myAccount,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
-                  color: Color(0xFF1E293B),
+                  color: AppColors.slate(800),
                 ),
               ),
             ),
@@ -408,9 +409,9 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
   Widget _buildLanguageToggle(String currentLang) {
     return Container(
       decoration: BoxDecoration(
-        color: const Color(0xFFF1F5F9),
+        color: AppColors.slate(100),
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: Colors.grey.shade300),
+        border: Border.all(color: AppColors.grey(300)),
       ),
       padding: const EdgeInsets.all(2),
       child: Row(
@@ -434,14 +435,14 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  const Icon(Icons.language_rounded, size: 16, color: Color(0xFF64748B)),
+                  Icon(Icons.language_rounded, size: 16, color: AppColors.slate(500)),
                   const SizedBox(width: 4),
                   Text(
                     '20+',
                     style: TextStyle(
                       fontSize: 12,
                       fontWeight: FontWeight.bold,
-                      color: Colors.grey.shade700,
+                      color: AppColors.grey(700),
                     ),
                   ),
                 ],
@@ -460,7 +461,7 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      backgroundColor: Colors.white,
+      backgroundColor: AppColors.surface,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
@@ -478,7 +479,7 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
                   width: 40,
                   height: 4,
                   decoration: BoxDecoration(
-                    color: Colors.grey.shade300,
+                    color: AppColors.grey(300),
                     borderRadius: BorderRadius.circular(2),
                   ),
                 ),
@@ -488,12 +489,12 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
                     children: [
                       const Icon(Icons.language_rounded, color: Color(0xFFFF5722), size: 24),
                       const SizedBox(width: 10),
-                      const Text(
+                      Text(
                         'Select Language / Dil Seçimi',
                         style: TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
-                          color: Color(0xFF1E293B),
+                          color: AppColors.slate(800),
                         ),
                       ),
                       const Spacer(),
@@ -510,7 +511,7 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
                   child: ListView.separated(
                     controller: scrollController,
                     itemCount: AppLanguages.all.length,
-                    separatorBuilder: (_, _) => Divider(height: 1, color: Colors.grey.shade100),
+                    separatorBuilder: (_, _) => Divider(height: 1, color: AppColors.grey(100)),
                     itemBuilder: (context, index) {
                       final item = AppLanguages.all[index];
                       final isSelected = currentLangObj?.code == item.code;
@@ -527,7 +528,7 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
                               style: TextStyle(
                                 fontSize: 16,
                                 fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
-                                color: isSelected ? const Color(0xFFFF5722) : const Color(0xFF1E293B),
+                                color: isSelected ? const Color(0xFFFF5722) : AppColors.slate(800),
                               ),
                             ),
                             if (item.isRtl) ...[
@@ -555,7 +556,7 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
                           item.name,
                           style: TextStyle(
                             fontSize: 13,
-                            color: Colors.grey.shade600,
+                            color: AppColors.grey(600),
                           ),
                         ),
                         trailing: isSelected
@@ -603,7 +604,7 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.surface,
         borderRadius: BorderRadius.circular(22),
         boxShadow: [
           BoxShadow(
@@ -612,7 +613,7 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
             offset: const Offset(0, 4),
           ),
         ],
-        border: Border.all(color: Colors.grey.shade200),
+        border: Border.all(color: AppColors.grey(200)),
       ),
       child: Column(
         children: [
@@ -639,10 +640,10 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
                   children: [
                     Text(
                       user.displayName,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
-                        color: Color(0xFF0F172A),
+                        color: AppColors.slate(900),
                       ),
                     ),
                     const SizedBox(height: 4),
@@ -652,7 +653,7 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
                           : (user.phoneNumber ?? ''),
                       style: TextStyle(
                         fontSize: 13,
-                        color: Colors.grey.shade600,
+                        color: AppColors.grey(600),
                       ),
                     ),
                     const SizedBox(height: 8),
@@ -697,13 +698,13 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
                 count: '$savedCount',
                 icon: Icons.bookmark_rounded,
               )),
-              Container(width: 1, height: 36, color: Colors.grey.shade200),
+              Container(width: 1, height: 36, color: AppColors.grey(200)),
               Expanded(child: _ProfileStat(
                 label: strings.myCreatedRecipes,
                 count: '$myRecipesCount',
                 icon: Icons.restaurant_rounded,
               )),
-              Container(width: 1, height: 36, color: Colors.grey.shade200),
+              Container(width: 1, height: 36, color: AppColors.grey(200)),
               Expanded(child: _ProfileStat(
                 key: const Key('cooked_total_stat'),
                 label: strings.cookedDishes,
@@ -733,9 +734,9 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
             .toList();
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.surface,
         borderRadius: BorderRadius.circular(22),
-        border: Border.all(color: Colors.grey.shade200),
+        border: Border.all(color: AppColors.grey(200)),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.03),
@@ -853,13 +854,13 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Expanded(child: Text(
+                Expanded(child: Text(
                   'Kendi Tariflerim',
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(
                     fontSize: 15,
                     fontWeight: FontWeight.bold,
-                    color: Color(0xFF1E293B),
+                    color: AppColors.slate(800),
                   ),
                 )),
                 const SizedBox(width: 8),
@@ -978,10 +979,10 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
                     recipe.localizedTitle(strings.locale),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.bold,
-                      color: Color(0xFF0F172A),
+                      color: AppColors.slate(900),
                     ),
                   ),
                   const SizedBox(height: 4),
@@ -1009,7 +1010,7 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
                       Text(
                         strings.minutesShort(recipe.totalTime),
                         style: TextStyle(
-                            fontSize: 11, color: Colors.grey.shade600),
+                            fontSize: 11, color: AppColors.grey(600)),
                       ),
                       ConstrainedBox(
                         constraints: const BoxConstraints(maxWidth: 150),
@@ -1024,14 +1025,14 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
                             key: Key('account_pantry_${recipe.id}'),
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              Icon(Icons.kitchen_outlined, size: 12, color: Colors.grey.shade600),
+                              Icon(Icons.kitchen_outlined, size: 12, color: AppColors.grey(600)),
                               const SizedBox(width: 3),
                               Flexible(
                                 child: Text(
                                   '$n/${recipe.ingredients.length}',
                                   maxLines: 1,
                                   overflow: TextOverflow.ellipsis,
-                                  style: TextStyle(fontSize: 11, color: Colors.grey.shade600),
+                                  style: TextStyle(fontSize: 11, color: AppColors.grey(600)),
                                 ),
                               ),
                             ],
@@ -1058,12 +1059,12 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
       padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 16),
       child: Column(
         children: [
-          Icon(icon, size: 40, color: Colors.grey.shade400),
+          Icon(icon, size: 40, color: AppColors.grey(400)),
           const SizedBox(height: 10),
           Text(
             message,
             textAlign: TextAlign.center,
-            style: TextStyle(fontSize: 13, color: Colors.grey.shade600),
+            style: TextStyle(fontSize: 13, color: AppColors.grey(600)),
           ),
         ],
       ),
@@ -1072,12 +1073,12 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
 
   Widget _buildAccountSettingsCard(dynamic user, dynamic strings) {
     return Material(
-      color: Colors.white,
+      color: AppColors.surface,
       borderRadius: BorderRadius.circular(22),
       child: Container(
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(22),
-          border: Border.all(color: Colors.grey.shade200),
+          border: Border.all(color: AppColors.grey(200)),
           boxShadow: [
             BoxShadow(
               color: Colors.black.withValues(alpha: 0.03),
@@ -1092,10 +1093,10 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
           children: [
             Text(
               strings.accountSecurity,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.bold,
-                color: Color(0xFF1E293B),
+                color: AppColors.slate(800),
               ),
             ),
             const SizedBox(height: 12),
@@ -1105,7 +1106,7 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
               title: Text(strings.updateName,
                   style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
               subtitle: Text(strings.editNameHint,
-                  style: TextStyle(fontSize: 12, color: Colors.grey.shade600)),
+                  style: TextStyle(fontSize: 12, color: AppColors.grey(600))),
               trailing: const Icon(Icons.arrow_forward_ios_rounded, size: 14),
               onTap: () => _showChangeNameDialog(context, user.displayName),
             ),
@@ -1117,7 +1118,7 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
                 style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
             subtitle: Text(
               user.email.isNotEmpty ? user.email : strings.noEmail,
-              style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
+              style: TextStyle(fontSize: 12, color: AppColors.grey(600)),
             ),
             trailing: const Icon(Icons.arrow_forward_ios_rounded, size: 14),
             onTap: () => _showChangeEmailDialog(context, user.email),
@@ -1129,7 +1130,7 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
             title: Text(strings.changePassword,
                 style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
             subtitle: Text(strings.securityHint,
-                style: TextStyle(fontSize: 12, color: Colors.grey.shade600)),
+                style: TextStyle(fontSize: 12, color: AppColors.grey(600))),
             trailing: const Icon(Icons.arrow_forward_ios_rounded, size: 14),
             onTap: () => _showChangePasswordDialog(context),
           ),
@@ -1175,7 +1176,7 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.surface,
         borderRadius: BorderRadius.circular(22),
         boxShadow: [
           BoxShadow(
@@ -1184,7 +1185,7 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
             offset: const Offset(0, 4),
           ),
         ],
-        border: Border.all(color: Colors.grey.shade200),
+        border: Border.all(color: AppColors.grey(200)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -1207,17 +1208,17 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
                   children: [
                     Text(
                       strings.welcomeUser,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
-                        color: Color(0xFF1E293B),
+                        color: AppColors.slate(800),
                       ),
                     ),
                     const SizedBox(height: 2),
                     Text(
                       strings.loginPrompt,
                       style:
-                          TextStyle(fontSize: 12, color: Colors.grey.shade600),
+                          TextStyle(fontSize: 12, color: AppColors.grey(600)),
                     ),
                   ],
                 ),
@@ -1233,10 +1234,10 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
                 ? null
                 : () => ref.read(authProvider.notifier).signInWithGoogle(),
             style: OutlinedButton.styleFrom(
-              backgroundColor: Colors.white,
-              foregroundColor: const Color(0xFF1E293B),
+              backgroundColor: AppColors.surface,
+              foregroundColor: AppColors.slate(800),
               padding: const EdgeInsets.symmetric(vertical: 14),
-              side: BorderSide(color: Colors.grey.shade300, width: 1.2),
+              side: BorderSide(color: AppColors.grey(300), width: 1.2),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(14),
               ),
@@ -1248,9 +1249,9 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
                   width: 22,
                   height: 22,
                   alignment: Alignment.center,
-                  decoration: const BoxDecoration(
+                  decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    color: Colors.white,
+                    color: AppColors.surface,
                   ),
                   child: const Text(
                     'G',
@@ -1266,10 +1267,10 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
                   child: Text(
                     strings.googleAutoLogin,
                     textAlign: TextAlign.center,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.bold,
-                      color: Color(0xFF1E293B),
+                      color: AppColors.slate(800),
                     ),
                   ),
                 ),
@@ -1282,7 +1283,7 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
           // Divider
           Row(
             children: [
-              Expanded(child: Divider(color: Colors.grey.shade300)),
+              Expanded(child: Divider(color: AppColors.grey(300))),
               Flexible(
                 flex: 4,
                 child: Padding(
@@ -1290,11 +1291,11 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
                   child: Text(
                     strings.orOtherOptions,
                     textAlign: TextAlign.center,
-                    style: TextStyle(fontSize: 12, color: Colors.grey.shade500),
+                    style: TextStyle(fontSize: 12, color: AppColors.grey(500)),
                   ),
                 ),
               ),
-              Expanded(child: Divider(color: Colors.grey.shade300)),
+              Expanded(child: Divider(color: AppColors.grey(300))),
             ],
           ),
 
@@ -1331,7 +1332,7 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
             // Mode Toggle (Giriş Yap / Kayıt Ol)
             Container(
               decoration: BoxDecoration(
-                color: const Color(0xFFF1F5F9),
+                color: AppColors.slate(100),
                 borderRadius: BorderRadius.circular(12),
               ),
               padding: const EdgeInsets.all(4),
@@ -1594,13 +1595,13 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
 
   Widget _buildPreferencesCard(dynamic strings, String currentLang) {
     return Material(
-      color: Colors.white,
+      color: AppColors.surface,
       borderRadius: BorderRadius.circular(20),
       child: Container(
         padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: Colors.grey.shade200),
+          border: Border.all(color: AppColors.grey(200)),
           boxShadow: [
             BoxShadow(
               color: Colors.black.withValues(alpha: 0.03),
@@ -1614,10 +1615,10 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
           children: [
             Text(
               strings.appPreferences,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.bold,
-                color: Color(0xFF1E293B),
+                color: AppColors.slate(800),
               ),
             ),
             const SizedBox(height: 16),
@@ -1630,7 +1631,7 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
               ),
               subtitle: Text(
                 '${AppLanguages.findByLocale(ref.watch(localeProvider))?.nativeName ?? currentLang} ${AppLanguages.findByLocale(ref.watch(localeProvider))?.flag ?? ''}',
-                style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
+                style: TextStyle(fontSize: 12, color: AppColors.grey(600)),
               ),
               trailing: ConstrainedBox(
                 constraints: const BoxConstraints(maxWidth: 150),
@@ -1657,7 +1658,7 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
                     ),
                     subtitle: Text(
                       strings.avoidedHint,
-                      style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
+                      style: TextStyle(fontSize: 12, color: AppColors.grey(600)),
                     ),
                   ),
                   TextField(
@@ -1711,7 +1712,7 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
                   child: Text(
                     household == null ? strings.householdOff : strings.servingsFormat(household),
                     key: const Key('household_value'),
-                    style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
+                    style: TextStyle(fontSize: 12, color: AppColors.grey(600)),
                   ),
                 ),
                 trailing: Row(
@@ -1749,7 +1750,7 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
               ),
               subtitle: Text(
                 strings.notifDesc,
-                style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
+                style: TextStyle(fontSize: 12, color: AppColors.grey(600)),
               ),
               trailing: Switch.adaptive(
                 value: true,
@@ -1788,7 +1789,7 @@ class _SegmentTab extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 8),
         decoration: BoxDecoration(
-          color: isSelected ? const Color(0xFFFF5722).withValues(alpha: 0.12) : const Color(0xFFF1F5F9),
+          color: isSelected ? const Color(0xFFFF5722).withValues(alpha: 0.12) : AppColors.slate(100),
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
             color: isSelected ? const Color(0xFFFF5722) : Colors.transparent,
@@ -1797,7 +1798,7 @@ class _SegmentTab extends StatelessWidget {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(icon, size: 16, color: isSelected ? const Color(0xFFFF5722) : const Color(0xFF64748B)),
+            Icon(icon, size: 16, color: isSelected ? const Color(0xFFFF5722) : AppColors.slate(500)),
             const SizedBox(width: 6),
             Flexible(
               child: Text(
@@ -1807,7 +1808,7 @@ class _SegmentTab extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 12,
                   fontWeight: isSelected ? FontWeight.bold : FontWeight.w600,
-                  color: isSelected ? const Color(0xFFFF5722) : const Color(0xFF64748B),
+                  color: isSelected ? const Color(0xFFFF5722) : AppColors.slate(500),
                 ),
               ),
             ),
@@ -1842,17 +1843,17 @@ class _MethodSelector extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 10),
         decoration: BoxDecoration(
-          color: isSelected ? const Color(0xFFFF5722).withValues(alpha: 0.1) : const Color(0xFFF8FAFC),
+          color: isSelected ? const Color(0xFFFF5722).withValues(alpha: 0.1) : AppColors.slate(50),
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
-            color: isSelected ? const Color(0xFFFF5722) : Colors.grey.shade300,
+            color: isSelected ? const Color(0xFFFF5722) : AppColors.grey(300),
             width: isSelected ? 1.5 : 1.0,
           ),
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(icon, size: 18, color: isSelected ? const Color(0xFFFF5722) : Colors.grey.shade700),
+            Icon(icon, size: 18, color: isSelected ? const Color(0xFFFF5722) : AppColors.grey(700)),
             const SizedBox(width: 8),
             Flexible(
               child: Text(
@@ -1861,7 +1862,7 @@ class _MethodSelector extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 13,
                   fontWeight: isSelected ? FontWeight.bold : FontWeight.w600,
-                  color: isSelected ? const Color(0xFFFF5722) : Colors.grey.shade800,
+                  color: isSelected ? const Color(0xFFFF5722) : AppColors.grey(800),
                 ),
               ),
             ),
@@ -1899,7 +1900,7 @@ class _LanguageButton extends StatelessWidget {
           style: TextStyle(
             fontSize: 12,
             fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
-            color: isSelected ? Colors.white : const Color(0xFF475569),
+            color: isSelected ? Colors.white : AppColors.slate(600),
           ),
         ),
       ),
@@ -1947,7 +1948,7 @@ class _TabToggleButton extends StatelessWidget {
           style: TextStyle(
             fontSize: 13,
             fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
-            color: isSelected ? const Color(0xFFFF5722) : const Color(0xFF64748B),
+            color: isSelected ? const Color(0xFFFF5722) : AppColors.slate(500),
           ),
         ),
       ),
@@ -1979,10 +1980,10 @@ class _ProfileStat extends StatelessWidget {
         const SizedBox(height: 4),
         Text(
           count,
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 16,
             fontWeight: FontWeight.bold,
-            color: Color(0xFF0F172A),
+            color: AppColors.slate(900),
           ),
         ),
         Text(
@@ -1992,7 +1993,7 @@ class _ProfileStat extends StatelessWidget {
           overflow: TextOverflow.ellipsis,
           style: TextStyle(
             fontSize: 11,
-            color: Colors.grey.shade600,
+            color: AppColors.grey(600),
           ),
         ),
       ],

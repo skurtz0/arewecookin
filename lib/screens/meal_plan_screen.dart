@@ -1,3 +1,4 @@
+import '../utils/app_colors.dart';
 import '../utils/unit_converter.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
@@ -114,7 +115,7 @@ class MealPlanScreen extends ConsumerWidget {
     }
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFC),
+      backgroundColor: AppColors.slate(50),
       floatingActionButton: FloatingActionButton.extended(
         key: const Key('plan_add_from_saved'),
         heroTag: 'plan_add_fab',
@@ -226,7 +227,7 @@ class MealPlanScreen extends ConsumerWidget {
                     Icon(
                       Icons.calendar_month_outlined,
                       size: 64,
-                      color: Colors.grey.shade400,
+                      color: AppColors.grey(400),
                     ),
                     const SizedBox(height: 16),
                     Text(
@@ -240,7 +241,7 @@ class MealPlanScreen extends ConsumerWidget {
                     Text(
                       strings.mealPlanEmptyHint,
                       textAlign: TextAlign.center,
-                      style: TextStyle(color: Colors.grey.shade600),
+                      style: TextStyle(color: AppColors.grey(600)),
                     ),
                   ],
                 ),

@@ -1,3 +1,4 @@
+import '../utils/app_colors.dart';
 import '../data/world_countries.dart';
 
 import 'package:flutter/material.dart';
@@ -156,9 +157,9 @@ class _PantryScreenState extends ConsumerState<PantryScreen> with WidgetsBinding
         : pantryState.matchedRecipes;
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF9F9FB),
+      backgroundColor: AppColors.background,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: AppColors.surface,
         elevation: 0,
         surfaceTintColor: Colors.transparent,
         title: Row(
@@ -182,19 +183,19 @@ class _PantryScreenState extends ConsumerState<PantryScreen> with WidgetsBinding
                 children: [
                   Text(
                     strings.smartPantry,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
-                      color: Color(0xFF1E293B),
+                      color: AppColors.slate(800),
                     ),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
                   Text(
                     strings.pantrySubtitle,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 12,
-                      color: Color(0xFF64748B),
+                      color: AppColors.slate(500),
                     ),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
@@ -320,10 +321,10 @@ class _PantryScreenState extends ConsumerState<PantryScreen> with WidgetsBinding
                       Expanded(
                         child: Text(
                           strings.whichCuisineQuestion,
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.bold,
-                            color: Color(0xFF1E293B),
+                            color: AppColors.slate(800),
                           ),
                         ),
                       ),
@@ -377,17 +378,17 @@ class _PantryScreenState extends ConsumerState<PantryScreen> with WidgetsBinding
                             labelStyle: TextStyle(
                               color: isSelected
                                   ? Colors.white
-                                  : const Color(0xFF1E293B),
+                                  : AppColors.slate(800),
                               fontWeight: isSelected
                                   ? FontWeight.bold
                                   : FontWeight.w500,
                               fontSize: 13,
                             ),
-                            backgroundColor: Colors.white,
+                            backgroundColor: AppColors.surface,
                             side: BorderSide(
                               color: isSelected
                                   ? const Color(0xFF059669)
-                                  : Colors.grey.shade300,
+                                  : AppColors.grey(300),
                               width: isSelected ? 1.5 : 1,
                             ),
                             shape: RoundedRectangleBorder(
@@ -419,22 +420,22 @@ class _PantryScreenState extends ConsumerState<PantryScreen> with WidgetsBinding
                       decoration: InputDecoration(
                         hintText: strings.pantryCustomHint,
                         hintStyle: TextStyle(
-                          color: Colors.grey.shade400,
+                          color: AppColors.grey(400),
                           fontSize: 13,
                         ),
                         filled: true,
-                        fillColor: Colors.white,
+                        fillColor: AppColors.surface,
                         contentPadding: const EdgeInsets.symmetric(
                           horizontal: 16,
                           vertical: 12,
                         ),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
-                          borderSide: BorderSide(color: Colors.grey.shade200),
+                          borderSide: BorderSide(color: AppColors.grey(200)),
                         ),
                         enabledBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
-                          borderSide: BorderSide(color: Colors.grey.shade200),
+                          borderSide: BorderSide(color: AppColors.grey(200)),
                         ),
                       ),
                     ),
@@ -483,10 +484,10 @@ class _PantryScreenState extends ConsumerState<PantryScreen> with WidgetsBinding
                             category.key,
                             strings,
                           ),
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 13,
                             fontWeight: FontWeight.bold,
-                            color: Color(0xFF475569),
+                            color: AppColors.slate(600),
                           ),
                         ),
                         const SizedBox(height: 6),
@@ -519,17 +520,17 @@ class _PantryScreenState extends ConsumerState<PantryScreen> with WidgetsBinding
                               labelStyle: TextStyle(
                                 color: isSelected
                                     ? Colors.white
-                                    : const Color(0xFF1E293B),
+                                    : AppColors.slate(800),
                                 fontWeight: isSelected
                                     ? FontWeight.bold
                                     : FontWeight.normal,
                                 fontSize: 13,
                               ),
-                              backgroundColor: Colors.white,
+                              backgroundColor: AppColors.surface,
                               side: BorderSide(
                                 color: isSelected
                                     ? const Color(0xFF059669)
-                                    : Colors.grey.shade200,
+                                    : AppColors.grey(200),
                               ),
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(20),
@@ -561,10 +562,10 @@ class _PantryScreenState extends ConsumerState<PantryScreen> with WidgetsBinding
                   Flexible(
                     child: Text(
                       strings.matchingRecipes,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
-                        color: Color(0xFF1E293B),
+                        color: AppColors.slate(800),
                       ),
                     ),
                   ),
@@ -629,7 +630,7 @@ class _PantryScreenState extends ConsumerState<PantryScreen> with WidgetsBinding
                           border: Border.all(
                             color: pantryState.onlyFullMatches
                                 ? const Color(0xFF059669)
-                                : Colors.grey.shade300,
+                                : AppColors.grey(300),
                           ),
                         ),
                         child: Row(
@@ -642,7 +643,7 @@ class _PantryScreenState extends ConsumerState<PantryScreen> with WidgetsBinding
                               size: 13,
                               color: pantryState.onlyFullMatches
                                   ? Colors.white
-                                  : Colors.grey.shade700,
+                                  : AppColors.grey(700),
                             ),
                             const SizedBox(width: 4),
                             Flexible(
@@ -655,7 +656,7 @@ class _PantryScreenState extends ConsumerState<PantryScreen> with WidgetsBinding
                                 fontWeight: FontWeight.bold,
                                 color: pantryState.onlyFullMatches
                                     ? Colors.white
-                                    : Colors.grey.shade700,
+                                    : AppColors.grey(700),
                               ),
                               ),
                             ),
@@ -687,9 +688,9 @@ class _PantryScreenState extends ConsumerState<PantryScreen> with WidgetsBinding
                 margin: const EdgeInsets.all(24),
                 padding: const EdgeInsets.all(32),
                 decoration: BoxDecoration(
-                  color: Colors.white,
+                  color: AppColors.surface,
                   borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: Colors.grey.shade200),
+                  border: Border.all(color: AppColors.grey(200)),
                 ),
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
@@ -697,15 +698,15 @@ class _PantryScreenState extends ConsumerState<PantryScreen> with WidgetsBinding
                     Icon(
                       CookingIcons.pantry,
                       size: 54,
-                      color: Colors.grey.shade300,
+                      color: AppColors.grey(300),
                     ),
                     const SizedBox(height: 16),
                     Text(
                       strings.pantryEmptyTitle,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.bold,
-                        color: Color(0xFF1E293B),
+                        color: AppColors.slate(800),
                       ),
                     ),
                     const SizedBox(height: 8),
@@ -714,7 +715,7 @@ class _PantryScreenState extends ConsumerState<PantryScreen> with WidgetsBinding
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         fontSize: 13,
-                        color: Colors.grey.shade600,
+                        color: AppColors.grey(600),
                       ),
                     ),
                   ],
@@ -732,7 +733,7 @@ class _PantryScreenState extends ConsumerState<PantryScreen> with WidgetsBinding
                     Icon(
                       Icons.cloud_off_rounded,
                       size: 48,
-                      color: Colors.grey.shade400,
+                      color: AppColors.grey(400),
                     ),
                     const SizedBox(height: 12),
                     Semantics(
@@ -765,9 +766,9 @@ class _PantryScreenState extends ConsumerState<PantryScreen> with WidgetsBinding
                 margin: const EdgeInsets.all(24),
                 padding: const EdgeInsets.all(28),
                 decoration: BoxDecoration(
-                  color: Colors.white,
+                  color: AppColors.surface,
                   borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: Colors.grey.shade200),
+                  border: Border.all(color: AppColors.grey(200)),
                 ),
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
@@ -775,7 +776,7 @@ class _PantryScreenState extends ConsumerState<PantryScreen> with WidgetsBinding
                     Icon(
                       Icons.search_off_rounded,
                       size: 48,
-                      color: Colors.grey.shade400,
+                      color: AppColors.grey(400),
                     ),
                     const SizedBox(height: 12),
                     Text(
@@ -784,7 +785,7 @@ class _PantryScreenState extends ConsumerState<PantryScreen> with WidgetsBinding
                           : strings.noRecipesFound,
                       textAlign: TextAlign.center,
                       style: TextStyle(
-                        color: Colors.grey.shade700,
+                        color: AppColors.grey(700),
                         fontWeight: FontWeight.w500,
                       ),
                     ),
@@ -793,7 +794,7 @@ class _PantryScreenState extends ConsumerState<PantryScreen> with WidgetsBinding
                       strings.tryDifferentFilter,
                       textAlign: TextAlign.center,
                       style: TextStyle(
-                        color: Colors.grey.shade500,
+                        color: AppColors.grey(500),
                         fontSize: 12,
                       ),
                     ),
@@ -863,12 +864,12 @@ class _PantryRecipeCard extends ConsumerWidget {
     return Container(
       margin: const EdgeInsets.only(bottom: 14),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.surface,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
           color: isFullMatch
               ? const Color(0xFF10B981).withValues(alpha: 0.3)
-              : Colors.grey.shade200,
+              : AppColors.grey(200),
           width: isFullMatch ? 1.5 : 1,
         ),
         boxShadow: [
@@ -959,14 +960,14 @@ class _PantryRecipeCard extends ConsumerWidget {
                                   vertical: 4,
                                 ),
                                 decoration: BoxDecoration(
-                                  color: const Color(0xFFF1F5F9),
+                                  color: AppColors.slate(100),
                                   borderRadius: BorderRadius.circular(8),
                                 ),
                                 child: Text(
                                   recipe.localizedCuisine(strings),
-                                  style: const TextStyle(
+                                  style: TextStyle(
                                     fontSize: 11,
-                                    color: Color(0xFF334155),
+                                    color: AppColors.slate(700),
                                     fontWeight: FontWeight.w600,
                                   ),
                                   maxLines: 1,
@@ -979,14 +980,14 @@ class _PantryRecipeCard extends ConsumerWidget {
                                   Icon(
                                     CookingIcons.clock,
                                     size: 12,
-                                    color: Colors.grey.shade500,
+                                    color: AppColors.grey(500),
                                   ),
                                   const SizedBox(width: 3),
                                   Text(
                                     strings.minutesShort(recipe.totalTime),
                                     style: TextStyle(
                                       fontSize: 11,
-                                      color: Colors.grey.shade600,
+                                      color: AppColors.grey(600),
                                     ),
                                   ),
                                 ],
@@ -1005,7 +1006,7 @@ class _PantryRecipeCard extends ConsumerWidget {
                                           strings.cookedTimes(ref.watch(cookHistoryProvider.select((m) => m[recipe.id]?.count ?? 0))),
                                           maxLines: 1,
                                           overflow: TextOverflow.ellipsis,
-                                          style: TextStyle(fontSize: 11, color: Colors.grey.shade600),
+                                          style: TextStyle(fontSize: 11, color: AppColors.grey(600)),
                                         ),
                                       ),
                                     ],
@@ -1016,10 +1017,10 @@ class _PantryRecipeCard extends ConsumerWidget {
                           const SizedBox(height: 8),
                           Text(
                             recipe.localizedCleanTitle(strings.locale),
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontSize: 15,
                               fontWeight: FontWeight.bold,
-                              color: Color(0xFF0F172A),
+                              color: AppColors.slate(900),
                               height: 1.25,
                             ),
                             maxLines: 2,
@@ -1076,7 +1077,7 @@ class _PantryRecipeCard extends ConsumerWidget {
                           '${strings.missingIngredients} (${missingKeys.length}): ',
                           style: TextStyle(
                             fontSize: 12,
-                            color: Colors.grey.shade700,
+                            color: AppColors.grey(700),
                             fontWeight: FontWeight.w600,
                           ),
                         ),
@@ -1222,7 +1223,7 @@ class _PantryRecipeCard extends ConsumerWidget {
         child: Consumer(builder: (context, ref, _) {
           final isSaved = ref.watch(savedRecipesProvider.select((s) => s.isSaved(recipe.id)));
           return Material(
-            color: Colors.white.withValues(alpha: 0.95),
+            color: AppColors.surface.withValues(alpha: 0.95),
             shape: const CircleBorder(),
             child: IconButton(
               key: Key('pantry_save_${recipe.id}'),
@@ -1233,7 +1234,7 @@ class _PantryRecipeCard extends ConsumerWidget {
               icon: Icon(
                 isSaved ? Icons.bookmark_rounded : Icons.bookmark_border_rounded,
                 size: 20,
-                color: isSaved ? const Color(0xFFFF5722) : const Color(0xFF64748B),
+                color: isSaved ? const Color(0xFFFF5722) : AppColors.slate(500),
               ),
               onPressed: () => ref.read(savedRecipesProvider.notifier).toggleSave(recipe),
             ),
