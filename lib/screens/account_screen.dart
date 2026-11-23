@@ -756,9 +756,25 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
                       icon: const Icon(Icons.bookmark_remove_rounded,
                           color: Color(0xFFFF5722), size: 22),
                       tooltip: strings.removeFavorite,
-                      onPressed: () => ref
-                          .read(savedRecipesProvider.notifier)
-                          .remove(recipe.id),
+                      key: Key('unsave_${recipe.id}'),
+                      onPressed: () {
+                        final notifier = ref.read(savedRecipesProvider.notifier);
+                        notifier.remove(recipe.id);
+                        ScaffoldMessenger.of(context)
+                          ..hideCurrentSnackBar()
+                          ..showSnackBar(SnackBar(
+                            content: Text(strings.itemRemoved),
+                            action: SnackBarAction(
+                              key: const Key('unsave_undo'),
+                              label: strings.undoLabel,
+                              onPressed: () {
+                                if (!ref.read(savedRecipesProvider).savedIds.contains(recipe.id)) {
+                                  notifier.toggleSave(recipe);
+                                }
+                              },
+                            ),
+                          ));
+                      },
                     ),
                   );
                 },
@@ -820,9 +836,22 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
                       tooltip: ref.read(appStringsProvider).shoppingDeleteItem,
                       icon: const Icon(Icons.delete_outline_rounded,
                           color: Colors.red, size: 22),
-                      onPressed: () => ref
-                          .read(customRecipesProvider.notifier)
-                          .deleteRecipe(recipe.id),
+                      key: Key('delete_custom_${recipe.id}'),
+                      onPressed: () {
+                        final strings = ref.read(appStringsProvider);
+                        final notifier = ref.read(customRecipesProvider.notifier);
+                        notifier.deleteRecipe(recipe.id);
+                        ScaffoldMessenger.of(context)
+                          ..hideCurrentSnackBar()
+                          ..showSnackBar(SnackBar(
+                            content: Text(strings.itemRemoved),
+                            action: SnackBarAction(
+                              key: const Key('delete_custom_undo'),
+                              label: strings.undoLabel,
+                              onPressed: () => notifier.addRecipe(recipe),
+                            ),
+                          ));
+                      },
                     ),
                   );
                 },
