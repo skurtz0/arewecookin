@@ -467,6 +467,9 @@ class _CookingModeScreenState extends ConsumerState<CookingModeScreen> {
     // Finished: next time the recipe starts from step 1 again.
     ref.read(recipeProgressProvider.notifier).setStep(widget.recipe.id, 0);
     ref.read(cookHistoryProvider.notifier).markCooked(widget.recipe.id);
+    final noteController = TextEditingController(
+      text: ref.read(recipeNotesProvider)[widget.recipe.id]?.note ?? '',
+    );
     showDialog(
       context: context,
       builder: (context) {
@@ -474,6 +477,7 @@ class _CookingModeScreenState extends ConsumerState<CookingModeScreen> {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(20),
           ),
+          scrollable: true,
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -543,6 +547,20 @@ class _CookingModeScreenState extends ConsumerState<CookingModeScreen> {
                     ),
                   );
                 },
+              ),
+              const SizedBox(height: 8),
+              // A quick note while the dish is fresh in mind (shown again on the recipe page).
+              TextField(
+                key: const Key('done_note'),
+                controller: noteController,
+                minLines: 1,
+                maxLines: 3,
+                onChanged: (v) => ref.read(recipeNotesProvider.notifier).setNote(widget.recipe.id, v),
+                decoration: InputDecoration(
+                  isDense: true,
+                  hintText: strings.myNotesHint,
+                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                ),
               ),
               const SizedBox(height: 12),
               SizedBox(

@@ -147,6 +147,11 @@ void main() {
       await tester.tap(find.byKey(const Key('done_rate_4')));
       await tester.pumpAndSettle();
       expect(container.read(recipeNotesProvider)[sampleRecipe.id]?.rating, 4);
+      // A note typed in the completion dialog is saved for the recipe.
+      await tester.enterText(find.byKey(const Key('done_note')), 'More chili next time');
+      await tester.pump();
+      expect(container.read(recipeNotesProvider)[sampleRecipe.id]?.note, 'More chili next time');
+      expect(container.read(recipeNotesProvider)[sampleRecipe.id]?.rating, 4);
     });
 
     testWidgets('ingredient sheet rows expose their checked state', (tester) async {
