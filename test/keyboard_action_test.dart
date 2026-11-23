@@ -1,5 +1,7 @@
 import 'package:arewecookin/screens/discover_screen.dart';
+import 'package:arewecookin/providers/shopping_list_provider.dart';
 import 'package:arewecookin/screens/pantry_screen.dart';
+import 'package:arewecookin/screens/shopping_list_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -34,5 +36,31 @@ void main() {
     await tester.pump(const Duration(milliseconds: 300));
     final scrolls = tester.widgetList<CustomScrollView>(find.byType(CustomScrollView));
     expect(scrolls.any((w) => w.keyboardDismissBehavior == ScrollViewKeyboardDismissBehavior.onDrag), isTrue);
+  });
+
+  testWidgets('pantry and shopping lists also drop the keyboard when scrolled', (tester) async {
+    SharedPreferences.setMockInitialValues({});
+    tester.view.physicalSize = const Size(1000, 2400);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(tester.view.reset);
+    await tester.pumpWidget(const ProviderScope(child: MaterialApp(home: PantryScreen())));
+    await tester.pumpAndSettle();
+    expect(
+      tester.widgetList<CustomScrollView>(find.byType(CustomScrollView))
+          .any((w) => w.keyboardDismissBehavior == ScrollViewKeyboardDismissBehavior.onDrag),
+      isTrue,
+    );
+    final c = ProviderContainer();
+    addTearDown(c.dispose);
+    c.read(shoppingListProvider.notifier).addAll(const [ShoppingItem(name: 'Alpha')]);
+    await tester.pumpWidget(UncontrolledProviderScope(
+      container: c,
+      child: const MaterialApp(home: ShoppingListScreen()),
+    ));
+    await tester.pumpAndSettle();
+    expect(
+      tester.widget<ListView>(find.byType(ListView)).keyboardDismissBehavior,
+      ScrollViewKeyboardDismissBehavior.onDrag,
+    );
   });
 }
