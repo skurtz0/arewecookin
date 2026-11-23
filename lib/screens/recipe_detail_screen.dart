@@ -826,7 +826,9 @@ class _RecipeDetailScreenState extends ConsumerState<RecipeDetailScreen> {
                           for (var d = 1; d <= 7; d++)
                             ListTile(
                               key: Key('plan_day_$d'),
-                              title: Text(strings.weekdayName(d)),
+                              title: Text(d == DateTime.now().weekday
+                                  ? '${strings.weekdayName(d)} · ${strings.todayLabel}'
+                                  : strings.weekdayName(d)),
                               trailing: (ref.read(mealPlanProvider)[d] ?? const <Recipe>[])
                                       .any((r) => r.id == recipe.id)
                                   ? const Icon(Icons.check_circle_rounded,
@@ -854,6 +856,15 @@ class _RecipeDetailScreenState extends ConsumerState<RecipeDetailScreen> {
                                 )
                               : strings.mealPlanAlready,
                         ),
+                        action: ok
+                            ? SnackBarAction(
+                                key: const Key('plan_add_undo'),
+                                label: strings.undoLabel,
+                                onPressed: () => ref
+                                    .read(mealPlanProvider.notifier)
+                                    .remove(day, recipe.id),
+                              )
+                            : null,
                       ),
                     );
                 },

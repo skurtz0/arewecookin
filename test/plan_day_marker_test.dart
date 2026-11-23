@@ -47,4 +47,28 @@ void main() {
     expect(text, startsWith('Planned: '));
     expect(text.split(', ').length, 2);
   });
+
+  testWidgets('day picker labels today, and adding to a day can be undone', (tester) async {
+    SharedPreferences.setMockInitialValues({});
+    final recipe = (await RecipeRepository().getRecipes(limit: 1)).recipes.first;
+    final c = ProviderContainer();
+    addTearDown(c.dispose);
+    await tester.pumpWidget(UncontrolledProviderScope(
+      container: c,
+      child: MaterialApp(home: RecipeDetailScreen(recipe: recipe)),
+    ));
+    await tester.pumpAndSettle();
+    final btn = find.byKey(const Key('add_to_meal_plan'));
+    await tester.ensureVisible(btn);
+    await tester.tap(btn);
+    await tester.pumpAndSettle();
+    final today = DateTime.now().weekday;
+    expect(find.descendant(of: find.byKey(Key('plan_day_$today')), matching: find.textContaining('Today')), findsOneWidget);
+    await tester.tap(find.byKey(Key('plan_day_$today')));
+    await tester.pump(const Duration(seconds: 1));
+    expect(c.read(mealPlanProvider)[today]!.single.id, recipe.id);
+    tester.widget<SnackBarAction>(find.byKey(const Key('plan_add_undo'))).onPressed();
+    await tester.pump();
+    expect(c.read(mealPlanProvider)[today] ?? const [], isEmpty);
+  });
 }
