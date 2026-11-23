@@ -1,6 +1,8 @@
 import 'package:arewecookin/providers/meal_plan_provider.dart';
 import 'package:arewecookin/providers/cook_history_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:arewecookin/models/models.dart';
+import 'package:arewecookin/providers/pantry_provider.dart';
 import 'package:arewecookin/repositories/recipe_repository.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -416,6 +418,36 @@ void main() {
         await tester.pageBack();
         await tester.pump(const Duration(seconds: 1));
       }
+    });
+
+    testWidgets('Saved can be sorted by how much of the recipe is already in the pantry', (tester) async {
+      tester.view.physicalSize = const Size(1200, 6000);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(tester.view.reset);
+      SharedPreferences.setMockInitialValues({});
+      final container = ProviderContainer();
+      addTearDown(container.dispose);
+      final all = (await RecipeRepository().getRecipes(limit: 30)).recipes;
+      final a = all.first;
+      final key = a.ingredients.first.name.trim().toLowerCase();
+      final b = all.skip(1).firstWhere((r) => !r.ingredients.any((i) => i.name.trim().toLowerCase() == key));
+      // a is saved first, so by default it sits below b.
+      await container.read(savedRecipesProvider.notifier).toggleSave(a);
+      await container.read(savedRecipesProvider.notifier).toggleSave(b);
+      await tester.pumpWidget(UncontrolledProviderScope(
+        container: container,
+        child: const MaterialApp(home: Scaffold(body: DiscoverScreen())),
+      ));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 300));
+      await container.read(pantryProvider.notifier).addIngredient(key);
+      await tester.tap(find.byKey(const Key('saved_filter')));
+      await tester.pumpAndSettle();
+      double y(Recipe r) => tester.getTopLeft(find.byKey(Key('card_save_${r.id}'))).dy;
+      expect(y(b), lessThan(y(a)));
+      await tester.tap(find.byKey(const Key('saved_sort_pantry')));
+      await tester.pumpAndSettle();
+      expect(y(a), lessThan(y(b)));
     });
 
     testWidgets('the chosen Saved order is remembered', (tester) async {

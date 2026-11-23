@@ -58,6 +58,7 @@ class DiscoverScreenState extends ConsumerState<DiscoverScreen> with WidgetsBind
   bool _onlyRated = false;
   bool _savedQuickest = false;
   bool _savedTopRated = false;
+  bool _savedPantry = false;
   Timer? _debounceTimer;
 
   static final List<Map<String, String>> cuisineFilters = [
@@ -114,10 +115,11 @@ class DiscoverScreenState extends ConsumerState<DiscoverScreen> with WidgetsBind
   Future<void> _restoreSavedSort() async {
     try {
       final v = (await SharedPreferences.getInstance()).getString(_savedSortKey);
-      if (!mounted || (_savedQuickest || _savedTopRated)) return;
+      if (!mounted || (_savedQuickest || _savedTopRated || _savedPantry)) return;
       setState(() {
         _savedQuickest = v == 'quick';
         _savedTopRated = v == 'rating';
+        _savedPantry = v == 'pantry';
       });
     } catch (_) {}
   }
@@ -125,7 +127,7 @@ class DiscoverScreenState extends ConsumerState<DiscoverScreen> with WidgetsBind
   Future<void> _persistSavedSort() async {
     try {
       final prefs = await SharedPreferences.getInstance();
-      final v = _savedTopRated ? 'rating' : (_savedQuickest ? 'quick' : null);
+      final v = _savedTopRated ? 'rating' : (_savedQuickest ? 'quick' : (_savedPantry ? 'pantry' : null));
       if (v == null) {
         await prefs.remove(_savedSortKey);
       } else {
@@ -918,7 +920,11 @@ class DiscoverScreenState extends ConsumerState<DiscoverScreen> with WidgetsBind
           r.ingredients.any((i) => RecipeRepository.normalizeSearch(i.localizedName(strings.locale)).contains(query));
     }).toList();
     final ratings = ref.watch(recipeNotesProvider);
-    if (_savedTopRated) {
+    if (_savedPantry) {
+      final have = ref.watch(pantryProvider.select((p) => p.selectedKeys));
+      int cover(Recipe r) => pantryCoverageCount(r, have, strings.locale) * 1000 ~/ (r.ingredients.isEmpty ? 1 : r.ingredients.length);
+      saved.sort((a, b) => cover(b).compareTo(cover(a)));
+    } else if (_savedTopRated) {
       saved.sort((a, b) => (ratings[b.id]?.rating ?? 0).compareTo(ratings[a.id]?.rating ?? 0));
     } else if (_savedQuickest) {
       saved.sort((a, b) => a.totalTime.compareTo(b.totalTime));
@@ -954,11 +960,14 @@ class DiscoverScreenState extends ConsumerState<DiscoverScreen> with WidgetsBind
                       key: const Key('saved_sort_quick'),
                       avatar: const Icon(Icons.bolt_rounded, size: 16),
                       label: Text(strings.savedSortQuick),
-                      selected: _savedQuickest && !_savedTopRated,
+                      selected: _savedQuickest && !_savedTopRated && !_savedPantry,
                       onSelected: (v) {
                         setState(() {
                           _savedQuickest = v;
-                          if (v) _savedTopRated = false;
+                          if (v) {
+                            _savedTopRated = false;
+                            _savedPantry = false;
+                          }
                         });
                         _persistSavedSort();
                       },
@@ -971,7 +980,26 @@ class DiscoverScreenState extends ConsumerState<DiscoverScreen> with WidgetsBind
                       onSelected: (v) {
                         setState(() {
                           _savedTopRated = v;
-                          if (v) _savedQuickest = false;
+                          if (v) {
+                            _savedQuickest = false;
+                            _savedPantry = false;
+                          }
+                        });
+                        _persistSavedSort();
+                      },
+                    ),
+                    FilterChip(
+                      key: const Key('saved_sort_pantry'),
+                      avatar: const Icon(Icons.kitchen_outlined, size: 16),
+                      label: Text(strings.inPantryLabel),
+                      selected: _savedPantry,
+                      onSelected: (v) {
+                        setState(() {
+                          _savedPantry = v;
+                          if (v) {
+                            _savedQuickest = false;
+                            _savedTopRated = false;
+                          }
                         });
                         _persistSavedSort();
                       },
