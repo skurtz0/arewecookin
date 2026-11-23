@@ -165,6 +165,35 @@ class _CookingModeScreenState extends ConsumerState<CookingModeScreen> {
                       ],
                     ),
                     const SizedBox(height: 16),
+                    // The user's own note for this recipe (tweaks, tips) is handy while cooking.
+                    Builder(builder: (_) {
+                      final note = (ref.read(recipeNotesProvider)[widget.recipe.id]?.note ?? '').trim();
+                      if (note.isEmpty) return const SizedBox.shrink();
+                      return Container(
+                        key: const Key('cook_note'),
+                        margin: const EdgeInsets.only(bottom: 12),
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFF334155),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Icon(Icons.sticky_note_2_outlined, size: 18, color: Color(0xFFFBBF24)),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: Text(
+                                note,
+                                maxLines: 4,
+                                overflow: TextOverflow.ellipsis,
+                                style: const TextStyle(color: Colors.white, fontSize: 13),
+                              ),
+                            ),
+                          ],
+                        ),
+                      );
+                    }),
                     Flexible(
                       child: ListView.separated(
                         shrinkWrap: true,

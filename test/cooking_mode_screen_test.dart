@@ -443,5 +443,25 @@ void main() {
       // The number chosen for this recipe wins over the preference.
       c.read(recipeProgressProvider.notifier).setServings(sampleRecipe.id, 3);
     });
+
+    testWidgets('ingredients sheet shows my note for the recipe', (tester) async {
+      tester.view.physicalSize = const Size(800, 2000);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(tester.view.reset);
+      final c = ProviderContainer(overrides: [
+        localeProvider.overrideWith(() => FakeLocaleNotifier(const Locale('en'))),
+      ]);
+      addTearDown(c.dispose);
+      c.read(recipeNotesProvider.notifier).setNote(sampleRecipe.id, 'Add less salt');
+      await tester.pumpWidget(UncontrolledProviderScope(
+        container: c,
+        child: MaterialApp(home: CookingModeScreen(recipe: sampleRecipe)),
+      ));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const Key('cook_ingredients_button')));
+      await tester.pumpAndSettle();
+      expect(find.byKey(const Key('cook_note')), findsOneWidget);
+      expect(find.text('Add less salt'), findsOneWidget);
+    });
   });
 }
