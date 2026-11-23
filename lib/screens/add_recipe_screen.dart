@@ -421,6 +421,8 @@ class _AddRecipeScreenState extends ConsumerState<AddRecipeScreen> {
               children: [
                 TextFormField(
                   controller: _titleController,
+                  textCapitalization: TextCapitalization.sentences,
+                  textInputAction: TextInputAction.next,
                   decoration: InputDecoration(
                     labelText: strings.recipeTitle,
                     hintText: strings.enterRecipeTitle,
@@ -634,7 +636,9 @@ class _AddRecipeScreenState extends ConsumerState<AddRecipeScreen> {
                         width: 70,
                         child: TextFormField(
                           controller: _ingredients[i].amountController,
-                          keyboardType: TextInputType.number,
+                          // Text keyboard: amounts like 1/2 or 1 1/2 are understood and need a slash.
+                          keyboardType: TextInputType.text,
+                          key: Key('ingredient_amount_$i'),
                           decoration: InputDecoration(
                             hintText: strings.amountHint,
                             border: OutlineInputBorder(
@@ -686,6 +690,7 @@ class _AddRecipeScreenState extends ConsumerState<AddRecipeScreen> {
                       Expanded(
                         child: TextFormField(
                           controller: _ingredients[i].nameController,
+                          textCapitalization: TextCapitalization.sentences,
                           decoration: InputDecoration(
                             hintText: strings.ingredientName,
                             border: OutlineInputBorder(
@@ -783,6 +788,7 @@ class _AddRecipeScreenState extends ConsumerState<AddRecipeScreen> {
                         const SizedBox(height: 8),
                         TextFormField(
                           controller: _steps[i].instructionController,
+                          textCapitalization: TextCapitalization.sentences,
                           maxLines: 2,
                           decoration: InputDecoration(
                             hintText: strings.stepInstruction,
