@@ -299,6 +299,11 @@ void main() {
       expect(find.textContaining('(2)'), findsOneWidget);
       double y(r) => tester.getTopLeft(find.text(r.localizedTitle('en')).first).dy;
       expect(y(all[1]), lessThan(y(all[0])));
+      // The search box narrows the cooked list like it does the saved list.
+      await tester.enterText(find.byType(TextField).first, 'zzzzqqqq');
+      await tester.pump(const Duration(seconds: 1));
+      await tester.pumpAndSettle();
+      expect(find.byKey(const Key('cooked_list')), findsNothing);
     });
 
     testWidgets('my rating shows on the recipe card', (tester) async {

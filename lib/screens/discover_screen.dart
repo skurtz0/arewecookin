@@ -709,7 +709,11 @@ class DiscoverScreenState extends ConsumerState<DiscoverScreen> {
         key: ValueKey(ids.join(',')),
         future: Future.wait(ids.map(repo.getRecipeById)).then((l) => [for (final r in l) ?r]),
         builder: (context, snap) {
-          final recipes = snap.data ?? const <Recipe>[];
+          final query = RecipeRepository.normalizeSearch(_searchController.text).trim();
+          final recipes = [
+            for (final r in snap.data ?? const <Recipe>[])
+              if (query.isEmpty || RecipeRepository.normalizeSearch(r.localizedTitle(strings.locale)).contains(query)) r,
+          ];
           if (snap.connectionState != ConnectionState.done && recipes.isEmpty) {
             return const Padding(
               padding: EdgeInsets.all(32),
