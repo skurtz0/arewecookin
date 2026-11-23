@@ -114,6 +114,16 @@ void main() {
       await tester.pumpAndSettle();
       expect(find.byKey(Key('card_save_${quick.id}')), findsOneWidget);
       expect(find.byKey(Key('card_save_${slow.id}')), findsNothing);
+      // Difficulty chip: a group nobody in the list belongs to empties it.
+      container.read(discoverProvider.notifier).setMaxMinutes(null);
+      final hardNone = !(quick.difficulty == 'Zor' || slow.difficulty == 'Zor');
+      container.read(discoverProvider.notifier).setDifficulty(hardNone ? 'hard' : 'easy');
+      await tester.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 100)));
+      await tester.pumpAndSettle();
+      if (hardNone) {
+        expect(find.byKey(Key('card_save_${quick.id}')), findsNothing);
+        expect(find.byKey(Key('card_save_${slow.id}')), findsNothing);
+      }
     });
 
     testWidgets('Saved filter shows only bookmarked recipes', (tester) async {
