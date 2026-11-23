@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../models/models.dart';
 import '../providers/locale_provider.dart';
+import '../providers/meal_plan_provider.dart';
 import '../providers/user_recipes_provider.dart';
 
 class AddRecipeScreen extends ConsumerStatefulWidget {
@@ -340,6 +341,11 @@ class _AddRecipeScreenState extends ConsumerState<AddRecipeScreen> {
     );
 
     ref.read(customRecipesProvider.notifier).addRecipe(newRecipe);
+    if (widget.recipe != null) {
+      // An edit also updates the copies kept in Saved and in the meal plan.
+      ref.read(savedRecipesProvider.notifier).refresh(newRecipe);
+      ref.read(mealPlanProvider.notifier).refresh(newRecipe);
+    }
 
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(

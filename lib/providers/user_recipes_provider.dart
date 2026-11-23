@@ -89,6 +89,14 @@ class SavedRecipesNotifier extends Notifier<SavedRecipesState> {
     return nowSaved;
   }
 
+  /// Swaps the stored copy of a saved recipe for an edited version (same id). No-op when not saved.
+  Future<void> refresh(Recipe recipe) async {
+    if (!state.savedIds.contains(recipe.id)) return;
+    final list = [for (final r in state.recipes) r.id == recipe.id ? recipe : r];
+    state = SavedRecipesState(recipes: list, savedIds: state.savedIds, isLoaded: true);
+    await _saveToStorage();
+  }
+
   Future<void> remove(String recipeId) async {
     if (!state.savedIds.contains(recipeId)) return;
     final ids = Set<String>.from(state.savedIds)..remove(recipeId);

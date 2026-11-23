@@ -95,6 +95,15 @@ class MealPlanNotifier extends Notifier<Map<int, List<Recipe>>> {
     _save();
   }
 
+  /// Swaps planned copies of a recipe for an edited version (same id).
+  void refresh(Recipe recipe) {
+    if (!state.values.any((l) => l.any((r) => r.id == recipe.id))) return;
+    state = {
+      for (final e in state.entries) e.key: [for (final r in e.value) r.id == recipe.id ? recipe : r],
+    };
+    _save();
+  }
+
   /// Removes every meal of one day.
   void clearDay(int day) {
     if (!state.containsKey(day)) return;

@@ -1,4 +1,5 @@
 import 'package:arewecookin/providers/auth_provider.dart';
+import 'package:arewecookin/providers/meal_plan_provider.dart';
 import 'package:arewecookin/providers/user_recipes_provider.dart';
 import 'package:arewecookin/repositories/recipe_repository.dart';
 import 'package:arewecookin/screens/account_screen.dart';
@@ -70,6 +71,8 @@ void main() {
     addTearDown(c.dispose);
     await c.read(authProvider.notifier).signInWithEmail('test@arewecookin.com', '123456');
     await c.read(customRecipesProvider.notifier).addRecipe(recipe);
+    await c.read(savedRecipesProvider.notifier).toggleSave(recipe);
+    c.read(mealPlanProvider.notifier).add(2, recipe);
     await tester.pumpWidget(UncontrolledProviderScope(
       container: c,
       child: const MaterialApp(home: AccountScreen()),
@@ -93,5 +96,8 @@ void main() {
     expect(list.single.title, 'Yeni Ad');
     expect(list.single.ingredients.length, recipe.ingredients.length);
     expect(list.single.steps.length, recipe.steps.length);
+    // Saved and planned copies follow the edit.
+    expect(c.read(savedRecipesProvider).recipes.single.title, 'Yeni Ad');
+    expect(c.read(mealPlanProvider)[2]!.single.title, 'Yeni Ad');
   });
 }
