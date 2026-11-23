@@ -1183,6 +1183,8 @@ class _RecipeDetailScreenState extends ConsumerState<RecipeDetailScreen> {
 
                 return Padding(
                   padding: const EdgeInsets.only(bottom: 10),
+                  child: Semantics(
+                  button: true,
                   child: InkWell(
                   key: Key('step_preview_$index'),
                   borderRadius: BorderRadius.circular(14),
@@ -1366,7 +1368,7 @@ class _RecipeDetailScreenState extends ConsumerState<RecipeDetailScreen> {
                       ),
                     ],
                   ),
-                )));
+                ))));
               },
             ),
           ],
