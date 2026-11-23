@@ -388,7 +388,8 @@ class DiscoverScreenState extends ConsumerState<DiscoverScreen> with WidgetsBind
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(strings.todayInPlan,
+                          Text('${strings.todayInPlan} · ${strings.minutesShort(todayPlan.fold<int>(0, (a, r) => a + r.totalTime))}',
+                              key: const Key('today_plan_total'),
                               style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
                           Wrap(
                             spacing: 8,

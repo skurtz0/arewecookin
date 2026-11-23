@@ -193,6 +193,8 @@ void main() {
       container.read(mealPlanProvider.notifier).add(DateTime.now().weekday, recipe);
       await tester.pump();
       expect(find.byKey(const Key('today_plan_card')), findsOneWidget);
+      // The card also shows how much cooking time today's plan adds up to.
+      expect(tester.widget<Text>(find.byKey(const Key('today_plan_total'))).data, contains('${recipe.totalTime}'));
       await tester.tap(find.byKey(Key('today_plan_${recipe.id}')));
       await tester.pumpAndSettle();
       expect(find.byType(RecipeDetailScreen), findsOneWidget);
