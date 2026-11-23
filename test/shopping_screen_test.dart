@@ -198,4 +198,18 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.byKey(const Key('shopping_group_Added by hand')), findsNothing);
   });
+
+  testWidgets('progress bar follows the number of checked items', (tester) async {
+    SharedPreferences.setMockInitialValues({});
+    final c = ProviderContainer();
+    addTearDown(c.dispose);
+    c.read(shoppingListProvider.notifier).addAll(const [ShoppingItem(name: 'Alpha'), ShoppingItem(name: 'Beta')]);
+    await tester.pumpWidget(UncontrolledProviderScope(container: c, child: const MaterialApp(home: ShoppingListScreen())));
+    await tester.pumpAndSettle();
+    double value() => tester.widget<LinearProgressIndicator>(find.byKey(const Key('shopping_progress_bar'))).value!;
+    expect(value(), 0);
+    await tester.tap(find.text('Alpha'));
+    await tester.pumpAndSettle();
+    expect(value(), 0.5);
+  });
 }

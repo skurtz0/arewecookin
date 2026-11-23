@@ -132,6 +132,20 @@ class _ShoppingListScreenState extends ConsumerState<ShoppingListScreen> {
               ),
           ],
         ),
+        bottom: items.isEmpty
+            ? null
+            : PreferredSize(
+                preferredSize: const Size.fromHeight(3),
+                child: ExcludeSemantics(
+                  child: LinearProgressIndicator(
+                    key: const Key('shopping_progress_bar'),
+                    value: doneCount / items.length,
+                    minHeight: 3,
+                    backgroundColor: Colors.grey.shade200,
+                    color: const Color(0xFF059669),
+                  ),
+                ),
+              ),
         actions: [
           IconButton(
             key: const Key('open_meal_plan'),
