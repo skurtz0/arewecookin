@@ -920,7 +920,12 @@ class DiscoverScreenState extends ConsumerState<DiscoverScreen> with WidgetsBind
     final query = RecipeRepository.normalizeSearch(_searchController.text).trim();
     final maxMinutes = ref.watch(discoverProvider.select((d) => d.maxMinutes));
     final difficulty = ref.watch(discoverProvider.select((d) => d.difficulty));
+    // Cuisine and category chips narrow the Saved list too ('Tümü' means no filter).
+    final cuisine = ref.watch(discoverProvider.select((d) => d.selectedCuisine));
+    final category = ref.watch(discoverProvider.select((d) => d.selectedCategory));
     final saved = ref.watch(savedRecipesProvider).recipes.where((r) {
+      if (cuisine != 'Tümü' && cuisine.trim().isNotEmpty && r.cuisine != cuisine) return false;
+      if (category != 'Tümü' && category.trim().isNotEmpty && r.category != category) return false;
       // The time and difficulty chips apply to the Saved list too.
       if (maxMinutes != null && r.totalTime > maxMinutes) return false;
       if (difficulty != null && !RecipeRepository.matchesDifficulty(r.difficulty, difficulty)) return false;

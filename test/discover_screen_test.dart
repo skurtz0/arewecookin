@@ -128,6 +128,35 @@ void main() {
       }
     });
 
+    testWidgets('Saved view follows the cuisine chip', (tester) async {
+      tester.view.physicalSize = const Size(1200, 6000);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(tester.view.reset);
+      SharedPreferences.setMockInitialValues({});
+      final container = ProviderContainer();
+      addTearDown(container.dispose);
+      final all = (await RecipeRepository().getRecipes(limit: 60)).recipes;
+      final a = all.first;
+      final b = all.firstWhere((r) => r.cuisine != a.cuisine);
+      await container.read(savedRecipesProvider.notifier).toggleSave(a);
+      await container.read(savedRecipesProvider.notifier).toggleSave(b);
+      await tester.pumpWidget(UncontrolledProviderScope(
+        container: container,
+        child: const MaterialApp(home: Scaffold(body: DiscoverScreen())),
+      ));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 300));
+      await tester.tap(find.byKey(const Key('saved_filter')));
+      await tester.pumpAndSettle();
+      expect(find.byKey(Key('card_save_${a.id}')), findsOneWidget);
+      expect(find.byKey(Key('card_save_${b.id}')), findsOneWidget);
+      container.read(discoverProvider.notifier).setCuisine(a.cuisine);
+      await tester.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 100)));
+      await tester.pumpAndSettle();
+      expect(find.byKey(Key('card_save_${a.id}')), findsOneWidget);
+      expect(find.byKey(Key('card_save_${b.id}')), findsNothing);
+    });
+
     testWidgets('Saved filter shows only bookmarked recipes', (tester) async {
       SharedPreferences.setMockInitialValues({});
       final container = ProviderContainer();
