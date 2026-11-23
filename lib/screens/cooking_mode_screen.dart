@@ -59,20 +59,30 @@ class _CookingModeScreenState extends ConsumerState<CookingModeScreen> {
     final base = widget.recipe.servings;
     final original = double.tryParse(ing.amount.replaceAll(',', '.'));
     final imperial = ref.read(imperialUnitsProvider);
-    if (original == null || (chosen == null || base <= 0 || chosen == base) && !imperial) {
+    if (original == null ||
+        (chosen == null || base <= 0 || chosen == base) && !imperial) {
       return ing.localizedDisplayText(locale);
     }
-    final scaled = (chosen == null || base <= 0) ? original : original * chosen / base;
+    final scaled = (chosen == null || base <= 0)
+        ? original
+        : original * chosen / base;
     var amount = AmountFormat.fraction(scaled);
     var unit = ing.localizedUnit(locale);
     if (imperial) {
-      final conv = UnitConverter.toImperial(scaled, ing.unit.trim().isEmpty ? unit : ing.unit);
+      final conv = UnitConverter.toImperial(
+        scaled,
+        ing.unit.trim().isEmpty ? unit : ing.unit,
+      );
       if (conv != null) {
         amount = UnitConverter.format(conv.amount);
         unit = conv.unit;
       }
     }
-    return [amount, unit, ing.localizedName(locale)].where((e) => e.isNotEmpty).join(' ');
+    return [
+      amount,
+      unit,
+      ing.localizedName(locale),
+    ].where((e) => e.isNotEmpty).join(' ');
   }
 
   /// Minutes of step timers from the current step to the end (rounded up); 0 when none.
@@ -155,70 +165,74 @@ class _CookingModeScreenState extends ConsumerState<CookingModeScreen> {
                             checked: isChecked,
                             container: true,
                             child: InkWell(
-                            borderRadius: BorderRadius.circular(12),
-                            onTap: () {
-                              setSheetState(() {
-                                if (isChecked) {
-                                  _checkedIngredients.remove(index);
-                                } else {
-                                  _checkedIngredients.add(index);
-                                }
-                              });
-                              setState(() {});
-                              _checkedTouched = true;
-                              ref
-                                  .read(recipeProgressProvider.notifier)
-                                  .setChecked(widget.recipe.id, _checkedIngredients);
-                            },
-                            child: Container(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 14,
-                                vertical: 10,
-                              ),
-                              decoration: BoxDecoration(
-                                color: isChecked
-                                    ? const Color(0xFF0F172A)
-                                    : const Color(0xFF334155)
-                                          .withValues(alpha: 0.5),
-                                borderRadius: BorderRadius.circular(12),
-                                border: Border.all(
-                                  color: isChecked
-                                      ? const Color(0xFF10B981)
-                                      : const Color(0xFF475569),
+                              borderRadius: BorderRadius.circular(12),
+                              onTap: () {
+                                setSheetState(() {
+                                  if (isChecked) {
+                                    _checkedIngredients.remove(index);
+                                  } else {
+                                    _checkedIngredients.add(index);
+                                  }
+                                });
+                                setState(() {});
+                                _checkedTouched = true;
+                                ref
+                                    .read(recipeProgressProvider.notifier)
+                                    .setChecked(
+                                      widget.recipe.id,
+                                      _checkedIngredients,
+                                    );
+                              },
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 14,
+                                  vertical: 10,
                                 ),
-                              ),
-                              child: Row(
-                                children: [
-                                  Icon(
-                                    isChecked
-                                        ? Icons.check_circle_rounded
-                                        : Icons.radio_button_unchecked_rounded,
+                                decoration: BoxDecoration(
+                                  color: isChecked
+                                      ? const Color(0xFF0F172A)
+                                      : const Color(0xFF334155)
+                                            .withValues(alpha: 0.5),
+                                  borderRadius: BorderRadius.circular(12),
+                                  border: Border.all(
                                     color: isChecked
                                         ? const Color(0xFF10B981)
-                                        : const Color(0xFF94A3B8),
-                                    size: 20,
+                                        : const Color(0xFF475569),
                                   ),
-                                  const SizedBox(width: 12),
-                                  Expanded(
-                                    child: Text(
-                                      _ingredientText(ing, strings.locale),
-                                      style: TextStyle(
-                                        fontSize: 15,
-                                        color: isChecked
-                                            ? const Color(0xFF94A3B8)
-                                            : Colors.white,
-                                        decoration: isChecked
-                                            ? TextDecoration.lineThrough
-                                            : null,
-                                        fontWeight: isChecked
-                                            ? FontWeight.normal
-                                            : FontWeight.w600,
+                                ),
+                                child: Row(
+                                  children: [
+                                    Icon(
+                                      isChecked
+                                          ? Icons.check_circle_rounded
+                                          : Icons
+                                                .radio_button_unchecked_rounded,
+                                      color: isChecked
+                                          ? const Color(0xFF10B981)
+                                          : const Color(0xFF94A3B8),
+                                      size: 20,
+                                    ),
+                                    const SizedBox(width: 12),
+                                    Expanded(
+                                      child: Text(
+                                        _ingredientText(ing, strings.locale),
+                                        style: TextStyle(
+                                          fontSize: 15,
+                                          color: isChecked
+                                              ? const Color(0xFF94A3B8)
+                                              : Colors.white,
+                                          decoration: isChecked
+                                              ? TextDecoration.lineThrough
+                                              : null,
+                                          fontWeight: isChecked
+                                              ? FontWeight.normal
+                                              : FontWeight.w600,
+                                        ),
                                       ),
                                     ),
-                                  ),
-                                ],
+                                  ],
+                                ),
                               ),
-                            ),
                             ),
                           );
                         },
@@ -242,7 +256,10 @@ class _CookingModeScreenState extends ConsumerState<CookingModeScreen> {
     ref.listenManual(recipeProgressProvider, (prev, next) {
       // Ingredient ticks are shared with the recipe detail screen.
       final savedChecked = next[widget.recipe.id]?.checked;
-      if (!_checkedTouched && savedChecked != null && savedChecked.isNotEmpty && mounted) {
+      if (!_checkedTouched &&
+          savedChecked != null &&
+          savedChecked.isNotEmpty &&
+          mounted) {
         setState(() => _checkedIngredients.addAll(savedChecked));
       }
       final saved = next[widget.recipe.id]?.step ?? 0;
@@ -432,7 +449,10 @@ class _CookingModeScreenState extends ConsumerState<CookingModeScreen> {
               const SizedBox(height: 16),
               Text(
                 strings.doneTitle,
-                style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+                style: const TextStyle(
+                  fontSize: 22,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
               const SizedBox(height: 8),
               Text(
@@ -445,29 +465,42 @@ class _CookingModeScreenState extends ConsumerState<CookingModeScreen> {
                 ),
               ),
               const SizedBox(height: 12),
-              Text(strings.doneRate, style: TextStyle(fontSize: 13, color: Colors.grey.shade700)),
-              Consumer(builder: (context, ref, _) {
-                final rating = ref.watch(recipeNotesProvider.select((m) => m[widget.recipe.id]?.rating ?? 0));
-                return FittedBox(
-                  fit: BoxFit.scaleDown,
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      for (var n = 1; n <= 5; n++)
-                        IconButton(
-                          key: Key('done_rate_$n'),
-                          tooltip: strings.rateStarFor(n),
-                          visualDensity: VisualDensity.compact,
-                          icon: Icon(
-                            n <= rating ? Icons.star_rounded : Icons.star_border_rounded,
-                            color: const Color(0xFFF59E0B),
+              Text(
+                strings.doneRate,
+                style: TextStyle(fontSize: 13, color: Colors.grey.shade700),
+              ),
+              Consumer(
+                builder: (context, ref, _) {
+                  final rating = ref.watch(
+                    recipeNotesProvider.select(
+                      (m) => m[widget.recipe.id]?.rating ?? 0,
+                    ),
+                  );
+                  return FittedBox(
+                    fit: BoxFit.scaleDown,
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        for (var n = 1; n <= 5; n++)
+                          IconButton(
+                            key: Key('done_rate_$n'),
+                            tooltip: strings.rateStarFor(n),
+                            visualDensity: VisualDensity.compact,
+                            icon: Icon(
+                              n <= rating
+                                  ? Icons.star_rounded
+                                  : Icons.star_border_rounded,
+                              color: const Color(0xFFF59E0B),
+                            ),
+                            onPressed: () => ref
+                                .read(recipeNotesProvider.notifier)
+                                .setRating(widget.recipe.id, n),
                           ),
-                          onPressed: () => ref.read(recipeNotesProvider.notifier).setRating(widget.recipe.id, n),
-                        ),
-                    ],
-                  ),
-                );
-              }),
+                      ],
+                    ),
+                  );
+                },
+              ),
               const SizedBox(height: 12),
               SizedBox(
                 width: double.infinity,
@@ -713,13 +746,15 @@ class _CookingModeScreenState extends ConsumerState<CookingModeScreen> {
                               color: Color(0xFF38BDF8),
                             ),
                             const SizedBox(width: 8),
-                            Text(
-                              strings.stepIngredientsUsed,
-                              style: const TextStyle(
-                                color: Color(0xFF38BDF8),
-                                fontSize: 13,
-                                fontWeight: FontWeight.bold,
-                                letterSpacing: 0.2,
+                            Expanded(
+                              child: Text(
+                                strings.stepIngredientsUsed,
+                                style: const TextStyle(
+                                  color: Color(0xFF38BDF8),
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.bold,
+                                  letterSpacing: 0.2,
+                                ),
                               ),
                             ),
                           ],
@@ -778,23 +813,34 @@ class _CookingModeScreenState extends ConsumerState<CookingModeScreen> {
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Builder(builder: (context) {
-                        final soundOn = ref.watch(timerSoundProvider);
-                        return IconButton(
-                          key: const Key('timer_sound_toggle'),
-                          tooltip: soundOn ? strings.timerSoundOn : strings.timerSoundOff,
-                          icon: Icon(
-                            soundOn ? Icons.volume_up_rounded : Icons.volume_off_rounded,
-                            color: const Color(0xFF94A3B8),
-                          ),
-                          onPressed: () => ref.read(timerSoundProvider.notifier).toggle(),
-                        );
-                      }),
+                      Builder(
+                        builder: (context) {
+                          final soundOn = ref.watch(timerSoundProvider);
+                          return IconButton(
+                            key: const Key('timer_sound_toggle'),
+                            tooltip: soundOn
+                                ? strings.timerSoundOn
+                                : strings.timerSoundOff,
+                            icon: Icon(
+                              soundOn
+                                  ? Icons.volume_up_rounded
+                                  : Icons.volume_off_rounded,
+                              color: const Color(0xFF94A3B8),
+                            ),
+                            onPressed: () =>
+                                ref.read(timerSoundProvider.notifier).toggle(),
+                          );
+                        },
+                      ),
                       IconButton(
                         key: const Key('cook_text_size'),
                         tooltip: strings.cookTextSize,
-                        icon: const Icon(Icons.text_increase_rounded, color: Color(0xFF94A3B8)),
-                        onPressed: () => ref.read(cookTextSizeProvider.notifier).cycle(),
+                        icon: const Icon(
+                          Icons.text_increase_rounded,
+                          color: Color(0xFF94A3B8),
+                        ),
+                        onPressed: () =>
+                            ref.read(cookTextSizeProvider.notifier).cycle(),
                       ),
                     ],
                   ),
@@ -812,7 +858,8 @@ class _CookingModeScreenState extends ConsumerState<CookingModeScreen> {
                     step.localizedInstruction(strings.locale),
                     key: const Key('step_instruction'),
                     style: TextStyle(
-                      fontSize: CookTextSizeNotifier.sizes[ref.watch(cookTextSizeProvider)],
+                      fontSize: CookTextSizeNotifier
+                          .sizes[ref.watch(cookTextSizeProvider)],
                       color: Color(0xFFF1F5F9),
                       height: 1.6,
                       fontWeight: FontWeight.w400,
@@ -823,9 +870,14 @@ class _CookingModeScreenState extends ConsumerState<CookingModeScreen> {
                   Padding(
                     padding: const EdgeInsets.only(top: 10),
                     child: Text(
-                      strings.nextStepPreview(steps[index + 1].localizedTitle(strings.locale)),
+                      strings.nextStepPreview(
+                        steps[index + 1].localizedTitle(strings.locale),
+                      ),
                       key: const Key('next_step_preview'),
-                      style: const TextStyle(fontSize: 13, color: Color(0xFF94A3B8)),
+                      style: const TextStyle(
+                        fontSize: 13,
+                        color: Color(0xFF94A3B8),
+                      ),
                     ),
                   ),
 
