@@ -31,6 +31,11 @@ service cloud.firestore {
         && (request.method == 'delete' || request.resource.data.ownerId == request.auth.uid);
     }
 
+    // Blocked authors, kept on the account so a block follows the user to every device.
+    match /users/{uid}/blocked/{blockedUid} {
+      allow read, write: if signedIn() && request.auth.uid == uid && blockedUid != uid;
+    }
+
     match /posts/{postId} {
       allow read: if true;
       allow create: if signedIn()
@@ -72,7 +77,8 @@ service cloud.firestore {
         && request.resource.data.status in ['removed', 'dismissed'];
       allow create: if signedIn()
         && request.resource.data.reporterId == request.auth.uid
-        && validText(request.resource.data.reason, 100);
+        && validText(request.resource.data.reason, 100)
+        && (!('commentId' in request.resource.data) || validText(request.resource.data.commentId, 60));
     }
   }
 }

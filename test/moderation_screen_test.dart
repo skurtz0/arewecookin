@@ -22,6 +22,9 @@ class _FakeModeration implements ModerationService {
       ? null
       : SocialPost(id: postId, authorId: 'u1', authorName: 'Ayşe', title: 'Kötü gönderi', text: 'metin', createdAtMs: 1);
   @override
+  Future<SocialComment?> getComment(String postId, String commentId) async =>
+      SocialComment(id: commentId, authorId: 'u2', authorName: 'Can', text: 'kaba yorum', createdAtMs: 1);
+  @override
   Future<void> removePost(ModerationReport r) async => removed.add(r.id);
   @override
   Future<void> dismissReport(ModerationReport r) async => dismissed.add(r.id);

@@ -56,8 +56,8 @@ class FakeSocialService implements SocialService {
   }
 
   @override
-  Future<void> reportPost({required String postId, required String reporterId, required String reason}) async {
-    reports.add('$postId:$reporterId:$reason');
+  Future<void> reportPost({required String postId, required String reporterId, required String reason, String? commentId}) async {
+    reports.add('$postId:$reporterId:$reason${commentId == null ? '' : ':$commentId'}');
   }
 
   @override

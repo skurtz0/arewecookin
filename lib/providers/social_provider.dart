@@ -116,6 +116,16 @@ class SocialNotifier extends Notifier<SocialState> {
     } catch (_) {}
   }
 
+  /// Reports one comment and hides it on this device either way.
+  Future<void> reportComment(String postId, String commentId, String reason) async {
+    ref.read(moderationProvider.notifier).hidePost('comment:$commentId');
+    final user = ref.read(authProvider).user;
+    if (!user.isLoggedIn) return;
+    try {
+      await _service.reportPost(postId: postId, reporterId: user.id, reason: reason, commentId: commentId);
+    } catch (_) {}
+  }
+
   Future<bool> comment(String postId, String text) async {
     final user = ref.read(authProvider).user;
     if (!user.isLoggedIn || text.trim().isEmpty) return false;

@@ -126,6 +126,22 @@ void main() {
     expect(find.text('Menemen'), findsNothing);
   });
 
+  testWidgets('reporting a comment hides it and files a report with its id', (tester) async {
+    final fake = await _pump(tester, user: signedInUser);
+    fake.comments['a'] = [
+      const SocialComment(id: 'c9', authorId: 'u2', authorName: 'Can', text: 'kaba yorum', createdAtMs: 1),
+    ];
+    await tester.tap(find.byKey(const Key('comment_a')));
+    await tester.pumpAndSettle();
+    expect(find.text('kaba yorum'), findsOneWidget);
+    await tester.tap(find.byKey(const Key('cmenu_c9')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Report'));
+    await tester.pumpAndSettle();
+    expect(fake.reports, ['a:u1:report:c9']);
+    expect(find.text('kaba yorum'), findsNothing);
+  });
+
   testWidgets('blocking an author hides their posts and can be undone from their page', (tester) async {
     await _pump(tester);
     await tester.tap(find.byKey(const Key('menu_a')));

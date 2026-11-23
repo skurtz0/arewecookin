@@ -85,32 +85,44 @@ class _ReportCard extends ConsumerWidget {
               Text(statusLabel),
             ]),
             const SizedBox(height: 8),
-            FutureBuilder<SocialPost?>(
-              future: service.getPost(report.postId),
-              builder: (_, snap) {
-                if (snap.connectionState != ConnectionState.done) {
-                  return const SizedBox(height: 20, child: LinearProgressIndicator());
-                }
-                final post = snap.data;
-                if (post == null) {
-                  return Text(tr ? 'Gönderi artık yok.' : 'Post no longer exists.');
-                }
-                return Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text('${post.authorName}: ${post.title}', maxLines: 2, overflow: TextOverflow.ellipsis),
-                    if (post.text.isNotEmpty)
-                      Text(post.text, maxLines: 4, overflow: TextOverflow.ellipsis),
-                  ],
-                );
-              },
-            ),
+            if (report.commentId != null)
+              FutureBuilder<SocialComment?>(
+                future: service.getComment(report.postId, report.commentId!),
+                builder: (_, snap) {
+                  if (snap.connectionState != ConnectionState.done) {
+                    return const SizedBox(height: 20, child: LinearProgressIndicator());
+                  }
+                  final c = snap.data;
+                  if (c == null) return Text(tr ? 'Yorum artık yok.' : 'Comment no longer exists.');
+                  return Text('${tr ? 'Yorum' : 'Comment'} - ${c.authorName}: ${c.text}', maxLines: 4, overflow: TextOverflow.ellipsis);
+                },
+              )
+            else
+              FutureBuilder<SocialPost?>(
+                future: service.getPost(report.postId),
+                builder: (_, snap) {
+                  if (snap.connectionState != ConnectionState.done) {
+                    return const SizedBox(height: 20, child: LinearProgressIndicator());
+                  }
+                  final post = snap.data;
+                  if (post == null) {
+                    return Text(tr ? 'Gönderi artık yok.' : 'Post no longer exists.');
+                  }
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text('${post.authorName}: ${post.title}', maxLines: 2, overflow: TextOverflow.ellipsis),
+                      if (post.text.isNotEmpty) Text(post.text, maxLines: 4, overflow: TextOverflow.ellipsis),
+                    ],
+                  );
+                },
+              ),
             if (report.isOpen) ...[
               const SizedBox(height: 8),
               Wrap(spacing: 8, runSpacing: 4, children: [
                 FilledButton.tonal(
                   onPressed: () => _run(context, () => service.removePost(report)),
-                  child: Text(tr ? 'Gönderiyi kaldır' : 'Remove post'),
+                  child: Text(report.commentId != null ? (tr ? 'Yorumu kaldır' : 'Remove comment') : (tr ? 'Gönderiyi kaldır' : 'Remove post')),
                 ),
                 OutlinedButton(
                   onPressed: () => _run(context, () => service.dismissReport(report)),

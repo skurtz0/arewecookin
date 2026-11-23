@@ -275,6 +275,8 @@ class _CommentsSheetState extends ConsumerState<_CommentsSheet> {
   Widget build(BuildContext context) {
     final strings = ref.watch(appStringsProvider);
     final comments = ref.watch(commentsProvider(widget.postId));
+    final mod = ref.watch(moderationProvider);
+    final user = ref.watch(authProvider).user;
     return Padding(
       padding: EdgeInsets.fromLTRB(16, 16, 16, 16 + MediaQuery.of(context).viewInsets.bottom),
       child: Column(
@@ -291,7 +293,32 @@ class _CommentsSheetState extends ConsumerState<_CommentsSheet> {
                 shrinkWrap: true,
                 children: [
                   for (final c in list)
-                    ListTile(dense: true, title: Text(c.authorName), subtitle: Text(c.text)),
+                    if (!mod.blockedAuthors.contains(c.authorId) && !mod.hiddenPosts.contains('comment:${c.id}'))
+                      ListTile(
+                        dense: true,
+                        title: Text(c.authorName),
+                        subtitle: Text(c.text),
+                        trailing: (user.isLoggedIn && user.id != c.authorId)
+                            ? PopupMenuButton<String>(
+                                key: Key('cmenu_${c.id}'),
+                                tooltip: strings.socialMore,
+                                onSelected: (v) {
+                                  if (v == 'report') {
+                                    ref.read(socialProvider.notifier).reportComment(widget.postId, c.id, 'report');
+                                    ScaffoldMessenger.of(context)
+                                      ..hideCurrentSnackBar()
+                                      ..showSnackBar(SnackBar(content: Text(strings.socialReported)));
+                                  } else {
+                                    ref.read(moderationProvider.notifier).blockAuthor(c.authorId);
+                                  }
+                                },
+                                itemBuilder: (_) => [
+                                  PopupMenuItem(value: 'report', child: Text(strings.socialReport)),
+                                  PopupMenuItem(value: 'block', child: Text(strings.socialBlock)),
+                                ],
+                              )
+                            : null,
+                      ),
                 ],
               ),
             ),
