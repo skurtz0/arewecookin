@@ -275,7 +275,9 @@ class _RecipeDetailScreenState extends ConsumerState<RecipeDetailScreen> {
               final isSaved = savedState.isSaved(recipe.id);
               final strings = ref.watch(appStringsProvider);
               return IconButton(
+                key: const Key('save_toggle'),
                 tooltip: strings.a11ySave,
+                isSelected: isSaved,
                 icon: Icon(
                   isSaved
                       ? Icons.bookmark_rounded
@@ -298,8 +300,18 @@ class _RecipeDetailScreenState extends ConsumerState<RecipeDetailScreen> {
                               ? strings.addedToFavorites
                               : strings.removedFromFavorites,
                         ),
-                        duration: const Duration(seconds: 2),
+                        duration: const Duration(seconds: 3),
                         behavior: SnackBarBehavior.floating,
+                        action: SnackBarAction(
+                          key: const Key('save_toggle_undo'),
+                          label: strings.undoLabel,
+                          onPressed: () {
+                            final saved = ref.read(savedRecipesProvider).isSaved(recipe.id);
+                            if (saved == nowSaved) {
+                              ref.read(savedRecipesProvider.notifier).toggleSave(recipe);
+                            }
+                          },
+                        ),
                       ),
                     );
                   }
