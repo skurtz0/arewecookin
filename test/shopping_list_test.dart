@@ -31,4 +31,19 @@ void main() {
     await Future<void>.delayed(const Duration(milliseconds: 50));
     expect(b.read(shoppingListProvider).map((e) => e.name), ['Tuz']);
   });
+
+  test('adding an item that was already checked off reopens it', () async {
+    SharedPreferences.setMockInitialValues({});
+    final c = ProviderContainer();
+    addTearDown(c.dispose);
+    final n = c.read(shoppingListProvider.notifier);
+    n.addAll(const [ShoppingItem(name: 'Milk'), ShoppingItem(name: 'Eggs')]);
+    n.toggle(0);
+    expect(c.read(shoppingListProvider)[0].done, isTrue);
+    expect(n.addAll(const [ShoppingItem(name: 'milk')]), 1);
+    expect(c.read(shoppingListProvider)[0].done, isFalse);
+    expect(c.read(shoppingListProvider).length, 2);
+    // An open item stays untouched.
+    expect(n.addAll(const [ShoppingItem(name: 'Milk')]), 0);
+  });
 }

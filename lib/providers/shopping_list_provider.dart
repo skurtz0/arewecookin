@@ -120,7 +120,8 @@ class ShoppingListNotifier extends Notifier<List<ShoppingItem>> {
 
   /// Adds items. An item that is already on the list is skipped, except when both have a
   /// numeric amount in the same unit and come from a different recipe: then the amounts are summed.
-  /// Returns how many items were added or merged.
+  /// A checked-off item that is added again becomes open again.
+  /// Returns how many items were added, merged or reopened.
   int addAll(Iterable<ShoppingItem> items) {
     final next = [...state];
     var changed = 0;
@@ -143,6 +144,10 @@ class ShoppingListNotifier extends Notifier<List<ShoppingItem>> {
           recipeTitle: old.recipeTitle.isEmpty ? i.recipeTitle : '${old.recipeTitle}, ${i.recipeTitle}',
           done: false,
         );
+        changed++;
+      } else if (old.done) {
+        // Already bought earlier but needed again: put it back on the open list.
+        next[idx] = old.copyWith(done: false);
         changed++;
       }
     }
