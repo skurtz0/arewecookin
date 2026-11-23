@@ -16,7 +16,7 @@ SocialPost _p(String id, String author, String title, int t, {List<String> photo
 
 Future<(FakeSocialService, FakeProfileService)> _pump(WidgetTester tester, Widget home, {bool signedIn = true, List<SocialPost>? seed}) async {
   SharedPreferences.setMockInitialValues({});
-  tester.view.physicalSize = const Size(360 * 3, 800 * 3);
+  tester.view.physicalSize = const Size(360 * 3, 1600 * 3);
   tester.view.devicePixelRatio = 3;
   addTearDown(tester.view.reset);
   final social = FakeSocialService(seed ?? [

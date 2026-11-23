@@ -13,7 +13,7 @@ class ThemeModeNotifier extends Notifier<ThemeMode> {
   @override
   ThemeMode build() {
     _ready = _load();
-    return ThemeMode.system;
+    return ThemeMode.dark;
   }
 
   Future<void> _load() async {
@@ -21,7 +21,7 @@ class ThemeModeNotifier extends Notifier<ThemeMode> {
       final prefs = await SharedPreferences.getInstance();
       final saved = prefs.getString(_prefKey);
       if (_touched || saved == null) return;
-      state = ThemeMode.values.firstWhere((m) => m.name == saved, orElse: () => ThemeMode.system);
+      state = ThemeMode.values.firstWhere((m) => m.name == saved, orElse: () => ThemeMode.dark);
     } catch (_) {}
   }
 

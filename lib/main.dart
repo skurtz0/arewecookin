@@ -1,3 +1,4 @@
+import 'app_scroll_behavior.dart';
 import 'providers/theme_provider.dart';
 import 'utils/app_colors.dart';
 import 'utils/deep_link.dart';
@@ -55,6 +56,7 @@ class AreWeCookinApp extends ConsumerWidget {
         );
 
     return MaterialApp(
+      scrollBehavior: const AppScrollBehavior(),
       title: 'AreWeCookin',
       debugShowCheckedModeBanner: false,
       locale: locale,

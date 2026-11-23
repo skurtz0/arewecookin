@@ -23,20 +23,21 @@ Future<ProviderContainer> _start(WidgetTester tester, Size size, {Map<String, Ob
 }
 
 void main() {
-  testWidgets('one tap on the side menu button switches light and dark and back', (tester) async {
+  testWidgets('the app starts dark by default and one tap switches to light and back', (tester) async {
     final c = await _start(tester, const Size(1400, 900));
-    expect(AppColors.dark, isFalse);
-    await tester.tap(find.byKey(const Key('theme_toggle')));
-    await tester.pump();
-    await tester.pump(const Duration(milliseconds: 300));
     expect(c.read(themeModeProvider), ThemeMode.dark);
     expect(AppColors.dark, isTrue);
-    expect(Theme.of(tester.element(find.byType(Scaffold).first)).brightness, Brightness.dark);
     await tester.tap(find.byKey(const Key('theme_toggle')));
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 300));
     expect(c.read(themeModeProvider), ThemeMode.light);
     expect(AppColors.dark, isFalse);
+    expect(Theme.of(tester.element(find.byType(Scaffold).first)).brightness, Brightness.light);
+    await tester.tap(find.byKey(const Key('theme_toggle')));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 300));
+    expect(c.read(themeModeProvider), ThemeMode.dark);
+    expect(AppColors.dark, isTrue);
   });
 
   testWidgets('phones get the toggle on the Discover screen and the choice is remembered', (tester) async {
@@ -45,9 +46,16 @@ void main() {
     await tester.tap(find.byKey(const Key('theme_toggle')));
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 300));
-    expect(c.read(themeModeProvider), ThemeMode.dark);
+    expect(c.read(themeModeProvider), ThemeMode.light);
     final prefs = await SharedPreferences.getInstance();
-    expect(prefs.getString('theme_mode_v1'), 'dark');
+    expect(prefs.getString('theme_mode_v1'), 'light');
+  });
+
+  testWidgets('a saved light choice is kept', (tester) async {
+    final c = await _start(tester, const Size(400, 900), prefs: {'theme_mode_v1': 'light'});
+    await tester.pump(const Duration(milliseconds: 300));
+    expect(c.read(themeModeProvider), ThemeMode.light);
+    expect(AppColors.dark, isFalse);
   });
 
   testWidgets('a saved dark choice is applied at start', (tester) async {
