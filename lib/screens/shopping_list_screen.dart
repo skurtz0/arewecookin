@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../providers/locale_provider.dart';
+import '../providers/pantry_provider.dart';
 import '../providers/shopping_list_provider.dart';
 import 'meal_plan_screen.dart';
 
@@ -164,6 +165,20 @@ class _ShoppingListScreenState extends ConsumerState<ShoppingListScreen> {
                   ),
                 );
                 if (ok == true) clearWithUndo(notifier.clearAll);
+              },
+            ),
+          if (doneCount > 0)
+            IconButton(
+              key: const Key('shopping_to_pantry'),
+              tooltip: strings.shoppingToPantry,
+              icon: const Icon(Icons.kitchen_outlined),
+              onPressed: () async {
+                final names = [for (final e in items) if (e.done) e.name];
+                final added = await ref.read(pantryProvider.notifier).addIngredients(names);
+                if (!context.mounted) return;
+                ScaffoldMessenger.of(context)
+                  ..hideCurrentSnackBar()
+                  ..showSnackBar(SnackBar(content: Text(strings.pantryAdded(added))));
               },
             ),
           if (doneCount > 0)

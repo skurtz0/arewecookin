@@ -1,3 +1,4 @@
+import 'package:arewecookin/providers/pantry_provider.dart';
 import 'package:arewecookin/providers/shopping_list_provider.dart';
 import 'package:arewecookin/screens/shopping_list_screen.dart';
 import 'package:flutter/material.dart';
@@ -150,5 +151,21 @@ void main() {
     await tester.tap(find.byKey(const Key('shopping_toggle_all')));
     await tester.pumpAndSettle();
     expect(c.read(shoppingListProvider).any((e) => e.done), isFalse);
+  });
+
+  testWidgets('checked items can be added to the pantry', (tester) async {
+    SharedPreferences.setMockInitialValues({});
+    final c = ProviderContainer();
+    addTearDown(c.dispose);
+    c.read(shoppingListProvider.notifier).addAll(const [ShoppingItem(name: 'Eggs'), ShoppingItem(name: 'Milk')]);
+    await tester.pumpWidget(UncontrolledProviderScope(container: c, child: const MaterialApp(home: ShoppingListScreen())));
+    await tester.pumpAndSettle();
+    expect(find.byKey(const Key('shopping_to_pantry')), findsNothing);
+    await tester.tap(find.text('Eggs'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const Key('shopping_to_pantry')));
+    await tester.pumpAndSettle();
+    expect(c.read(pantryProvider).selectedKeys, {'eggs'});
+    expect(find.text('1 ingredients added to pantry'), findsOneWidget);
   });
 }

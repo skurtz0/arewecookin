@@ -82,6 +82,8 @@ class AppStrings {
   String get shoppingToggleAll => _get('shoppingToggleAll', 'Check / uncheck all');
   String get similarRecipes => _get('similarRecipes', 'Similar recipes');
   String nextStepPreview(String title) => _get('nextStepFmt', 'Next: {title}').replaceAll('{title}', title);
+  String get shoppingToPantry => _get('shoppingToPantry', 'Add checked to pantry');
+  String pantryAdded(int n) => _get('pantryAddedFmt', '{n} ingredients added to pantry').replaceAll('{n}', '$n');
   String get shoppingClearAll => _get('shoppingClearAll', 'Clear list');
   String get shoppingClearAllConfirm => _get('shoppingClearAllConfirm', 'Remove all items from the shopping list?');
   String get shoppingEmptyTitle => _get('shoppingEmptyTitle', 'Your list is empty');

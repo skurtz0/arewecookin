@@ -122,6 +122,21 @@ class PantryNotifier extends Notifier<PantryState> {
     await _searchMatches();
   }
 
+  /// Adds several ingredients with one search; returns how many were new.
+  Future<int> addIngredients(Iterable<String> keys) async {
+    final updated = Set<String>.from(state.selectedKeys);
+    var added = 0;
+    for (final k in keys) {
+      final normalized = k.toLowerCase().trim();
+      if (normalized.isNotEmpty && updated.add(normalized)) added++;
+    }
+    if (added == 0) return 0;
+    state = state.copyWith(selectedKeys: updated);
+    _persist();
+    await _searchMatches();
+    return added;
+  }
+
   Future<void> addIngredient(String key) async {
     final normalized = key.toLowerCase().trim();
     if (normalized.isEmpty || state.selectedKeys.contains(normalized)) return;
