@@ -1,5 +1,6 @@
 import '../utils/unit_converter.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -243,11 +244,15 @@ class MealPlanScreen extends ConsumerWidget {
               ),
             )
           : ListView(
+              // At most a week of rows: build them all so today's day can scroll into view.
+              scrollCacheExtent: const ScrollCacheExtent.pixels(100000),
               padding: const EdgeInsets.fromLTRB(16, 16, 16, 96),
               children: [
                 for (var day = 1; day <= 7; day++)
                   if ((plan[day] ?? const []).isNotEmpty) ...[
-                    Padding(
+                    _ScrollToMeOnce(
+                      enabled: day == DateTime.now().weekday,
+                      child: Padding(
                       padding: const EdgeInsets.only(top: 8, bottom: 6),
                       child: Row(
                         children: [
@@ -354,7 +359,7 @@ class MealPlanScreen extends ConsumerWidget {
                           ),
                         ],
                       ),
-                    ),
+                    )),
                     for (final r in plan[day]!)
                       Dismissible(
                         key: ValueKey('plan_row_${day}_${r.id}'),
@@ -592,4 +597,31 @@ void _addToShopping(
               ),
       ),
     );
+}
+
+/// When the day it wraps is today, the list scrolls to it once, right after it first appears.
+class _ScrollToMeOnce extends StatefulWidget {
+  final bool enabled;
+  final Widget child;
+  const _ScrollToMeOnce({required this.enabled, required this.child});
+
+  @override
+  State<_ScrollToMeOnce> createState() => _ScrollToMeOnceState();
+}
+
+class _ScrollToMeOnceState extends State<_ScrollToMeOnce> {
+  @override
+  void initState() {
+    super.initState();
+    if (widget.enabled) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) {
+          Scrollable.ensureVisible(context, duration: Duration.zero, alignment: 0.0);
+        }
+      });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) => widget.child;
 }
