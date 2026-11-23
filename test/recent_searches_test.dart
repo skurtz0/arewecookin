@@ -42,4 +42,24 @@ void main() {
     await tester.pump();
     expect(c.read(recentSearchesProvider), isEmpty);
   });
+
+  testWidgets('a single recent search can be removed with its x', (tester) async {
+    SharedPreferences.setMockInitialValues({});
+    final c = ProviderContainer();
+    addTearDown(c.dispose);
+    c.read(recentSearchesProvider.notifier).add('makarna');
+    c.read(recentSearchesProvider.notifier).add('pilav');
+    await tester.pumpWidget(UncontrolledProviderScope(
+      container: c,
+      child: const MaterialApp(home: Scaffold(body: DiscoverScreen())),
+    ));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 300));
+    final chip = find.byKey(const Key('recent_search_makarna'));
+    expect(chip, findsOneWidget);
+    await tester.tap(find.descendant(of: chip, matching: find.byTooltip('Delete item')));
+    await tester.pump();
+    expect(c.read(recentSearchesProvider), ['pilav']);
+    expect(find.byKey(const Key('recent_search_makarna')), findsNothing);
+  });
 }

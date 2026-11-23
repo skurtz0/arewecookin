@@ -38,6 +38,11 @@ class RecentSearchesNotifier extends Notifier<List<String>> {
     _save();
   }
 
+  void remove(String query) {
+    state = state.where((e) => e != query).toList();
+    _save();
+  }
+
   void clear() {
     state = const [];
     _save();

@@ -291,9 +291,12 @@ class DiscoverScreenState extends ConsumerState<DiscoverScreen> {
                     crossAxisAlignment: WrapCrossAlignment.center,
                     children: [
                       for (final q in searches)
-                        ActionChip(
+                        InputChip(
+                          key: Key('recent_search_$q'),
                           avatar: const Icon(Icons.history_rounded, size: 16),
                           label: Text(q),
+                          deleteButtonTooltipMessage: strings.shoppingDeleteItem,
+                          onDeleted: () => ref.read(recentSearchesProvider.notifier).remove(q),
                           onPressed: () {
                             _searchController.text = q;
                             ref.read(discoverProvider.notifier).setSearchQuery(q);
