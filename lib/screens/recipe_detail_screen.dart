@@ -494,14 +494,14 @@ class _RecipeDetailScreenState extends ConsumerState<RecipeDetailScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
+                      Semantics(header: true, child: Text(
                         strings.ingredientsTitle,
                         style: const TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
                           color: Color(0xFF1E293B),
                         ),
-                      ),
+                      )),
                       const SizedBox(height: 4),
                       Text(
                         '$checkedCount / $totalIngredients ${strings.ready} (${(progress * 100).toInt()}%)',
@@ -765,8 +765,8 @@ class _RecipeDetailScreenState extends ConsumerState<RecipeDetailScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const SizedBox(height: 24),
-                  Text(strings.similarRecipes,
-                      style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Color(0xFF1E293B))),
+                  Semantics(header: true, child: Text(strings.similarRecipes,
+                      style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Color(0xFF1E293B)))),
                   const SizedBox(height: 8),
                   Wrap(
                     key: const Key('similar_recipes'),
@@ -789,8 +789,8 @@ class _RecipeDetailScreenState extends ConsumerState<RecipeDetailScreen> {
 
             // Personal rating and notes (stored on the device)
             const SizedBox(height: 24),
-            Text(strings.myNotes,
-                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Color(0xFF1E293B))),
+            Semantics(header: true, child: Text(strings.myNotes,
+                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Color(0xFF1E293B)))),
             const SizedBox(height: 8),
             Builder(builder: (context) {
               final note = ref.watch(recipeNotesProvider)[recipe.id] ?? const RecipeNote();
@@ -858,14 +858,14 @@ class _RecipeDetailScreenState extends ConsumerState<RecipeDetailScreen> {
                     size: 20,
                   ),
                   const SizedBox(width: 8),
-                  Text(
+                  Semantics(header: true, child: Text(
                     strings.substitutionsTitle,
                     style: const TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
                       color: Color(0xFF1E293B),
                     ),
-                  ),
+                  )),
                 ],
               ),
               const SizedBox(height: 12),
@@ -932,14 +932,14 @@ class _RecipeDetailScreenState extends ConsumerState<RecipeDetailScreen> {
             Row(
               children: [
                 Expanded(
-                  child: Text(
+                  child: Semantics(header: true, child: Text(
                     strings.stepsTitle,
                     style: const TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
                       color: Color(0xFF1E293B),
                     ),
-                  ),
+                  )),
                 ),
                 Text(
                   '${recipe.steps.length} ${strings.step}',
