@@ -103,6 +103,7 @@ class AppStrings {
   String get timeAny => _get('timeAny', 'Any time');
   String timeUpTo(int n) => _get('timeUpTo', '{n} min').replaceAll('{n}', '$n');
   String get mealPlanTitle => _get('mealPlanTitle', 'Meal plan');
+  String get mealPlanCopyDay => _get('mealPlanCopyDay', 'Copy this day to another day');
   String get mealPlanDayToList => _get('mealPlanDayToList', 'Add this day\'s ingredients to shopping list');
   String get mealPlanToList => _get('mealPlanToList', 'Add all ingredients to shopping list');
   String get mealPlanEmptyTitle => _get('mealPlanEmptyTitle', 'No meals planned');

@@ -234,4 +234,28 @@ void main() {
     expect(titles, isNotEmpty);
     expect(titles.any((t) => t.contains(recipes[1].title)), isFalse);
   });
+
+  testWidgets('a day can be copied to another day without duplicates', (tester) async {
+    SharedPreferences.setMockInitialValues({});
+    final recipes = (await RecipeRepository().getRecipes(limit: 2)).recipes;
+    final container = ProviderContainer();
+    addTearDown(container.dispose);
+    final n = container.read(mealPlanProvider.notifier);
+    n.add(1, recipes[0]);
+    n.add(1, recipes[1]);
+    n.add(3, recipes[0]);
+    await tester.pumpWidget(UncontrolledProviderScope(
+      container: container,
+      child: const MaterialApp(home: MealPlanScreen()),
+    ));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const Key('plan_day_copy_1')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const Key('plan_copy_to_3')));
+    await tester.pumpAndSettle();
+    final plan = container.read(mealPlanProvider);
+    expect(plan[3]!.map((r) => r.id).toList(), [recipes[0].id, recipes[1].id]);
+    expect(plan[1]!.length, 2);
+    expect(container.read(mealPlanProvider.notifier).copyDay(1, 3), 0);
+  });
 }

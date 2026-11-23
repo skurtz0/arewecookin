@@ -64,6 +64,16 @@ class MealPlanNotifier extends Notifier<Map<int, List<Recipe>>> {
     return true;
   }
 
+  /// Copies every meal of [from] to [to], skipping ones already there. Returns how many were added.
+  int copyDay(int from, int to) {
+    if (from == to || to < 1 || to > 7) return 0;
+    var added = 0;
+    for (final r in List.of(state[from] ?? const <Recipe>[])) {
+      if (add(to, r)) added++;
+    }
+    return added;
+  }
+
   /// Moves a meal to another day. If the target day already has it, it is just removed from the old day.
   void move(int from, int to, Recipe recipe) {
     if (from == to || to < 1 || to > 7) return;

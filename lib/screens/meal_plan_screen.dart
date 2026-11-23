@@ -246,6 +246,46 @@ class MealPlanScreen extends ConsumerWidget {
                             ),
                           ),
                           IconButton(
+                            key: Key('plan_day_copy_$day'),
+                            tooltip: strings.mealPlanCopyDay,
+                            icon: const Icon(Icons.copy_all_rounded, size: 20),
+                            onPressed: () async {
+                              final to = await showModalBottomSheet<int>(
+                                context: context,
+                                builder: (ctx) => SafeArea(
+                                  child: SingleChildScrollView(
+                                    child: Column(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        Padding(
+                                          padding: const EdgeInsets.all(16),
+                                          child: Text(strings.mealPlanPickDay,
+                                              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                                        ),
+                                        for (var d = 1; d <= 7; d++)
+                                          if (d != day)
+                                            ListTile(
+                                              key: Key('plan_copy_to_$d'),
+                                              title: Text(strings.weekdayName(d)),
+                                              onTap: () => Navigator.of(ctx).pop(d),
+                                            ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              );
+                              if (to == null || !context.mounted) return;
+                              final n = ref.read(mealPlanProvider.notifier).copyDay(day, to);
+                              ScaffoldMessenger.of(context)
+                                ..hideCurrentSnackBar()
+                                ..showSnackBar(SnackBar(
+                                  content: Text(n > 0
+                                      ? strings.mealPlanAddedTo(strings.weekdayName(to))
+                                      : strings.mealPlanAlready),
+                                ));
+                            },
+                          ),
+                          IconButton(
                             key: Key('plan_day_to_list_$day'),
                             tooltip: strings.mealPlanDayToList,
                             icon: const Icon(
