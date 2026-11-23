@@ -95,4 +95,36 @@ void main() {
     expect(c.read(discoverProvider).errorMessage, isNull);
     expect(c.read(discoverProvider).recipes.length, greaterThan(before));
   });
+
+  testWidgets('coming back to the app after a failed load retries by itself', (tester) async {
+    tester.view.physicalSize = const Size(800, 1200);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(tester.view.reset);
+    SharedPreferences.setMockInitialValues({});
+    final repo = _FlakyRepository()..down = true;
+    final c = ProviderContainer(overrides: [recipeRepositoryProvider.overrideWithValue(repo)]);
+    addTearDown(c.dispose);
+    await tester.pumpWidget(UncontrolledProviderScope(
+      container: c,
+      child: const MaterialApp(home: Scaffold(body: DiscoverScreen())),
+    ));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 300));
+    expect(find.byKey(const Key('discover_retry')), findsOneWidget);
+    repo.down = false;
+    for (final st in [
+      AppLifecycleState.inactive,
+      AppLifecycleState.hidden,
+      AppLifecycleState.paused,
+      AppLifecycleState.hidden,
+      AppLifecycleState.inactive,
+      AppLifecycleState.resumed,
+    ]) {
+      tester.binding.handleAppLifecycleStateChanged(st);
+    }
+    await tester.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 200)));
+    await tester.pump(const Duration(milliseconds: 300));
+    expect(find.byKey(const Key('discover_retry')), findsNothing);
+    expect(c.read(discoverProvider).recipes, isNotEmpty);
+  });
 }

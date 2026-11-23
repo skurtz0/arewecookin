@@ -29,7 +29,7 @@ class DiscoverScreen extends ConsumerStatefulWidget {
   ConsumerState<DiscoverScreen> createState() => DiscoverScreenState();
 }
 
-class DiscoverScreenState extends ConsumerState<DiscoverScreen> {
+class DiscoverScreenState extends ConsumerState<DiscoverScreen> with WidgetsBindingObserver {
   /// Spoken description of a recipe card: title, time, difficulty, and my rating / cooked marks when present.
   String _cardLabel(Recipe recipe, AppStrings strings) {
     final rating = ref.watch(recipeNotesProvider.select((m) => m[recipe.id]?.rating ?? 0));
@@ -83,8 +83,23 @@ class DiscoverScreenState extends ConsumerState<DiscoverScreen> {
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     _scrollController.addListener(_onScroll);
     _restoreSavedSort();
+  }
+
+  /// Coming back to the app after a failed load (usually no connection) tries again by itself.
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state != AppLifecycleState.resumed) return;
+    final d = ref.read(discoverProvider);
+    if (d.errorMessage == null || d.isLoading || d.isLoadingMore) return;
+    final n = ref.read(discoverProvider.notifier);
+    if (d.recipes.isEmpty) {
+      n.loadInitial();
+    } else {
+      n.loadMore();
+    }
   }
 
   static const _savedSortKey = 'saved_sort_v1';
@@ -115,6 +130,7 @@ class DiscoverScreenState extends ConsumerState<DiscoverScreen> {
 
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     _scrollController.removeListener(_onScroll);
     _scrollController.dispose();
     _searchController.dispose();
