@@ -431,6 +431,9 @@ class _ShoppingListScreenState extends ConsumerState<ShoppingListScreen> {
                               label: strings.shoppingDeleteItem,
                             ): () =>
                                 removeItem(i, item),
+                            CustomSemanticsAction(
+                              label: strings.shoppingEditItem,
+                            ): () => editItem(i, item),
                           },
                           child: GestureDetector(
                             onLongPress: () => editItem(i, item),

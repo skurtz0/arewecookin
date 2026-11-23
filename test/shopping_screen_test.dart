@@ -68,7 +68,10 @@ void main() {
         (w) => w is Semantics && w.properties.customSemanticsActions != null);
     expect(withAction, findsOneWidget);
     final node = tester.getSemantics(withAction);
-    final actionId = node.getSemanticsData().customSemanticsActionIds!.first;
+    final ids = node.getSemanticsData().customSemanticsActionIds!;
+    expect(ids.length, 2); // delete + edit
+    final actionId = ids.firstWhere(
+        (id) => CustomSemanticsAction.getAction(id)?.label == 'Delete item');
     expect(c.read(shoppingListProvider).length, 1);
     tester.semantics.performAction(find.semantics.byAction(SemanticsAction.customAction), SemanticsAction.customAction, args: actionId);
     await tester.pumpAndSettle();
