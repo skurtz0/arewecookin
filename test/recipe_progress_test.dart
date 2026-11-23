@@ -107,4 +107,33 @@ void main() {
     await tester.ensureVisible(plus);
     expect(tester.widget<IconButton>(plus).onPressed, isNull);
   });
+
+  testWidgets('half and double change servings (rounding half up, capped at 99)', (tester) async {
+    SharedPreferences.setMockInitialValues({});
+    final recipe = (await RecipeRepository().getRecipes(limit: 1)).recipes.first;
+    final c = ProviderContainer();
+    addTearDown(c.dispose);
+    c.read(recipeProgressProvider.notifier).setServings(recipe.id, 5);
+    await tester.pumpWidget(UncontrolledProviderScope(
+      container: c,
+      child: MaterialApp(home: RecipeDetailScreen(recipe: recipe)),
+    ));
+    await tester.pumpAndSettle();
+    int servings() => c.read(recipeProgressProvider)[recipe.id]!.servings!;
+    final half = find.byKey(const Key('servings_half'));
+    final dbl = find.byKey(const Key('servings_double'));
+    await tester.ensureVisible(half);
+    await tester.tap(half);
+    await tester.pumpAndSettle();
+    expect(servings(), 3); // 5 -> ceil(5/2)
+    await tester.tap(dbl);
+    await tester.pumpAndSettle();
+    expect(servings(), 6);
+    for (var i = 0; i < 6; i++) {
+      await tester.tap(dbl);
+      await tester.pumpAndSettle();
+    }
+    expect(servings(), 99);
+    expect(tester.widget<TextButton>(dbl).onPressed, isNull);
+  });
 }
