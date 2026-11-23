@@ -109,6 +109,13 @@ class PantryNotifier extends Notifier<PantryState> {
     await _searchMatches();
   }
 
+  /// Puts a previous selection back (used by "Undo" after clearing).
+  Future<void> restoreSelection(Set<String> keys) async {
+    state = state.copyWith(selectedKeys: {...keys});
+    _persist();
+    await _searchMatches();
+  }
+
   Future<void> clearAll() async {
     state = state.copyWith(
       selectedKeys: const {},

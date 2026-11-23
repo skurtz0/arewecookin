@@ -165,7 +165,20 @@ class _PantryScreenState extends ConsumerState<PantryScreen> {
             Padding(
               padding: const EdgeInsets.only(right: 8),
               child: TextButton.icon(
-                onPressed: () => ref.read(pantryProvider.notifier).clearAll(),
+                onPressed: () {
+                  final notifier = ref.read(pantryProvider.notifier);
+                  final before = {...pantryState.selectedKeys};
+                  notifier.clearAll();
+                  ScaffoldMessenger.of(context)
+                    ..hideCurrentSnackBar()
+                    ..showSnackBar(SnackBar(
+                      content: Text(strings.listCleared),
+                      action: SnackBarAction(
+                        label: strings.undoLabel,
+                        onPressed: () => notifier.restoreSelection(before),
+                      ),
+                    ));
+                },
                 icon: const Icon(
                   Icons.delete_outline_rounded,
                   size: 18,
