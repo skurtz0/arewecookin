@@ -229,11 +229,29 @@ class ShoppingListNotifier extends Notifier<List<ShoppingItem>> {
 
   /// Plain-text version of the list (unchecked first), for sharing/pasting.
   String asText() {
-    final lines = <String>[];
-    for (final i in [...state.where((e) => !e.done), ...state.where((e) => e.done)]) {
+    String line(ShoppingItem i) {
       final qty = [i.amount, i.unit].where((e) => e.trim().isNotEmpty).join(' ');
-      lines.add('${i.done ? '[x]' : '[ ]'} ${i.name}${qty.isEmpty ? '' : ' - $qty'}');
+      return '${i.done ? '[x]' : '[ ]'} ${i.name}${qty.isEmpty ? '' : ' - $qty'}';
     }
+
+    final open = state.where((e) => !e.done).toList();
+    final done = state.where((e) => e.done).toList();
+    final lines = <String>[];
+    // With several sources, open items are grouped under the recipe they came from (hand-added ones first).
+    final groups = <String, List<ShoppingItem>>{};
+    for (final i in open) {
+      groups.putIfAbsent(i.recipeTitle, () => []).add(i);
+    }
+    if (groups.length > 1) {
+      final keys = [...groups.keys]..sort((a, b) => a.isEmpty ? -1 : (b.isEmpty ? 1 : 0));
+      for (final k in keys) {
+        if (k.isNotEmpty) lines.add('# $k');
+        lines.addAll(groups[k]!.map(line));
+      }
+    } else {
+      lines.addAll(open.map(line));
+    }
+    lines.addAll(done.map(line));
     return lines.join('\n');
   }
 

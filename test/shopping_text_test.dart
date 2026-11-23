@@ -38,4 +38,18 @@ void main() {
     expect(n.addAll(const [ShoppingItem(name: 'Un', amount: '200', unit: 'g', recipeTitle: 'B')]), 0);
     expect(c.read(shoppingListProvider).single.amount, '1');
   });
+
+  test('asText groups open items under their recipe when there are several sources', () {
+    SharedPreferences.setMockInitialValues({});
+    final c = ProviderContainer();
+    addTearDown(c.dispose);
+    final n = c.read(shoppingListProvider.notifier);
+    n.addAll(const [
+      ShoppingItem(name: 'Flour', recipeTitle: 'Bread'),
+      ShoppingItem(name: 'Gum'),
+      ShoppingItem(name: 'Carrot', recipeTitle: 'Soup'),
+      ShoppingItem(name: 'Salt', recipeTitle: 'Bread'),
+    ]);
+    expect(n.asText(), '[ ] Gum\n# Bread\n[ ] Flour\n[ ] Salt\n# Soup\n[ ] Carrot');
+  });
 }
