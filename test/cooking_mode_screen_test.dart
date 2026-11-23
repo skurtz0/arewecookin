@@ -95,6 +95,21 @@ void main() {
       expect(container.read(recipeProgressProvider)[sampleRecipe.id]!.checked, {0, 1});
     });
 
+    testWidgets('tapping the step counter lists all steps and jumps to the chosen one', (tester) async {
+      SharedPreferences.setMockInitialValues({});
+      await tester.pumpWidget(ProviderScope(
+        child: MaterialApp(home: CookingModeScreen(recipe: sampleRecipe)),
+      ));
+      await tester.pumpAndSettle();
+      expect(sampleRecipe.steps.length, greaterThan(1));
+      await tester.tap(find.byKey(const Key('step_overview_open')));
+      await tester.pumpAndSettle();
+      final last = sampleRecipe.steps.length - 1;
+      await tester.tap(find.byKey(Key('step_overview_$last')));
+      await tester.pumpAndSettle();
+      expect(find.textContaining('${last + 1} /'), findsOneWidget);
+    });
+
     testWidgets('text size button enlarges the step instruction and wraps around', (tester) async {
       SharedPreferences.setMockInitialValues({});
       await tester.pumpWidget(ProviderScope(

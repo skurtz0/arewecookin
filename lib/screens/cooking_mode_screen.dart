@@ -618,6 +618,33 @@ class _CookingModeScreenState extends ConsumerState<CookingModeScreen> {
     );
   }
 
+  void _showStepsSheet(BuildContext context, AppStrings strings, List<CookingStep> steps) {
+    showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      builder: (ctx) => SafeArea(
+        child: ListView.builder(
+          shrinkWrap: true,
+          itemCount: steps.length,
+          itemBuilder: (_, i) => ListTile(
+            key: Key('step_overview_$i'),
+            selected: i == _currentStepIndex,
+            leading: CircleAvatar(radius: 14, child: Text('${i + 1}')),
+            title: Text(
+              steps[i].localizedTitle(strings.locale),
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+            ),
+            onTap: () {
+              Navigator.of(ctx).pop();
+              _pageController.jumpToPage(i);
+            },
+          ),
+        ),
+      ),
+    );
+  }
+
   Widget _buildScaffold(
     BuildContext context,
     AppStrings strings,
@@ -646,11 +673,18 @@ class _CookingModeScreenState extends ConsumerState<CookingModeScreen> {
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
             ),
-            Text(
-              '${strings.step} ${_currentStepIndex + 1} / $totalSteps'
-              '${_timerMinutesLeft() > 0 ? ' · ${strings.timerLeft(_timerMinutesLeft())}' : ''}',
-              key: const Key('step_progress'),
-              style: const TextStyle(fontSize: 12, color: Color(0xFF94A3B8)),
+            Tooltip(
+              message: strings.allSteps,
+              child: InkWell(
+                key: const Key('step_overview_open'),
+                onTap: () => _showStepsSheet(context, strings, steps),
+                child: Text(
+                  '${strings.step} ${_currentStepIndex + 1} / $totalSteps'
+                  '${_timerMinutesLeft() > 0 ? ' · ${strings.timerLeft(_timerMinutesLeft())}' : ''}',
+                  key: const Key('step_progress'),
+                  style: const TextStyle(fontSize: 12, color: Color(0xFF94A3B8)),
+                ),
+              ),
             ),
           ],
         ),
