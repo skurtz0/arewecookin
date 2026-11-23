@@ -1436,7 +1436,12 @@ class _StatColumn extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
+    // One spoken phrase ("Prep Time: 5 min") instead of a loose value and a loose label.
+    return Semantics(
+      container: true,
+      excludeSemantics: true,
+      label: '$label: $value',
+      child: Column(
       children: [
         Icon(icon, size: 20, color: const Color(0xFFFF5722)),
         const SizedBox(height: 4),
@@ -1453,6 +1458,6 @@ class _StatColumn extends StatelessWidget {
           style: TextStyle(fontSize: 11, color: Colors.grey.shade500),
         ),
       ],
-    );
+    ));
   }
 }
