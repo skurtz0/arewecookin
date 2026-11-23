@@ -572,7 +572,11 @@ class _RecipeDetailScreenState extends ConsumerState<RecipeDetailScreen> {
                   final isChecked = _checkedIngredientIndices.contains(index);
                   final qty = _qty(ing, strings.locale);
 
-                  return InkWell(
+                  return Semantics(
+                    key: Key('ingredient_$index'),
+                    checked: isChecked,
+                    container: true,
+                    child: InkWell(
                     onTap: () => _toggleIngredient(index),
                     borderRadius: BorderRadius.circular(16),
                     child: Padding(
@@ -620,6 +624,7 @@ class _RecipeDetailScreenState extends ConsumerState<RecipeDetailScreen> {
                         ],
                       ),
                     ),
+                  ),
                   );
                 },
               ),
