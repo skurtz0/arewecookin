@@ -79,7 +79,8 @@ void main() {
 
       expect(italianMatches, isNotEmpty);
       for (final r in italianMatches) {
-        expect(r.cuisine, 'İtalyan Mutfağı');
+        // Dishes carry their country now ('İtalya'); the group filter still matches them.
+        expect(RecipeRepository.cuisineMatches(r.cuisine, 'İtalyan Mutfağı'), isTrue, reason: r.cuisine);
       }
 
       final turkishMatches = await repository.matchRecipesByPantry(

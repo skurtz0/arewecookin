@@ -614,7 +614,7 @@ class _ProfileHeader extends ConsumerWidget {
                         child: Text(tr ? 'Takip et' : 'Follow'),
                       )),
           ),
-          if (!isMe)
+          if (!isMe && kChatEnabled)
             Padding(
               padding: const EdgeInsets.only(top: 8),
               child: SizedBox(

@@ -9,6 +9,9 @@ import '../providers/profile_provider.dart';
 import '../widgets/profile_widgets.dart';
 import '../widgets/readable_width.dart';
 
+/// Chat rules are not live yet; flip this on together with the rules deploy.
+const bool kChatEnabled = false;
+
 String _t(WidgetRef ref, String tr, String en) => ref.read(appStringsProvider).isTurkish ? tr : en;
 
 /// Opens (or creates) the direct chat with [otherId] and shows it.
@@ -34,6 +37,7 @@ class InboxButton extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    if (!kChatEnabled) return const SizedBox.shrink();
     final n = ref.watch(unreadCountProvider);
     return IconButton(
       key: const Key('inbox_button'),

@@ -252,7 +252,10 @@ class DiscoverScreenState extends ConsumerState<DiscoverScreen> with WidgetsBind
               automaticallyImplyLeading: false,
               toolbarHeight: 0,
               bottom: PreferredSize(
-                preferredSize: Size.fromHeight(270 + 56 * (MediaQuery.textScalerOf(context).scale(14) / 14 - 1).clamp(0.0, 2.0)),
+                preferredSize: Size.fromHeight(270 +
+                    56 * (MediaQuery.textScalerOf(context).scale(14) / 14 - 1).clamp(0.0, 2.0) +
+                    // The "selected cuisine" chip row under the title.
+                    (discoverState.selectedCuisine != 'Tümü' ? 12 + MediaQuery.textScalerOf(context).scale(11) * 1.5 : 0)),
                 child: Container(
                   color: AppColors.surface,
                   child: Column(
@@ -610,23 +613,35 @@ class DiscoverScreenState extends ConsumerState<DiscoverScreen> with WidgetsBind
                   color: Color(0xFFFF5722),
                 ),
                 const SizedBox(width: 8),
-                Flexible(
-                  child: Text(
-                    strings.worldCuisines,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.w800,
-                      letterSpacing: 0.2,
-                      color: AppColors.slate(700),
+                Expanded(
+                  // The whole title always shows: it shrinks to fit instead of being cut with "...".
+                  child: Align(
+                    alignment: AlignmentDirectional.centerStart,
+                    child: FittedBox(
+                      fit: BoxFit.scaleDown,
+                      child: Text(
+                        strings.worldCuisines,
+                        maxLines: 1,
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.w800,
+                          letterSpacing: 0.2,
+                          color: AppColors.slate(700),
+                        ),
+                      ),
                     ),
                   ),
                 ),
-                const Spacer(),
                 if (MediaQuery.sizeOf(context).width < wideLayoutBreakpoint) const ThemeToggleButton(),
-                if (discoverState.selectedCuisine != 'Tümü')
-                  Semantics(
+              ],
+            ),
+          ),
+          if (discoverState.selectedCuisine != 'Tümü')
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 4, 16, 0),
+              child: Align(
+                alignment: Alignment.centerLeft,
+                child: Semantics(
                     button: true,
                     hint: strings.resetFilters,
                     child: InkWell(
@@ -655,9 +670,8 @@ class DiscoverScreenState extends ConsumerState<DiscoverScreen> with WidgetsBind
                       ),
                     ),
                   )),
-              ],
+              ),
             ),
-          ),
           const SizedBox(height: 6),
           SizedBox(
             height: 38,
@@ -964,7 +978,7 @@ class DiscoverScreenState extends ConsumerState<DiscoverScreen> with WidgetsBind
     final cuisine = ref.watch(discoverProvider.select((d) => d.selectedCuisine));
     final category = ref.watch(discoverProvider.select((d) => d.selectedCategory));
     final saved = ref.watch(savedRecipesProvider).recipes.where((r) {
-      if (cuisine != 'Tümü' && cuisine.trim().isNotEmpty && r.cuisine != cuisine) return false;
+      if (cuisine != 'Tümü' && cuisine.trim().isNotEmpty && !RecipeRepository.cuisineMatches(r.cuisine, cuisine)) return false;
       if (category != 'Tümü' && category.trim().isNotEmpty && r.category != category) return false;
       // The time and difficulty chips apply to the Saved list too.
       if (maxMinutes != null && r.totalTime > maxMinutes) return false;

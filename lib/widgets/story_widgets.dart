@@ -108,9 +108,9 @@ class StoryStrip extends ConsumerWidget {
         ),
     ];
     // Avatar ring (66) + gap + one label line at the current text size + list padding.
-    final labelH = MediaQuery.textScalerOf(context).scale(12) * 1.4;
+    final labelH = MediaQuery.textScalerOf(context).scale(12) * 1.7;
     return SizedBox(
-      height: 66 + 4 + labelH + 20,
+      height: 66 + 4 + labelH + 24,
       child: ListView.separated(
         scrollDirection: Axis.horizontal,
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),

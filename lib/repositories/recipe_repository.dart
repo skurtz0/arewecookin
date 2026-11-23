@@ -134,7 +134,7 @@ class RecipeRepository {
             final world = WorldRecipes.all.where((r) =>
                 !ids.contains(r.id) &&
                 (cleanCategory == null || r.category == cleanCategory) &&
-                (cleanCuisine == null || r.cuisine == cleanCuisine) &&
+                (cleanCuisine == null || cuisineMatches(r.cuisine, cleanCuisine)) &&
                 (cleanQuery == null || cleanQuery.isEmpty || _matchesQuery(r, cleanQuery)));
             recipes = [...world, ...recipes];
           }
@@ -215,7 +215,7 @@ class RecipeRepository {
     if (candidateRecipes.isEmpty) {
       // Evaluate the universe of base dishes in the deterministic dataset
       for (final r in WorldRecipes.all) {
-        if (cleanCuisine != null && r.cuisine != cleanCuisine) {
+        if (cleanCuisine != null && !cuisineMatches(r.cuisine, cleanCuisine)) {
           continue;
         }
         if (r.ingredientKeys.any((k) => normalizedUserKeys.contains(k))) {
@@ -224,7 +224,7 @@ class RecipeRepository {
       }
       for (int i = 0; i < 256; i++) {
         final r = RecipeGenerator.generate(i);
-        if (cleanCuisine != null && r.cuisine != cleanCuisine) {
+        if (cleanCuisine != null && !cuisineMatches(r.cuisine, cleanCuisine)) {
           continue;
         }
         if (r.ingredientKeys.any((k) => normalizedUserKeys.contains(k))) {
@@ -312,7 +312,7 @@ class RecipeRepository {
     if (offset == 0) {
       for (final r in _customRecipes) {
         if (category != null && r.category != category) continue;
-        if (cuisine != null && r.cuisine != cuisine) continue;
+        if (cuisine != null && !cuisineMatches(r.cuisine, cuisine)) continue;
         if (searchQuery != null && !_matchesQuery(r, searchQuery)) continue;
         if (maxMinutes != null && r.totalTime > maxMinutes) continue;
         if (difficulty != null && !matchesDifficulty(r.difficulty, difficulty)) continue;
