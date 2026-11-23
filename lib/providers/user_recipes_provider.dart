@@ -22,10 +22,12 @@ class SavedRecipesState {
 
 class SavedRecipesNotifier extends Notifier<SavedRecipesState> {
   static const _prefKey = 'user_saved_recipes_v1';
+  // Saving waits for the stored list to be read first, so an early change never overwrites it.
+  Future<void> _ready = Future.value();
 
   @override
   SavedRecipesState build() {
-    _loadFromStorage();
+    _ready = _loadFromStorage();
     return const SavedRecipesState();
   }
 
@@ -44,15 +46,23 @@ class SavedRecipesNotifier extends Notifier<SavedRecipesState> {
             ids.add(recipe.id);
           } catch (_) {}
         }
-        state = SavedRecipesState(recipes: loaded, savedIds: ids, isLoaded: true);
+        // Recipes saved before the load finished stay on top.
+        final early = state.recipes;
+        final earlyIds = state.savedIds;
+        state = SavedRecipesState(
+          recipes: [...early, ...loaded.where((r) => !earlyIds.contains(r.id))],
+          savedIds: {...earlyIds, ...ids},
+          isLoaded: true,
+        );
         return;
       }
     } catch (_) {}
-    state = const SavedRecipesState(isLoaded: true);
+    state = SavedRecipesState(recipes: state.recipes, savedIds: state.savedIds, isLoaded: true);
   }
 
   Future<void> _saveToStorage() async {
     try {
+      await _ready;
       final prefs = await SharedPreferences.getInstance();
       final list = state.recipes.map((r) => jsonEncode(r.toMap())).toList();
       await prefs.setStringList(_prefKey, list);
@@ -98,7 +108,7 @@ class CustomRecipesNotifier extends Notifier<List<Recipe>> {
 
   @override
   List<Recipe> build() {
-    _loadFromStorage();
+    _ready = _loadFromStorage();
     return const [];
   }
 
@@ -117,13 +127,16 @@ class CustomRecipesNotifier extends Notifier<List<Recipe>> {
             repo.addCustomRecipe(recipe);
           } catch (_) {}
         }
-        state = loaded;
+        // Recipes added before the load finished stay on top.
+        final earlyIds = state.map((r) => r.id).toSet();
+        state = [...state, ...loaded.where((r) => !earlyIds.contains(r.id))];
       }
     } catch (_) {}
   }
 
   Future<void> _saveToStorage() async {
     try {
+      await _ready;
       final prefs = await SharedPreferences.getInstance();
       final list = state.map((r) => jsonEncode(r.toMap())).toList();
       await prefs.setStringList(_prefKey, list);
@@ -150,4 +163,7 @@ class CustomRecipesNotifier extends Notifier<List<Recipe>> {
 }
 
 final customRecipesProvider =
-    NotifierProvider<CustomRecipesNotifier, List<Recipe>>(CustomRecipesNotifier.new);
+    NotifierProvider<CustomRecipesNotifier, List<Recipe>>(CustomRecipesNotifier.new);  // Saving waits for the stored list to be read first, so an early change never overwrites it.
+  Future<void> _ready = Future.value();
+
+

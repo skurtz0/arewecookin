@@ -1,4 +1,8 @@
+import 'dart:convert';
+
 import 'package:arewecookin/providers/pantry_provider.dart';
+import 'package:arewecookin/providers/user_recipes_provider.dart';
+import 'package:arewecookin/repositories/recipe_repository.dart';
 import 'package:arewecookin/providers/recipe_notes_provider.dart';
 import 'package:arewecookin/providers/shopping_list_provider.dart';
 import 'package:arewecookin/providers/recipe_progress_provider.dart';
@@ -66,5 +70,23 @@ void main() {
     b.read(shoppingListProvider);
     await settle();
     expect(b.read(shoppingListProvider).map((e) => e.name).toSet(), {'Milk', 'Eggs'});
+  });
+
+  test('favorites: an early save keeps the stored favorites', () async {
+    final all = (await RecipeRepository().getRecipes(limit: 2)).recipes;
+    SharedPreferences.setMockInitialValues({
+      'user_saved_recipes_v1': [jsonEncode(all[0].toMap())],
+    });
+    final a = ProviderContainer();
+    addTearDown(a.dispose);
+    await a.read(savedRecipesProvider.notifier).toggleSave(all[1]);
+    await settle();
+    expect(a.read(savedRecipesProvider).savedIds, {all[0].id, all[1].id});
+    a.dispose();
+    final b = ProviderContainer();
+    addTearDown(b.dispose);
+    b.read(savedRecipesProvider);
+    await settle();
+    expect(b.read(savedRecipesProvider).savedIds, {all[0].id, all[1].id});
   });
 }
