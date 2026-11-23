@@ -1,3 +1,4 @@
+import 'package:arewecookin/providers/user_recipes_provider.dart';
 import 'package:arewecookin/screens/add_recipe_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -56,5 +57,23 @@ void main() {
     await tester.tap(find.text('Publish Recipe').first);
     await tester.pumpAndSettle();
     expect(find.text('Please enter a recipe name'), findsOneWidget);
+  });
+
+  testWidgets('zero or negative numbers are kept in a sane range when publishing', (tester) async {
+    await _open(tester);
+    await tester.enterText(find.widgetWithText(TextFormField, 'Recipe Title'), 'Test');
+    await tester.enterText(find.widgetWithText(TextFormField, 'Ingredient name (e.g. Olive oil)').first, 'Domates');
+    await tester.enterText(find.widgetWithText(TextFormField, 'Step instructions...').first, 'Pisir.');
+    final fields = find.byType(TextFormField);
+    final texts = [for (var i = 0; i < fields.evaluate().length; i++) tester.widget<TextFormField>(fields.at(i)).controller?.text];
+    final servingsIdx = texts.indexOf('4');
+    expect(servingsIdx, greaterThanOrEqualTo(0));
+    await tester.enterText(fields.at(servingsIdx), '0');
+    await tester.tap(find.text('Publish Recipe').first);
+    await tester.pumpAndSettle();
+    final c = ProviderScope.containerOf(tester.element(find.byType(MaterialApp)), listen: false);
+    final saved = c.read(customRecipesProvider);
+    expect(saved, isNotEmpty);
+    expect(saved.first.servings, 1);
   });
 }

@@ -223,9 +223,10 @@ class _AddRecipeScreenState extends ConsumerState<AddRecipeScreen> {
 
     final strings = ref.read(appStringsProvider);
     final title = _titleController.text.trim();
-    final prepTime = int.tryParse(_prepTimeController.text.trim()) ?? 15;
-    final cookTime = int.tryParse(_cookTimeController.text.trim()) ?? 25;
-    final servings = int.tryParse(_servingsController.text.trim()) ?? 4;
+    // Odd input (0, negative, huge) is kept in a sane range: servings of 0 would break scaling.
+    final prepTime = (int.tryParse(_prepTimeController.text.trim()) ?? 15).clamp(0, 1440);
+    final cookTime = (int.tryParse(_cookTimeController.text.trim()) ?? 25).clamp(0, 1440);
+    final servings = (int.tryParse(_servingsController.text.trim()) ?? 4).clamp(1, 99);
     final imageUrl = _imageUrlController.text.trim().isNotEmpty
         ? _imageUrlController.text.trim()
         : null;
@@ -260,7 +261,7 @@ class _AddRecipeScreenState extends ConsumerState<AddRecipeScreen> {
     for (final draft in _steps) {
       final instruction = draft.instructionController.text.trim();
       if (instruction.isNotEmpty) {
-        final timer = int.tryParse(draft.timerController.text.trim()) ?? 0;
+        final timer = (int.tryParse(draft.timerController.text.trim()) ?? 0).clamp(0, 600);
         final currentOrder = stepNumber++;
         parsedSteps.add(
           CookingStep(
