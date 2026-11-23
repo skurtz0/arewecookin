@@ -77,7 +77,7 @@ class _ReportCard extends ConsumerWidget {
             Row(children: [
               Expanded(
                 child: Text(
-                  '${tr ? 'Sebep' : 'Reason'}: ${report.reason}',
+                  '${tr ? 'Sebep' : 'Reason'}: ${report.reason == 'report' ? (tr ? 'Kullanıcı şikâyeti' : 'User report') : report.reason}',
                   style: const TextStyle(fontWeight: FontWeight.bold),
                 ),
               ),

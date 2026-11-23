@@ -48,6 +48,11 @@ service cloud.firestore {
         && request.resource.data.likeCount == 0
         && request.resource.data.commentCount == 0;
       allow delete: if signedIn() && (resource.data.authorId == request.auth.uid || isAdmin());
+      // An admin removing a comment lowers the comment counter by one (nothing else changes).
+      allow update: if isAdmin()
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['commentCount'])
+        && request.resource.data.commentCount - resource.data.commentCount == -1
+        && request.resource.data.commentCount >= 0;
       // Only the counters can change, and only by 1.
       allow update: if signedIn()
         && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['likeCount', 'commentCount'])

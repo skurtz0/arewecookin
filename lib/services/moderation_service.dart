@@ -88,7 +88,13 @@ class FirestoreModerationService implements ModerationService {
   Future<void> removePost(ModerationReport report) async {
     final batch = _db.batch();
     final post = _db.collection('posts').doc(report.postId);
-    batch.delete(report.commentId == null ? post : post.collection('comments').doc(report.commentId));
+    if (report.commentId == null) {
+      batch.delete(post);
+    } else {
+      batch.delete(post.collection('comments').doc(report.commentId));
+      // Keep the post's comment counter in step (the rules allow an admin to lower it by one).
+      batch.update(post, {'commentCount': FieldValue.increment(-1)});
+    }
     batch.update(_db.collection('reports').doc(report.id), {'status': 'removed'});
     await batch.commit();
   }
