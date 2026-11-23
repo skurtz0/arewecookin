@@ -24,3 +24,19 @@ void syncBrowserUrl(String? recipeId) {
     );
   } catch (_) {}
 }
+
+/// The route the app was opened with (a shared link), captured before Flutter
+/// rewrites the address bar. Call once at start-up.
+String launchRoute = '/';
+
+void captureLaunchRoute() {
+  final fromEngine = PlatformDispatcher.instance.defaultRouteName;
+  if (recipeIdFromRoute(fromEngine) != null) {
+    launchRoute = fromEngine;
+    return;
+  }
+  if (kIsWeb) {
+    final fragment = Uri.base.fragment;
+    if (recipeIdFromRoute(fragment) != null) launchRoute = fragment;
+  }
+}

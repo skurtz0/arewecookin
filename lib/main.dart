@@ -1,3 +1,4 @@
+import 'utils/deep_link.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -8,6 +9,7 @@ import 'screens/splash_screen.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  captureLaunchRoute();
   try {
     await Firebase.initializeApp(
       options: DefaultFirebaseOptions.currentPlatform,
@@ -54,7 +56,12 @@ class AreWeCookinApp extends ConsumerWidget {
           elevation: 0,
         ),
       ),
-      home: const SplashScreen(),
+      // Always start on the splash screen; a shared link (#/recipe/ID) is opened from there.
+      initialRoute: '/',
+      onGenerateRoute: (settings) => MaterialPageRoute<void>(
+        builder: (_) => const SplashScreen(),
+        settings: settings,
+      ),
     );
   }
 }

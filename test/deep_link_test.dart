@@ -6,6 +6,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:arewecookin/data/world_recipes.dart';
 import 'package:arewecookin/repositories/recipe_repository.dart';
 import 'package:arewecookin/screens/recipe_detail_screen.dart';
+import 'package:arewecookin/main.dart';
 import 'package:arewecookin/utils/deep_link.dart';
 
 void main() {
@@ -43,5 +44,21 @@ void main() {
     await tester.pump();
     expect(copied, recipeShareUrl(recipe.id));
     expect(find.byType(SnackBar), findsOneWidget);
+  });
+
+  testWidgets('opening the app with a shared link shows that recipe after the splash', (tester) async {
+    SharedPreferences.setMockInitialValues({});
+    tester.view.physicalSize = const Size(700, 1600);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(tester.view.reset);
+    final recipe = WorldRecipes.all.first;
+    launchRoute = '/recipe/${recipe.id}';
+    addTearDown(() => launchRoute = '/');
+    await tester.pumpWidget(const ProviderScope(child: AreWeCookinApp()));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 2600));
+    await tester.pump(const Duration(seconds: 1));
+    await tester.pump(const Duration(seconds: 1));
+    expect(find.byType(RecipeDetailScreen), findsOneWidget);
   });
 }

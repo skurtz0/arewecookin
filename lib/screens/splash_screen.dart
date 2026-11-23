@@ -2,7 +2,6 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../providers/locale_provider.dart';
-import 'dart:ui' show PlatformDispatcher;
 import '../repositories/recipe_repository.dart';
 import '../utils/deep_link.dart';
 import 'main_navigation_screen.dart';
@@ -57,7 +56,8 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
 
     _navigationTimer = Timer(const Duration(milliseconds: 2400), () {
       if (mounted) {
-        Navigator.of(context).pushReplacement(
+        final navigator = Navigator.of(context);
+        navigator.pushReplacement(
           PageRouteBuilder(
             transitionDuration: const Duration(milliseconds: 650),
             pageBuilder: (context, animation, secondaryAnimation) =>
@@ -67,18 +67,18 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
             },
           ),
         );
-        _openLinkedRecipe();
+        _openLinkedRecipe(navigator);
       }
     });
   }
 
   /// A shared link (`#/recipe/ID`) opens that recipe right after the home screen.
-  Future<void> _openLinkedRecipe() async {
-    final id = recipeIdFromRoute(PlatformDispatcher.instance.defaultRouteName);
+  Future<void> _openLinkedRecipe(NavigatorState navigator) async {
+    final id = recipeIdFromRoute(launchRoute);
     if (id == null) return;
     final recipe = await ref.read(recipeRepositoryProvider).getRecipeById(id);
-    if (recipe == null || !mounted) return;
-    Navigator.of(context).push(MaterialPageRoute(builder: (_) => RecipeDetailScreen(recipe: recipe)));
+    if (recipe == null || !navigator.mounted) return;
+    navigator.push(MaterialPageRoute(builder: (_) => RecipeDetailScreen(recipe: recipe)));
   }
 
   @override
