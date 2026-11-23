@@ -9,6 +9,8 @@ import '../providers/social_provider.dart';
 import '../models/profile_doc.dart';
 import '../providers/profile_provider.dart';
 import '../widgets/profile_widgets.dart';
+import 'chat_screens.dart';
+import '../widgets/story_widgets.dart';
 import '../widgets/readable_width.dart';
 
 /// Community tab: people share recipes as posts, others like and comment.
@@ -44,7 +46,7 @@ class SocialScreen extends ConsumerWidget {
     final feed = following ? ref.watch(followingFeedProvider) : ref.watch(feedProvider);
     final tr = strings.isTurkish;
     return Scaffold(
-      appBar: AppBar(title: Text(strings.tabSocial)),
+      appBar: AppBar(title: Text(strings.tabSocial), actions: const [InboxButton()]),
       floatingActionButton: FloatingActionButton.extended(
         key: const Key('social_new_post'),
         onPressed: () => _newPost(context, ref, strings),
@@ -54,6 +56,7 @@ class SocialScreen extends ConsumerWidget {
       body: ReadableWidth(
         child: Column(
           children: [
+            const StoryStrip(),
             Padding(
               padding: const EdgeInsets.fromLTRB(12, 8, 12, 0),
               child: Align(
@@ -611,6 +614,19 @@ class _ProfileHeader extends ConsumerWidget {
                         child: Text(tr ? 'Takip et' : 'Follow'),
                       )),
           ),
+          if (!isMe)
+            Padding(
+              padding: const EdgeInsets.only(top: 8),
+              child: SizedBox(
+                width: double.infinity,
+                child: OutlinedButton.icon(
+                  key: const Key('profile_message'),
+                  onPressed: () => openDirectChat(context, ref, otherId: authorId, otherName: name),
+                  icon: const Icon(Icons.send_outlined, size: 18),
+                  label: Text(tr ? 'Mesaj' : 'Message'),
+                ),
+              ),
+            ),
         ],
       ),
     );

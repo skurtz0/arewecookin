@@ -76,6 +76,31 @@ service cloud.firestore {
       allow delete: if signedIn() && resource.data.followerId == request.auth.uid;
     }
 
+    // 24-hour photo stories. Everyone can see them; only the author creates/deletes (or an admin deletes).
+    // The timestamp must be close to the server time and expiresAtMs exactly 24 h later.
+    match /stories/{storyId} {
+      allow read: if true;
+      allow create: if signedIn()
+        && request.resource.data.keys().hasOnly(['authorId', 'authorName', 'photoUrl', 'createdAtMs', 'expiresAtMs'])
+        && request.resource.data.authorId == request.auth.uid
+        && validText(request.resource.data.authorName, 80)
+        && photoOk(request.resource.data.photoUrl)
+        && request.resource.data.createdAtMs is int
+        && request.resource.data.createdAtMs > request.time.toMillis() - 600000
+        && request.resource.data.createdAtMs < request.time.toMillis() + 600000
+        && request.resource.data.expiresAtMs == request.resource.data.createdAtMs + 86400000;
+      allow delete: if signedIn() && (resource.data.authorId == request.auth.uid || isAdmin());
+
+      // Who watched: a viewer writes only their own entry; only the story's author reads the list.
+      match /views/{viewerId} {
+        allow read: if signedIn()
+          && get(/databases/$(database)/documents/stories/$(storyId)).data.authorId == request.auth.uid;
+        allow create, update: if signedIn() && request.auth.uid == viewerId
+          && request.resource.data.keys().hasOnly(['name', 'atMs'])
+          && validText(request.resource.data.name, 80);
+      }
+    }
+
     match /posts/{postId} {
       allow read: if true;
       allow create: if signedIn()
