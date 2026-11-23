@@ -1074,7 +1074,18 @@ class _PantryRecipeCard extends ConsumerWidget {
                           spacing: 4,
                           runSpacing: 4,
                           children: missingKeys.map((key) {
-                            return Container(
+                            // Tap a missing ingredient to say "I have it": it joins the pantry.
+                            return Semantics(
+                              button: true,
+                              hint: strings.inPantryLabel,
+                              child: InkWell(
+                              key: Key('have_${recipe.id}_$key'),
+                              borderRadius: BorderRadius.circular(6),
+                              onTap: () {
+                                HapticFeedback.selectionClick();
+                                ref.read(pantryProvider.notifier).addIngredient(key);
+                              },
+                              child: Container(
                               padding: const EdgeInsets.symmetric(
                                 horizontal: 6,
                                 vertical: 2,
@@ -1095,7 +1106,7 @@ class _PantryRecipeCard extends ConsumerWidget {
                                   fontWeight: FontWeight.w500,
                                 ),
                               ),
-                            );
+                            )));
                           }).toList(),
                         ),
                       ),
