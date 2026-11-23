@@ -239,6 +239,9 @@ class AppStrings {
   String get amountHint => _get('amountHint', 'Amount');
   String get householdServings => _get('householdServings', 'Default servings');
   String get householdOff => _get('householdOff', 'Use each recipe\'s own');
+  String get avoidedTitle => _get('avoidedTitle', 'Ingredients I avoid');
+  String get avoidedHint => _get('avoidedHint', 'Recipes with these never show up in Discover.');
+  String get avoidedField => _get('avoidedField', 'e.g. peanut, milk');
   String get searchTip => _get('searchTip', 'Tip: separate ingredients with commas (tomato, onion) and exclude one with a minus (-milk).');
   String get noRecipesFound => _get('noRecipesFound', 'No matching recipes found');
   String get pantryEmptyTitle => _get('pantryEmptyTitle', 'Your pantry looks empty');

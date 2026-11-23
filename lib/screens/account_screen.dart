@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/models.dart';
 import '../providers/auth_provider.dart';
 import '../providers/cook_history_provider.dart';
+import '../providers/avoided_ingredients_provider.dart';
 import '../providers/household_servings_provider.dart';
 import '../providers/locale_provider.dart';
 import '../providers/user_recipes_provider.dart';
@@ -23,6 +24,7 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
   _AuthMethod _selectedAuthMethod = _AuthMethod.email;
   bool _isSignUp = false;
   bool _obscurePassword = true;
+  final TextEditingController _avoidedController = TextEditingController();
 
   // Email form
   final _emailFormKey = GlobalKey<FormState>();
@@ -44,6 +46,7 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
     _passwordController.dispose();
     _phoneController.dispose();
     _otpController.dispose();
+    _avoidedController.dispose();
     super.dispose();
   }
 
@@ -1538,6 +1541,59 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
               ),
               onTap: () => _showLanguagePickerModal(context),
             ),
+            const Divider(),
+            Builder(builder: (context) {
+              final avoided = ref.watch(avoidedIngredientsProvider);
+              return Column(
+                key: const Key('avoided_section'),
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  ListTile(
+                    contentPadding: EdgeInsets.zero,
+                    leading: _iconBox(Icons.no_food_rounded, const Color(0xFFDC2626)),
+                    title: Text(
+                      strings.avoidedTitle,
+                      style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+                    ),
+                    subtitle: Text(
+                      strings.avoidedHint,
+                      style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
+                    ),
+                  ),
+                  TextField(
+                    key: const Key('avoided_field'),
+                    controller: _avoidedController,
+                    textInputAction: TextInputAction.done,
+                    onSubmitted: (v) {
+                      ref.read(avoidedIngredientsProvider.notifier).add(v);
+                      _avoidedController.clear();
+                    },
+                    decoration: InputDecoration(
+                      isDense: true,
+                      hintText: strings.avoidedField,
+                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                    ),
+                  ),
+                  if (avoided.isNotEmpty)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 8),
+                      child: Wrap(
+                        spacing: 6,
+                        runSpacing: 0,
+                        children: [
+                          for (final w in avoided)
+                            InputChip(
+                              key: Key('avoided_$w'),
+                              label: Text(w),
+                              deleteButtonTooltipMessage: strings.shoppingDeleteItem,
+                              onDeleted: () => ref.read(avoidedIngredientsProvider.notifier).remove(w),
+                            ),
+                        ],
+                      ),
+                    ),
+                ],
+              );
+            }),
             const Divider(),
             Builder(builder: (context) {
               final household = ref.watch(householdServingsProvider);

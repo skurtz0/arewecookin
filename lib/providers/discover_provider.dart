@@ -3,6 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/models.dart';
+import 'avoided_ingredients_provider.dart';
 import '../repositories/recipe_repository.dart';
 
 class DiscoverState {
@@ -74,8 +75,22 @@ class DiscoverNotifier extends Notifier<DiscoverState> {
   bool _filtersTouched = false;
   Future<void> _ready = Future.value();
 
+  /// The search text plus the user's avoided words as "-word" exclusions (null when both are empty).
+  String? _effectiveQuery() {
+    final avoid = ref.read(avoidedIngredientsProvider);
+    final parts = [
+      if (state.searchQuery.trim().isNotEmpty) state.searchQuery.trim(),
+      for (final w in avoid) '-$w',
+    ];
+    return parts.isEmpty ? null : parts.join(' ');
+  }
+
   @override
   DiscoverState build() {
+    // Changing the avoided words refreshes the list.
+    ref.listen(avoidedIngredientsProvider, (prev, next) {
+      if (prev != null && prev.join(',') != next.join(',')) loadInitial();
+    });
     _ready = _restoreFiltersAndLoad();
     return const DiscoverState();
   }
@@ -133,7 +148,7 @@ class DiscoverNotifier extends Notifier<DiscoverState> {
         offset: 0,
         category: state.selectedCategory == 'Tümü' ? null : state.selectedCategory,
         cuisine: state.selectedCuisine == 'Tümü' ? null : state.selectedCuisine,
-        searchQuery: state.searchQuery.isEmpty ? null : state.searchQuery,
+        searchQuery: _effectiveQuery(),
         maxMinutes: state.maxMinutes,
         difficulty: state.difficulty,
       );
@@ -165,7 +180,7 @@ class DiscoverNotifier extends Notifier<DiscoverState> {
         offset: state.nextOffset,
         category: state.selectedCategory == 'Tümü' ? null : state.selectedCategory,
         cuisine: state.selectedCuisine == 'Tümü' ? null : state.selectedCuisine,
-        searchQuery: state.searchQuery.isEmpty ? null : state.searchQuery,
+        searchQuery: _effectiveQuery(),
         maxMinutes: state.maxMinutes,
         difficulty: state.difficulty,
       );
