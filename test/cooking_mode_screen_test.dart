@@ -105,6 +105,8 @@ void main() {
       await tester.tap(find.byKey(const Key('step_overview_open')));
       await tester.pumpAndSettle();
       final last = sampleRecipe.steps.length - 1;
+      final timed = sampleRecipe.steps.where((st) => st.timerSeconds >= 60).length;
+      expect(find.descendant(of: find.byType(ListTile), matching: find.byIcon(Icons.timer_outlined)), findsNWidgets(timed));
       await tester.tap(find.byKey(Key('step_overview_$last')));
       await tester.pumpAndSettle();
       expect(find.textContaining('${last + 1} /'), findsOneWidget);

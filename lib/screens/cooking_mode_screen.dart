@@ -635,6 +635,10 @@ class _CookingModeScreenState extends ConsumerState<CookingModeScreen> {
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
             ),
+            subtitle: steps[i].timerSeconds >= 60
+                ? Text(strings.minutesShort((steps[i].timerSeconds / 60).ceil()))
+                : null,
+            trailing: steps[i].timerSeconds >= 60 ? const Icon(Icons.timer_outlined, size: 18) : null,
             onTap: () {
               Navigator.of(ctx).pop();
               _pageController.jumpToPage(i);
