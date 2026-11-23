@@ -1,3 +1,4 @@
+import 'package:arewecookin/providers/recipe_notes_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -177,6 +178,31 @@ void main() {
       expect(copied, isNotNull);
       expect(copied, contains('Kuru Fasulye'));
       expect(copied, contains('1.'));
+      expect(copied, isNot(contains('Tuzu azalt')));
+    });
+
+    testWidgets('copied recipe text includes my note', (tester) async {
+      String? copied;
+      tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(SystemChannels.platform, (call) async {
+        if (call.method == 'Clipboard.setData') {
+          copied = (call.arguments as Map)['text'] as String?;
+        }
+        return null;
+      });
+      addTearDown(() => tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(SystemChannels.platform, null));
+      final container = ProviderContainer(overrides: [
+        localeProvider.overrideWith(() => FakeLocaleNotifier(const Locale('tr'))),
+      ]);
+      addTearDown(container.dispose);
+      container.read(recipeNotesProvider.notifier).setNote(sampleRecipe.id, 'Tuzu azalt');
+      await tester.pumpWidget(UncontrolledProviderScope(
+        container: container,
+        child: MaterialApp(home: RecipeDetailScreen(recipe: sampleRecipe)),
+      ));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const Key('copy_recipe')));
+      await tester.pumpAndSettle();
+      expect(copied, contains('Tuzu azalt'));
     });
 
     testWidgets('add to shopping list skips ingredients already ticked as available', (tester) async {

@@ -103,6 +103,13 @@ class _RecipeDetailScreenState extends ConsumerState<RecipeDetailScreen> {
     for (var n = 0; n < r.steps.length; n++) {
       b.writeln('${n + 1}. ${r.steps[n].localizedInstruction(locale)}');
     }
+    // My own note travels with the copied recipe.
+    final note = (ref.read(recipeNotesProvider)[r.id]?.note ?? '').trim();
+    if (note.isNotEmpty) {
+      b
+        ..writeln()
+        ..writeln('${ref.read(appStringsProvider).myNotes}: $note');
+    }
     return b.toString().trimRight();
   }
 
