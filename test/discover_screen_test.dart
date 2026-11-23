@@ -391,6 +391,31 @@ void main() {
       expect(find.byKey(const Key('try_word_menemen')), findsNothing);
     });
 
+    testWidgets('Surprise me never picks the same dish twice in a row', (tester) async {
+      SharedPreferences.setMockInitialValues({});
+      final container = ProviderContainer();
+      addTearDown(container.dispose);
+      await tester.pumpWidget(UncontrolledProviderScope(
+        container: container,
+        child: const MaterialApp(home: Scaffold(body: DiscoverScreen())),
+      ));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 300));
+      expect(container.read(discoverProvider).recipes.length, greaterThan(1));
+      String? last;
+      for (var i = 0; i < 12; i++) {
+        await tester.ensureVisible(find.byKey(const Key('surprise_me')));
+        await tester.pump(const Duration(milliseconds: 300));
+        await tester.tap(find.byKey(const Key('surprise_me')));
+        await tester.pumpAndSettle();
+        final id = tester.widget<RecipeDetailScreen>(find.byType(RecipeDetailScreen)).recipe.id;
+        expect(id, isNot(last), reason: 'pick $i repeated');
+        last = id;
+        await tester.pageBack();
+        await tester.pump(const Duration(seconds: 1));
+      }
+    });
+
     testWidgets('the chosen Saved order is remembered', (tester) async {
       tester.view.physicalSize = const Size(1200, 6000);
       tester.view.devicePixelRatio = 1.0;

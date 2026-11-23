@@ -48,6 +48,7 @@ class DiscoverScreenState extends ConsumerState<DiscoverScreen> with WidgetsBind
   final ScrollController _scrollController = ScrollController();
   final TextEditingController _searchController = TextEditingController();
   bool _onlySaved = false;
+  String? _lastSurpriseId;
   bool _onlyCooked = false;
   bool _onlyRated = false;
   bool _savedQuickest = false;
@@ -637,8 +638,11 @@ class DiscoverScreenState extends ConsumerState<DiscoverScreen> with WidgetsBind
                       // Prefer dishes the user has not cooked yet.
                       final cooked = ref.read(cookHistoryProvider);
                       final fresh = all.where((r) => (cooked[r.id]?.count ?? 0) == 0).toList();
-                      final list = fresh.isNotEmpty ? fresh : all;
+                      var list = fresh.isNotEmpty ? fresh : all;
+                      // Never the same dish twice in a row.
+                      if (list.length > 1) list = list.where((r) => r.id != _lastSurpriseId).toList();
                       final pick = list[Random().nextInt(list.length)];
+                      _lastSurpriseId = pick.id;
                       Navigator.of(context).push(
                         MaterialPageRoute(builder: (_) => RecipeDetailScreen(recipe: pick)),
                       );
