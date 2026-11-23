@@ -29,4 +29,26 @@ void main() {
     expect(flags.flagsCollection.isToggled != Tristate.none, isTrue);
     handle.dispose();
   });
+
+  testWidgets('pantry match count is read out as a live region', (tester) async {
+    SharedPreferences.setMockInitialValues({});
+    tester.platformDispatcher.localesTestValue = const [Locale('en')];
+    addTearDown(tester.platformDispatcher.clearLocalesTestValue);
+    final handle = tester.ensureSemantics();
+    tester.view.physicalSize = const Size(1000, 2400);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(tester.view.reset);
+    final c = ProviderContainer();
+    addTearDown(c.dispose);
+    await c.read(pantryProvider.notifier).addIngredients(['tomato']);
+    await tester.pumpWidget(UncontrolledProviderScope(
+      container: c,
+      child: const MaterialApp(home: PantryScreen()),
+    ));
+    await tester.pumpAndSettle();
+    final n = c.read(pantryProvider).matchedRecipes.length;
+    final node = tester.getSemantics(find.byKey(const Key('pantry_match_count')));
+    expect(node.label, '$n recipes');
+    handle.dispose();
+  });
 }

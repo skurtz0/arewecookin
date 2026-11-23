@@ -542,7 +542,12 @@ class _PantryScreenState extends ConsumerState<PantryScreen> {
                       ),
                     ),
                   ),
-                  Container(
+                  Semantics(
+                    liveRegion: true,
+                    excludeSemantics: true,
+                    label: strings.resultsCount(pantryState.matchedRecipes.length, false),
+                    child: Container(
+                    key: const Key('pantry_match_count'),
                     padding: const EdgeInsets.symmetric(
                       horizontal: 8,
                       vertical: 2,
@@ -559,7 +564,7 @@ class _PantryScreenState extends ConsumerState<PantryScreen> {
                         color: Color(0xFF065F46),
                       ),
                     ),
-                  ),
+                  )),
                     ],
                   ),
                   if (pantryState.matchedRecipes.length > 1)
