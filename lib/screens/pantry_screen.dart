@@ -665,11 +665,14 @@ class _PantryScreenState extends ConsumerState<PantryScreen> with WidgetsBinding
 
           // Matches Result List
           if (pantryState.isLoading)
-            const SliverToBoxAdapter(
+            SliverToBoxAdapter(
               child: Padding(
-                padding: EdgeInsets.all(40),
+                padding: const EdgeInsets.all(40),
                 child: Center(
-                  child: CircularProgressIndicator(color: Color(0xFF059669)),
+                  child: CircularProgressIndicator(
+                    color: const Color(0xFF059669),
+                    semanticsLabel: strings.splashLoading,
+                  ),
                 ),
               ),
             )
