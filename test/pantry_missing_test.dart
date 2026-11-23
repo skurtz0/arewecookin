@@ -1,4 +1,6 @@
+import 'package:arewecookin/models/models.dart';
 import 'package:arewecookin/providers/pantry_provider.dart';
+import 'package:arewecookin/repositories/recipe_repository.dart';
 import 'package:arewecookin/providers/shopping_list_provider.dart';
 import 'package:arewecookin/screens/pantry_screen.dart';
 import 'package:flutter/material.dart';
@@ -59,4 +61,37 @@ void main() {
     await tester.pumpAndSettle();
     expect(container.read(pantryProvider).selectedKeys, {'yumurta'});
   });
+
+  testWidgets('a failing match shows an error with retry that recovers', (tester) async {
+    SharedPreferences.setMockInitialValues({});
+    final repo = _FlakyRepository();
+    final container = ProviderContainer(overrides: [recipeRepositoryProvider.overrideWithValue(repo)]);
+    addTearDown(container.dispose);
+    await tester.pumpWidget(UncontrolledProviderScope(
+      container: container,
+      child: const MaterialApp(home: PantryScreen()),
+    ));
+    await tester.pumpAndSettle();
+    await container.read(pantryProvider.notifier).addIngredient('yumurta');
+    await tester.pumpAndSettle();
+    expect(find.byKey(const Key('pantry_error')), findsOneWidget);
+    repo.fail = false;
+    await tester.tap(find.byKey(const Key('pantry_retry')));
+    await tester.pumpAndSettle();
+    expect(find.byKey(const Key('pantry_error')), findsNothing);
+  });
+}
+
+class _FlakyRepository extends RecipeRepository {
+  bool fail = true;
+
+  @override
+  Future<List<Recipe>> matchRecipesByPantry({
+    required List<String> userIngredientKeys,
+    String? cuisine,
+    int limit = 50,
+  }) async {
+    if (fail) throw Exception('offline');
+    return const [];
+  }
 }

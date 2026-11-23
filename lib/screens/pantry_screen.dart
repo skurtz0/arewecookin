@@ -627,6 +627,35 @@ class _PantryScreenState extends ConsumerState<PantryScreen> {
                 ),
               ),
             )
+          else if (pantryState.errorMessage != null && pantryState.matchedRecipes.isEmpty)
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.all(32),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(Icons.cloud_off_rounded, size: 48, color: Colors.grey.shade400),
+                    const SizedBox(height: 12),
+                    Semantics(
+                      liveRegion: true,
+                      child: Text(
+                        strings.loadErrorTitle,
+                        key: const Key('pantry_error'),
+                        textAlign: TextAlign.center,
+                        style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    ElevatedButton.icon(
+                      key: const Key('pantry_retry'),
+                      onPressed: () => ref.read(pantryProvider.notifier).retry(),
+                      icon: const Icon(Icons.refresh_rounded),
+                      label: Text(strings.retry),
+                    ),
+                  ],
+                ),
+              ),
+            )
           else if (pantryState.matchedRecipes.isEmpty)
             SliverToBoxAdapter(
               child: Container(

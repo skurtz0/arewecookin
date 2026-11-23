@@ -116,6 +116,9 @@ class PantryNotifier extends Notifier<PantryState> {
     await _searchMatches();
   }
 
+  /// Runs the pantry search again (used by the error state's retry button).
+  Future<void> retry() => _searchMatches();
+
   Future<void> clearAll() async {
     state = state.copyWith(
       selectedKeys: const {},
@@ -159,7 +162,7 @@ class PantryNotifier extends Notifier<PantryState> {
     } catch (e) {
       state = state.copyWith(
         isLoading: false,
-        errorMessage: 'Eşleşmeler hesaplanırken hata oluştu: $e',
+        errorMessage: 'match_failed',
       );
     }
   }
