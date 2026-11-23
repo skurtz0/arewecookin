@@ -7,6 +7,7 @@ import '../l10n/recipe_localization.dart';
 import '../models/models.dart';
 import '../providers/locale_provider.dart';
 import '../providers/pantry_provider.dart';
+import '../providers/user_recipes_provider.dart';
 import '../providers/shopping_list_provider.dart';
 import '../utils/cooking_icons.dart';
 import '../widgets/recipe_image.dart';
@@ -841,7 +842,8 @@ class _PantryRecipeCard extends ConsumerWidget {
           ),
         ],
       ),
-      child: Material(
+      child: Stack(children: [
+      Material(
         color: Colors.transparent,
         borderRadius: BorderRadius.circular(16),
         child: InkWell(
@@ -1143,6 +1145,31 @@ class _PantryRecipeCard extends ConsumerWidget {
           ),
         ),
       ),
+      Positioned(
+        left: 14 + 82 - 34,
+        top: 14 + 82 - 34,
+        child: Consumer(builder: (context, ref, _) {
+          final isSaved = ref.watch(savedRecipesProvider.select((s) => s.isSaved(recipe.id)));
+          return Material(
+            color: Colors.white.withValues(alpha: 0.95),
+            shape: const CircleBorder(),
+            child: IconButton(
+              key: Key('pantry_save_${recipe.id}'),
+              tooltip: isSaved ? strings.removeFavorite : strings.a11ySave,
+              visualDensity: VisualDensity.compact,
+              constraints: const BoxConstraints.tightFor(width: 36, height: 36),
+              padding: EdgeInsets.zero,
+              icon: Icon(
+                isSaved ? Icons.bookmark_rounded : Icons.bookmark_border_rounded,
+                size: 20,
+                color: isSaved ? const Color(0xFFFF5722) : const Color(0xFF64748B),
+              ),
+              onPressed: () => ref.read(savedRecipesProvider.notifier).toggleSave(recipe),
+            ),
+          );
+        }),
+      ),
+      ]),
     );
   }
 }
