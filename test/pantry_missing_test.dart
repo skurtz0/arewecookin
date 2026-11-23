@@ -80,6 +80,24 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.byKey(const Key('pantry_error')), findsNothing);
   });
+
+  testWidgets('custom ingredient field accepts several comma separated ingredients', (tester) async {
+    SharedPreferences.setMockInitialValues({});
+    tester.view.physicalSize = const Size(1000, 3000);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(tester.view.resetPhysicalSize);
+    final container = ProviderContainer();
+    addTearDown(container.dispose);
+    await tester.pumpWidget(UncontrolledProviderScope(
+      container: container,
+      child: const MaterialApp(home: PantryScreen()),
+    ));
+    await tester.pumpAndSettle();
+    await tester.enterText(find.widgetWithText(TextField, '').first, 'Mantar, Patlıcan ; sucuk');
+    await tester.testTextInput.receiveAction(TextInputAction.done);
+    await tester.pumpAndSettle();
+    expect(container.read(pantryProvider).selectedKeys, {'mantar', 'patlıcan', 'sucuk'});
+  });
 }
 
 class _FlakyRepository extends RecipeRepository {

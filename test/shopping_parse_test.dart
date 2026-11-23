@@ -16,4 +16,12 @@ void main() {
     i = ShoppingItem.parse('7up');
     expect(i.name, '7up');
   });
+
+  test('several items can be typed at once; decimal commas stay intact', () {
+    final items = ShoppingItem.parseMany('süt, 2 kg un; yumurta\n1,5 l su');
+    expect(items.map((e) => e.name), ['süt', 'un', 'yumurta', 'su']);
+    expect(items[1].amount, '2');
+    expect(items[3].amount, '1.5');
+    expect(ShoppingItem.parseMany(' , ;'), isEmpty);
+  });
 }

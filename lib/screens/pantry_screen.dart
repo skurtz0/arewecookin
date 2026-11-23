@@ -99,7 +99,7 @@ class _PantryScreenState extends ConsumerState<PantryScreen> {
   void _handleAddCustom() {
     final text = _customIngredientController.text.trim();
     if (text.isNotEmpty) {
-      ref.read(pantryProvider.notifier).addIngredient(text);
+      ref.read(pantryProvider.notifier).addIngredients(text.split(RegExp(r'[,;\n]')));
       _customIngredientController.clear();
     }
   }

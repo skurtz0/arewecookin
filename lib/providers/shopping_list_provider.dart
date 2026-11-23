@@ -27,6 +27,13 @@ class ShoppingItem {
     'pcs', 'lb', 'oz', 'pack', 'can', 'bottle', 'cup', 'tbsp', 'tsp',
   };
 
+  /// Splits "milk, 2 kg flour; eggs" into several items. A comma only separates when followed by a space,
+  /// so decimal amounts such as "1,5 l süt" stay in one piece.
+  static List<ShoppingItem> parseMany(String text) => [
+        for (final part in text.split(RegExp(r'[;\n]|,\s')))
+          if (part.trim().isNotEmpty) ShoppingItem.parse(part),
+      ];
+
   /// Parses typed text like "2 kg süt", "3 yumurta" or "süt" into amount, unit and name.
   factory ShoppingItem.parse(String text) {
     final t = text.trim();
