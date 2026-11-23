@@ -35,4 +35,15 @@ void main() {
     final text = n.asText((d) => 'Day$d', (r) => r.title);
     expect(text, 'Day3\n- ${recipe.title}');
   });
+
+  test('plan text can include the day total in minutes', () async {
+    SharedPreferences.setMockInitialValues({});
+    final recipe = (await RecipeRepository().getRecipes(limit: 1)).recipes.first;
+    final c = ProviderContainer();
+    addTearDown(c.dispose);
+    final n = c.read(mealPlanProvider.notifier);
+    n.add(3, recipe);
+    final text = n.asText((d) => 'Day$d', (r) => r.title, (m) => '$m min');
+    expect(text, 'Day3 · ${recipe.totalTime} min\n- ${recipe.title}');
+  });
 }

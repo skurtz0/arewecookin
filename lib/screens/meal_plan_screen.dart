@@ -106,6 +106,7 @@ class MealPlanScreen extends ConsumerWidget {
                 final text = ref.read(mealPlanProvider.notifier).asText(
                       strings.weekdayName,
                       (r) => r.localizedTitle(strings.locale),
+                      strings.minutesShort,
                     );
                 await Clipboard.setData(ClipboardData(text: text));
                 if (!context.mounted) return;
@@ -226,7 +227,7 @@ class MealPlanScreen extends ConsumerWidget {
                             borderRadius: BorderRadius.circular(10),
                           ),
                           title: Text(r.localizedTitle(strings.locale)),
-                          subtitle: Text('${r.totalTime} min'),
+                          subtitle: Text(strings.minutesShort(r.totalTime)),
                           onTap: () => Navigator.of(context).push(
                               MaterialPageRoute(builder: (_) => RecipeDetailScreen(recipe: r))),
                           trailing: Row(

@@ -86,12 +86,14 @@ class MealPlanNotifier extends Notifier<Map<int, List<Recipe>>> {
   }
 
   /// Plain-text week plan (days with meals only), for pasting into notes or chats.
-  String asText(String Function(int day) dayName, String Function(Recipe r) title) {
+  String asText(String Function(int day) dayName, String Function(Recipe r) title,
+      [String Function(int minutes)? minutes]) {
     final b = StringBuffer();
     for (var d = 1; d <= 7; d++) {
       final list = state[d];
       if (list == null || list.isEmpty) continue;
-      b.writeln(dayName(d));
+      final total = list.fold<int>(0, (a, r) => a + r.totalTime);
+      b.writeln(minutes == null ? dayName(d) : '${dayName(d)} · ${minutes(total)}');
       for (final r in list) {
         b.writeln('- ${title(r)}');
       }
