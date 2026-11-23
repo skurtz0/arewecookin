@@ -29,4 +29,21 @@ void main() {
     final none = await repo.getRecipes(limit: 500, searchQuery: '$a, zzzxyz');
     expect(none.recipes, isEmpty);
   });
+
+  test('a leading minus excludes recipes that contain the word', () async {
+    final repo = RecipeRepository();
+    final base = (await repo.getRecipes(limit: 1)).recipes.first;
+    final ing = base.ingredients.firstWhere((i) => i.name.trim().length > 3).name.trim();
+    final all = await repo.getRecipes(limit: 500, searchQuery: ing);
+    expect(all.recipes.map((e) => e.id), contains(base.id));
+    final without = await repo.getRecipes(limit: 500, searchQuery: '-$ing');
+    expect(without.recipes, isNotEmpty);
+    expect(without.recipes.map((e) => e.id), isNot(contains(base.id)));
+    final cat = base.category.split(' ').first;
+    final combo = await repo.getRecipes(limit: 500, searchQuery: '$cat -$ing');
+    expect(combo.recipes.map((e) => e.id), isNot(contains(base.id)));
+    for (final r in combo.recipes) {
+      expect(r.ingredients.any((i) => RecipeRepository.normalizeSearch(i.name).contains(RecipeRepository.normalizeSearch(ing))), isFalse);
+    }
+  });
 }

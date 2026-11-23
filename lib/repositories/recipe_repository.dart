@@ -400,9 +400,10 @@ class RecipeRepository {
   /// Every word of the query must appear in the title/category/cuisine, or the whole query must be
   /// (part of) one ingredient name. A query with commas, semicolons or "+" ("tomato, onion") lists
   /// several terms: each must be in the title or in an ingredient, so recipes holding all of them match.
+  /// Words written with a leading minus ("pasta -egg") are exclusions: recipes whose title or any
+  /// ingredient contains them are left out. A query of only exclusions lists everything else.
   bool _matchesQuery(Recipe r, String query) {
-    final q = normalizeSearch(query).trim();
-    if (q.isEmpty) return true;
+    var q = normalizeSearch(query).trim();
     final titleHay = normalizeSearch(
       [r.title, r.cleanTitle, r.localizedTitle('en'), r.category, r.cuisine].join(' '),
     );
@@ -410,6 +411,13 @@ class RecipeRepository {
       ...r.ingredientKeys,
       for (final i in r.ingredients) ...[i.name, i.nameEn ?? ''],
     ].map(normalizeSearch).toList();
+    final exclusion = RegExp(r'(?:^|\s)-(\S+)');
+    for (final m in exclusion.allMatches(q)) {
+      final t = m.group(1)!;
+      if (titleHay.contains(t) || ingredientHay.any((k) => k.contains(t))) return false;
+    }
+    q = q.replaceAll(exclusion, ' ').trim();
+    if (q.isEmpty) return true;
     if (ingredientHay.any((k) => k.contains(q))) return true;
     final terms = q.split(RegExp(r'[,;+]'));
     if (terms.length > 1) {
