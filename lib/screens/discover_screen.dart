@@ -529,7 +529,10 @@ class DiscoverScreenState extends ConsumerState<DiscoverScreen> {
                 ),
                 const Spacer(),
                 if (discoverState.selectedCuisine != 'Tümü')
-                  InkWell(
+                  Semantics(
+                    button: true,
+                    hint: strings.resetFilters,
+                    child: InkWell(
                     borderRadius: BorderRadius.circular(12),
                     onTap: () => ref.read(discoverProvider.notifier).setCuisine('Tümü'),
                     child: Container(
@@ -554,7 +557,7 @@ class DiscoverScreenState extends ConsumerState<DiscoverScreen> {
                         ],
                       ),
                     ),
-                  ),
+                  )),
               ],
             ),
           ),
