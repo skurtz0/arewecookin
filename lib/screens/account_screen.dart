@@ -1322,8 +1322,11 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
                     const SizedBox(height: 12),
                   ],
                   TextFormField(
+                    key: const Key('auth_email_field'),
                     controller: _emailController,
                     keyboardType: TextInputType.emailAddress,
+                    textInputAction: TextInputAction.next,
+                    autofillHints: const [AutofillHints.email],
                     decoration: InputDecoration(
                       labelText: strings.email,
                       prefixIcon: const Icon(Icons.email_outlined, size: 20),
@@ -1341,8 +1344,10 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
                   ),
                   const SizedBox(height: 12),
                   TextFormField(
+                    key: const Key('auth_password_field'),
                     controller: _passwordController,
                     obscureText: _obscurePassword,
+                    autofillHints: const [AutofillHints.password],
                     decoration: InputDecoration(
                       labelText: strings.password,
                       prefixIcon: const Icon(Icons.lock_outline_rounded, size: 20),
@@ -1406,6 +1411,7 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
               TextFormField(
                 controller: _phoneController,
                 keyboardType: TextInputType.phone,
+                autofillHints: const [AutofillHints.telephoneNumber],
                 decoration: InputDecoration(
                   labelText: strings.phoneNumber,
                   hintText: strings.enterPhoneNumber,
@@ -1474,6 +1480,7 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
               TextFormField(
                 controller: _otpController,
                 keyboardType: TextInputType.number,
+                autofillHints: const [AutofillHints.oneTimeCode],
                 maxLength: 6,
                 decoration: InputDecoration(
                   labelText: strings.verificationCode,

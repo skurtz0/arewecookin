@@ -22,6 +22,19 @@ void main() {
       expect(find.byTooltip('Show / hide password'), findsOneWidget);
     });
 
+    testWidgets('sign-in fields offer autofill and a next key', (tester) async {
+      tester.platformDispatcher.localesTestValue = const [Locale('en')];
+      await tester.pumpWidget(const ProviderScope(child: MaterialApp(home: AccountScreen())));
+      await tester.pumpAndSettle();
+      final email = tester.widget<TextField>(
+          find.descendant(of: find.byKey(const Key('auth_email_field')), matching: find.byType(TextField)));
+      final pass = tester.widget<TextField>(
+          find.descendant(of: find.byKey(const Key('auth_password_field')), matching: find.byType(TextField)));
+      expect(email.autofillHints, contains(AutofillHints.email));
+      expect(email.textInputAction, TextInputAction.next);
+      expect(pass.autofillHints, contains(AutofillHints.password));
+    });
+
     testWidgets('divider text follows the app language', (tester) async {
       tester.platformDispatcher.localesTestValue = const [Locale('en')];
       await tester.pumpWidget(const ProviderScope(child: MaterialApp(home: AccountScreen())));
