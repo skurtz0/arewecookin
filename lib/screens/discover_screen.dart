@@ -17,6 +17,7 @@ import '../providers/locale_provider.dart';
 import '../providers/auth_provider.dart';
 import '../providers/meal_plan_provider.dart';
 import '../providers/cook_history_provider.dart';
+import '../widgets/avoided_badge.dart';
 import '../widgets/recipe_image.dart';
 import 'recipe_detail_screen.dart';
 import 'add_recipe_screen.dart';
@@ -1301,6 +1302,7 @@ class _RecipeCard extends ConsumerWidget {
                                   icon: Icons.check_circle_outline_rounded,
                                   label: strings.cookedDishes,
                                 ),
+                              AvoidedBadge(recipe: recipe),
                               if (myRating > 0)
                                 _InfoBadge(icon: Icons.star_rounded, label: '$myRating/5'),
                               _InfoBadge(

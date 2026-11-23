@@ -1,6 +1,8 @@
 import 'package:arewecookin/providers/avoided_ingredients_provider.dart';
 import 'package:arewecookin/providers/discover_provider.dart';
+import 'package:arewecookin/providers/meal_plan_provider.dart';
 import 'package:arewecookin/providers/pantry_provider.dart';
+import 'package:arewecookin/screens/meal_plan_screen.dart';
 import 'package:arewecookin/repositories/recipe_repository.dart';
 import 'package:arewecookin/screens/account_screen.dart';
 import 'package:arewecookin/screens/recipe_detail_screen.dart';
@@ -108,5 +110,25 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.byKey(const Key('avoided_warning')), findsOneWidget);
     expect(find.textContaining(word.split(' ').first), findsWidgets);
+  });
+
+  testWidgets('meal plan rows show a badge for recipes with an avoided word', (tester) async {
+    SharedPreferences.setMockInitialValues({});
+    final base = (await RecipeRepository().getRecipes(limit: 1)).recipes.first;
+    final word = RecipeRepository.normalizeSearch(base.ingredients.firstWhere((i) => i.name.trim().length > 3).name.trim());
+    final c = ProviderContainer();
+    addTearDown(c.dispose);
+    c.read(mealPlanProvider.notifier).add(1, base);
+    await tester.pumpWidget(UncontrolledProviderScope(
+      container: c,
+      child: const MaterialApp(home: MealPlanScreen()),
+    ));
+    await tester.pumpAndSettle();
+    expect(find.byKey(Key('avoided_badge_${base.id}')), findsNothing);
+    c.read(avoidedIngredientsProvider.notifier).add(word);
+    await tester.pumpAndSettle();
+    expect(find.byKey(Key('avoided_badge_${base.id}')), findsOneWidget);
+    c.read(avoidedIngredientsProvider.notifier).remove(c.read(avoidedIngredientsProvider).first);
+    await tester.pumpAndSettle();
   });
 }

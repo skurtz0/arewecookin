@@ -7,6 +7,7 @@ import '../providers/household_servings_provider.dart';
 import '../providers/meal_plan_provider.dart';
 import '../providers/shopping_list_provider.dart';
 import '../providers/user_recipes_provider.dart';
+import '../widgets/avoided_badge.dart';
 import '../widgets/recipe_image.dart';
 import 'cooking_mode_screen.dart';
 import 'recipe_detail_screen.dart';
@@ -347,7 +348,14 @@ class MealPlanScreen extends ConsumerWidget {
                             borderRadius: BorderRadius.circular(10),
                           ),
                           title: Text(r.localizedTitle(strings.locale)),
-                          subtitle: Text(strings.minutesShort(r.totalTime)),
+                          subtitle: Wrap(
+                            spacing: 8,
+                            crossAxisAlignment: WrapCrossAlignment.center,
+                            children: [
+                              Text(strings.minutesShort(r.totalTime)),
+                              AvoidedBadge(recipe: r),
+                            ],
+                          ),
                           onTap: () => Navigator.of(context).push(
                             MaterialPageRoute(
                               builder: (_) => RecipeDetailScreen(recipe: r),
