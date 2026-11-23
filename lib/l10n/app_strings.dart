@@ -50,6 +50,10 @@ class AppStrings {
   String get socialPostTextHint => _get('socialPostTextHint', 'Tell us about it');
   String get socialPublish => _get('socialPublish', 'Share');
   String get socialLike => _get('socialLike', 'Like');
+  String get socialTranslate => _get('socialTranslate', 'Translate');
+  String get socialShowOriginal => _get('socialShowOriginal', 'Show original');
+  String get socialTranslating => _get('socialTranslating', 'Translating…');
+  String get socialTranslateFailed => _get('socialTranslateFailed', 'Could not translate right now');
   String get socialComments => _get('socialComments', 'Comments');
   String get socialCommentHint => _get('socialCommentHint', 'Write a comment');
   String get socialUnavailable => _get('socialUnavailable', 'Community is unavailable right now');

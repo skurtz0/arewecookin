@@ -12,6 +12,7 @@ import '../widgets/profile_widgets.dart';
 import 'chat_screens.dart';
 import '../widgets/story_widgets.dart';
 import '../widgets/readable_width.dart';
+import '../services/translation_service.dart';
 
 /// Community tab: people share recipes as posts, others like and comment.
 class SocialScreen extends ConsumerWidget {
@@ -135,12 +136,7 @@ class _PostCard extends ConsumerWidget {
             trailing: _PostMenu(post: post),
           ),
           if (post.photoUrls.isNotEmpty) _PhotoGallery(urls: post.photoUrls, label: post.title),
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
-            child: Text(post.title, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-          ),
-          if (post.text.isNotEmpty)
-            Padding(padding: const EdgeInsets.fromLTRB(16, 4, 16, 0), child: Text(post.text)),
+          _TranslatableBody(post: post),
           Row(
             children: [
               IconButton(
@@ -735,6 +731,80 @@ class _PhotoGalleryState extends State<_PhotoGallery> {
             ),
         ],
       ),
+    );
+  }
+}
+
+class _TranslatableBody extends ConsumerStatefulWidget {
+  final SocialPost post;
+  const _TranslatableBody({required this.post});
+  @override
+  ConsumerState<_TranslatableBody> createState() => _TranslatableBodyState();
+}
+
+class _TranslatableBodyState extends ConsumerState<_TranslatableBody> {
+  String? _title;
+  String? _text;
+  bool _busy = false;
+  bool _show = false;
+
+  Future<void> _toggle() async {
+    if (_show) {
+      setState(() => _show = false);
+      return;
+    }
+    if (_title != null) {
+      setState(() => _show = true);
+      return;
+    }
+    setState(() => _busy = true);
+    final lang = ref.read(appStringsProvider).locale;
+    final svc = ref.read(translationServiceProvider);
+    final p = widget.post;
+    final t = await svc.translate(p.title, lang);
+    final x = p.text.isEmpty ? '' : await svc.translate(p.text, lang);
+    if (!mounted) return;
+    if (t == null || x == null) {
+      setState(() => _busy = false);
+      ScaffoldMessenger.of(context)
+        ..hideCurrentSnackBar()
+        ..showSnackBar(SnackBar(content: Text(ref.read(appStringsProvider).socialTranslateFailed)));
+      return;
+    }
+    setState(() {
+      _title = t;
+      _text = x;
+      _busy = false;
+      _show = true;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final strings = ref.watch(appStringsProvider);
+    final p = widget.post;
+    final title = _show ? _title! : p.title;
+    final text = _show ? _text! : p.text;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
+          child: Text(title, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+        ),
+        if (text.isNotEmpty) Padding(padding: const EdgeInsets.fromLTRB(16, 4, 16, 0), child: Text(text)),
+        Padding(
+          padding: const EdgeInsets.only(left: 8),
+          child: TextButton.icon(
+            key: Key('translate_${p.id}'),
+            onPressed: _busy ? null : _toggle,
+            icon: _busy
+                ? const SizedBox(width: 14, height: 14, child: CircularProgressIndicator(strokeWidth: 2))
+                : const Icon(Icons.translate, size: 18),
+            label: Text(_busy ? strings.socialTranslating : (_show ? strings.socialShowOriginal : strings.socialTranslate)),
+          ),
+        ),
+      ],
     );
   }
 }
