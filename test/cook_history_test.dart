@@ -7,6 +7,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
+  undoTests();
   test('cook history counts and persists', () async {
     SharedPreferences.setMockInitialValues({});
     final a = ProviderContainer();
@@ -62,5 +63,29 @@ void main() {
     final t = find.byKey(const Key('cooked_times'));
     await tester.ensureVisible(t);
     expect(tester.widget<Text>(t).data, contains('2'));
+  });
+}
+
+void undoTests() {
+  test('undoing a cook lowers the count and removes the record at zero', () async {
+    SharedPreferences.setMockInitialValues({});
+    final a = ProviderContainer();
+    addTearDown(a.dispose);
+    a.read(cookHistoryProvider);
+    await Future<void>.delayed(const Duration(milliseconds: 50));
+    final n = a.read(cookHistoryProvider.notifier);
+    n.markCooked('r');
+    n.markCooked('r');
+    await n.undoCooked('r');
+    expect(a.read(cookHistoryProvider)['r']!.count, 1);
+    await n.undoCooked('r');
+    expect(a.read(cookHistoryProvider).containsKey('r'), isFalse);
+    await n.undoCooked('r');
+    expect(a.read(cookHistoryProvider), isEmpty);
+    final b = ProviderContainer();
+    addTearDown(b.dispose);
+    b.read(cookHistoryProvider);
+    await Future<void>.delayed(const Duration(milliseconds: 80));
+    expect(b.read(cookHistoryProvider), isEmpty);
   });
 }

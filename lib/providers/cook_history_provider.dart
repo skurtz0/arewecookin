@@ -78,6 +78,31 @@ class CookHistoryNotifier extends Notifier<Map<String, CookRecord>> {
       _pendingLast[recipeId] = when;
     }
   }
+
+  /// Takes back one wrongly recorded cook (the count never goes below zero; the record disappears at zero).
+  Future<void> undoCooked(String recipeId) async {
+    final cur = state[recipeId];
+    if (cur == null) return;
+    final next = {...state};
+    if (cur.count <= 1) {
+      next.remove(recipeId);
+    } else {
+      next[recipeId] = CookRecord(count: cur.count - 1, last: cur.last);
+    }
+    state = next;
+    if (_loaded) {
+      await _save();
+    } else if ((_pendingCount[recipeId] ?? 0) > 0) {
+      // Taken back before the stored history loaded: drop it from the pending cooks too.
+      final left = _pendingCount[recipeId]! - 1;
+      if (left == 0) {
+        _pendingCount.remove(recipeId);
+        _pendingLast.remove(recipeId);
+      } else {
+        _pendingCount[recipeId] = left;
+      }
+    }
+  }
 }
 
 final cookHistoryProvider =

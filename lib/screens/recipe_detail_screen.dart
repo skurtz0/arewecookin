@@ -838,10 +838,23 @@ class _RecipeDetailScreenState extends ConsumerState<RecipeDetailScreen> {
                         : ' · ${last.day.toString().padLeft(2, '0')}.${last.month.toString().padLeft(2, '0')}.${last.year}';
                     return Padding(
                       padding: const EdgeInsets.only(bottom: 8),
-                      child: Text(
-                        '${strings.cookedTimes(rec.count)}$date',
-                        key: const Key('cooked_times'),
-                        style: TextStyle(color: Colors.grey.shade700, fontWeight: FontWeight.w600),
+                      child: Row(
+                        children: [
+                          Flexible(
+                            child: Text(
+                              '${strings.cookedTimes(rec.count)}$date',
+                              key: const Key('cooked_times'),
+                              style: TextStyle(color: Colors.grey.shade700, fontWeight: FontWeight.w600),
+                            ),
+                          ),
+                          IconButton(
+                            key: const Key('undo_cooked'),
+                            tooltip: strings.undoLabel,
+                            visualDensity: VisualDensity.compact,
+                            icon: const Icon(Icons.undo_rounded, size: 18),
+                            onPressed: () => ref.read(cookHistoryProvider.notifier).undoCooked(recipe.id),
+                          ),
+                        ],
                       ),
                     );
                   }),
