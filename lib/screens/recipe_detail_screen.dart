@@ -642,6 +642,17 @@ class _RecipeDetailScreenState extends ConsumerState<RecipeDetailScreen> {
               ),
             ),
 
+            // Shown until the user has an avoided list: how to build it from this screen.
+            if (ref.watch(avoidedIngredientsProvider).isEmpty)
+              Padding(
+                padding: const EdgeInsets.only(top: 6),
+                child: Text(
+                  strings.ingredientHoldHint,
+                  key: const Key('avoid_hint'),
+                  style: TextStyle(fontSize: 11, color: Colors.grey.shade500),
+                ),
+              ),
+
             const SizedBox(height: 16),
 
             Builder(builder: (_) {

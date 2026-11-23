@@ -24,9 +24,12 @@ void main() {
     await tester.ensureVisible(row);
     await tester.pumpAndSettle();
     expect(c.read(avoidedIngredientsProvider), isEmpty);
+    expect(find.byKey(const Key('avoid_hint')), findsOneWidget);
     await tester.longPress(row);
     await tester.pump(const Duration(milliseconds: 400));
     expect(c.read(avoidedIngredientsProvider), isNotEmpty);
+    await tester.pump(const Duration(milliseconds: 400));
+    expect(find.byKey(const Key('avoid_hint')), findsNothing);
     tester.widget<SnackBarAction>(find.byKey(const Key('avoid_undo'))).onPressed();
     await tester.pump();
     expect(c.read(avoidedIngredientsProvider), isEmpty);

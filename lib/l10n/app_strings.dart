@@ -249,6 +249,7 @@ class AppStrings {
   String resultsCount(int n, bool more) => _get('resultsCountFmt', '{n} recipes').replaceAll('{n}', more ? '$n+' : '$n');
   String get shoppingEdited => _get('shoppingEdited', 'Item updated');
   String tryWord(String w) => _get('tryWordFmt', 'Try only “{w}”').replaceAll('{w}', w);
+  String get ingredientHoldHint => _get('ingredientHoldHint', 'Tip: long-press an ingredient to avoid it');
   String get savedSearchHint => _get('savedSearchHint', 'Search saved recipes');
   String get pantryNothingNew => _get('pantryNothingNew', 'Already in your pantry');
   String get searchTip => _get('searchTip', 'Tip: separate ingredients with commas (tomato, onion) and exclude one with a minus (-milk).');
