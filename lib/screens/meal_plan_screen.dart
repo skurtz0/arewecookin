@@ -6,6 +6,7 @@ import '../providers/meal_plan_provider.dart';
 import '../providers/shopping_list_provider.dart';
 import '../providers/user_recipes_provider.dart';
 import '../widgets/recipe_image.dart';
+import 'cooking_mode_screen.dart';
 import 'recipe_detail_screen.dart';
 import '../models/models.dart';
 
@@ -231,6 +232,14 @@ class MealPlanScreen extends ConsumerWidget {
                           trailing: Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
+                              IconButton(
+                                key: Key('plan_cook_${day}_${r.id}'),
+                                tooltip: strings.startCooking,
+                                icon: const Icon(Icons.play_circle_outline_rounded, color: Color(0xFFFF5722)),
+                                onPressed: () => Navigator.of(context).push(
+                                  MaterialPageRoute(builder: (_) => CookingModeScreen(recipe: r)),
+                                ),
+                              ),
                               IconButton(
                                 key: Key('plan_move_${day}_${r.id}'),
                                 tooltip: strings.mealPlanMove,

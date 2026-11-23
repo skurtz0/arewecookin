@@ -1,6 +1,7 @@
 import 'package:arewecookin/providers/meal_plan_provider.dart';
 import 'package:arewecookin/providers/user_recipes_provider.dart';
 import 'package:arewecookin/repositories/recipe_repository.dart';
+import 'package:arewecookin/screens/cooking_mode_screen.dart';
 import 'package:arewecookin/screens/meal_plan_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -120,5 +121,44 @@ void main() {
     await tester.tap(find.byKey(const Key('plan_add_from_saved')));
     await tester.pumpAndSettle();
     expect(find.text('Save a recipe to favorites first.'), findsOneWidget);
+  });
+
+  testWidgets('a planned meal can start cooking mode directly', (tester) async {
+    SharedPreferences.setMockInitialValues({});
+    final recipe = (await RecipeRepository().getRecipes(limit: 1)).recipes.first;
+    final container = ProviderContainer();
+    addTearDown(container.dispose);
+    container.read(mealPlanProvider.notifier).add(1, recipe);
+    await tester.pumpWidget(UncontrolledProviderScope(
+      container: container,
+      child: const MaterialApp(home: MealPlanScreen()),
+    ));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(Key('plan_cook_1_${recipe.id}')));
+    await tester.pumpAndSettle();
+    expect(find.byType(CookingModeScreen), findsOneWidget);
+  });
+
+  testWidgets('plan with a meal has no overflow at 1.8x text on a narrow phone', (tester) async {
+    SharedPreferences.setMockInitialValues({});
+    tester.view.physicalSize = const Size(360 * 2, 800 * 2);
+    tester.view.devicePixelRatio = 2;
+    addTearDown(tester.view.reset);
+    final recipe = (await RecipeRepository().getRecipes(limit: 1)).recipes.first;
+    final container = ProviderContainer();
+    addTearDown(container.dispose);
+    container.read(mealPlanProvider.notifier).add(1, recipe);
+    await tester.pumpWidget(UncontrolledProviderScope(
+      container: container,
+      child: MaterialApp(
+        builder: (c, w) => MediaQuery(
+          data: MediaQuery.of(c).copyWith(textScaler: const TextScaler.linear(1.8)),
+          child: w!,
+        ),
+        home: const MealPlanScreen(),
+      ),
+    ));
+    await tester.pumpAndSettle();
+    expect(tester.takeException(), isNull);
   });
 }
