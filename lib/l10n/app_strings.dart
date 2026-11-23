@@ -237,6 +237,8 @@ class AppStrings {
   String get discardRecipeAction => _get('discardRecipeAction', 'Discard');
   String get recipeTitleRequired => _get('recipeTitleRequired', 'Please enter a recipe name');
   String get amountHint => _get('amountHint', 'Amount');
+  String get householdServings => _get('householdServings', 'Default servings');
+  String get householdOff => _get('householdOff', 'Use each recipe\'s own');
   String get searchTip => _get('searchTip', 'Tip: separate ingredients with commas (tomato, onion) and exclude one with a minus (-milk).');
   String get noRecipesFound => _get('noRecipesFound', 'No matching recipes found');
   String get pantryEmptyTitle => _get('pantryEmptyTitle', 'Your pantry looks empty');

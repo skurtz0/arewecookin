@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/models.dart';
 import '../providers/auth_provider.dart';
 import '../providers/cook_history_provider.dart';
+import '../providers/household_servings_provider.dart';
 import '../providers/locale_provider.dart';
 import '../providers/user_recipes_provider.dart';
 import '../widgets/recipe_image.dart';
@@ -1537,6 +1538,48 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
               ),
               onTap: () => _showLanguagePickerModal(context),
             ),
+            const Divider(),
+            Builder(builder: (context) {
+              final household = ref.watch(householdServingsProvider);
+              final notifier = ref.read(householdServingsProvider.notifier);
+              return ListTile(
+                key: const Key('household_servings_tile'),
+                contentPadding: EdgeInsets.zero,
+                leading: _iconBox(Icons.groups_rounded, const Color(0xFF059669)),
+                title: Text(
+                  strings.householdServings,
+                  style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+                ),
+                subtitle: Text(
+                  household == null ? strings.householdOff : strings.servingsFormat(household),
+                  key: const Key('household_value'),
+                  style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
+                ),
+                trailing: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    IconButton(
+                      key: const Key('household_less'),
+                      tooltip: strings.a11yFewer,
+                      visualDensity: VisualDensity.compact,
+                      icon: const Icon(Icons.remove_circle_outline_rounded),
+                      onPressed: household == null
+                          ? null
+                          : () => notifier.set(household <= 1 ? null : household - 1),
+                    ),
+                    IconButton(
+                      key: const Key('household_more'),
+                      tooltip: strings.a11yMore,
+                      visualDensity: VisualDensity.compact,
+                      icon: const Icon(Icons.add_circle_outline_rounded),
+                      onPressed: household != null && household >= 99
+                          ? null
+                          : () => notifier.set((household ?? 1) + 1),
+                    ),
+                  ],
+                ),
+              );
+            }),
             const Divider(),
             ListTile(
               contentPadding: EdgeInsets.zero,

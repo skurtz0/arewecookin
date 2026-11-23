@@ -7,6 +7,7 @@ import '../utils/cooking_icons.dart';
 import '../widgets/recipe_image.dart';
 import '../providers/user_recipes_provider.dart';
 import '../providers/locale_provider.dart';
+import '../providers/household_servings_provider.dart';
 import '../providers/pantry_provider.dart';
 import '../providers/shopping_list_provider.dart';
 import '../providers/meal_plan_provider.dart';
@@ -61,6 +62,13 @@ class _RecipeDetailScreenState extends ConsumerState<RecipeDetailScreen> {
       final savedChecked = next[widget.recipe.id]?.checked;
       if (!_checkedTouched && savedChecked != null && savedChecked.isNotEmpty && mounted) {
         setState(() => _checkedIngredientIndices.addAll(savedChecked));
+      }
+    }, fireImmediately: true);
+    // Without a number chosen for this recipe, open it scaled to the household size from the account.
+    ref.listenManual(householdServingsProvider, (prev, next) {
+      final hasOwn = ref.read(recipeProgressProvider)[widget.recipe.id]?.servings != null;
+      if (!_servingsTouched && !hasOwn && next != null && widget.recipe.servings > 0 && next != _servings && mounted) {
+        setState(() => _servings = next);
       }
     }, fireImmediately: true);
     Future.microtask(() {

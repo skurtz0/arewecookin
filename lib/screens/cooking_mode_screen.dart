@@ -10,6 +10,7 @@ import '../models/models.dart';
 import '../utils/cooking_icons.dart';
 import '../widgets/cooking_technique_animation.dart';
 import '../providers/locale_provider.dart';
+import '../providers/household_servings_provider.dart';
 import '../providers/recipe_progress_provider.dart';
 import '../providers/cook_history_provider.dart';
 import '../providers/unit_system_provider.dart';
@@ -55,7 +56,8 @@ class _CookingModeScreenState extends ConsumerState<CookingModeScreen> {
 
   /// Ingredient line scaled to the servings chosen on the detail screen, in the chosen unit system.
   String _ingredientText(Ingredient ing, String locale) {
-    final chosen = ref.read(recipeProgressProvider)[widget.recipe.id]?.servings;
+    final chosen = ref.read(recipeProgressProvider)[widget.recipe.id]?.servings ??
+        ref.read(householdServingsProvider);
     final base = widget.recipe.servings;
     final original = double.tryParse(ing.amount.replaceAll(',', '.'));
     final imperial = ref.read(imperialUnitsProvider);
