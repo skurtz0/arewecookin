@@ -1,4 +1,5 @@
 import 'package:arewecookin/providers/meal_plan_provider.dart';
+import 'package:arewecookin/providers/pantry_provider.dart';
 import 'package:arewecookin/providers/shopping_list_provider.dart';
 import 'package:arewecookin/providers/user_recipes_provider.dart';
 import 'package:arewecookin/repositories/recipe_repository.dart';
@@ -241,6 +242,27 @@ void main() {
     await tester.tap(find.byKey(const Key('shopping_add_undo')));
     await tester.pumpAndSettle();
     expect(container.read(shoppingListProvider), isEmpty);
+  });
+
+  testWidgets('the plan shopping button skips ingredients already in the pantry', (tester) async {
+    SharedPreferences.setMockInitialValues({});
+    final recipe = (await RecipeRepository().getRecipes(limit: 1)).recipes.first;
+    final owned = recipe.ingredients.firstWhere((i) => !i.isOptional);
+    final container = ProviderContainer();
+    addTearDown(container.dispose);
+    container.read(mealPlanProvider.notifier).add(1, recipe);
+    await container.read(pantryProvider.notifier).addIngredient(owned.name.toLowerCase());
+    await tester.pumpWidget(
+      UncontrolledProviderScope(
+        container: container,
+        child: const MaterialApp(home: MealPlanScreen()),
+      ),
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const Key('plan_day_to_list_1')));
+    await tester.pumpAndSettle();
+    final names = container.read(shoppingListProvider).map((e) => e.name.toLowerCase());
+    expect(names.contains(owned.localizedName('en').toLowerCase()), isFalse);
   });
 
   testWidgets('a day can be copied to another day without duplicates', (tester) async {

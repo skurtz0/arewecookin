@@ -589,8 +589,12 @@ void _addToShopping(
     return v == v.toInt() ? v.toInt().toString() : v.toStringAsFixed(1);
   }
 
+  // Ingredients already in the pantry are skipped, like on the recipe screen.
+  final have = ref.read(pantryProvider).selectedKeys;
   for (final r in recipes) {
-    for (final i in r.ingredients.where((i) => !i.isOptional)) {
+    for (final i in r.ingredients.where(
+      (i) => !i.isOptional && !ingredientInPantry(i, have, strings.locale),
+    )) {
       items.add(
         ShoppingItem(
           name: i.localizedName(strings.locale),
