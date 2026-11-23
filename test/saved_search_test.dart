@@ -36,4 +36,33 @@ void main() {
     expect(find.byKey(Key('unsave_${all[0].id}')),
         all[0].title.toLowerCase().contains(target.title.toLowerCase()) ? findsOneWidget : findsNothing);
   });
+
+  testWidgets('saved search box does not overflow at 360px and 1.8x text', (tester) async {
+    SharedPreferences.setMockInitialValues({});
+    tester.view.physicalSize = const Size(360, 3000);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(tester.view.reset);
+    final all = (await RecipeRepository().getRecipes(limit: 6)).recipes;
+    final c = ProviderContainer();
+    addTearDown(c.dispose);
+    await c.read(authProvider.notifier).signInWithEmail('test@arewecookin.com', '123456');
+    for (final r in all.take(6)) {
+      await c.read(savedRecipesProvider.notifier).toggleSave(r);
+    }
+    await tester.pumpWidget(UncontrolledProviderScope(
+      container: c,
+      child: MaterialApp(
+        builder: (ctx, child) => MediaQuery(
+          data: MediaQuery.of(ctx).copyWith(textScaler: const TextScaler.linear(1.8)),
+          child: child!,
+        ),
+        home: const AccountScreen(),
+      ),
+    ));
+    await tester.pumpAndSettle();
+    await tester.dragUntilVisible(find.byKey(const Key('saved_search')),
+        find.byType(Scrollable).first, const Offset(0, -200));
+    expect(find.byKey(const Key('saved_search')), findsOneWidget);
+    expect(tester.takeException(), isNull);
+  });
 }
