@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../models/models.dart';
@@ -70,6 +71,7 @@ class SavedRecipesNotifier extends Notifier<SavedRecipesState> {
   }
 
   Future<bool> toggleSave(Recipe recipe) async {
+    HapticFeedback.lightImpact().catchError((_) {}); // no-op where there is no platform binding
     final ids = Set<String>.from(state.savedIds);
     final list = List<Recipe>.from(state.recipes);
 

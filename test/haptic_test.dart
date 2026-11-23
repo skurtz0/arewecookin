@@ -1,3 +1,4 @@
+import 'package:arewecookin/providers/user_recipes_provider.dart';
 import 'package:arewecookin/providers/shopping_list_provider.dart';
 import 'package:arewecookin/repositories/recipe_repository.dart';
 import 'package:arewecookin/screens/cooking_mode_screen.dart';
@@ -158,5 +159,21 @@ void main() {
     await tester.pump();
     expect(calls, isNotEmpty);
     expect(c.read(shoppingListProvider).every((e) => e.done), isTrue);
+  });
+
+  test('saving or unsaving a recipe gives a light tap', () async {
+    TestWidgetsFlutterBinding.ensureInitialized();
+    SharedPreferences.setMockInitialValues({});
+    final calls = <String>[];
+    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger.setMockMethodCallHandler(SystemChannels.platform, (call) async {
+      if (call.method == 'HapticFeedback.vibrate') calls.add('${call.arguments}');
+      return null;
+    });
+    addTearDown(() => TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger.setMockMethodCallHandler(SystemChannels.platform, null));
+    final c = ProviderContainer();
+    addTearDown(c.dispose);
+    final recipe = (await RecipeRepository().getRecipeById('rec_00042'))!;
+    await c.read(savedRecipesProvider.notifier).toggleSave(recipe);
+    expect(calls, isNotEmpty);
   });
 }
