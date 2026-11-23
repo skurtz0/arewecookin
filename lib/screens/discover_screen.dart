@@ -541,8 +541,12 @@ class DiscoverScreenState extends ConsumerState<DiscoverScreen> {
                     avatar: const Icon(Icons.casino_outlined, size: 16),
                     label: Text(strings.surpriseMe),
                     onPressed: () {
-                      final list = ref.read(discoverProvider).recipes;
-                      if (list.isEmpty) return;
+                      final all = ref.read(discoverProvider).recipes;
+                      if (all.isEmpty) return;
+                      // Prefer dishes the user has not cooked yet.
+                      final cooked = ref.read(cookHistoryProvider);
+                      final fresh = all.where((r) => (cooked[r.id]?.count ?? 0) == 0).toList();
+                      final list = fresh.isNotEmpty ? fresh : all;
                       final pick = list[Random().nextInt(list.length)];
                       Navigator.of(context).push(
                         MaterialPageRoute(builder: (_) => RecipeDetailScreen(recipe: pick)),

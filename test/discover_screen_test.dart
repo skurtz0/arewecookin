@@ -260,6 +260,27 @@ void main() {
       expect(find.text('5/5'), findsOneWidget);
     });
 
+    testWidgets('Surprise me prefers recipes that were not cooked yet', (tester) async {
+      SharedPreferences.setMockInitialValues({});
+      final container = ProviderContainer();
+      addTearDown(container.dispose);
+      await tester.pumpWidget(UncontrolledProviderScope(
+        container: container,
+        child: const MaterialApp(home: Scaffold(body: DiscoverScreen())),
+      ));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 300));
+      final all = container.read(discoverProvider).recipes;
+      final target = all.last;
+      for (final r in all.where((r) => r.id != target.id)) {
+        container.read(cookHistoryProvider.notifier).markCooked(r.id);
+      }
+      await tester.tap(find.byKey(const Key('surprise_me')));
+      await tester.pumpAndSettle();
+      final detail = tester.widget<RecipeDetailScreen>(find.byType(RecipeDetailScreen));
+      expect(detail.recipe.id, target.id);
+    });
+
     testWidgets('Surprise me opens a recipe', (tester) async {
       await tester.pumpWidget(
         const ProviderScope(child: MaterialApp(home: Scaffold(body: DiscoverScreen()))),
