@@ -8,6 +8,13 @@ class ModerationReport {
 
   /// Set when the complaint is about a comment, not the post itself.
   final String? commentId;
+  /// Set when the complaint is about a chat message. The reporter attaches a copy of the message,
+  /// so the admin sees only what was reported, never the rest of the conversation.
+  final String? chatId;
+  final String? messageId;
+  final String? messageText;
+  final String? messageSenderId;
+  final String? messageSenderName;
   final String reporterId;
   final String reason;
   final int createdAtMs;
@@ -19,6 +26,11 @@ class ModerationReport {
     required this.id,
     required this.postId,
     this.commentId,
+    this.chatId,
+    this.messageId,
+    this.messageText,
+    this.messageSenderId,
+    this.messageSenderName,
     required this.reporterId,
     required this.reason,
     required this.createdAtMs,
@@ -26,11 +38,17 @@ class ModerationReport {
   });
 
   bool get isOpen => status == 'open';
+  bool get isMessage => chatId != null;
 
   factory ModerationReport.fromMap(String id, Map<String, dynamic> m) => ModerationReport(
         id: id,
         postId: (m['postId'] ?? '') as String,
         commentId: m['commentId'] as String?,
+        chatId: m['chatId'] as String?,
+        messageId: m['messageId'] as String?,
+        messageText: m['messageText'] as String?,
+        messageSenderId: m['messageSenderId'] as String?,
+        messageSenderName: m['messageSenderName'] as String?,
         reporterId: (m['reporterId'] ?? '') as String,
         reason: (m['reason'] ?? '') as String,
         createdAtMs: (m['createdAtMs'] ?? 0) as int,
@@ -87,6 +105,13 @@ class FirestoreModerationService implements ModerationService {
   @override
   Future<void> removePost(ModerationReport report) async {
     final batch = _db.batch();
+    if (report.isMessage) {
+      // Only the reported message is removed; the admin cannot read the chat itself.
+      batch.delete(_db.collection('chats').doc(report.chatId).collection('messages').doc(report.messageId));
+      batch.update(_db.collection('reports').doc(report.id), {'status': 'removed'});
+      await batch.commit();
+      return;
+    }
     final post = _db.collection('posts').doc(report.postId);
     if (report.commentId == null) {
       batch.delete(post);

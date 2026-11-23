@@ -19,6 +19,9 @@ abstract class ChatService {
   Future<void> addMembers(String chatId, Map<String, String> people);
   Future<void> leave(String chatId, String uid);
   Future<void> rename(String chatId, String name);
+
+  /// Reports one message; a copy of it goes with the report for the admin.
+  Future<void> reportMessage({required String chatId, required ChatMessage message, required String reporterId});
 }
 
 class FirestoreChatService implements ChatService {
@@ -135,4 +138,19 @@ class FirestoreChatService implements ChatService {
 
   @override
   Future<void> rename(String chatId, String name) => _db.collection('chats').doc(chatId).update({'name': name});
+
+  @override
+  Future<void> reportMessage({required String chatId, required ChatMessage message, required String reporterId}) {
+    return _db.collection('reports').add({
+      'chatId': chatId,
+      'messageId': message.id,
+      'messageText': message.text,
+      'messageSenderId': message.senderId,
+      'messageSenderName': message.senderName,
+      'postId': '',
+      'reporterId': reporterId,
+      'reason': 'report',
+      'createdAtMs': DateTime.now().millisecondsSinceEpoch,
+    });
+  }
 }

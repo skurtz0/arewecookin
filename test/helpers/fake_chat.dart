@@ -3,6 +3,7 @@ import 'package:arewecookin/models/chat.dart';
 import 'package:arewecookin/services/chat_service.dart';
 
 class FakeChatService implements ChatService {
+  final List<String> reported = []; // chatId:messageId:reporter
   final Map<String, Chat> chats = {};
   final Map<String, List<ChatMessage>> messages = {};
   final Map<String, Map<String, int>> reads = {};
@@ -92,5 +93,10 @@ class FakeChatService implements ChatService {
   Future<void> rename(String chatId, String name) async {
     chats[chatId] = _upd(chats[chatId]!, name: name);
     _emit();
+  }
+
+  @override
+  Future<void> reportMessage({required String chatId, required ChatMessage message, required String reporterId}) async {
+    reported.add('$chatId:${message.id}:$reporterId');
   }
 }

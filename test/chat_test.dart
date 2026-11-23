@@ -147,6 +147,34 @@ void main() {
     expect(chats.chats.length, 2);
   });
 
+  testWidgets('long-press on someone else\'s message: report hides it and files a report with a copy; block hides the person', (tester) async {
+    final (chats, _) = await _pump(tester, const ChatsScreen(), seed: (c, p) {
+      c.chats['g1'] = Chat(id: 'g1', isGroup: true, name: 'Mutfak', members: ['u1', 'u2', 'u3'], createdBy: 'u3', lastMessage: 'y', lastMessageAtMs: 4, lastSenderId: 'u2');
+      c.messages['g1'] = [
+        const ChatMessage(id: 'a', senderId: 'u2', senderName: 'Can', text: 'kaba mesaj', createdAtMs: 1),
+        const ChatMessage(id: 'b', senderId: 'u3', senderName: 'Deniz', text: 'baska mesaj', createdAtMs: 2),
+        const ChatMessage(id: 'c', senderId: 'u1', senderName: 'Ayşe', text: 'benim mesajim', createdAtMs: 3),
+      ];
+    });
+    await tester.tap(find.byKey(const Key('chat_g1')));
+    await tester.pumpAndSettle();
+    await tester.longPress(find.byKey(const Key('bubble_c')));
+    await tester.pumpAndSettle();
+    expect(find.byKey(const Key('msg_report')), findsNothing, reason: 'no menu on my own message');
+    await tester.longPress(find.byKey(const Key('bubble_a')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const Key('msg_report')));
+    await tester.pumpAndSettle();
+    expect(chats.reported, ['g1:a:u1']);
+    expect(find.text('kaba mesaj'), findsNothing);
+    await tester.longPress(find.byKey(const Key('bubble_b')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const Key('msg_block')));
+    await tester.pumpAndSettle();
+    expect(find.text('baska mesaj'), findsNothing);
+    expect(find.text('benim mesajim'), findsOneWidget);
+  });
+
   for (final (w, scale) in [(320.0, 2.0), (360.0, 1.8), (1400.0, 1.0)]) {
     testWidgets('inbox, chat and group info have no overflow at ${w.toInt()}px, ${scale}x', (tester) async {
       await _pump(tester, const ChatsScreen(), width: w, scale: scale, seed: (c, p) {

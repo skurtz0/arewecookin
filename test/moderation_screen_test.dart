@@ -78,4 +78,25 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text('No reports.'), findsOneWidget);
   });
+
+  testWidgets('a message report shows the reporter\'s copy and can remove the message', (tester) async {
+    SharedPreferences.setMockInitialValues({});
+    tester.view.physicalSize = const Size(360 * 3, 800 * 3);
+    tester.view.devicePixelRatio = 3;
+    addTearDown(tester.view.reset);
+    final fake = _FakeModeration();
+    await tester.pumpWidget(ProviderScope(
+      overrides: [adminServiceProvider.overrideWithValue(fake)],
+      child: const MaterialApp(home: ModerationScreen()),
+    ));
+    fake.reports.add(const [
+      ModerationReport(id: 'm1', postId: '', chatId: 'g1', messageId: 'x', messageText: 'kaba mesaj', messageSenderId: 'u2', messageSenderName: 'Can', reporterId: 'r', reason: 'report', createdAtMs: 1),
+    ]);
+    await tester.pumpAndSettle();
+    expect(find.textContaining('kaba mesaj'), findsOneWidget);
+    expect(find.textContaining('copy'), findsOneWidget);
+    await tester.tap(find.text('Remove message'));
+    await tester.pump();
+    expect(fake.removed, ['m1']);
+  });
 }

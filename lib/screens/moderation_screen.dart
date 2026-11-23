@@ -85,7 +85,13 @@ class _ReportCard extends ConsumerWidget {
               Text(statusLabel),
             ]),
             const SizedBox(height: 8),
-            if (report.commentId != null)
+            if (report.isMessage)
+              Text(
+                '${tr ? 'Mesaj (şikâyet edenin kopyası)' : 'Message (reporter\'s copy)'} - ${report.messageSenderName ?? '—'}: ${report.messageText ?? ''}',
+                maxLines: 6,
+                overflow: TextOverflow.ellipsis,
+              )
+            else if (report.commentId != null)
               FutureBuilder<SocialComment?>(
                 future: service.getComment(report.postId, report.commentId!),
                 builder: (_, snap) {
@@ -122,7 +128,7 @@ class _ReportCard extends ConsumerWidget {
               Wrap(spacing: 8, runSpacing: 4, children: [
                 FilledButton.tonal(
                   onPressed: () => _run(context, () => service.removePost(report)),
-                  child: Text(report.commentId != null ? (tr ? 'Yorumu kaldır' : 'Remove comment') : (tr ? 'Gönderiyi kaldır' : 'Remove post')),
+                  child: Text(report.isMessage ? (tr ? 'Mesajı kaldır' : 'Remove message') : report.commentId != null ? (tr ? 'Yorumu kaldır' : 'Remove comment') : (tr ? 'Gönderiyi kaldır' : 'Remove post')),
                 ),
                 OutlinedButton(
                   onPressed: () => _run(context, () => service.dismissReport(report)),

@@ -163,7 +163,8 @@ service cloud.firestore {
           && request.resource.data.createdAtMs is int
           && request.resource.data.createdAtMs > request.time.toMillis() - 600000
           && request.resource.data.createdAtMs < request.time.toMillis() + 600000;
-        allow delete: if signedIn() && resource.data.senderId == request.auth.uid;
+        // The sender, or an admin removing a reported message, can delete it.
+        allow delete: if signedIn() && (resource.data.senderId == request.auth.uid || isAdmin());
       }
 
       // When I last opened the chat (unread dot). Only my own entry.
@@ -220,7 +221,14 @@ service cloud.firestore {
       allow create: if signedIn()
         && request.resource.data.reporterId == request.auth.uid
         && validText(request.resource.data.reason, 100)
-        && (!('commentId' in request.resource.data) || validText(request.resource.data.commentId, 60));
+        && (!('commentId' in request.resource.data) || validText(request.resource.data.commentId, 60))
+        // A message report carries a copy of the message (the admin cannot read chats).
+        && (!('chatId' in request.resource.data)
+            || (validText(request.resource.data.chatId, 128) && validText(request.resource.data.messageId, 60)
+                && validText(request.resource.data.get('messageText', ''), 1000)
+                && validText(request.resource.data.get('messageSenderName', ''), 80)
+                && validText(request.resource.data.get('messageSenderId', ''), 128)
+                && request.auth.uid in get(/databases/$(database)/documents/chats/$(request.resource.data.chatId)).data.members));
     }
   }
 }

@@ -310,7 +310,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                     reverse: true,
                     padding: const EdgeInsets.all(12),
                     itemCount: list.length,
-                    itemBuilder: (_, i) => _Bubble(message: list[i], mine: list[i].senderId == me.id, showName: chat?.isGroup == true && list[i].senderId != me.id),
+                    itemBuilder: (_, i) => _Bubble(chatId: widget.chatId, message: list[i], mine: list[i].senderId == me.id, showName: chat?.isGroup == true && list[i].senderId != me.id),
                   );
                 },
               ),
@@ -350,30 +350,62 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
   }
 }
 
-class _Bubble extends StatelessWidget {
+class _Bubble extends ConsumerWidget {
+  final String chatId;
   final ChatMessage message;
   final bool mine;
   final bool showName;
-  const _Bubble({required this.message, required this.mine, required this.showName});
+  const _Bubble({required this.chatId, required this.message, required this.mine, required this.showName});
+
+  Future<void> _menu(BuildContext context, WidgetRef ref) async {
+    final choice = await showModalBottomSheet<String>(
+      context: context,
+      builder: (ctx) => SafeArea(
+        child: Column(mainAxisSize: MainAxisSize.min, children: [
+          ListTile(key: const Key('msg_report'), leading: const Icon(Icons.flag_outlined), title: Text(_t(ref, 'Mesajı şikâyet et', 'Report message')), onTap: () => Navigator.pop(ctx, 'report')),
+          ListTile(key: const Key('msg_block'), leading: const Icon(Icons.block), title: Text(_t(ref, 'Bu kullanıcıyı engelle', 'Block this user')), onTap: () => Navigator.pop(ctx, 'block')),
+        ]),
+      ),
+    );
+    if (choice == null || !context.mounted) return;
+    final messenger = ScaffoldMessenger.of(context);
+    if (choice == 'block') {
+      ref.read(moderationProvider.notifier).blockAuthor(message.senderId);
+      return;
+    }
+    final me = ref.read(authProvider).user;
+    try {
+      await ref.read(chatServiceProvider).reportMessage(chatId: chatId, message: message, reporterId: me.id);
+      ref.read(moderationProvider.notifier).hidePost('msg:${message.id}');
+      messenger.showSnackBar(SnackBar(content: Text(ref.read(appStringsProvider).socialReported)));
+    } catch (_) {
+      messenger.showSnackBar(SnackBar(content: Text(ref.read(appStringsProvider).socialUnavailable)));
+    }
+  }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final cs = Theme.of(context).colorScheme;
+    if (ref.watch(moderationProvider).hiddenPosts.contains('msg:${message.id}')) return const SizedBox.shrink();
     return Align(
       alignment: mine ? Alignment.centerRight : Alignment.centerLeft,
       child: ConstrainedBox(
         constraints: BoxConstraints(maxWidth: MediaQuery.sizeOf(context).width * 0.8 > 520 ? 520 : MediaQuery.sizeOf(context).width * 0.8),
-        child: Container(
-          margin: const EdgeInsets.symmetric(vertical: 3),
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-          decoration: BoxDecoration(color: mine ? cs.primaryContainer : cs.surfaceContainerHighest, borderRadius: BorderRadius.circular(16)),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              if (showName) Text(message.senderName, style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
-              Text(message.text),
-            ],
+        child: GestureDetector(
+          key: Key('bubble_${message.id}'),
+          onLongPress: mine ? null : () => _menu(context, ref),
+          child: Container(
+            margin: const EdgeInsets.symmetric(vertical: 3),
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+            decoration: BoxDecoration(color: mine ? cs.primaryContainer : cs.surfaceContainerHighest, borderRadius: BorderRadius.circular(16)),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                if (showName) Text(message.senderName, style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
+                Text(message.text),
+              ],
+            ),
           ),
         ),
       ),
