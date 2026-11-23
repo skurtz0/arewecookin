@@ -361,7 +361,11 @@ class _PantryScreenState extends ConsumerState<PantryScreen> with WidgetsBinding
                         return Padding(
                           padding: const EdgeInsets.only(right: 8),
                           child: FilterChip(
-                            label: Text(localizedLabel),
+                            // Flag emoji can paint wider than measured on the web; a little room keeps the last letters.
+                            label: Padding(
+                              padding: const EdgeInsetsDirectional.only(end: 6),
+                              child: Text(localizedLabel, softWrap: false, overflow: TextOverflow.visible),
+                            ),
                             selected: isSelected,
                             onSelected: (_) {
                               ref

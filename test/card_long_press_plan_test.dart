@@ -10,7 +10,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 void main() {
   testWidgets('long-pressing a recipe card adds it to the chosen day, with undo', (tester) async {
     SharedPreferences.setMockInitialValues({});
-    tester.view.physicalSize = const Size(1000, 2400);
+    tester.view.physicalSize = const Size(700, 2400);
     tester.view.devicePixelRatio = 1.0;
     addTearDown(tester.view.reset);
     final c = ProviderContainer();
@@ -35,7 +35,7 @@ void main() {
 
   testWidgets('long-pressing a pantry match card adds it to the meal plan', (tester) async {
     SharedPreferences.setMockInitialValues({});
-    tester.view.physicalSize = const Size(1000, 2400);
+    tester.view.physicalSize = const Size(700, 2400);
     tester.view.devicePixelRatio = 1.0;
     addTearDown(tester.view.reset);
     final c = ProviderContainer();

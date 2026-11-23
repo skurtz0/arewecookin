@@ -509,37 +509,69 @@ class DiscoverScreenState extends ConsumerState<DiscoverScreen> with WidgetsBind
             else
               SliverPadding(
                 padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
-                sliver: SliverList(
-                  delegate: SliverChildBuilderDelegate(
-                    (context, index) {
-                      if (index == discoverState.recipes.length) {
-                        return _buildBottomLoader();
-                      }
-
-                      final recipe = discoverState.recipes[index];
-                      return Semantics(
-                        button: true,
-                        excludeSemantics: true,
-                        label: _cardLabel(recipe, strings),
-                        onTap: () => Navigator.of(context).push(
-                          MaterialPageRoute(builder: (_) => RecipeDetailScreen(recipe: recipe)),
-                        ),
-                        child: _RecipeCard(
-                          recipe: recipe,
-                          onTap: () {
-                            // A search that led to opening a recipe is worth remembering.
-                            ref.read(recentSearchesProvider.notifier).add(discoverState.searchQuery);
-                            Navigator.of(context).push(
-                              MaterialPageRoute(
-                                builder: (_) => RecipeDetailScreen(recipe: recipe),
+                sliver: SliverLayoutBuilder(
+                  builder: (context, constraints) {
+                    Widget card(Recipe recipe) => Semantics(
+                          button: true,
+                          excludeSemantics: true,
+                          label: _cardLabel(recipe, strings),
+                          onTap: () => Navigator.of(context).push(
+                            MaterialPageRoute(builder: (_) => RecipeDetailScreen(recipe: recipe)),
+                          ),
+                          child: _RecipeCard(
+                            recipe: recipe,
+                            onTap: () {
+                              // A search that led to opening a recipe is worth remembering.
+                              ref.read(recentSearchesProvider.notifier).add(discoverState.searchQuery);
+                              Navigator.of(context).push(
+                                MaterialPageRoute(
+                                  builder: (_) => RecipeDetailScreen(recipe: recipe),
+                                ),
+                              );
+                            },
+                          ),
+                        );
+                    final recipes = discoverState.recipes;
+                    // Wide screens show several cards per row instead of one stretched card.
+                    if (constraints.crossAxisExtent >= 720) {
+                      // Rows of equal-height cards: each row is as tall as its tallest card,
+                      // so a long title or big text never overflows.
+                      final cols = (constraints.crossAxisExtent / 440).ceil().clamp(2, 4);
+                      final rows = (recipes.length / cols).ceil();
+                      return SliverList(
+                        delegate: SliverChildBuilderDelegate(
+                          (context, index) {
+                            if (index == rows) return _buildBottomLoader();
+                            return IntrinsicHeight(
+                              child: Row(
+                                crossAxisAlignment: CrossAxisAlignment.stretch,
+                                children: [
+                                  for (var c = 0; c < cols; c++) ...[
+                                    if (c > 0) const SizedBox(width: 16),
+                                    Expanded(
+                                      child: index * cols + c < recipes.length
+                                          ? card(recipes[index * cols + c])
+                                          : const SizedBox.shrink(),
+                                    ),
+                                  ],
+                                ],
                               ),
                             );
                           },
+                          childCount: rows + (discoverState.hasMore ? 1 : 0),
                         ),
                       );
-                    },
-                    childCount: discoverState.recipes.length + (discoverState.hasMore ? 1 : 0),
-                  ),
+                    }
+                    return SliverList(
+                      delegate: SliverChildBuilderDelegate(
+                        (context, index) {
+                          if (index == recipes.length) return _buildBottomLoader();
+                          return card(recipes[index]);
+                        },
+                        childCount: recipes.length + (discoverState.hasMore ? 1 : 0),
+                      ),
+                    );
+                  },
                 ),
               ),
           ],
