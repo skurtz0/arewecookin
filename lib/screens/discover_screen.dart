@@ -5,6 +5,7 @@ import 'dart:math';
 import '../data/world_countries.dart';
 import 'dart:async';
 import 'package:flutter/material.dart';
+import '../widgets/h_strip.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../utils/cooking_icons.dart';
@@ -307,9 +308,7 @@ class DiscoverScreenState extends ConsumerState<DiscoverScreen> with WidgetsBind
                       ),
 
                       // Categories Horizontal Chips
-                      SizedBox(
-                        height: 44,
-                        child: ListView.separated(
+                      HStrip(height: 44, builder: (hc) => ListView.separated(controller: hc,
                           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 2),
                           scrollDirection: Axis.horizontal,
                           itemCount: categories.length,
@@ -449,9 +448,7 @@ class DiscoverScreenState extends ConsumerState<DiscoverScreen> with WidgetsBind
                         ),
                       ]),
                     ),
-                    SizedBox(
-                      height: 40,
-                      child: ListView.separated(
+                    HStrip(height: 40, builder: (hc) => ListView.separated(controller: hc,
                         key: const Key('recent_strip'),
                         padding: const EdgeInsets.symmetric(horizontal: 16),
                         scrollDirection: Axis.horizontal,
@@ -673,9 +670,7 @@ class DiscoverScreenState extends ConsumerState<DiscoverScreen> with WidgetsBind
               ),
             ),
           const SizedBox(height: 6),
-          SizedBox(
-            height: 38,
-            child: ListView(
+          HStrip(height: 38, builder: (hc) => ListView(controller: hc,
               padding: const EdgeInsets.symmetric(horizontal: 16),
               scrollDirection: Axis.horizontal,
               children: [
@@ -818,9 +813,7 @@ class DiscoverScreenState extends ConsumerState<DiscoverScreen> with WidgetsBind
             ),
           ),
           const SizedBox(height: 6),
-          SizedBox(
-            height: 38,
-            child: ListView.separated(
+          HStrip(height: 38, builder: (hc) => ListView.separated(controller: hc,
               padding: const EdgeInsets.symmetric(horizontal: 16),
               scrollDirection: Axis.horizontal,
               itemCount: cuisineFilters.length,

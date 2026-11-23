@@ -681,6 +681,15 @@ class _PhotoGallery extends StatefulWidget {
 
 class _PhotoGalleryState extends State<_PhotoGallery> {
   int _page = 0;
+  final _pages = PageController();
+
+  @override
+  void dispose() {
+    _pages.dispose();
+    super.dispose();
+  }
+
+  void _go(int to) => _pages.animateToPage(to, duration: const Duration(milliseconds: 250), curve: Curves.easeOut);
 
   @override
   Widget build(BuildContext context) {
@@ -691,6 +700,7 @@ class _PhotoGalleryState extends State<_PhotoGallery> {
         children: [
           PageView.builder(
             key: const Key('post_gallery'),
+            controller: _pages,
             itemCount: widget.urls.length,
             onPageChanged: (i) => setState(() => _page = i),
             itemBuilder: (_, i) => Image.network(
@@ -701,6 +711,34 @@ class _PhotoGalleryState extends State<_PhotoGallery> {
               errorBuilder: (_, _, _) => const ColoredBox(color: Colors.black12, child: Center(child: Icon(Icons.broken_image_outlined))),
             ),
           ),
+          if (many && MediaQuery.of(context).size.width >= 600) ...[
+            if (_page > 0)
+              Positioned(
+                left: 8,
+                top: 0,
+                bottom: 0,
+                child: Center(
+                  child: IconButton.filledTonal(
+                    key: const Key('gallery_prev'),
+                    icon: const Icon(Icons.chevron_left),
+                    onPressed: () => _go(_page - 1),
+                  ),
+                ),
+              ),
+            if (_page < widget.urls.length - 1)
+              Positioned(
+                right: 8,
+                top: 0,
+                bottom: 0,
+                child: Center(
+                  child: IconButton.filledTonal(
+                    key: const Key('gallery_next'),
+                    icon: const Icon(Icons.chevron_right),
+                    onPressed: () => _go(_page + 1),
+                  ),
+                ),
+              ),
+          ],
           if (many)
             Positioned(
               bottom: 8,

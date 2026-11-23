@@ -243,6 +243,16 @@ void main() {
     await tester.drag(find.byKey(const Key('post_gallery')), const Offset(-700, 0));
     await tester.pumpAndSettle();
     expect(find.text('2/2'), findsOneWidget);
+    // On a wide screen the arrows work too (mouse users).
+    expect(find.byKey(const Key('gallery_next')), findsNothing);
+    await tester.ensureVisible(find.byKey(const Key('gallery_prev')));
+    await tester.tap(find.byKey(const Key('gallery_prev')));
+    await tester.pumpAndSettle();
+    expect(find.text('1/2'), findsOneWidget);
+    await tester.ensureVisible(find.byKey(const Key('gallery_next')));
+    await tester.tap(find.byKey(const Key('gallery_next')));
+    await tester.pumpAndSettle();
+    expect(find.text('2/2'), findsOneWidget);
   });
 }
 

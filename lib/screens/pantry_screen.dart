@@ -2,6 +2,7 @@ import '../utils/app_colors.dart';
 import '../data/world_countries.dart';
 
 import 'package:flutter/material.dart';
+import '../widgets/h_strip.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -350,7 +351,10 @@ class _PantryScreenState extends ConsumerState<PantryScreen> with WidgetsBinding
                     ],
                   ),
                   const SizedBox(height: 8),
-                  SingleChildScrollView(
+                  HStrip(
+                    height: 48,
+                    builder: (hc) => SingleChildScrollView(
+                    controller: hc,
                     scrollDirection: Axis.horizontal,
                     child: Row(
                       children: cuisineFilters.map((c) {
@@ -397,6 +401,7 @@ class _PantryScreenState extends ConsumerState<PantryScreen> with WidgetsBinding
                           ),
                         );
                       }).toList(),
+                    ),
                     ),
                   ),
                 ],
