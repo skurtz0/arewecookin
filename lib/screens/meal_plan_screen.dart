@@ -115,7 +115,21 @@ class MealPlanScreen extends ConsumerWidget {
         label: Text(strings.planFromSaved),
       ),
       appBar: AppBar(
-        title: Text(strings.mealPlanTitle),
+        title: total == 0
+            ? Text(strings.mealPlanTitle)
+            : Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(strings.mealPlanTitle, maxLines: 1, overflow: TextOverflow.ellipsis),
+                  Text(
+                    '${strings.mealsCount(total)} · ${strings.minutesShort(plan.values.expand((l) => l).fold<int>(0, (a, r) => a + r.totalTime))}',
+                    key: const Key('plan_week_total'),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(fontSize: 12, fontWeight: FontWeight.normal),
+                  ),
+                ],
+              ),
         actions: [
           if (total > 0)
             IconButton(
