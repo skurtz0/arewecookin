@@ -28,6 +28,19 @@ class DiscoverScreen extends ConsumerStatefulWidget {
 }
 
 class DiscoverScreenState extends ConsumerState<DiscoverScreen> {
+  /// Spoken description of a recipe card: title, time, difficulty, and my rating / cooked marks when present.
+  String _cardLabel(Recipe recipe, AppStrings strings) {
+    final rating = ref.watch(recipeNotesProvider.select((m) => m[recipe.id]?.rating ?? 0));
+    final cooked = ref.watch(cookHistoryProvider.select((m) => (m[recipe.id]?.count ?? 0) > 0));
+    return [
+      recipe.localizedTitle(strings.locale),
+      strings.minutesShort(recipe.totalTime),
+      recipe.localizedDifficulty(strings),
+      if (rating > 0) '$rating/5',
+      if (cooked) strings.cookedDishes,
+    ].join(', ');
+  }
+
   final ScrollController _scrollController = ScrollController();
   final TextEditingController _searchController = TextEditingController();
   bool _onlySaved = false;
@@ -402,7 +415,7 @@ class DiscoverScreenState extends ConsumerState<DiscoverScreen> {
                       return Semantics(
                         button: true,
                         excludeSemantics: true,
-                        label: '${recipe.localizedTitle(strings.locale)}, ${recipe.totalTime} min',
+                        label: _cardLabel(recipe, strings),
                         onTap: () => Navigator.of(context).push(
                           MaterialPageRoute(builder: (_) => RecipeDetailScreen(recipe: recipe)),
                         ),
@@ -707,10 +720,18 @@ class DiscoverScreenState extends ConsumerState<DiscoverScreen> {
               );
             }
             final recipe = saved[index - 1];
-            return _RecipeCard(
-              recipe: recipe,
+            return Semantics(
+              button: true,
+              excludeSemantics: true,
+              label: _cardLabel(recipe, strings),
               onTap: () => Navigator.of(context).push(
                 MaterialPageRoute(builder: (_) => RecipeDetailScreen(recipe: recipe)),
+              ),
+              child: _RecipeCard(
+                recipe: recipe,
+                onTap: () => Navigator.of(context).push(
+                  MaterialPageRoute(builder: (_) => RecipeDetailScreen(recipe: recipe)),
+                ),
               ),
             );
           },

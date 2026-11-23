@@ -59,7 +59,27 @@ void main() {
       );
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 300));
-      expect(find.bySemanticsLabel(RegExp(r', \d+ min$')), findsWidgets);
+      expect(find.bySemanticsLabel(RegExp(r', \d+ min, ')), findsWidgets);
+      handle.dispose();
+    });
+
+    testWidgets('saved list cards are also announced with title and time', (tester) async {
+      final handle = tester.ensureSemantics();
+      SharedPreferences.setMockInitialValues({});
+      final container = ProviderContainer();
+      addTearDown(container.dispose);
+      await tester.pumpWidget(UncontrolledProviderScope(
+        container: container,
+        child: const MaterialApp(home: Scaffold(body: DiscoverScreen())),
+      ));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 300));
+      final recipe = container.read(discoverProvider).recipes.first;
+      await container.read(savedRecipesProvider.notifier).toggleSave(recipe);
+      container.read(recipeNotesProvider.notifier).setRating(recipe.id, 4);
+      await tester.tap(find.byKey(const Key('saved_filter')));
+      await tester.pumpAndSettle();
+      expect(find.bySemanticsLabel(RegExp('${RegExp.escape(recipe.localizedTitle('en'))}, \\d+ min, .*4/5')), findsOneWidget);
       handle.dispose();
     });
 
