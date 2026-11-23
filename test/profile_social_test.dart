@@ -65,6 +65,14 @@ void main() {
     expect(find.byIcon(Icons.push_pin), findsOneWidget);
   });
 
+  testWidgets('the inbox button is on the feed and the profile of someone else has a Message button that opens the chat', (tester) async {
+    await _pump(tester, const SocialScreen());
+    expect(find.byKey(const Key('inbox_button')), findsOneWidget);
+    await tester.pumpWidget(const SizedBox());
+    await _pump(tester, const AuthorScreen(authorId: 'u2', authorName: 'Can'));
+    expect(find.byKey(const Key('profile_message')), findsOneWidget);
+  });
+
   testWidgets('own profile: edit name and bio', (tester) async {
     final (_, profiles) = await _pump(tester, const AuthorScreen(authorId: 'u1', authorName: 'Ayşe'));
     expect(find.byKey(const Key('profile_follow')), findsNothing);

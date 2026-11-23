@@ -9,8 +9,8 @@ import '../providers/profile_provider.dart';
 import '../widgets/profile_widgets.dart';
 import '../widgets/readable_width.dart';
 
-/// Chat rules are not live yet; flip this on together with the rules deploy.
-const bool kChatEnabled = false;
+/// Chat rules are live (verified with three test users); set false to hide the feature.
+const bool kChatEnabled = true;
 
 String _t(WidgetRef ref, String tr, String en) => ref.read(appStringsProvider).isTurkish ? tr : en;
 

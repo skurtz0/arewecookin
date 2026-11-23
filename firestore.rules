@@ -101,6 +101,78 @@ service cloud.firestore {
       }
     }
 
+    // ---- Chats: direct messages and groups. Only members read or write. ----
+    function chatData(id) { return get(/databases/$(database)/documents/chats/$(id)).data; }
+    function inChat(id) { return signedIn() && request.auth.uid in chatData(id).members; }
+    // A direct chat is blocked when the other person has blocked the sender.
+    function blockedByOther(id) {
+      return chatData(id).type == 'dm'
+        && exists(/databases/$(database)/documents/users/$(chatData(id).members[0] == request.auth.uid ? chatData(id).members[1] : chatData(id).members[0])/blocked/$(request.auth.uid));
+    }
+
+    match /chats/{chatId} {
+      allow read: if signedIn() && request.auth.uid in resource.data.members;
+
+      allow create: if signedIn()
+        && request.resource.data.keys().hasOnly(['type', 'name', 'members', 'names', 'createdBy', 'createdAtMs'])
+        && request.resource.data.createdBy == request.auth.uid
+        && request.resource.data.members is list
+        && request.auth.uid in request.resource.data.members
+        && request.resource.data.names is map
+        && (
+          // direct chat: exactly two people, sorted, deterministic id, not blocked by the other
+          (request.resource.data.type == 'dm'
+            && request.resource.data.members.size() == 2
+            && request.resource.data.members[0] < request.resource.data.members[1]
+            && chatId == 'dm_' + request.resource.data.members[0] + '_' + request.resource.data.members[1]
+            && !exists(/databases/$(database)/documents/users/$(request.resource.data.members[0] == request.auth.uid ? request.resource.data.members[1] : request.resource.data.members[0])/blocked/$(request.auth.uid)))
+          ||
+          // group: 2 to 50 people, named
+          (request.resource.data.type == 'group'
+            && request.resource.data.members.size() >= 2
+            && request.resource.data.members.size() <= 50
+            && validText(request.resource.data.name, 40) && request.resource.data.name.size() > 0)
+        );
+
+      // Sending a message touches only the "last message" fields.
+      allow update: if signedIn() && request.auth.uid in resource.data.members
+          && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['lastMessage', 'lastMessageAtMs', 'lastSenderId'])
+          && validText(request.resource.data.lastMessage, 120)
+          && request.resource.data.lastSenderId == request.auth.uid;
+
+      // Group admin (creator) renames the group and adds/removes people.
+      allow update: if signedIn() && resource.data.type == 'group' && resource.data.createdBy == request.auth.uid
+          && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['name', 'members', 'names'])
+          && request.resource.data.members.size() <= 50 && request.resource.data.members.size() >= 1
+          && request.auth.uid in request.resource.data.members
+          && validText(request.resource.data.name, 40) && request.resource.data.name.size() > 0;
+
+      // Anyone in a group may leave: only they disappear from the member list.
+      allow update: if signedIn() && resource.data.type == 'group' && request.auth.uid in resource.data.members
+          && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['members', 'names'])
+          && !(request.auth.uid in request.resource.data.members)
+          && request.resource.data.members.size() == resource.data.members.size() - 1;
+
+      match /messages/{messageId} {
+        allow read: if inChat(chatId);
+        allow create: if inChat(chatId) && !blockedByOther(chatId)
+          && request.resource.data.keys().hasOnly(['senderId', 'senderName', 'text', 'createdAtMs'])
+          && request.resource.data.senderId == request.auth.uid
+          && validText(request.resource.data.senderName, 80)
+          && validText(request.resource.data.text, 1000) && request.resource.data.text.size() > 0
+          && request.resource.data.createdAtMs is int
+          && request.resource.data.createdAtMs > request.time.toMillis() - 600000
+          && request.resource.data.createdAtMs < request.time.toMillis() + 600000;
+        allow delete: if signedIn() && resource.data.senderId == request.auth.uid;
+      }
+
+      // When I last opened the chat (unread dot). Only my own entry.
+      match /members/{memberId} {
+        allow read, write: if inChat(chatId) && request.auth.uid == memberId
+          && (request.method == 'delete' || request.resource.data.keys().hasOnly(['readAtMs']));
+      }
+    }
+
     match /posts/{postId} {
       allow read: if true;
       allow create: if signedIn()
