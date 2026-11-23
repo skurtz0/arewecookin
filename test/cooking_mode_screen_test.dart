@@ -75,6 +75,25 @@ void main() {
       expect(find.textContaining('2 adet Yumurta'), findsNothing);
     });
 
+    testWidgets('ingredient ticks are shared with the recipe progress (both directions)', (tester) async {
+      SharedPreferences.setMockInitialValues({});
+      final container = ProviderContainer(overrides: [
+        localeProvider.overrideWith(() => FakeLocaleNotifier(const Locale('tr'))),
+      ]);
+      addTearDown(container.dispose);
+      container.read(recipeProgressProvider.notifier).setChecked(sampleRecipe.id, {0});
+      await tester.pumpWidget(UncontrolledProviderScope(
+        container: container,
+        child: MaterialApp(home: CookingModeScreen(recipe: sampleRecipe)),
+      ));
+      await tester.pumpAndSettle();
+      await tester.tap(find.textContaining('Malzeme').first);
+      await tester.pumpAndSettle();
+      await tester.tap(find.textContaining('Domates').first);
+      await tester.pumpAndSettle();
+      expect(container.read(recipeProgressProvider)[sampleRecipe.id]!.checked, {0, 1});
+    });
+
     testWidgets('text size button enlarges the step instruction and wraps around', (tester) async {
       SharedPreferences.setMockInitialValues({});
       await tester.pumpWidget(ProviderScope(

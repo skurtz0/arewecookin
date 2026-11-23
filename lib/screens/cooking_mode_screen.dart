@@ -51,6 +51,7 @@ class _CookingModeScreenState extends ConsumerState<CookingModeScreen> {
 
   // Ingredients checklist state
   final Set<int> _checkedIngredients = {};
+  bool _checkedTouched = false;
 
   /// Ingredient line scaled to the servings chosen on the detail screen, in the chosen unit system.
   String _ingredientText(Ingredient ing, String locale) {
@@ -164,6 +165,10 @@ class _CookingModeScreenState extends ConsumerState<CookingModeScreen> {
                                 }
                               });
                               setState(() {});
+                              _checkedTouched = true;
+                              ref
+                                  .read(recipeProgressProvider.notifier)
+                                  .setChecked(widget.recipe.id, _checkedIngredients);
                             },
                             child: Container(
                               padding: const EdgeInsets.symmetric(
@@ -235,6 +240,11 @@ class _CookingModeScreenState extends ConsumerState<CookingModeScreen> {
     _pageController = PageController();
     // Resume where the user stopped last time (stored step arrives asynchronously).
     ref.listenManual(recipeProgressProvider, (prev, next) {
+      // Ingredient ticks are shared with the recipe detail screen.
+      final savedChecked = next[widget.recipe.id]?.checked;
+      if (!_checkedTouched && savedChecked != null && savedChecked.isNotEmpty && mounted) {
+        setState(() => _checkedIngredients.addAll(savedChecked));
+      }
       final saved = next[widget.recipe.id]?.step ?? 0;
       if (!_resumed &&
           saved > 0 &&
