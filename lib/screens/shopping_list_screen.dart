@@ -27,7 +27,9 @@ class _ShoppingListScreenState extends ConsumerState<ShoppingListScreen> {
   void _submit() {
     final text = _controller.text.trim();
     if (text.isEmpty) return;
-    ref.read(shoppingListProvider.notifier).addAll(ShoppingItem.parseMany(text));
+    ref
+        .read(shoppingListProvider.notifier)
+        .addAll(ShoppingItem.parseMany(text));
     _controller.clear();
   }
 
@@ -46,8 +48,14 @@ class _ShoppingListScreenState extends ConsumerState<ShoppingListScreen> {
 
     // Open items are grouped under the recipe they came from once there is more than one source.
     // Entries are either a header text or a stored-list index. Checked items stay in one group at the bottom.
-    final openIdx = [for (final n in order) if (!items[n].done) n];
-    final doneIdx = [for (final n in order) if (items[n].done) n];
+    final openIdx = [
+      for (final n in order)
+        if (!items[n].done) n,
+    ];
+    final doneIdx = [
+      for (final n in order)
+        if (items[n].done) n,
+    ];
     final groups = <String, List<int>>{};
     for (final n in openIdx) {
       groups.putIfAbsent(items[n].recipeTitle, () => []).add(n);
@@ -69,18 +77,25 @@ class _ShoppingListScreenState extends ConsumerState<ShoppingListScreen> {
       clear();
       ScaffoldMessenger.of(context)
         ..hideCurrentSnackBar()
-        ..showSnackBar(SnackBar(
-          content: Text(strings.listCleared),
-          action: SnackBarAction(
-            label: strings.undoLabel,
-            onPressed: () => notifier.restore(before),
+        ..showSnackBar(
+          SnackBar(
+            content: Text(strings.listCleared),
+            action: SnackBarAction(
+              label: strings.undoLabel,
+              onPressed: () => notifier.restore(before),
+            ),
           ),
-        ));
+        );
     }
 
     Future<void> editItem(int i, ShoppingItem item) async {
-      final qty = [item.amount, item.unit].where((e) => e.trim().isNotEmpty).join(' ');
-      final controller = TextEditingController(text: [qty, item.name].where((e) => e.isNotEmpty).join(' '));
+      final qty = [
+        item.amount,
+        item.unit,
+      ].where((e) => e.trim().isNotEmpty).join(' ');
+      final controller = TextEditingController(
+        text: [qty, item.name].where((e) => e.isNotEmpty).join(' '),
+      );
       final text = await showDialog<String>(
         context: context,
         builder: (ctx) => AlertDialog(
@@ -92,7 +107,10 @@ class _ShoppingListScreenState extends ConsumerState<ShoppingListScreen> {
             onSubmitted: (v) => Navigator.of(ctx).pop(v),
           ),
           actions: [
-            TextButton(onPressed: () => Navigator.of(ctx).pop(), child: Text(strings.cancel)),
+            TextButton(
+              onPressed: () => Navigator.of(ctx).pop(),
+              child: Text(strings.cancel),
+            ),
             TextButton(
               key: const Key('shopping_edit_save'),
               onPressed: () => Navigator.of(ctx).pop(controller.text),
@@ -108,13 +126,15 @@ class _ShoppingListScreenState extends ConsumerState<ShoppingListScreen> {
       notifier.removeAt(i);
       ScaffoldMessenger.of(context)
         ..hideCurrentSnackBar()
-        ..showSnackBar(SnackBar(
-          content: Text(strings.itemRemoved),
-          action: SnackBarAction(
-            label: strings.undoLabel,
-            onPressed: () => notifier.insertAt(i, removed),
+        ..showSnackBar(
+          SnackBar(
+            content: Text(strings.itemRemoved),
+            action: SnackBarAction(
+              label: strings.undoLabel,
+              onPressed: () => notifier.insertAt(i, removed),
+            ),
           ),
-        ));
+        );
     }
 
     return Scaffold(
@@ -128,7 +148,11 @@ class _ShoppingListScreenState extends ConsumerState<ShoppingListScreen> {
               Text(
                 '$doneCount / ${items.length}',
                 key: const Key('shopping_progress'),
-                style: TextStyle(fontSize: 12, color: Colors.grey.shade600, fontWeight: FontWeight.normal),
+                style: TextStyle(
+                  fontSize: 12,
+                  color: Colors.grey.shade600,
+                  fontWeight: FontWeight.normal,
+                ),
               ),
           ],
         ),
@@ -174,7 +198,11 @@ class _ShoppingListScreenState extends ConsumerState<ShoppingListScreen> {
             IconButton(
               key: const Key('shopping_toggle_all'),
               tooltip: strings.shoppingToggleAll,
-              icon: Icon(doneCount == items.length ? Icons.remove_done_rounded : Icons.done_all_rounded),
+              icon: Icon(
+                doneCount == items.length
+                    ? Icons.remove_done_rounded
+                    : Icons.done_all_rounded,
+              ),
               onPressed: notifier.toggleAll,
             ),
           if (items.isNotEmpty)
@@ -189,7 +217,10 @@ class _ShoppingListScreenState extends ConsumerState<ShoppingListScreen> {
                     title: Text(strings.shoppingClearAll),
                     content: Text(strings.shoppingClearAllConfirm),
                     actions: [
-                      TextButton(onPressed: () => Navigator.of(ctx).pop(false), child: Text(strings.cancel)),
+                      TextButton(
+                        onPressed: () => Navigator.of(ctx).pop(false),
+                        child: Text(strings.cancel),
+                      ),
                       TextButton(
                         key: const Key('shopping_clear_all_confirm'),
                         onPressed: () => Navigator.of(ctx).pop(true),
@@ -207,12 +238,19 @@ class _ShoppingListScreenState extends ConsumerState<ShoppingListScreen> {
               tooltip: strings.shoppingToPantry,
               icon: const Icon(Icons.kitchen_outlined),
               onPressed: () async {
-                final names = [for (final e in items) if (e.done) e.name];
-                final added = await ref.read(pantryProvider.notifier).addIngredients(names);
+                final names = [
+                  for (final e in items)
+                    if (e.done) e.name,
+                ];
+                final added = await ref
+                    .read(pantryProvider.notifier)
+                    .addIngredients(names);
                 if (!context.mounted) return;
                 ScaffoldMessenger.of(context)
                   ..hideCurrentSnackBar()
-                  ..showSnackBar(SnackBar(content: Text(strings.pantryAdded(added))));
+                  ..showSnackBar(
+                    SnackBar(content: Text(strings.pantryAdded(added))),
+                  );
               },
             ),
           if (doneCount > 0)
@@ -264,31 +302,33 @@ class _ShoppingListScreenState extends ConsumerState<ShoppingListScreen> {
           Expanded(
             child: items.isEmpty
                 ? Center(
-                    child: Padding(
-                      padding: const EdgeInsets.all(32),
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Icon(
-                            Icons.shopping_basket_outlined,
-                            size: 64,
-                            color: Colors.grey.shade400,
-                          ),
-                          const SizedBox(height: 16),
-                          Text(
-                            strings.shoppingEmptyTitle,
-                            style: const TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
+                    child: SingleChildScrollView(
+                      child: Padding(
+                        padding: const EdgeInsets.all(32),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(
+                              Icons.shopping_basket_outlined,
+                              size: 64,
+                              color: Colors.grey.shade400,
                             ),
-                          ),
-                          const SizedBox(height: 8),
-                          Text(
-                            strings.shoppingEmptyHint,
-                            textAlign: TextAlign.center,
-                            style: TextStyle(color: Colors.grey.shade600),
-                          ),
-                        ],
+                            const SizedBox(height: 16),
+                            Text(
+                              strings.shoppingEmptyTitle,
+                              style: const TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            const SizedBox(height: 8),
+                            Text(
+                              strings.shoppingEmptyHint,
+                              textAlign: TextAlign.center,
+                              style: TextStyle(color: Colors.grey.shade600),
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                   )
@@ -336,40 +376,43 @@ class _ShoppingListScreenState extends ConsumerState<ShoppingListScreen> {
                         onDismissed: (_) => removeItem(i, item),
                         child: Semantics(
                           customSemanticsActions: {
-                            CustomSemanticsAction(label: strings.shoppingDeleteItem): () => removeItem(i, item),
+                            CustomSemanticsAction(
+                              label: strings.shoppingDeleteItem,
+                            ): () =>
+                                removeItem(i, item),
                           },
                           child: GestureDetector(
                             onLongPress: () => editItem(i, item),
                             child: CheckboxListTile(
-                          value: item.done,
-                          onChanged: (_) => notifier.toggle(i),
-                          controlAffinity: ListTileControlAffinity.leading,
-                          activeColor: const Color(0xFF10B981),
-                          title: Text(
-                            item.name,
-                            style: TextStyle(
-                              decoration: item.done
-                                  ? TextDecoration.lineThrough
-                                  : null,
-                              color: item.done
-                                  ? Colors.grey
-                                  : const Color(0xFF1E293B),
+                              value: item.done,
+                              onChanged: (_) => notifier.toggle(i),
+                              controlAffinity: ListTileControlAffinity.leading,
+                              activeColor: const Color(0xFF10B981),
+                              title: Text(
+                                item.name,
+                                style: TextStyle(
+                                  decoration: item.done
+                                      ? TextDecoration.lineThrough
+                                      : null,
+                                  color: item.done
+                                      ? Colors.grey
+                                      : const Color(0xFF1E293B),
+                                ),
+                              ),
+                              subtitle: item.recipeTitle.isEmpty
+                                  ? null
+                                  : Text(item.recipeTitle),
+                              secondary: qty.isEmpty
+                                  ? null
+                                  : Text(
+                                      qty,
+                                      style: const TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        color: Color(0xFFFF5722),
+                                      ),
+                                    ),
                             ),
                           ),
-                          subtitle: item.recipeTitle.isEmpty
-                              ? null
-                              : Text(item.recipeTitle),
-                          secondary: qty.isEmpty
-                              ? null
-                              : Text(
-                                  qty,
-                                  style: const TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    color: Color(0xFFFF5722),
-                                  ),
-                                ),
-                        ),
-                        ),
                         ),
                       );
                     },
