@@ -103,11 +103,40 @@ class _AddRecipeScreenState extends ConsumerState<AddRecipeScreen> {
     });
   }
 
+  // Removed rows stay alive (not disposed) until the screen closes so "Undo" can put them back.
+  final List<Object> _removedDrafts = [];
+
+  void _showUndo(VoidCallback undo) {
+    final strings = ref.read(appStringsProvider);
+    ScaffoldMessenger.of(context)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(SnackBar(
+        content: Text(strings.itemRemoved),
+        action: SnackBarAction(
+          key: const Key('remove_undo'),
+          label: strings.undoLabel,
+          onPressed: undo,
+        ),
+      ));
+  }
+
   void _removeIngredient(int index) {
     if (_ingredients.length > 1) {
+      final removed = _ingredients[index];
       setState(() {
-        _ingredients.removeAt(index).dispose();
+        _ingredients.removeAt(index);
+        _removedDrafts.add(removed);
       });
+      if (removed.nameController.text.trim().isNotEmpty ||
+          removed.amountController.text.trim().isNotEmpty) {
+        _showUndo(() {
+          if (!mounted) return;
+          setState(() {
+            _removedDrafts.remove(removed);
+            _ingredients.insert(index.clamp(0, _ingredients.length), removed);
+          });
+        });
+      }
     }
   }
 
@@ -119,14 +148,29 @@ class _AddRecipeScreenState extends ConsumerState<AddRecipeScreen> {
 
   void _removeStep(int index) {
     if (_steps.length > 1) {
+      final removed = _steps[index];
       setState(() {
-        _steps.removeAt(index).dispose();
+        _steps.removeAt(index);
+        _removedDrafts.add(removed);
       });
+      if (removed.instructionController.text.trim().isNotEmpty) {
+        _showUndo(() {
+          if (!mounted) return;
+          setState(() {
+            _removedDrafts.remove(removed);
+            _steps.insert(index.clamp(0, _steps.length), removed);
+          });
+        });
+      }
     }
   }
 
   @override
   void dispose() {
+    for (final d in _removedDrafts) {
+      if (d is _IngredientDraft) d.dispose();
+      if (d is _StepDraft) d.dispose();
+    }
     _titleController.dispose();
     _imageUrlController.dispose();
     _prepTimeController.dispose();
