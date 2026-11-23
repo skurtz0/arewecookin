@@ -99,7 +99,9 @@ class _PantryScreenState extends ConsumerState<PantryScreen> {
   void _handleAddCustom() {
     final text = _customIngredientController.text.trim();
     if (text.isNotEmpty) {
-      ref.read(pantryProvider.notifier).addIngredients(text.split(RegExp(r'[,;\n]')));
+      ref
+          .read(pantryProvider.notifier)
+          .addIngredients(text.split(RegExp(r'[,;\n]')));
       _customIngredientController.clear();
     }
   }
@@ -110,7 +112,8 @@ class _PantryScreenState extends ConsumerState<PantryScreen> {
     final pantryState = ref.watch(pantryProvider);
     final userKeys = pantryState.selectedKeys.toList();
     final shown = pantryState.sortByTime
-        ? ([...pantryState.matchedRecipes]..sort((a, b) => a.totalTime.compareTo(b.totalTime)))
+        ? ([...pantryState.matchedRecipes]
+            ..sort((a, b) => a.totalTime.compareTo(b.totalTime)))
         : pantryState.matchedRecipes;
 
     return Scaffold(
@@ -173,13 +176,15 @@ class _PantryScreenState extends ConsumerState<PantryScreen> {
                   notifier.clearAll();
                   ScaffoldMessenger.of(context)
                     ..hideCurrentSnackBar()
-                    ..showSnackBar(SnackBar(
-                      content: Text(strings.listCleared),
-                      action: SnackBarAction(
-                        label: strings.undoLabel,
-                        onPressed: () => notifier.restoreSelection(before),
+                    ..showSnackBar(
+                      SnackBar(
+                        content: Text(strings.listCleared),
+                        action: SnackBarAction(
+                          label: strings.undoLabel,
+                          onPressed: () => notifier.restoreSelection(before),
+                        ),
                       ),
-                    ));
+                    );
                 },
                 icon: const Icon(
                   Icons.delete_outline_rounded,
@@ -495,17 +500,25 @@ class _PantryScreenState extends ConsumerState<PantryScreen> {
           SliverToBoxAdapter(
             child: Padding(
               padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
-              child: Row(
+              child: Wrap(
+                alignment: WrapAlignment.spaceBetween,
+                crossAxisAlignment: WrapCrossAlignment.center,
+                spacing: 8,
+                runSpacing: 4,
                 children: [
-                  Text(
-                    strings.matchingRecipes,
-                    style: const TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: Color(0xFF1E293B),
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                  Flexible(
+                    child: Text(
+                      strings.matchingRecipes,
+                      style: const TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: Color(0xFF1E293B),
+                      ),
                     ),
                   ),
-                  const SizedBox(width: 8),
                   Container(
                     padding: const EdgeInsets.symmetric(
                       horizontal: 8,
@@ -524,7 +537,8 @@ class _PantryScreenState extends ConsumerState<PantryScreen> {
                       ),
                     ),
                   ),
-                  const Spacer(),
+                    ],
+                  ),
                   if (pantryState.matchedRecipes.length > 1)
                     IconButton(
                       key: const Key('pantry_sort_time'),
@@ -533,7 +547,11 @@ class _PantryScreenState extends ConsumerState<PantryScreen> {
                       onPressed: () =>
                           ref.read(pantryProvider.notifier).toggleSortByTime(),
                       icon: const Icon(Icons.timer_outlined, size: 20),
-                      selectedIcon: const Icon(Icons.timer, size: 20, color: Color(0xFF059669)),
+                      selectedIcon: const Icon(
+                        Icons.timer,
+                        size: 20,
+                        color: Color(0xFF059669),
+                      ),
                     ),
                   if (pantryState.selectedKeys.isNotEmpty)
                     InkWell(
@@ -570,14 +588,18 @@ class _PantryScreenState extends ConsumerState<PantryScreen> {
                                   : Colors.grey.shade700,
                             ),
                             const SizedBox(width: 4),
-                            Text(
+                            Flexible(
+                              child: Text(
                               strings.onlyFullMatches,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
                               style: TextStyle(
                                 fontSize: 11,
                                 fontWeight: FontWeight.bold,
                                 color: pantryState.onlyFullMatches
                                     ? Colors.white
                                     : Colors.grey.shade700,
+                              ),
                               ),
                             ),
                           ],
@@ -639,14 +661,19 @@ class _PantryScreenState extends ConsumerState<PantryScreen> {
                 ),
               ),
             )
-          else if (pantryState.errorMessage != null && pantryState.matchedRecipes.isEmpty)
+          else if (pantryState.errorMessage != null &&
+              pantryState.matchedRecipes.isEmpty)
             SliverToBoxAdapter(
               child: Padding(
                 padding: const EdgeInsets.all(32),
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Icon(Icons.cloud_off_rounded, size: 48, color: Colors.grey.shade400),
+                    Icon(
+                      Icons.cloud_off_rounded,
+                      size: 48,
+                      color: Colors.grey.shade400,
+                    ),
                     const SizedBox(height: 12),
                     Semantics(
                       liveRegion: true,
@@ -654,13 +681,17 @@ class _PantryScreenState extends ConsumerState<PantryScreen> {
                         strings.loadErrorTitle,
                         key: const Key('pantry_error'),
                         textAlign: TextAlign.center,
-                        style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                     ),
                     const SizedBox(height: 12),
                     ElevatedButton.icon(
                       key: const Key('pantry_retry'),
-                      onPressed: () => ref.read(pantryProvider.notifier).retry(),
+                      onPressed: () =>
+                          ref.read(pantryProvider.notifier).retry(),
                       icon: const Icon(Icons.refresh_rounded),
                       label: Text(strings.retry),
                     ),
@@ -818,7 +849,10 @@ class _PantryRecipeCard extends ConsumerWidget {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Row(
+                          Wrap(
+                            spacing: 6,
+                            runSpacing: 4,
+                            crossAxisAlignment: WrapCrossAlignment.center,
                             children: [
                               // Match percentage badge
                               Container(
@@ -841,54 +875,59 @@ class _PantryRecipeCard extends ConsumerWidget {
                                       color: scoreColor,
                                     ),
                                     const SizedBox(width: 4),
-                                    Text(
+                                    Flexible(
+                                      child: Text(
                                       '%${matchScore.toStringAsFixed(0)} ${strings.matchRate}',
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
                                       style: TextStyle(
                                         color: scoreColor,
                                         fontWeight: FontWeight.bold,
                                         fontSize: 12,
                                       ),
+                                      ),
                                     ),
                                   ],
                                 ),
                               ),
-                              const SizedBox(width: 6),
                               // Cuisine badge
-                              Flexible(
-                                child: Container(
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 6,
-                                    vertical: 4,
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 6,
+                                  vertical: 4,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: const Color(0xFFF1F5F9),
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                child: Text(
+                                  recipe.localizedCuisine(strings),
+                                  style: const TextStyle(
+                                    fontSize: 11,
+                                    color: Color(0xFF334155),
+                                    fontWeight: FontWeight.w600,
                                   ),
-                                  decoration: BoxDecoration(
-                                    color: const Color(0xFFF1F5F9),
-                                    borderRadius: BorderRadius.circular(8),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                              Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Icon(
+                                    CookingIcons.clock,
+                                    size: 12,
+                                    color: Colors.grey.shade500,
                                   ),
-                                  child: Text(
-                                    recipe.localizedCuisine(strings),
-                                    style: const TextStyle(
+                                  const SizedBox(width: 3),
+                                  Text(
+                                    strings.minutesShort(recipe.totalTime),
+                                    style: TextStyle(
                                       fontSize: 11,
-                                      color: Color(0xFF334155),
-                                      fontWeight: FontWeight.w600,
+                                      color: Colors.grey.shade600,
                                     ),
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
                                   ),
-                                ),
-                              ),
-                              const Spacer(),
-                              Icon(
-                                CookingIcons.clock,
-                                size: 12,
-                                color: Colors.grey.shade500,
-                              ),
-                              const SizedBox(width: 3),
-                              Text(
-                                strings.minutesShort(recipe.totalTime),
-                                style: TextStyle(
-                                  fontSize: 11,
-                                  color: Colors.grey.shade600,
-                                ),
+                                ],
                               ),
                             ],
                           ),
@@ -996,23 +1035,38 @@ class _PantryRecipeCard extends ConsumerWidget {
                     alignment: AlignmentDirectional.centerStart,
                     child: TextButton.icon(
                       key: Key('add_missing_${recipe.id}'),
-                      icon: const Icon(Icons.add_shopping_cart_rounded, size: 18),
+                      icon: const Icon(
+                        Icons.add_shopping_cart_rounded,
+                        size: 18,
+                      ),
                       label: Text(strings.shoppingAddMissing),
                       onPressed: () {
-                        final added = ref.read(shoppingListProvider.notifier).addAll([
-                          for (final key in missingKeys)
-                            ShoppingItem(
-                              name: RecipeLocalization.localizeIngredientName(key, strings.locale),
-                              recipeTitle: recipe.localizedTitle(strings.locale),
-                            ),
-                        ]);
+                        final added = ref
+                            .read(shoppingListProvider.notifier)
+                            .addAll([
+                              for (final key in missingKeys)
+                                ShoppingItem(
+                                  name:
+                                      RecipeLocalization.localizeIngredientName(
+                                        key,
+                                        strings.locale,
+                                      ),
+                                  recipeTitle: recipe.localizedTitle(
+                                    strings.locale,
+                                  ),
+                                ),
+                            ]);
                         ScaffoldMessenger.of(context)
                           ..hideCurrentSnackBar()
-                          ..showSnackBar(SnackBar(
-                            content: Text(added == 0
-                                ? strings.shoppingNothingNew
-                                : strings.shoppingAdded(added)),
-                          ));
+                          ..showSnackBar(
+                            SnackBar(
+                              content: Text(
+                                added == 0
+                                    ? strings.shoppingNothingNew
+                                    : strings.shoppingAdded(added),
+                              ),
+                            ),
+                          );
                       },
                     ),
                   ),
@@ -1040,13 +1094,15 @@ class _PantryRecipeCard extends ConsumerWidget {
                               color: Colors.amber.shade800,
                             ),
                             const SizedBox(width: 4),
-                            Text(
+                            Expanded(
+                              child: Text(
                               '${strings.substitutionSuggestion} (${RecipeLocalization.localizeIngredientName(substitutions.first.ingredient, strings.locale)} ${strings.insteadOf}):',
                               style: TextStyle(
                                 fontSize: 11,
                                 fontWeight: FontWeight.bold,
                                 color: Colors.amber.shade900,
                               ),
+                            ),
                             ),
                           ],
                         ),
