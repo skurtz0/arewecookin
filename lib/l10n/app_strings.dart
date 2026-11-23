@@ -243,6 +243,7 @@ class AppStrings {
   String get avoidedHint => _get('avoidedHint', 'Recipes with these never show up in Discover.');
   String get avoidedField => _get('avoidedField', 'e.g. peanut, milk');
   String avoidedWarning(String words) => _get('avoidedWarningFmt', 'Contains something you avoid: {w}').replaceAll('{w}', words);
+  String mealsCount(int n) => _get('mealsCountFmt', 'Meals: {n}').replaceAll('{n}', '$n');
   String get savedSearchHint => _get('savedSearchHint', 'Search saved recipes');
   String get pantryNothingNew => _get('pantryNothingNew', 'Already in your pantry');
   String get searchTip => _get('searchTip', 'Tip: separate ingredients with commas (tomato, onion) and exclude one with a minus (-milk).');

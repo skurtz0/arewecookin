@@ -28,6 +28,7 @@ void main() {
     ));
     await tester.pumpAndSettle();
     expect(find.byKey(Key('plan_day_clear_${DateTime.now().weekday}')), findsOneWidget);
+    expect(find.textContaining('Meals: 1'), findsWidgets);
     expect(tester.takeException(), isNull);
   });
 }
