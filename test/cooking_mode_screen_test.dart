@@ -127,6 +127,25 @@ void main() {
       expect(container.read(recipeNotesProvider)[sampleRecipe.id]?.rating, 4);
     });
 
+    testWidgets('ingredient sheet rows expose their checked state', (tester) async {
+      SharedPreferences.setMockInitialValues({});
+      final handle = tester.ensureSemantics();
+      await tester.pumpWidget(ProviderScope(
+        overrides: [localeProvider.overrideWith(() => FakeLocaleNotifier(const Locale('tr')))],
+        child: MaterialApp(home: CookingModeScreen(recipe: sampleRecipe)),
+      ));
+      await tester.pumpAndSettle();
+      await tester.tap(find.textContaining('Malzeme').first);
+      await tester.pumpAndSettle();
+      final row = find.byKey(const Key('cook_ingredient_0'));
+      String checked() => tester.getSemantics(row).getSemanticsData().flagsCollection.isChecked.name;
+      expect(checked(), 'isFalse');
+      await tester.tap(row);
+      await tester.pumpAndSettle();
+      expect(checked(), 'isTrue');
+      handle.dispose();
+    });
+
     testWidgets('renders step 1 with tool icon, instruction, pro tip, timer and navigates through wizard in Turkish', (tester) async {
       await tester.pumpWidget(
         ProviderScope(

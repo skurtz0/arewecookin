@@ -148,7 +148,11 @@ class _CookingModeScreenState extends ConsumerState<CookingModeScreen> {
                           final ing = widget.recipe.ingredients[index];
                           final isChecked = _checkedIngredients.contains(index);
 
-                          return InkWell(
+                          return Semantics(
+                            key: Key('cook_ingredient_$index'),
+                            checked: isChecked,
+                            container: true,
+                            child: InkWell(
                             borderRadius: BorderRadius.circular(12),
                             onTap: () {
                               setSheetState(() {
@@ -208,6 +212,7 @@ class _CookingModeScreenState extends ConsumerState<CookingModeScreen> {
                                   ),
                                 ],
                               ),
+                            ),
                             ),
                           );
                         },
