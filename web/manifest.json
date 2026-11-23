@@ -1,11 +1,11 @@
 {
-    "name": "arewecookin",
-    "short_name": "arewecookin",
+    "name": "AreWeCookin",
+    "short_name": "AreWeCookin",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",
-    "theme_color": "#0175C2",
-    "description": "A new Flutter project.",
+    "theme_color": "#FF5722",
+    "description": "10,000+ beginner-friendly recipes from world cuisines.",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [

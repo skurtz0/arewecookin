@@ -1,3 +1,4 @@
+import '../utils/deep_link.dart';
 import '../widgets/readable_width.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/semantics.dart';
@@ -46,6 +47,7 @@ class _RecipeDetailScreenState extends ConsumerState<RecipeDetailScreen> {
 
   @override
   void dispose() {
+    syncBrowserUrl(null);
     _noteController.dispose();
     super.dispose();
   }
@@ -53,6 +55,7 @@ class _RecipeDetailScreenState extends ConsumerState<RecipeDetailScreen> {
   @override
   void initState() {
     super.initState();
+    syncBrowserUrl(widget.recipe.id);
     _servings = widget.recipe.servings > 0 ? widget.recipe.servings : 4;
     // Restore the servings the user chose last time (arrives asynchronously).
     ref.listenManual(recipeProgressProvider, (prev, next) {
@@ -245,6 +248,23 @@ class _RecipeDetailScreenState extends ConsumerState<RecipeDetailScreen> {
           overflow: TextOverflow.ellipsis,
         ),
         actions: [
+          Builder(
+            builder: (context) {
+              final strings = ref.read(appStringsProvider);
+              return IconButton(
+                key: const Key('share_link'),
+                tooltip: strings.copyLink,
+                icon: const Icon(Icons.link_rounded, size: 22, color: Color(0xFF64748B)),
+                onPressed: () async {
+                  await Clipboard.setData(ClipboardData(text: recipeShareUrl(recipe.id)));
+                  if (!context.mounted) return;
+                  ScaffoldMessenger.of(context)
+                    ..hideCurrentSnackBar()
+                    ..showSnackBar(SnackBar(content: Text(strings.linkCopied)));
+                },
+              );
+            },
+          ),
           Builder(
             builder: (context) {
               final strings = ref.read(appStringsProvider);

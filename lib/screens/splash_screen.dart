@@ -2,7 +2,11 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../providers/locale_provider.dart';
+import 'dart:ui' show PlatformDispatcher;
+import '../repositories/recipe_repository.dart';
+import '../utils/deep_link.dart';
 import 'main_navigation_screen.dart';
+import 'recipe_detail_screen.dart';
 
 class SplashScreen extends ConsumerStatefulWidget {
   const SplashScreen({super.key});
@@ -63,8 +67,18 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
             },
           ),
         );
+        _openLinkedRecipe();
       }
     });
+  }
+
+  /// A shared link (`#/recipe/ID`) opens that recipe right after the home screen.
+  Future<void> _openLinkedRecipe() async {
+    final id = recipeIdFromRoute(PlatformDispatcher.instance.defaultRouteName);
+    if (id == null) return;
+    final recipe = await ref.read(recipeRepositoryProvider).getRecipeById(id);
+    if (recipe == null || !mounted) return;
+    Navigator.of(context).push(MaterialPageRoute(builder: (_) => RecipeDetailScreen(recipe: recipe)));
   }
 
   @override
