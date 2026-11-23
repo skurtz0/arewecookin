@@ -371,19 +371,47 @@ class _ShoppingListScreenState extends ConsumerState<ShoppingListScreen> {
                     itemBuilder: (context, pos) {
                       final entry = entries[pos];
                       if (entry is String) {
+                        final groupKey = entry == strings.shoppingManual && !groups.containsKey(entry) ? '' : entry;
                         return Semantics(
                           header: true,
                           child: Padding(
                             key: Key('shopping_group_$entry'),
                             padding: const EdgeInsets.fromLTRB(16, 12, 16, 2),
-                            child: Text(
-                              // Header plus how many open items it holds.
-                              '$entry · ${groups[entry == strings.shoppingManual && !groups.containsKey(entry) ? '' : entry]?.length ?? 0}',
-                              style: const TextStyle(
-                                fontSize: 13,
-                                fontWeight: FontWeight.bold,
-                                color: Color(0xFFFF5722),
-                              ),
+                            child: Row(
+                              children: [
+                                Expanded(
+                                  child: Text(
+                                    // Header plus how many open items it holds.
+                                    '$entry · ${groups[groupKey]?.length ?? 0}',
+                                    style: const TextStyle(
+                                      fontSize: 13,
+                                      fontWeight: FontWeight.bold,
+                                      color: Color(0xFFFF5722),
+                                    ),
+                                  ),
+                                ),
+                                if (grouped)
+                                  IconButton(
+                                    key: Key('shopping_group_check_$entry'),
+                                    tooltip: strings.shoppingCheckGroup,
+                                    visualDensity: VisualDensity.compact,
+                                    icon: const Icon(Icons.done_all_rounded, size: 20),
+                                    onPressed: () {
+                                      final before = [...ref.read(shoppingListProvider)];
+                                      notifier.checkGroup(groupKey);
+                                      ScaffoldMessenger.of(context)
+                                        ..hideCurrentSnackBar()
+                                        ..showSnackBar(SnackBar(
+                                          content: Text(strings.shoppingCheckGroup),
+                                          action: SnackBarAction(
+                                            key: const Key('shopping_group_undo'),
+                                            label: strings.undoLabel,
+                                            onPressed: () => notifier.restore(before),
+                                          ),
+                                        ));
+                                    },
+                                  ),
+                              ],
                             ),
                           ),
                         );

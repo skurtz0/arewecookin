@@ -259,4 +259,27 @@ void main() {
     await tester.pumpAndSettle();
     expect(c.read(shoppingListProvider).map((e) => e.name), ['Alpha']);
   });
+
+  testWidgets('a group header can tick off its whole group, with undo', (tester) async {
+    SharedPreferences.setMockInitialValues({});
+    final c = ProviderContainer();
+    addTearDown(c.dispose);
+    c.read(shoppingListProvider.notifier).addAll(const [
+      ShoppingItem(name: 'Flour', recipeTitle: 'Bread'),
+      ShoppingItem(name: 'Yeast', recipeTitle: 'Bread'),
+      ShoppingItem(name: 'Carrot', recipeTitle: 'Soup'),
+    ]);
+    await tester.pumpWidget(UncontrolledProviderScope(container: c, child: const MaterialApp(home: ShoppingListScreen())));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const Key('shopping_group_check_Bread')));
+    await tester.pump();
+    bool done(String n) => c.read(shoppingListProvider).firstWhere((e) => e.name == n).done;
+    expect(done('Flour'), isTrue);
+    expect(done('Yeast'), isTrue);
+    expect(done('Carrot'), isFalse);
+    await tester.pump(const Duration(milliseconds: 500));
+    tester.widget<SnackBarAction>(find.byKey(const Key('shopping_group_undo'))).onPressed();
+    await tester.pump();
+    expect(done('Flour'), isFalse);
+  });
 }

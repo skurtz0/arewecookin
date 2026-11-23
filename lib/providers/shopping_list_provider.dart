@@ -206,6 +206,15 @@ class ShoppingListNotifier extends Notifier<List<ShoppingItem>> {
     _save();
   }
 
+  /// Checks every open item that came from [recipeTitle] ('' = typed by hand).
+  void checkGroup(String recipeTitle) {
+    state = [
+      for (final e in state)
+        e.recipeTitle == recipeTitle ? e.copyWith(done: true) : e,
+    ];
+    _save();
+  }
+
   void clearDone() {
     state = state.where((e) => !e.done).toList();
     _save();
