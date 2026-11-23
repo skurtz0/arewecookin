@@ -57,7 +57,7 @@ def check(r, country_iso):
             if float(i['amount'].replace(',', '.')) <= 0: raise ValueError
         except ValueError: e.append('amount sayı değil: ' + i['amount']); break
     steps = g('steps') or []
-    if not (3 <= len(steps) <= 12): e.append('adım sayısı 3–12 değil')
+    if not (4 <= len(steps) <= 12): e.append('adım sayısı 4–12 değil (şartname: tarif eksiksiz anlatılmalı)')
     text_tr = ''
     for s in steps:
         if s.get('tool') not in TOOLS: e.append('tool geçersiz: ' + str(s.get('tool'))); break
@@ -111,17 +111,30 @@ def main():
         acc, rej = [], []
         master = os.path.join(BASE, 'accepted', f'{iso}.jsonl')
         n = sum(1 for _ in open(master, encoding='utf8')) if os.path.exists(master) else 0
+        # Revision batches (IN-001r1): a recipe whose title already exists REPLACES it (same id), improving it in place.
+        is_rev = bool(re.match(r'^[A-Z]{2}-\d+r\d+$', batch))
+        rows_master = [json.loads(l) for l in open(master, encoding='utf8') if l.strip()] if os.path.exists(master) else []
+        by_title = {norm(r['title_tr']): i for i, r in enumerate(rows_master)}
+        replaced = 0
         for ln_no, ln in enumerate(open(f, encoding='utf8'), 1):
             if not ln.strip(): continue
             try: r = json.loads(ln)
             except Exception as ex: rej.append((ln_no, ['JSON bozuk'], ln)); continue
             errs = check(r, iso)
             key = strip_adj(r.get('title_tr', ''))
-            if key in seen: errs.append('tekrar/sıfatla çoğaltılmış başlık: ' + r.get('title_tr', ''))
+            if is_rev and norm(r.get('title_tr', '')) in by_title:
+                if not errs:
+                    i = by_title[norm(r['title_tr'])]
+                    r['id'] = rows_master[i]['id']; rows_master[i] = r; replaced += 1
+                    continue
+            elif key in seen: errs.append('tekrar/sıfatla çoğaltılmış başlık: ' + r.get('title_tr', ''))
             if errs: rej.append((ln_no, errs, ln)); continue
             seen.add(key); n += 1
             r['id'] = f'p_{iso}_{n:05d}'
             acc.append(r)
+        if replaced:
+            with open(master, 'w', encoding='utf8') as m:
+                for r in rows_master: m.write(json.dumps(r, ensure_ascii=False) + '\n')
         with open(master, 'a', encoding='utf8') as m:
             for r in acc: m.write(json.dumps(r, ensure_ascii=False) + '\n')
         titles = os.path.join(BASE, 'accepted', f'{iso}-titles.txt')
@@ -131,11 +144,11 @@ def main():
         if rej:
             with open(os.path.join(BASE, 'rejected', f'{batch}.jsonl'), 'w', encoding='utf8') as rj:
                 for _, _, ln in rej: rj.write(ln if ln.endswith('\n') else ln + '\n')
-            open(rp, 'w', encoding='utf8').write(f'{batch}: kabul {len(acc)}, ret {len(rej)}\n' + '\n'.join(f'satır {a}: ' + '; '.join(b) for a, b, _ in rej) + '\n')
+            open(rp, 'w', encoding='utf8').write(f'{batch}: kabul {len(acc)}, yenilenen {replaced}, ret {len(rej)}\n' + '\n'.join(f'satır {a}: ' + '; '.join(b) for a, b, _ in rej) + '\n')
         else:
-            open(rp, 'w', encoding='utf8').write(f'{batch}: kabul {len(acc)}, ret 0\n')
+            open(rp, 'w', encoding='utf8').write(f'{batch}: kabul {len(acc)}, yenilenen {replaced}, ret 0\n')
         shutil.move(f, os.path.join(BASE, 'accepted', 'batches', os.path.basename(f)))
-        summary.append(f'{batch}: kabul {len(acc)}, ret {len(rej)} (ülke toplam {n})')
+        summary.append(f'{batch}: kabul {len(acc)}, yenilenen {replaced}, ret {len(rej)} (ülke toplam {n})')
     print('\n'.join(summary) if summary else 'incoming boş')
 
 if __name__ == '__main__': main()

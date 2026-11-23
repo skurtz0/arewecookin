@@ -16,11 +16,12 @@ parts = nxt.split(' ')
 iso, n = parts[0], int(parts[1]); have = parts[-1]; country = ' '.join(parts[2:-1])
 pend = json.load(open(PEND)) if os.path.exists(PEND) else None
 if pend:
-    done = glob.glob(os.path.join(BASE, 'accepted', 'batches', f"{pend['iso']}-{pend['batch']:03d}*.jsonl"))
-    waiting_incoming = glob.glob(os.path.join(BASE, 'incoming', f"{pend['iso']}-{pend['batch']:03d}*.jsonl"))
+    name = pend.get('name') or f"{pend['iso']}-{pend['batch']:03d}"
+    done = glob.glob(os.path.join(BASE, 'accepted', 'batches', f"{name}*.jsonl")) if pend.get('name') else glob.glob(os.path.join(BASE, 'accepted', 'batches', f"{name}.jsonl"))
+    waiting_incoming = glob.glob(os.path.join(BASE, 'incoming', f"{name}*.jsonl"))
     age = time.time() - pend['sentAt']
     if not done and (waiting_incoming or age < 6 * 3600):
-        out(False, why=f"bekleniyor: {pend['iso']}-{pend['batch']:03d} ({int(age/60)} dk)")
+        out(False, why=f"bekleniyor: {name} ({int(age/60)} dk)")
 # rejected lines of the last processed batch that the agent should fix?
 fix = ''
 for rj in sorted(glob.glob(os.path.join(BASE, 'rejected', f'{iso}-*.jsonl')), key=os.path.getmtime)[-1:]:
