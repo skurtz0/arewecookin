@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:arewecookin/providers/pantry_provider.dart';
 import 'package:arewecookin/models/models.dart';
 import 'package:arewecookin/providers/locale_provider.dart';
 import 'package:arewecookin/providers/shopping_list_provider.dart';
@@ -189,6 +190,27 @@ void main() {
       await tester.ensureVisible(find.text(first));
       await tester.tap(find.text(first));
       await tester.pump();
+      final btn = find.byKey(const Key('add_to_shopping_list'));
+      await tester.ensureVisible(btn);
+      await tester.tap(btn);
+      await tester.pump();
+      final names = container.read(shoppingListProvider).map((e) => e.name).toList();
+      expect(names, isNot(contains(first)));
+      expect(names.length, sampleRecipe.ingredients.length - 1);
+    });
+
+    testWidgets('add to shopping list skips ingredients that are in the pantry', (tester) async {
+      final container = ProviderContainer(overrides: [
+        localeProvider.overrideWith(() => FakeLocaleNotifier(const Locale('tr'))),
+      ]);
+      addTearDown(container.dispose);
+      await tester.pumpWidget(UncontrolledProviderScope(
+        container: container,
+        child: MaterialApp(home: RecipeDetailScreen(recipe: sampleRecipe)),
+      ));
+      await tester.pumpAndSettle();
+      final first = sampleRecipe.ingredients.first.localizedName('tr');
+      await container.read(pantryProvider.notifier).toggleIngredient(first);
       final btn = find.byKey(const Key('add_to_shopping_list'));
       await tester.ensureVisible(btn);
       await tester.tap(btn);

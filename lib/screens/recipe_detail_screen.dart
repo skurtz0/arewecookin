@@ -7,6 +7,7 @@ import '../utils/cooking_icons.dart';
 import '../widgets/recipe_image.dart';
 import '../providers/user_recipes_provider.dart';
 import '../providers/locale_provider.dart';
+import '../providers/pantry_provider.dart';
 import '../providers/shopping_list_provider.dart';
 import '../providers/meal_plan_provider.dart';
 import '../providers/recent_recipes_provider.dart';
@@ -654,9 +655,17 @@ class _RecipeDetailScreenState extends ConsumerState<RecipeDetailScreen> {
                 label: Text(strings.shoppingAdd),
                 onPressed: () {
                   // Ingredients already ticked as "have it" are not added to the list.
+                  // Ingredients whose name exactly matches a pantry item are skipped too.
+                  final have = ref.read(pantryProvider).selectedKeys;
+                  bool inPantry(Ingredient i) => {
+                        i.name.trim().toLowerCase(),
+                        i.localizedName(strings.locale).trim().toLowerCase(),
+                        if (i.nameEn != null) i.nameEn!.trim().toLowerCase(),
+                      }.any(have.contains);
                   final needed = <Ingredient>[
                     for (var n = 0; n < recipe.ingredients.length; n++)
-                      if (!_checkedIngredientIndices.contains(n))
+                      if (!_checkedIngredientIndices.contains(n) &&
+                          !inPantry(recipe.ingredients[n]))
                         recipe.ingredients[n],
                   ];
                   final added = ref
