@@ -2,6 +2,7 @@ import 'dart:math';
 import '../data/world_countries.dart';
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../utils/cooking_icons.dart';
@@ -1256,6 +1257,56 @@ class _RecipeCard extends ConsumerWidget {
     }
   }
 
+  /// Long-press shortcut: pick a weekday and put this recipe on the meal plan.
+  Future<void> _quickAddToPlan(BuildContext context, WidgetRef ref) async {
+    final strings = ref.read(appStringsProvider);
+    HapticFeedback.selectionClick();
+    final day = await showModalBottomSheet<int>(
+      context: context,
+      isScrollControlled: true,
+      builder: (ctx) => SafeArea(
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Padding(
+                padding: const EdgeInsets.all(16),
+                child: Text(strings.mealPlanPickDay,
+                    style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+              ),
+              for (var d = 1; d <= 7; d++)
+                ListTile(
+                  key: Key('card_plan_day_$d'),
+                  title: Text(d == DateTime.now().weekday
+                      ? '${strings.weekdayName(d)} · ${strings.todayLabel}'
+                      : strings.weekdayName(d)),
+                  trailing: (ref.read(mealPlanProvider)[d] ?? const <Recipe>[]).any((r) => r.id == recipe.id)
+                      ? const Icon(Icons.check_circle_rounded, color: Color(0xFF10B981))
+                      : null,
+                  onTap: () => Navigator.of(ctx).pop(d),
+                ),
+            ],
+          ),
+        ),
+      ),
+    );
+    if (day == null || !context.mounted) return;
+    final notifier = ref.read(mealPlanProvider.notifier);
+    final ok = notifier.add(day, recipe);
+    ScaffoldMessenger.of(context)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(SnackBar(
+        content: Text(ok ? strings.mealPlanAddedTo(strings.weekdayName(day)) : strings.mealPlanAlready),
+        action: ok
+            ? SnackBarAction(
+                key: const Key('card_plan_undo'),
+                label: strings.undoLabel,
+                onPressed: () => notifier.remove(day, recipe.id),
+              )
+            : null,
+      ));
+  }
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final strings = ref.watch(appStringsProvider);
@@ -1288,6 +1339,7 @@ class _RecipeCard extends ConsumerWidget {
         child: InkWell(
           borderRadius: BorderRadius.circular(18),
           onTap: onTap,
+          onLongPress: () => _quickAddToPlan(context, ref),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
