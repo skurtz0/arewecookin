@@ -80,6 +80,7 @@ class AppStrings {
   String get notifTitle => _get('notifTitle', 'Cooking notifications');
   String get notifDesc => _get('notifDesc', 'Step timers and recipe tips');
   String get shoppingToggleAll => _get('shoppingToggleAll', 'Check / uncheck all');
+  String get similarRecipes => _get('similarRecipes', 'Similar recipes');
   String get shoppingClearAll => _get('shoppingClearAll', 'Clear list');
   String get shoppingClearAllConfirm => _get('shoppingClearAllConfirm', 'Remove all items from the shopping list?');
   String get shoppingEmptyTitle => _get('shoppingEmptyTitle', 'Your list is empty');

@@ -13,6 +13,7 @@ import '../providers/recent_recipes_provider.dart';
 import '../providers/recipe_notes_provider.dart';
 import '../providers/cook_history_provider.dart';
 import '../providers/recipe_progress_provider.dart';
+import '../providers/discover_provider.dart';
 import '../providers/unit_system_provider.dart';
 import '../utils/unit_converter.dart';
 import '../l10n/recipe_localization.dart';
@@ -750,6 +751,39 @@ class _RecipeDetailScreenState extends ConsumerState<RecipeDetailScreen> {
                   key: const Key('planned_on'),
                   style: TextStyle(fontSize: 12.5, color: Colors.grey.shade700),
                 ),
+              );
+            }),
+
+            Builder(builder: (context) {
+              final similar = ref
+                  .watch(discoverProvider.select((s) => s.recipes))
+                  .where((r) => r.id != recipe.id && r.category == recipe.category)
+                  .take(6)
+                  .toList();
+              if (similar.isEmpty) return const SizedBox.shrink();
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const SizedBox(height: 24),
+                  Text(strings.similarRecipes,
+                      style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Color(0xFF1E293B))),
+                  const SizedBox(height: 8),
+                  Wrap(
+                    key: const Key('similar_recipes'),
+                    spacing: 8,
+                    runSpacing: 4,
+                    children: [
+                      for (final r in similar)
+                        ActionChip(
+                          key: Key('similar_${r.id}'),
+                          label: Text(r.localizedTitle(strings.locale), overflow: TextOverflow.ellipsis),
+                          onPressed: () => Navigator.of(context).push(
+                            MaterialPageRoute(builder: (_) => RecipeDetailScreen(recipe: r)),
+                          ),
+                        ),
+                    ],
+                  ),
+                ],
               );
             }),
 
