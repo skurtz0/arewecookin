@@ -42,6 +42,18 @@ class RecentRecipesNotifier extends Notifier<List<Recipe>> {
     }();
   }
 
+  /// Puts back a list taken before [clear] (used by "Undo").
+  void restore(List<Recipe> items) {
+    state = List.of(items);
+    () async {
+      try {
+        await _ready;
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setStringList(_prefKey, state.map((r) => jsonEncode(r.toMap())).toList());
+      } catch (_) {}
+    }();
+  }
+
   void clear() {
     state = const [];
     () async {

@@ -62,4 +62,25 @@ void main() {
     expect(c.read(recentSearchesProvider), ['pilav']);
     expect(find.byKey(const Key('recent_search_makarna')), findsNothing);
   });
+
+  testWidgets('clearing recent searches can be undone', (tester) async {
+    SharedPreferences.setMockInitialValues({});
+    final c = ProviderContainer();
+    addTearDown(c.dispose);
+    c.read(recentSearchesProvider.notifier).add('makarna');
+    c.read(recentSearchesProvider.notifier).add('pilav');
+    await tester.pumpWidget(UncontrolledProviderScope(
+      container: c,
+      child: const MaterialApp(home: Scaffold(body: DiscoverScreen())),
+    ));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 300));
+    await tester.tap(find.byKey(const Key('clear_recent_searches')));
+    await tester.pump();
+    expect(c.read(recentSearchesProvider), isEmpty);
+    await tester.pump(const Duration(milliseconds: 400));
+    await tester.tap(find.byKey(const Key('clear_undo')));
+    await tester.pump();
+    expect(c.read(recentSearchesProvider), ['pilav', 'makarna']);
+  });
 }

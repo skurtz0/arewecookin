@@ -47,6 +47,12 @@ class RecentSearchesNotifier extends Notifier<List<String>> {
     state = const [];
     _save();
   }
+
+  /// Puts back a list taken before [clear] (used by "Undo").
+  void restore(List<String> items) {
+    state = List.of(items);
+    _save();
+  }
 }
 
 final recentSearchesProvider =

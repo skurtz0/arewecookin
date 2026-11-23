@@ -309,7 +309,11 @@ class DiscoverScreenState extends ConsumerState<DiscoverScreen> {
                         tooltip: strings.clearHistory,
                         visualDensity: VisualDensity.compact,
                         icon: const Icon(Icons.close_rounded, size: 18),
-                        onPressed: () => ref.read(recentSearchesProvider.notifier).clear(),
+                        onPressed: () {
+                          final before = ref.read(recentSearchesProvider);
+                          ref.read(recentSearchesProvider.notifier).clear();
+                          _showClearUndo(strings, () => ref.read(recentSearchesProvider.notifier).restore(before));
+                        },
                       ),
                     ],
                   ),
@@ -364,7 +368,11 @@ class DiscoverScreenState extends ConsumerState<DiscoverScreen> {
                         TextButton(
                           key: const Key('recent_clear'),
                           style: TextButton.styleFrom(visualDensity: VisualDensity.compact),
-                          onPressed: () => ref.read(recentRecipesProvider.notifier).clear(),
+                          onPressed: () {
+                            final before = ref.read(recentRecipesProvider);
+                            ref.read(recentRecipesProvider.notifier).clear();
+                            _showClearUndo(strings, () => ref.read(recentRecipesProvider.notifier).restore(before));
+                          },
                           child: Text(strings.clearAll),
                         ),
                       ]),
@@ -723,6 +731,15 @@ class DiscoverScreenState extends ConsumerState<DiscoverScreen> {
         ],
       ),
     );
+  }
+
+  void _showClearUndo(AppStrings strings, VoidCallback undo) {
+    ScaffoldMessenger.of(context)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(SnackBar(
+        content: Text(strings.itemRemoved),
+        action: SnackBarAction(key: const Key('clear_undo'), label: strings.undoLabel, onPressed: undo),
+      ));
   }
 
   /// Recipes the user has cooked, most recent first. Resolved by id, so it also works offline for local recipes.
