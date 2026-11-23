@@ -219,5 +219,22 @@ void main() {
       expect(names, isNot(contains(first)));
       expect(names.length, sampleRecipe.ingredients.length - 1);
     });
+
+    testWidgets('ingredients in the pantry show a pantry marker', (tester) async {
+      final container = ProviderContainer(overrides: [
+        localeProvider.overrideWith(() => FakeLocaleNotifier(const Locale('tr'))),
+      ]);
+      addTearDown(container.dispose);
+      await tester.pumpWidget(UncontrolledProviderScope(
+        container: container,
+        child: MaterialApp(home: RecipeDetailScreen(recipe: sampleRecipe)),
+      ));
+      await tester.pumpAndSettle();
+      expect(find.byKey(const Key('ingredient_pantry_0')), findsNothing);
+      await container.read(pantryProvider.notifier).toggleIngredient(sampleRecipe.ingredients.first.localizedName('tr'));
+      await tester.pumpAndSettle();
+      expect(find.byKey(const Key('ingredient_pantry_0')), findsOneWidget);
+      expect(find.byKey(const Key('ingredient_pantry_1')), findsNothing);
+    });
   });
 }

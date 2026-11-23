@@ -29,6 +29,12 @@ class RecipeDetailScreen extends ConsumerStatefulWidget {
   ConsumerState<RecipeDetailScreen> createState() => _RecipeDetailScreenState();
 }
 
+bool _inPantry(Ingredient i, Set<String> have, String locale) => {
+      i.name.trim().toLowerCase(),
+      i.localizedName(locale).trim().toLowerCase(),
+      if (i.nameEn != null) i.nameEn!.trim().toLowerCase(),
+    }.any(have.contains);
+
 class _RecipeDetailScreenState extends ConsumerState<RecipeDetailScreen> {
   late int _servings;
   bool _servingsTouched = false;
@@ -167,6 +173,7 @@ class _RecipeDetailScreenState extends ConsumerState<RecipeDetailScreen> {
   @override
   Widget build(BuildContext context) {
     final strings = ref.watch(appStringsProvider);
+    final pantryKeys = ref.watch(pantryProvider.select((p) => p.selectedKeys));
     final imperial = ref.watch(imperialUnitsProvider);
     final recipe = widget.recipe;
     final savedStep = ref.watch(recipeProgressProvider.select((m) => m[widget.recipe.id]?.step ?? 0));
@@ -588,6 +595,7 @@ class _RecipeDetailScreenState extends ConsumerState<RecipeDetailScreen> {
                   final ing = recipe.ingredients[index];
                   final isChecked = _checkedIngredientIndices.contains(index);
                   final qty = _qty(ing, strings.locale);
+                  final havePantry = _inPantry(ing, pantryKeys, strings.locale);
 
                   return Semantics(
                     key: Key('ingredient_$index'),
@@ -628,6 +636,20 @@ class _RecipeDetailScreenState extends ConsumerState<RecipeDetailScreen> {
                               ),
                             ),
                           ),
+                          if (havePantry)
+                            Padding(
+                              padding: const EdgeInsetsDirectional.only(end: 8),
+                              child: Tooltip(
+                                message: strings.inPantryLabel,
+                                child: Icon(
+                                  Icons.kitchen_rounded,
+                                  key: Key('ingredient_pantry_$index'),
+                                  size: 16,
+                                  color: const Color(0xFF059669),
+                                  semanticLabel: strings.inPantryLabel,
+                                ),
+                              ),
+                            ),
                           Text(
                             '${qty.amount} ${qty.unit}',
                             style: TextStyle(
@@ -657,11 +679,7 @@ class _RecipeDetailScreenState extends ConsumerState<RecipeDetailScreen> {
                   // Ingredients already ticked as "have it" are not added to the list.
                   // Ingredients whose name exactly matches a pantry item are skipped too.
                   final have = ref.read(pantryProvider).selectedKeys;
-                  bool inPantry(Ingredient i) => {
-                        i.name.trim().toLowerCase(),
-                        i.localizedName(strings.locale).trim().toLowerCase(),
-                        if (i.nameEn != null) i.nameEn!.trim().toLowerCase(),
-                      }.any(have.contains);
+                  bool inPantry(Ingredient i) => _inPantry(i, have, strings.locale);
                   final needed = <Ingredient>[
                     for (var n = 0; n < recipe.ingredients.length; n++)
                       if (!_checkedIngredientIndices.contains(n) &&

@@ -375,6 +375,7 @@ const Map<String, Map<String, String>> appTranslations = {
     'timerSoundOff': 'Sayaç sesi kapalı',
     'cookedFilterEmpty': 'Henüz bir tarifi pişirmedin. Pişirme modunu bitirince burada görünür.',
     'shoppingManual': 'Elle eklenenler',
+    'inPantryLabel': 'Kilerinde var',
     'shoppingClearAll': 'Listeyi temizle',
     'shoppingClearAllConfirm': 'Alışveriş listesindeki tüm ürünler silinsin mi?',
     'shoppingEmptyTitle': 'Listen boş',
