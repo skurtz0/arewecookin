@@ -377,7 +377,8 @@ class _ShoppingListScreenState extends ConsumerState<ShoppingListScreen> {
                             key: Key('shopping_group_$entry'),
                             padding: const EdgeInsets.fromLTRB(16, 12, 16, 2),
                             child: Text(
-                              entry,
+                              // Header plus how many open items it holds.
+                              '$entry · ${groups[entry == strings.shoppingManual && !groups.containsKey(entry) ? '' : entry]?.length ?? 0}',
                               style: const TextStyle(
                                 fontSize: 13,
                                 fontWeight: FontWeight.bold,

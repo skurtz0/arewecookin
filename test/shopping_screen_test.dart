@@ -190,6 +190,9 @@ void main() {
     expect(find.byKey(const Key('shopping_group_Bread')), findsOneWidget);
     expect(find.byKey(const Key('shopping_group_Soup')), findsOneWidget);
     expect(find.byKey(const Key('shopping_group_Added by hand')), findsOneWidget);
+    expect(find.text('Bread · 2'), findsOneWidget);
+    expect(find.text('Soup · 1'), findsOneWidget);
+    expect(find.text('Added by hand · 1'), findsOneWidget);
     double y(String t) => tester.getTopLeft(find.text(t)).dy;
     expect(y('Salt'), lessThan(y('Tomato')));
     expect(y('Flour'), lessThan(y('Salt')));
