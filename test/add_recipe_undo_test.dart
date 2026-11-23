@@ -12,17 +12,17 @@ void main() {
     addTearDown(tester.view.reset);
     await tester.pumpWidget(const ProviderScope(child: MaterialApp(home: AddRecipeScreen())));
     await tester.pumpAndSettle();
-    final amount = find.widgetWithText(TextFormField, 'Miktar');
+    final amount = find.widgetWithText(TextFormField, 'Amount');
     expect(amount, findsNWidgets(2));
     await tester.enterText(amount.first, '250');
     await tester.pump();
     await tester.tap(find.byIcon(Icons.close_rounded).first);
     await tester.pumpAndSettle();
     expect(find.text('250'), findsNothing);
-    expect(find.widgetWithText(TextFormField, 'Miktar'), findsOneWidget);
+    expect(find.widgetWithText(TextFormField, 'Amount'), findsOneWidget);
     await tester.tap(find.byKey(const Key('remove_undo')));
     await tester.pumpAndSettle();
     expect(find.text('250'), findsOneWidget);
-    expect(find.widgetWithText(TextFormField, 'Miktar'), findsNWidgets(2));
+    expect(find.widgetWithText(TextFormField, 'Amount'), findsNWidgets(2));
   });
 }

@@ -390,7 +390,7 @@ class _AddRecipeScreenState extends ConsumerState<AddRecipeScreen> {
                     ),
                   ),
                   validator: (v) => (v == null || v.trim().isEmpty)
-                      ? 'Lütfen tarif adı girin'
+                      ? strings.recipeTitleRequired
                       : null,
                 ),
                 const SizedBox(height: 14),
@@ -520,8 +520,8 @@ class _AddRecipeScreenState extends ConsumerState<AddRecipeScreen> {
                 Wrap(
                   crossAxisAlignment: WrapCrossAlignment.center,
                   children: [
-                    const Text(
-                      'Zorluk: ',
+                    Text(
+                      '${strings.difficulty}: ',
                       style: TextStyle(
                         fontWeight: FontWeight.w600,
                         fontSize: 13,
@@ -592,7 +592,7 @@ class _AddRecipeScreenState extends ConsumerState<AddRecipeScreen> {
                           controller: _ingredients[i].amountController,
                           keyboardType: TextInputType.number,
                           decoration: InputDecoration(
-                            hintText: 'Miktar',
+                            hintText: strings.amountHint,
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(10),
                             ),

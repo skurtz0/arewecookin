@@ -50,4 +50,11 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.byType(AddRecipeScreen), findsNothing);
   });
+
+  testWidgets('publishing without a name shows the localized validation message', (tester) async {
+    await _open(tester);
+    await tester.tap(find.text('Publish Recipe').first);
+    await tester.pumpAndSettle();
+    expect(find.text('Please enter a recipe name'), findsOneWidget);
+  });
 }
