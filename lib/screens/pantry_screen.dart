@@ -109,7 +109,9 @@ class _PantryScreenState extends ConsumerState<PantryScreen> {
     final strings = ref.watch(appStringsProvider);
     final pantryState = ref.watch(pantryProvider);
     final userKeys = pantryState.selectedKeys.toList();
-    final shown = pantryState.matchedRecipes;
+    final shown = pantryState.sortByTime
+        ? ([...pantryState.matchedRecipes]..sort((a, b) => a.totalTime.compareTo(b.totalTime)))
+        : pantryState.matchedRecipes;
 
     return Scaffold(
       backgroundColor: const Color(0xFFF9F9FB),
@@ -523,6 +525,16 @@ class _PantryScreenState extends ConsumerState<PantryScreen> {
                     ),
                   ),
                   const Spacer(),
+                  if (pantryState.matchedRecipes.length > 1)
+                    IconButton(
+                      key: const Key('pantry_sort_time'),
+                      tooltip: strings.savedSortQuick,
+                      isSelected: pantryState.sortByTime,
+                      onPressed: () =>
+                          ref.read(pantryProvider.notifier).toggleSortByTime(),
+                      icon: const Icon(Icons.timer_outlined, size: 20),
+                      selectedIcon: const Icon(Icons.timer, size: 20, color: Color(0xFF059669)),
+                    ),
                   if (pantryState.selectedKeys.isNotEmpty)
                     InkWell(
                       onTap: () => ref

@@ -7,6 +7,7 @@ class PantryState {
   final Set<String> selectedKeys;
   final String selectedCuisine;
   final bool onlyFullMatches;
+  final bool sortByTime;
   final List<Recipe> matchedRecipes;
   final bool isLoading;
   final String? errorMessage;
@@ -15,6 +16,7 @@ class PantryState {
     this.selectedKeys = const {},
     this.selectedCuisine = 'Tümü',
     this.onlyFullMatches = false,
+    this.sortByTime = false,
     this.matchedRecipes = const [],
     this.isLoading = false,
     this.errorMessage,
@@ -24,6 +26,7 @@ class PantryState {
     Set<String>? selectedKeys,
     String? selectedCuisine,
     bool? onlyFullMatches,
+    bool? sortByTime,
     List<Recipe>? matchedRecipes,
     bool? isLoading,
     String? errorMessage,
@@ -32,6 +35,7 @@ class PantryState {
       selectedKeys: selectedKeys ?? this.selectedKeys,
       selectedCuisine: selectedCuisine ?? this.selectedCuisine,
       onlyFullMatches: onlyFullMatches ?? this.onlyFullMatches,
+      sortByTime: sortByTime ?? this.sortByTime,
       matchedRecipes: matchedRecipes ?? this.matchedRecipes,
       isLoading: isLoading ?? this.isLoading,
       errorMessage: errorMessage,
@@ -106,6 +110,9 @@ class PantryNotifier extends Notifier<PantryState> {
     _persistFilters();
     await _searchMatches();
   }
+
+  /// Orders the shown matches quickest-first (view only, no new search).
+  void toggleSortByTime() => state = state.copyWith(sortByTime: !state.sortByTime);
 
   Future<void> toggleIngredient(String key) async {
     final normalized = key.toLowerCase().trim();
