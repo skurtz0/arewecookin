@@ -37,6 +37,16 @@ Future<void> _pump(WidgetTester tester, _Fake t) async {
 }
 
 void main() {
+  test('fallback uses the second service only when the first fails', () async {
+    final a = _Fake(false), b = _Fake(true);
+    expect(await FallbackTranslationService(a, b).translate('x', 'en'), 'EN:x');
+    expect(a.calls, 1);
+    expect(b.calls, 1);
+    final c = _Fake(true), d = _Fake(true);
+    await FallbackTranslationService(c, d).translate('x', 'en');
+    expect(d.calls, 0);
+  });
+
   test('chunk splits long text under the limit', () {
     final c = MyMemoryTranslationService.chunk('Bir cümle. ' * 100);
     expect(c.every((e) => e.length <= 401), isTrue);

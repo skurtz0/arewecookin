@@ -9,3 +9,7 @@ bucket_name = "arewecookin-photos"
 [vars]
 FIREBASE_PROJECT = "arewecookin"
 MAX_BYTES = "1500000"
+TRANSLATE_MODEL = "@cf/mistralai/mistral-small-3.1-24b-instruct"
+
+[ai]
+binding = "AI"

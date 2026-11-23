@@ -1,5 +1,7 @@
 import 'dart:convert';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'photo_uploader.dart' show photosBaseUrl;
 import 'package:http/http.dart' as http;
 
 /// Translates short user text into [target] (language code such as 'tr').
@@ -49,4 +51,43 @@ class MyMemoryTranslationService implements TranslationService {
   }
 }
 
-final translationServiceProvider = Provider<TranslationService>((ref) => MyMemoryTranslationService());
+/// Cloudflare Workers AI through our own Worker (signed-in users). Returns null on any failure.
+class WorkerTranslationService implements TranslationService {
+  final http.Client _client;
+  final Future<String?> Function() _token;
+  WorkerTranslationService({http.Client? client, Future<String?> Function()? token})
+      : _client = client ?? http.Client(),
+        _token = token ?? (() async => FirebaseAuth.instance.currentUser?.getIdToken());
+
+  @override
+  Future<String?> translate(String text, String target) async {
+    try {
+      final token = await _token();
+      if (token == null) return null;
+      final r = await _client
+          .post(Uri.parse('$photosBaseUrl/translate'),
+              headers: {'Authorization': 'Bearer $token', 'Content-Type': 'application/json'},
+              body: jsonEncode({'text': text, 'target': target}))
+          .timeout(const Duration(seconds: 25));
+      if (r.statusCode != 200) return null;
+      final t = (jsonDecode(utf8.decode(r.bodyBytes)) as Map)['text'] as String?;
+      return (t == null || t.isEmpty) ? null : t;
+    } catch (_) {
+      return null;
+    }
+  }
+}
+
+/// Tries [primary] first and falls back to [fallback] (guests, quota, outages).
+class FallbackTranslationService implements TranslationService {
+  final TranslationService primary;
+  final TranslationService fallback;
+  FallbackTranslationService(this.primary, this.fallback);
+
+  @override
+  Future<String?> translate(String text, String target) async =>
+      await primary.translate(text, target) ?? await fallback.translate(text, target);
+}
+
+final translationServiceProvider = Provider<TranslationService>(
+    (ref) => FallbackTranslationService(WorkerTranslationService(), MyMemoryTranslationService()));

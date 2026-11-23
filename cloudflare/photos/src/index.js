@@ -72,6 +72,52 @@ export default {
       await env.PHOTOS.put(key, bytes, { httpMetadata: { contentType: type } });
       return new Response(JSON.stringify({ key }), { headers: { ...cors, 'Content-Type': 'application/json' } });
     }
+
+    if (req.method === 'POST' && url.pathname === '/translate') {
+      const auth = req.headers.get('Authorization') ?? '';
+      const uid = auth.startsWith('Bearer ') ? await verifyFirebaseToken(auth.slice(7), env.FIREBASE_PROJECT) : null;
+      if (!uid) return new Response('Unauthorized', { status: 401, headers: cors });
+      let body;
+      try { body = await req.json(); } catch { return new Response('Bad request', { status: 400, headers: cors }); }
+      const text = typeof body.text === 'string' ? body.text.trim() : '';
+      const lang = langName(body.target);
+      if (!text || text.length > 1500 || !lang) return new Response('Bad request', { status: 400, headers: cors });
+      const json = (o, st = 200) => new Response(JSON.stringify(o), { status: st, headers: { ...cors, 'Content-Type': 'application/json' } });
+      const cache = caches.default;
+      const cacheKey = new Request(`https://translate.cache/${await sha256(`${lang}\n${text}`)}`);
+      const hit = await cache.match(cacheKey);
+      if (hit) return json({ text: await hit.text(), cached: true });
+      try {
+        const out = await env.AI.run(env.TRANSLATE_MODEL, {
+          messages: [
+            { role: 'system', content: `You are a translation engine. Translate the user's text into ${lang}. If it is already in ${lang}, return it unchanged. Output only the translation, with no notes or quotes.` },
+            { role: 'user', content: text },
+          ],
+          max_tokens: 1200,
+        });
+        const t = (out.response ?? out.result?.response ?? '').trim();
+        if (!t) return json({ error: 'empty' }, 502);
+        await cache.put(cacheKey, new Response(t, { headers: { 'Cache-Control': 'public, max-age=2592000' } }));
+        return json({ text: t });
+      } catch (e) {
+        return json({ error: 'unavailable' }, 503);
+      }
+    }
     return new Response('Not found', { status: 404, headers: cors });
   },
 };
+
+const LANGS = {
+  en: 'English', tr: 'Turkish', de: 'German', fr: 'French', es: 'Spanish', it: 'Italian', pt: 'Portuguese', ru: 'Russian',
+  ar: 'Arabic', zh: 'Chinese', ja: 'Japanese', ko: 'Korean', hi: 'Hindi', nl: 'Dutch', pl: 'Polish', sv: 'Swedish',
+  id: 'Indonesian', vi: 'Vietnamese', th: 'Thai', el: 'Greek', uk: 'Ukrainian', he: 'Hebrew', fa: 'Persian', bg: 'Bulgarian',
+};
+export function langName(code) {
+  if (typeof code !== 'string') return null;
+  return LANGS[code.split(/[_-]/)[0].toLowerCase()] ?? null;
+}
+
+async function sha256(s) {
+  const d = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(s));
+  return [...new Uint8Array(d)].map((b) => b.toString(16).padStart(2, '0')).join('');
+}
