@@ -136,6 +136,7 @@ void main() {
         child: MaterialApp(home: CookingModeScreen(recipe: sampleRecipe)),
       ));
       await tester.pumpAndSettle();
+      container.read(recipeProgressProvider.notifier).setChecked(sampleRecipe.id, {0, 1});
       for (var i = 0; i < sampleRecipe.steps.length; i++) {
         await tester.tap(find.byIcon(Icons.arrow_forward_rounded).evaluate().isNotEmpty
             ? find.byIcon(Icons.arrow_forward_rounded).first
@@ -143,6 +144,7 @@ void main() {
         await tester.pumpAndSettle();
       }
       expect(find.text('Well done! 🎉'), findsOneWidget);
+      expect(container.read(recipeProgressProvider)[sampleRecipe.id]?.checked ?? <int>{}, isEmpty);
       expect(find.text('Back to recipes'), findsOneWidget);
       await tester.tap(find.byKey(const Key('done_rate_4')));
       await tester.pumpAndSettle();

@@ -466,6 +466,10 @@ class _CookingModeScreenState extends ConsumerState<CookingModeScreen> {
     final strings = ref.read(appStringsProvider);
     // Finished: next time the recipe starts from step 1 again.
     ref.read(recipeProgressProvider.notifier).setStep(widget.recipe.id, 0);
+    // Ingredient ticks belong to this cook: the next time starts with a clean checklist.
+    _checkedIngredients.clear();
+    _checkedTouched = true;
+    ref.read(recipeProgressProvider.notifier).setChecked(widget.recipe.id, <int>{});
     ref.read(cookHistoryProvider.notifier).markCooked(widget.recipe.id);
     final noteController = TextEditingController(
       text: ref.read(recipeNotesProvider)[widget.recipe.id]?.note ?? '',
