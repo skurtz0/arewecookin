@@ -571,7 +571,10 @@ class _PantryScreenState extends ConsumerState<PantryScreen> {
                       ),
                     ),
                   if (pantryState.selectedKeys.isNotEmpty)
-                    InkWell(
+                    Semantics(
+                      button: true,
+                      toggled: pantryState.onlyFullMatches,
+                      child: InkWell(
                       onTap: () => ref
                           .read(pantryProvider.notifier)
                           .toggleOnlyFullMatches(),
@@ -622,7 +625,7 @@ class _PantryScreenState extends ConsumerState<PantryScreen> {
                           ],
                         ),
                       ),
-                    ),
+                    )),
                 ],
               ),
             ),
