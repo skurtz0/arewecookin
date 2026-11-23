@@ -366,6 +366,7 @@ class _ShoppingListScreenState extends ConsumerState<ShoppingListScreen> {
                     ),
                   )
                 : ListView.builder(
+                    keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
                     padding: const EdgeInsets.only(bottom: 24),
                     itemCount: entries.length,
                     itemBuilder: (context, pos) {

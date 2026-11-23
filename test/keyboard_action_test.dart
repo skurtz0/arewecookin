@@ -24,4 +24,15 @@ void main() {
       TextInputAction.done,
     );
   });
+
+  testWidgets('main lists drop the keyboard when scrolled', (tester) async {
+    SharedPreferences.setMockInitialValues({});
+    tester.view.physicalSize = const Size(1000, 2400);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(tester.view.reset);
+    await tester.pumpWidget(const ProviderScope(child: MaterialApp(home: Scaffold(body: DiscoverScreen()))));
+    await tester.pump(const Duration(milliseconds: 300));
+    final scrolls = tester.widgetList<CustomScrollView>(find.byType(CustomScrollView));
+    expect(scrolls.any((w) => w.keyboardDismissBehavior == ScrollViewKeyboardDismissBehavior.onDrag), isTrue);
+  });
 }

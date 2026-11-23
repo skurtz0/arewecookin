@@ -221,6 +221,7 @@ class _PantryScreenState extends ConsumerState<PantryScreen> {
         ],
       ),
       body: CustomScrollView(
+          keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
         slivers: [
           // Header description & Selection summary
           SliverToBoxAdapter(

@@ -206,6 +206,7 @@ class DiscoverScreenState extends ConsumerState<DiscoverScreen> {
         color: const Color(0xFFFF5722),
         onRefresh: () => ref.read(discoverProvider.notifier).loadInitial(),
         child: CustomScrollView(
+          keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
           controller: _scrollController,
           slivers: [
             SliverAppBar(
