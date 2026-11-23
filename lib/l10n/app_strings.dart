@@ -255,6 +255,8 @@ class AppStrings {
   String get welcomeUser => _get('welcomeUser', 'Welcome');
   String get guestUser => _get('guestUser', 'Guest Cook');
   String get savedRecipes => _get('savedRecipes', 'Favorites');
+  String get ratedDishes => _get('ratedDishes', 'Rated');
+  String get ratedFilterEmpty => _get('ratedFilterEmpty', 'You have not rated any recipe yet. Give stars on a recipe page and it shows up here.');
   String get cookedDishes => _get('cookedDishes', 'Cooked');
   String get accountSecurity => _get('accountSecurity', 'Account & Security');
   String get appPreferences => _get('appPreferences', 'Preferences');

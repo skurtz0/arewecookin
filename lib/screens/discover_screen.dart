@@ -45,6 +45,7 @@ class DiscoverScreenState extends ConsumerState<DiscoverScreen> {
   final TextEditingController _searchController = TextEditingController();
   bool _onlySaved = false;
   bool _onlyCooked = false;
+  bool _onlyRated = false;
   bool _savedQuickest = false;
   bool _savedTopRated = false;
   Timer? _debounceTimer;
@@ -281,7 +282,7 @@ class DiscoverScreenState extends ConsumerState<DiscoverScreen> {
                 ),
               ),
             ),
-            if (searches.isNotEmpty && discoverState.searchQuery.isEmpty && !_onlySaved && !_onlyCooked)
+            if (searches.isNotEmpty && discoverState.searchQuery.isEmpty && !_onlySaved && !_onlyCooked && !_onlyRated)
               SliverToBoxAdapter(
                 child: Padding(
                   padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
@@ -314,7 +315,7 @@ class DiscoverScreenState extends ConsumerState<DiscoverScreen> {
                   ),
                 ),
               ),
-            if (todayPlan.isNotEmpty && discoverState.searchQuery.isEmpty && !_onlySaved && !_onlyCooked)
+            if (todayPlan.isNotEmpty && discoverState.searchQuery.isEmpty && !_onlySaved && !_onlyCooked && !_onlyRated)
               SliverToBoxAdapter(
                 child: Padding(
                   padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
@@ -386,7 +387,9 @@ class DiscoverScreenState extends ConsumerState<DiscoverScreen> {
                   ],
                 ),
               ),
-            if (_onlyCooked)
+            if (_onlyRated)
+              _buildRatedSliver(context, strings)
+            else if (_onlyCooked)
               _buildCookedSliver(context, strings)
             else if (_onlySaved)
               _buildSavedSliver(context, strings)
@@ -452,6 +455,7 @@ class DiscoverScreenState extends ConsumerState<DiscoverScreen> {
   Widget _buildCuisineSelector(DiscoverState discoverState, AppStrings strings) {
     final savedCount = ref.watch(savedRecipesProvider.select((s) => s.recipes.length));
     final cookedCount = ref.watch(cookHistoryProvider.select((m) => m.length));
+    final ratedCount = ref.watch(recipeNotesProvider.select((m) => m.values.where((n) => n.rating > 0).length));
     return Container(
       width: double.infinity,
       decoration: BoxDecoration(
@@ -571,7 +575,10 @@ class DiscoverScreenState extends ConsumerState<DiscoverScreen> {
                     selectedColor: const Color(0xFFFF5722).withValues(alpha: 0.18),
                     onSelected: (v) => setState(() {
                       _onlySaved = v;
-                      if (v) _onlyCooked = false;
+                      if (v) {
+                        _onlyCooked = false;
+                        _onlyRated = false;
+                      }
                     }),
                   ),
                 ),
@@ -585,7 +592,10 @@ class DiscoverScreenState extends ConsumerState<DiscoverScreen> {
                     selectedColor: const Color(0xFFFF5722).withValues(alpha: 0.18),
                     onSelected: (v) => setState(() {
                       _onlyCooked = v;
-                      if (v) _onlySaved = false;
+                      if (v) {
+                        _onlySaved = false;
+                        _onlyRated = false;
+                      }
                     }),
                   ),
                 ),
@@ -602,6 +612,23 @@ class DiscoverScreenState extends ConsumerState<DiscoverScreen> {
                       n.setMaxMinutes(v ? 30 : null);
                       n.setDifficulty(v ? 'easy' : null);
                     },
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsetsDirectional.only(end: 8),
+                  child: FilterChip(
+                    key: const Key('rated_filter'),
+                    avatar: const Icon(Icons.star_rounded, size: 16),
+                    label: Text(ratedCount > 0 ? '${strings.ratedDishes} ($ratedCount)' : strings.ratedDishes),
+                    selected: _onlyRated,
+                    selectedColor: const Color(0xFFFF5722).withValues(alpha: 0.18),
+                    onSelected: (v) => setState(() {
+                      _onlyRated = v;
+                      if (v) {
+                        _onlySaved = false;
+                        _onlyCooked = false;
+                      }
+                    }),
                   ),
                 ),
                 for (final g in const ['easy', 'medium', 'hard'])
@@ -703,6 +730,23 @@ class DiscoverScreenState extends ConsumerState<DiscoverScreen> {
     final history = ref.watch(cookHistoryProvider);
     final ids = history.keys.toList()
       ..sort((a, b) => (history[b]!.last ?? DateTime(0)).compareTo(history[a]!.last ?? DateTime(0)));
+    return _buildIdsSliver(context, strings, ids,
+        emptyText: strings.cookedFilterEmpty, emptyKey: 'cooked_empty', listKey: 'cooked_list');
+  }
+
+  /// Recipes the user rated, best rating first. Rated recipes are looked up by id, so this works offline.
+  Widget _buildRatedSliver(BuildContext context, AppStrings strings) {
+    final notes = ref.watch(recipeNotesProvider);
+    final ids = [
+      for (final e in notes.entries)
+        if (e.value.rating > 0) e.key
+    ]..sort((a, b) => notes[b]!.rating.compareTo(notes[a]!.rating));
+    return _buildIdsSliver(context, strings, ids,
+        emptyText: strings.ratedFilterEmpty, emptyKey: 'rated_empty', listKey: 'rated_list');
+  }
+
+  Widget _buildIdsSliver(BuildContext context, AppStrings strings, List<String> ids,
+      {required String emptyText, required String emptyKey, required String listKey}) {
     final repo = ref.read(recipeRepositoryProvider);
     return SliverToBoxAdapter(
       child: FutureBuilder<List<Recipe>>(
@@ -724,8 +768,8 @@ class DiscoverScreenState extends ConsumerState<DiscoverScreen> {
             return Padding(
               padding: const EdgeInsets.all(32),
               child: Text(
-                strings.cookedFilterEmpty,
-                key: const Key('cooked_empty'),
+                emptyText,
+                key: Key(emptyKey),
                 textAlign: TextAlign.center,
                 style: TextStyle(color: Colors.grey.shade600),
               ),
@@ -734,7 +778,7 @@ class DiscoverScreenState extends ConsumerState<DiscoverScreen> {
           return Padding(
             padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
             child: Column(
-              key: const Key('cooked_list'),
+              key: Key(listKey),
               children: [
                 for (final recipe in recipes)
                   _RecipeCard(

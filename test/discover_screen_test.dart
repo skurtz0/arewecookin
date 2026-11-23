@@ -272,6 +272,35 @@ void main() {
       expect(container.read(discoverProvider).difficulty, isNull);
     });
 
+    testWidgets('Rated filter lists rated recipes, best first, and explains when empty', (tester) async {
+      tester.view.physicalSize = const Size(1200, 6000);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(tester.view.reset);
+      SharedPreferences.setMockInitialValues({});
+      final container = ProviderContainer();
+      addTearDown(container.dispose);
+      await tester.pumpWidget(UncontrolledProviderScope(
+        container: container,
+        child: const MaterialApp(home: Scaffold(body: DiscoverScreen())),
+      ));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 300));
+      final chip = find.byKey(const Key('rated_filter'));
+      await tester.ensureVisible(chip);
+      await tester.tap(chip);
+      await tester.pumpAndSettle();
+      expect(find.byKey(const Key('rated_empty')), findsOneWidget);
+      final all = container.read(discoverProvider).recipes;
+      container.read(recipeNotesProvider.notifier).setRating(all[0].id, 3);
+      container.read(recipeNotesProvider.notifier).setRating(all[1].id, 5);
+      await tester.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 50)));
+      await tester.pumpAndSettle();
+      expect(find.byKey(const Key('rated_empty')), findsNothing);
+      expect(find.byKey(const Key('rated_list')), findsOneWidget);
+      double y(r) => tester.getTopLeft(find.text(r.localizedTitle('en')).first).dy;
+      expect(y(all[1]), lessThan(y(all[0])));
+    });
+
     testWidgets('Cooked filter lists cooked recipes, newest first, and explains when empty', (tester) async {
       tester.view.physicalSize = const Size(1200, 6000);
       tester.view.devicePixelRatio = 1.0;
