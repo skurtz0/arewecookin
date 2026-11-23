@@ -376,6 +376,7 @@ const Map<String, Map<String, String>> appTranslations = {
     'cookedFilterEmpty': 'Henüz bir tarifi pişirmedin. Pişirme modunu bitirince burada görünür.',
     'shoppingManual': 'Elle eklenenler',
     'inPantryLabel': 'Kilerinde var',
+    'tickPantryIngredients': 'Kilerdekileri işaretle',
     'shoppingClearAll': 'Listeyi temizle',
     'shoppingClearAllConfirm': 'Alışveriş listesindeki tüm ürünler silinsin mi?',
     'shoppingEmptyTitle': 'Listen boş',

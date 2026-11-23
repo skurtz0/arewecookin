@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:arewecookin/providers/pantry_provider.dart';
+import 'package:arewecookin/providers/recipe_progress_provider.dart';
 import 'package:arewecookin/models/models.dart';
 import 'package:arewecookin/providers/locale_provider.dart';
 import 'package:arewecookin/providers/shopping_list_provider.dart';
@@ -235,6 +236,27 @@ void main() {
       await tester.pumpAndSettle();
       expect(find.byKey(const Key('ingredient_pantry_0')), findsOneWidget);
       expect(find.byKey(const Key('ingredient_pantry_1')), findsNothing);
+    });
+
+    testWidgets('one tap ticks the ingredients that are in the pantry', (tester) async {
+      final container = ProviderContainer(overrides: [
+        localeProvider.overrideWith(() => FakeLocaleNotifier(const Locale('tr'))),
+      ]);
+      addTearDown(container.dispose);
+      await tester.pumpWidget(UncontrolledProviderScope(
+        container: container,
+        child: MaterialApp(home: RecipeDetailScreen(recipe: sampleRecipe)),
+      ));
+      await tester.pumpAndSettle();
+      expect(find.byKey(const Key('tick_pantry_ingredients')), findsNothing);
+      await container.read(pantryProvider.notifier).toggleIngredient(sampleRecipe.ingredients.first.localizedName('tr'));
+      await tester.pumpAndSettle();
+      final btn = find.byKey(const Key('tick_pantry_ingredients'));
+      await tester.ensureVisible(btn);
+      await tester.tap(btn);
+      await tester.pumpAndSettle();
+      expect(container.read(recipeProgressProvider)[sampleRecipe.id]?.checked, {0});
+      expect(find.byKey(const Key('tick_pantry_ingredients')), findsNothing);
     });
   });
 }

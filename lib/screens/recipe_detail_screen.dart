@@ -578,6 +578,27 @@ class _RecipeDetailScreenState extends ConsumerState<RecipeDetailScreen> {
 
             const SizedBox(height: 16),
 
+            if (recipe.ingredients.asMap().entries.any((e) =>
+                !_checkedIngredientIndices.contains(e.key) && _inPantry(e.value, pantryKeys, strings.locale)))
+              Align(
+                alignment: AlignmentDirectional.centerStart,
+                child: TextButton.icon(
+                  key: const Key('tick_pantry_ingredients'),
+                  icon: const Icon(Icons.kitchen_rounded, size: 18),
+                  label: Text(strings.tickPantryIngredients),
+                  onPressed: () {
+                    setState(() {
+                      for (var n = 0; n < recipe.ingredients.length; n++) {
+                        if (_inPantry(recipe.ingredients[n], pantryKeys, strings.locale)) {
+                          _checkedIngredientIndices.add(n);
+                        }
+                      }
+                    });
+                    _persistChecked();
+                  },
+                ),
+              ),
+
             // Ingredients Interactive List
             Container(
               decoration: BoxDecoration(
