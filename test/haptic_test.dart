@@ -1,6 +1,7 @@
 import 'package:arewecookin/providers/meal_plan_provider.dart';
 import 'package:arewecookin/providers/user_recipes_provider.dart';
 import 'package:arewecookin/screens/meal_plan_screen.dart';
+import 'package:arewecookin/screens/recipe_detail_screen.dart';
 import 'package:arewecookin/providers/shopping_list_provider.dart';
 import 'package:arewecookin/repositories/recipe_repository.dart';
 import 'package:arewecookin/screens/cooking_mode_screen.dart';
@@ -199,5 +200,23 @@ void main() {
     await tester.pump();
     expect(calls, isNotEmpty);
     expect(c.read(mealPlanProvider), isEmpty);
+  });
+  testWidgets('changing servings gives a light tap', (tester) async {
+    SharedPreferences.setMockInitialValues({});
+    final calls = <String>[];
+    tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(SystemChannels.platform, (call) async {
+      if (call.method == 'HapticFeedback.vibrate') calls.add('${call.arguments}');
+      return null;
+    });
+    addTearDown(() => tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(SystemChannels.platform, null));
+    tester.view.physicalSize = const Size(1000, 3000);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(tester.view.reset);
+    final recipe = (await RecipeRepository().getRecipes(limit: 1)).recipes.first;
+    await tester.pumpWidget(ProviderScope(child: MaterialApp(home: RecipeDetailScreen(recipe: recipe))));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byIcon(Icons.add_circle_outline_rounded).first);
+    await tester.pump();
+    expect(calls, isNotEmpty);
   });
 }

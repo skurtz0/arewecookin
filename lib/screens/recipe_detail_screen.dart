@@ -77,6 +77,7 @@ class _RecipeDetailScreenState extends ConsumerState<RecipeDetailScreen> {
   }
 
   void _changeServings(int delta) {
+    HapticFeedback.selectionClick();
     setState(() {
       _servingsTouched = true;
       _servings = (_servings + delta).clamp(1, 99);
