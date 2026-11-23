@@ -33,7 +33,13 @@ class _MainNavigationScreenState extends ConsumerState<MainNavigationScreen> {
     final openItems = ref.watch(shoppingListProvider).where((e) => !e.done).length;
     final pantryCount = ref.watch(pantryProvider.select((p) => p.selectedKeys.length));
 
-    return Scaffold(
+    // Back on another tab returns to Discover first; only from Discover does it leave the app.
+    return PopScope(
+      canPop: _currentIndex == 0,
+      onPopInvokedWithResult: (didPop, _) {
+        if (!didPop && _currentIndex != 0) setState(() => _currentIndex = 0);
+      },
+      child: Scaffold(
       body: IndexedStack(
         index: _currentIndex,
         children: _screens,
@@ -117,7 +123,7 @@ class _MainNavigationScreenState extends ConsumerState<MainNavigationScreen> {
           ],
         ),
       ),
-    );
+    ));
   }
 }
 
