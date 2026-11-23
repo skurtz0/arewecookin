@@ -235,4 +235,28 @@ void main() {
     expect(calls, isNotEmpty);
     expect(c.read(discoverProvider).maxMinutes, 30);
   });
+  testWidgets('clearing the done items of the shopping list gives a light tap', (tester) async {
+    SharedPreferences.setMockInitialValues({});
+    final calls = <String>[];
+    tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(SystemChannels.platform, (call) async {
+      if (call.method == 'HapticFeedback.vibrate') calls.add('${call.arguments}');
+      return null;
+    });
+    addTearDown(() => tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(SystemChannels.platform, null));
+    final c = ProviderContainer();
+    addTearDown(c.dispose);
+    c.read(shoppingListProvider.notifier).addAll(const [ShoppingItem(name: 'Alpha')]);
+    await tester.pumpWidget(UncontrolledProviderScope(
+      container: c,
+      child: const MaterialApp(home: ShoppingListScreen()),
+    ));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byType(Checkbox));
+    await tester.pump();
+    calls.clear();
+    await tester.tap(find.byKey(const Key('shopping_clear_done')));
+    await tester.pumpAndSettle();
+    expect(c.read(shoppingListProvider), isEmpty);
+    expect(calls, isNotEmpty);
+  });
 }

@@ -83,6 +83,7 @@ class _ShoppingListScreenState extends ConsumerState<ShoppingListScreen> {
     void clearWithUndo(void Function() clear) {
       final before = [...items];
       clear();
+      HapticFeedback.selectionClick();
       ScaffoldMessenger.of(context)
         ..hideCurrentSnackBar()
         ..showSnackBar(
