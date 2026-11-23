@@ -306,6 +306,7 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
                       ),
                     ),
                     IconButton(
+                      tooltip: ref.read(appStringsProvider).a11yClose,
                       icon: const Icon(Icons.close, size: 16),
                       onPressed: () =>
                           ref.read(authProvider.notifier).clearMessages(),
@@ -336,6 +337,7 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
                       ),
                     ),
                     IconButton(
+                      tooltip: ref.read(appStringsProvider).a11yClose,
                       icon: const Icon(Icons.close, size: 16),
                       onPressed: () =>
                           ref.read(authProvider.notifier).clearMessages(),
@@ -455,6 +457,7 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
                       ),
                       const Spacer(),
                       IconButton(
+                        tooltip: ref.read(appStringsProvider).a11yClose,
                         icon: const Icon(Icons.close_rounded),
                         onPressed: () => Navigator.pop(context),
                       ),
@@ -805,6 +808,7 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
                       ),
                     ),
                     trailing: IconButton(
+                      tooltip: ref.read(appStringsProvider).shoppingDeleteItem,
                       icon: const Icon(Icons.delete_outline_rounded,
                           color: Colors.red, size: 22),
                       onPressed: () => ref
@@ -1238,6 +1242,7 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
                       labelText: strings.password,
                       prefixIcon: const Icon(Icons.lock_outline_rounded, size: 20),
                       suffixIcon: IconButton(
+                        tooltip: ref.read(appStringsProvider).togglePassword,
                         icon: Icon(
                           _obscurePassword
                               ? Icons.visibility_off_outlined

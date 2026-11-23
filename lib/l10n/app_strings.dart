@@ -87,6 +87,7 @@ class AppStrings {
   String get quickEasy => _get('quickEasy', 'Quick & easy');
   String get planFromSaved => _get('planFromSaved', 'Add from favorites');
   String get planFromSavedEmpty => _get('planFromSavedEmpty', 'Save a recipe to favorites first.');
+  String get togglePassword => _get('togglePassword', 'Show / hide password');
   String get shoppingClearAll => _get('shoppingClearAll', 'Clear list');
   String get shoppingClearAllConfirm => _get('shoppingClearAllConfirm', 'Remove all items from the shopping list?');
   String get shoppingEmptyTitle => _get('shoppingEmptyTitle', 'Your list is empty');

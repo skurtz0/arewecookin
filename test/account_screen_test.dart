@@ -15,6 +15,13 @@ void main() {
       binding.platformDispatcher.localesTestValue = const [Locale('tr')];
     });
 
+    testWidgets('password visibility button has a tooltip for screen readers', (tester) async {
+      tester.platformDispatcher.localesTestValue = const [Locale('en')];
+      await tester.pumpWidget(const ProviderScope(child: MaterialApp(home: AccountScreen())));
+      await tester.pumpAndSettle();
+      expect(find.byTooltip('Show / hide password'), findsOneWidget);
+    });
+
     testWidgets('divider text follows the app language', (tester) async {
       tester.platformDispatcher.localesTestValue = const [Locale('en')];
       await tester.pumpWidget(const ProviderScope(child: MaterialApp(home: AccountScreen())));

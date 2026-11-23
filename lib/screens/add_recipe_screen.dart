@@ -481,6 +481,7 @@ class _AddRecipeScreenState extends ConsumerState<AddRecipeScreen> {
                       ),
                       if (_ingredients.length > 1)
                         IconButton(
+                          tooltip: ref.read(appStringsProvider).shoppingDeleteItem,
                           icon: const Icon(Icons.close_rounded, size: 18, color: Colors.grey),
                           onPressed: () => _removeIngredient(i),
                         ),
@@ -537,6 +538,7 @@ class _AddRecipeScreenState extends ConsumerState<AddRecipeScreen> {
                             const Spacer(),
                             if (_steps.length > 1)
                               IconButton(
+                                tooltip: ref.read(appStringsProvider).shoppingDeleteItem,
                                 icon: const Icon(Icons.delete_outline, size: 18, color: Colors.red),
                                 onPressed: () => _removeStep(i),
                               ),
