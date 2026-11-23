@@ -405,6 +405,7 @@ class _PantryScreenState extends ConsumerState<PantryScreen> with WidgetsBinding
                   Expanded(
                     child: TextField(
                       key: const Key('pantry_custom_field'),
+                      textCapitalization: TextCapitalization.sentences,
                       controller: _customIngredientController,
                       textInputAction: TextInputAction.done,
                       onSubmitted: (_) => _handleAddCustom(),

@@ -109,6 +109,7 @@ class _ShoppingListScreenState extends ConsumerState<ShoppingListScreen> {
           title: Text(strings.shoppingEditItem),
           content: TextField(
             key: const Key('shopping_edit_field'),
+            textCapitalization: TextCapitalization.sentences,
             controller: controller,
             autofocus: true,
             onSubmitted: (v) => Navigator.of(ctx).pop(v),
@@ -318,6 +319,7 @@ class _ShoppingListScreenState extends ConsumerState<ShoppingListScreen> {
             padding: const EdgeInsets.fromLTRB(16, 12, 16, 4),
             child: TextField(
               key: const Key('shopping_add_field'),
+              textCapitalization: TextCapitalization.sentences,
               controller: _controller,
               textInputAction: TextInputAction.done,
               onSubmitted: (_) => _submit(),
