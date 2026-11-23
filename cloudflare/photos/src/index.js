@@ -57,6 +57,17 @@ export default {
       });
     }
 
+    if (req.method === 'GET' && url.pathname.startsWith('/packs/')) {
+      // Recipe packs: packs/manifest.json and packs/<ISO>/<n>.json (public, short cache because pages grow).
+      const key = decodeURIComponent(url.pathname.slice(1));
+      if (!/^packs\/(manifest\.json|[A-Z]{2}\/\d{1,4}\.json)$/.test(key)) return new Response('Not found', { status: 404, headers: cors });
+      const obj = await env.PHOTOS.get(key);
+      if (!obj) return new Response('Not found', { status: 404, headers: cors });
+      return new Response(obj.body, {
+        headers: { ...cors, 'Content-Type': 'application/json; charset=utf-8', 'Cache-Control': key.endsWith('manifest.json') ? 'public, max-age=300' : 'public, max-age=3600' },
+      });
+    }
+
     if (req.method === 'POST' && url.pathname === '/upload') {
       const auth = req.headers.get('Authorization') ?? '';
       const uid = auth.startsWith('Bearer ') ? await verifyFirebaseToken(auth.slice(7), env.FIREBASE_PROJECT) : null;

@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import '../data/pack_recipes.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/models.dart';
@@ -36,7 +37,10 @@ class RecipeRepository {
   /// on every page while the shared collection has nothing for that filter.
   final Map<String, DateTime> _remoteEmptyAt = {};
 
-  RecipeRepository({this.firestore});
+  /// Server-side recipe packs (null in tests that do not need them).
+  final PackSource? packs;
+
+  RecipeRepository({this.firestore, this.packs});
 
   List<Recipe> get customRecipes => List.unmodifiable(_customRecipes);
 
@@ -66,10 +70,75 @@ class RecipeRepository {
     }
   }
 
+  /// Country packs come first (real, hand-checked recipes), then the bundled and generated ones.
+  /// Offsets below the pack size index the pack; beyond it they continue in the bundled catalogue.
+  Future<PaginatedRecipes> getRecipes({
+    int limit = 20,
+    DocumentSnapshot<Map<String, dynamic>>? startAfter,
+    int offset = 0,
+    String? category,
+    String? cuisine,
+    String? searchQuery,
+    int? maxMinutes,
+    String? difficulty,
+  }) async {
+    final packCountry = _packCountryFor(cuisine);
+    final source = packs;
+    if (packCountry == null || source == null || startAfter != null) {
+      return _getRecipesBase(
+          limit: limit, startAfter: startAfter, offset: offset, category: category, cuisine: cuisine,
+          searchQuery: searchQuery, maxMinutes: maxMinutes, difficulty: difficulty);
+    }
+    final cleanCategory = (category == null || category == 'Tümü' || category.trim().isEmpty) ? null : category.trim();
+    final cleanQuery = searchQuery?.trim().toLowerCase();
+    final all = await source.country(packCountry);
+    final pack = [
+      for (final r in all)
+        if ((cleanCategory == null || r.category == cleanCategory) &&
+            (cleanQuery == null || cleanQuery.isEmpty || _matchesQuery(r, cleanQuery)) &&
+            (maxMinutes == null || r.totalTime <= maxMinutes) &&
+            (difficulty == null || matchesDifficulty(r.difficulty, difficulty)))
+          r
+    ];
+    final p = pack.length;
+    if (p == 0) {
+      return _getRecipesBase(
+          limit: limit, offset: offset, category: category, cuisine: cuisine,
+          searchQuery: searchQuery, maxMinutes: maxMinutes, difficulty: difficulty);
+    }
+    final first = offset < p ? pack.skip(offset).take(limit).toList() : <Recipe>[];
+    if (first.length >= limit) {
+      return PaginatedRecipes(recipes: first, hasMore: true, nextOffset: offset + first.length);
+    }
+    final baseOffset = offset < p ? 0 : offset - p;
+    final rest = await _getRecipesBase(
+        limit: limit - first.length, offset: baseOffset, category: category, cuisine: cuisine,
+        searchQuery: searchQuery, maxMinutes: maxMinutes, difficulty: difficulty);
+    return PaginatedRecipes(
+      recipes: [...first, ...rest.recipes],
+      lastDocument: rest.lastDocument,
+      hasMore: rest.hasMore,
+      nextOffset: p + rest.nextOffset,
+    );
+  }
+
+  /// The country whose pack serves this cuisine filter (broad chips such as "Asya & Uzak Doğu" have none).
+  static String? _packCountryFor(String? cuisine) {
+    final c = cuisine?.trim();
+    if (c == null || c.isEmpty || c == 'Tümü') return null;
+    switch (c) {
+      case 'İtalyan Mutfağı':
+        return 'İtalya';
+      case 'Meksika Mutfağı':
+        return 'Meksika';
+    }
+    return WorldCountries.byId(c) != null ? c : null;
+  }
+
   /// Fetches recipes with infinite-scroll pagination (limit & startAfterDocument).
 
   /// Supports category, cuisine filtering and title search.
-  Future<PaginatedRecipes> getRecipes({
+  Future<PaginatedRecipes> _getRecipesBase({
     int limit = 20,
     DocumentSnapshot<Map<String, dynamic>>? startAfter,
     int offset = 0,
@@ -285,6 +354,11 @@ class RecipeRepository {
     final world = WorldRecipes.byId(id);
     if (world != null) return world;
 
+    if (id.startsWith('p_') && packs != null) {
+      final packed = await packs!.byId(id);
+      if (packed != null) return packed;
+    }
+
     // Fallback search in deterministic set
     if (id.startsWith('rec_')) {
       final numStr = id.replaceFirst('rec_', '');
@@ -471,5 +545,5 @@ final recipeRepositoryProvider = Provider<RecipeRepository>((ref) {
   } catch (_) {
     // If Firebase isn't initialized yet or in mock test environment
   }
-  return RecipeRepository(firestore: firestore);
+  return RecipeRepository(firestore: firestore, packs: HttpPackSource());
 });

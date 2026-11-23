@@ -52,7 +52,10 @@ class WorldRecipes {
     return s.isEmpty ? null : s;
   }
 
-  static Recipe _fromJson(Map<String, dynamic> m) {
+  /// [packed]: a recipe from a server pack (its id is already final), not one of the bundled ones.
+  static Recipe fromJson(Map<String, dynamic> m, {bool packed = false}) => _fromJson(m, packed: packed);
+
+  static Recipe _fromJson(Map<String, dynamic> m, {bool packed = false}) {
     final ings = (m['ing'] as List).map((e) {
       final i = e as Map<String, dynamic>;
       final en = _nz(i['ne']);
@@ -80,7 +83,7 @@ class WorldRecipes {
       );
     }).toList();
     return Recipe(
-      id: 'w_${m['id']}',
+      id: packed ? m['id'] as String : 'w_${m['id']}',
       title: m['tr'] as String,
       titleEn: m['en'] as String,
       baseDish: m['tr'] as String,
