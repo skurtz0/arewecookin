@@ -7,10 +7,19 @@ service cloud.firestore {
     function signedIn() { return request.auth != null; }
     function validText(v, max) { return v is string && v.size() <= max; }
 
-    // Existing behaviour kept as it was: the app syncs custom recipes here, also for
-    // guests who are not signed in. (Open to everyone - tighten when recipes get an owner field.)
+    // Custom recipes synced from the app. Anyone (also guests) can add one, but an
+    // existing recipe can only be changed or deleted by the signed-in user who owns it.
+    // (Recipes saved before this rule have no owner, so nobody can change them from the app.)
     match /recipes/{recipeId} {
-      allow read, write: if true;
+      allow read: if true;
+      allow create: if validText(request.resource.data.id, 120)
+        && validText(request.resource.data.title, 200)
+        && request.resource.size() < 100000
+        && (!('ownerId' in request.resource.data)
+            || (signedIn() && request.resource.data.ownerId == request.auth.uid));
+      allow update, delete: if signedIn()
+        && resource.data.get('ownerId', '') == request.auth.uid
+        && (request.method == 'delete' || request.resource.data.ownerId == request.auth.uid);
     }
 
     match /posts/{postId} {

@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/models.dart';
 import '../data/world_recipes.dart';
@@ -40,7 +41,14 @@ class RecipeRepository {
     _customRecipes.insert(0, recipe);
     if (firestore != null) {
       try {
-        firestore!.collection('recipes').doc(recipe.id).set(recipe.toMap());
+        final data = recipe.toMap();
+        // Who owns the copy: lets the security rules keep others from changing or deleting it.
+        String? owner;
+        try {
+          owner = FirebaseAuth.instance.currentUser?.uid;
+        } catch (_) {}
+        if (owner != null) data['ownerId'] = owner;
+        firestore!.collection('recipes').doc(recipe.id).set(data);
       } catch (_) {}
     }
   }
