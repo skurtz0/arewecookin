@@ -447,6 +447,7 @@ class _ShoppingListScreenState extends ConsumerState<ShoppingListScreen> {
                         // Swiping right ticks the item (it stays in the list); swiping left deletes it.
                         confirmDismiss: (dir) async {
                           if (dir == DismissDirection.startToEnd) {
+                            HapticFeedback.selectionClick();
                             notifier.toggle(i);
                             return false;
                           }

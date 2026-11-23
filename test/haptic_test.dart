@@ -32,6 +32,28 @@ void main() {
     expect(c.read(shoppingListProvider).first.done, isTrue);
   });
 
+  testWidgets('swiping a shopping item right to tick it gives a light tap', (tester) async {
+    SharedPreferences.setMockInitialValues({});
+    final calls = <String>[];
+    tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(SystemChannels.platform, (call) async {
+      if (call.method == 'HapticFeedback.vibrate') calls.add('${call.arguments}');
+      return null;
+    });
+    addTearDown(() => tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(SystemChannels.platform, null));
+    final c = ProviderContainer();
+    addTearDown(c.dispose);
+    c.read(shoppingListProvider.notifier).addAll(const [ShoppingItem(name: 'Alpha')]);
+    await tester.pumpWidget(UncontrolledProviderScope(
+      container: c,
+      child: const MaterialApp(home: ShoppingListScreen()),
+    ));
+    await tester.pumpAndSettle();
+    await tester.drag(find.byType(Dismissible), const Offset(500, 0));
+    await tester.pumpAndSettle();
+    expect(calls, isNotEmpty);
+    expect(c.read(shoppingListProvider).first.done, isTrue);
+  });
+
   testWidgets('moving to the next cooking step gives a light tap', (tester) async {
     SharedPreferences.setMockInitialValues({});
     final calls = <String>[];
