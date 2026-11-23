@@ -750,7 +750,36 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
                 separatorBuilder: (context, index) => const Divider(height: 16),
                 itemBuilder: (context, index) {
                   final recipe = savedRecipes[index];
-                  return _buildRecipeListTile(
+                  void unsave() {
+                    final notifier = ref.read(savedRecipesProvider.notifier);
+                    notifier.remove(recipe.id);
+                    ScaffoldMessenger.of(context)
+                      ..hideCurrentSnackBar()
+                      ..showSnackBar(SnackBar(
+                        content: Text(strings.itemRemoved),
+                        action: SnackBarAction(
+                          key: const Key('unsave_undo'),
+                          label: strings.undoLabel,
+                          onPressed: () {
+                            if (!ref.read(savedRecipesProvider).savedIds.contains(recipe.id)) {
+                              notifier.toggleSave(recipe);
+                            }
+                          },
+                        ),
+                      ));
+                  }
+
+                  return Dismissible(
+                    key: ValueKey('saved_row_${recipe.id}'),
+                    direction: DismissDirection.endToStart,
+                    background: Container(
+                      color: Colors.red.shade400,
+                      alignment: AlignmentDirectional.centerEnd,
+                      padding: const EdgeInsetsDirectional.only(end: 20),
+                      child: const Icon(Icons.bookmark_remove_rounded, color: Colors.white),
+                    ),
+                    onDismissed: (_) => unsave(),
+                    child: _buildRecipeListTile(
                     recipe: recipe,
                     onTap: () => Navigator.of(context).push(
                       MaterialPageRoute(
@@ -762,26 +791,9 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
                           color: Color(0xFFFF5722), size: 22),
                       tooltip: strings.removeFavorite,
                       key: Key('unsave_${recipe.id}'),
-                      onPressed: () {
-                        final notifier = ref.read(savedRecipesProvider.notifier);
-                        notifier.remove(recipe.id);
-                        ScaffoldMessenger.of(context)
-                          ..hideCurrentSnackBar()
-                          ..showSnackBar(SnackBar(
-                            content: Text(strings.itemRemoved),
-                            action: SnackBarAction(
-                              key: const Key('unsave_undo'),
-                              label: strings.undoLabel,
-                              onPressed: () {
-                                if (!ref.read(savedRecipesProvider).savedIds.contains(recipe.id)) {
-                                  notifier.toggleSave(recipe);
-                                }
-                              },
-                            ),
-                          ));
-                      },
+                      onPressed: unsave,
                     ),
-                  );
+                  ));
                 },
               ),
           ] else ...[

@@ -100,4 +100,31 @@ void main() {
     expect(c.read(savedRecipesProvider).recipes.single.title, 'Yeni Ad');
     expect(c.read(mealPlanProvider)[2]!.single.title, 'Yeni Ad');
   });
+
+  testWidgets('swiping a saved recipe left removes it and can be undone', (tester) async {
+    SharedPreferences.setMockInitialValues({});
+    tester.view.physicalSize = const Size(1000, 3000);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(tester.view.reset);
+    final recipe = (await RecipeRepository().getRecipes(limit: 1)).recipes.first;
+    final c = ProviderContainer();
+    addTearDown(c.dispose);
+    await c.read(authProvider.notifier).signInWithEmail('test@arewecookin.com', '123456');
+    await c.read(savedRecipesProvider.notifier).toggleSave(recipe);
+    await tester.pumpWidget(UncontrolledProviderScope(
+      container: c,
+      child: const MaterialApp(home: AccountScreen()),
+    ));
+    await tester.pumpAndSettle();
+    final row = find.byKey(ValueKey('saved_row_${recipe.id}'));
+    await tester.ensureVisible(row);
+    await tester.drag(row, const Offset(-700, 0));
+    await tester.pump();
+    await tester.pump(const Duration(seconds: 1));
+    await tester.pump(const Duration(seconds: 1));
+    expect(c.read(savedRecipesProvider).savedIds, isEmpty);
+    tester.widget<SnackBarAction>(find.byKey(const Key('unsave_undo'))).onPressed();
+    await tester.pump(const Duration(milliseconds: 200));
+    expect(c.read(savedRecipesProvider).savedIds, contains(recipe.id));
+  });
 }
