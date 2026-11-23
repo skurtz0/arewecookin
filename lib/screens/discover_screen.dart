@@ -10,6 +10,8 @@ import '../l10n/recipe_localization.dart';
 import '../providers/discover_provider.dart';
 import '../repositories/recipe_repository.dart';
 import '../providers/recent_recipes_provider.dart';
+import '../providers/pantry_provider.dart';
+import '../utils/pantry_match.dart';
 import '../providers/recent_searches_provider.dart';
 import '../providers/recipe_notes_provider.dart';
 import '../providers/user_recipes_provider.dart';
@@ -35,6 +37,8 @@ class DiscoverScreenState extends ConsumerState<DiscoverScreen> with WidgetsBind
     final rating = ref.watch(recipeNotesProvider.select((m) => m[recipe.id]?.rating ?? 0));
     final cookedCount = ref.watch(cookHistoryProvider.select((m) => m[recipe.id]?.count ?? 0));
     final hasNote = ref.watch(recipeNotesProvider.select((m) => (m[recipe.id]?.note ?? '').trim().isNotEmpty));
+    final have = ref.watch(pantryProvider.select((p) => p.selectedKeys));
+    final inPantry = have.isEmpty ? 0 : pantryCoverageCount(recipe, have, strings.locale);
     return [
       recipe.localizedTitle(strings.locale),
       strings.minutesShort(recipe.totalTime),
@@ -42,6 +46,7 @@ class DiscoverScreenState extends ConsumerState<DiscoverScreen> with WidgetsBind
       if (rating > 0) '$rating/5',
       if (cookedCount > 0) strings.cookedTimes(cookedCount),
       if (hasNote) strings.myNotes,
+      if (inPantry > 0) strings.pantryCoverage(inPantry, recipe.ingredients.length),
     ].join(', ');
   }
 
@@ -1230,6 +1235,10 @@ class _RecipeCard extends ConsumerWidget {
     final myRating = ref.watch(recipeNotesProvider.select((m) => m[recipe.id]?.rating ?? 0));
     final cookedCount = ref.watch(cookHistoryProvider.select((m) => m[recipe.id]?.count ?? 0));
     final hasNote = ref.watch(recipeNotesProvider.select((m) => (m[recipe.id]?.note ?? '').trim().isNotEmpty));
+    final pantryHave = ref.watch(pantryProvider.select((p) => p.selectedKeys));
+    final inPantry = pantryHave.isEmpty
+        ? 0
+        : pantryCoverageCount(recipe, pantryHave, ref.watch(appStringsProvider).locale);
 
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
@@ -1416,6 +1425,12 @@ class _RecipeCard extends ConsumerWidget {
                                   label: strings.cookedTimes(cookedCount),
                                 ),
                               AvoidedBadge(recipe: recipe),
+                              if (inPantry > 0)
+                                _InfoBadge(
+                                  key: Key('pantry_badge_${recipe.id}'),
+                                  icon: Icons.kitchen_outlined,
+                                  label: '$inPantry/${recipe.ingredients.length}',
+                                ),
                               if (hasNote)
                                 _InfoBadge(
                                   key: Key('note_badge_${recipe.id}'),

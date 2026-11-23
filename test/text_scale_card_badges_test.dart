@@ -1,6 +1,7 @@
 import 'package:arewecookin/providers/avoided_ingredients_provider.dart';
 import 'package:arewecookin/providers/cook_history_provider.dart';
 import 'package:arewecookin/providers/discover_provider.dart';
+import 'package:arewecookin/providers/pantry_provider.dart';
 import 'package:arewecookin/providers/recipe_notes_provider.dart';
 import 'package:arewecookin/repositories/recipe_repository.dart';
 import 'package:arewecookin/screens/discover_screen.dart';
@@ -37,6 +38,35 @@ void main() {
     expect(find.byKey(Key('note_badge_${first.id}')), findsOneWidget);
     expect(tester.takeException(), isNull);
   });
+
+  for (final scale in [1.0, 1.8]) {
+    testWidgets('a Discover card shows how many ingredients are in the pantry (${scale}x text, 360px)', (tester) async {
+      SharedPreferences.setMockInitialValues({});
+      tester.view.physicalSize = const Size(360, 3000);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(tester.view.reset);
+      final c = ProviderContainer();
+      addTearDown(c.dispose);
+      await tester.pumpWidget(UncontrolledProviderScope(
+        container: c,
+        child: MaterialApp(
+          builder: (ctx, w) => MediaQuery(
+            data: MediaQuery.of(ctx).copyWith(textScaler: TextScaler.linear(scale)),
+            child: w!,
+          ),
+          home: const Scaffold(body: DiscoverScreen()),
+        ),
+      ));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 300));
+      final first = c.read(discoverProvider).recipes.first;
+      expect(find.byKey(Key('pantry_badge_${first.id}')), findsNothing);
+      await c.read(pantryProvider.notifier).addIngredient(first.ingredients.first.name.trim().toLowerCase());
+      await tester.pump(const Duration(milliseconds: 500));
+      expect(find.byKey(Key('pantry_badge_${first.id}')), findsOneWidget);
+      expect(tester.takeException(), isNull);
+    });
+  }
 
   testWidgets('the avoided badge shortens long word lists instead of overflowing', (tester) async {
     SharedPreferences.setMockInitialValues({});

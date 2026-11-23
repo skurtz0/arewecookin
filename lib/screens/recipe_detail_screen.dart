@@ -20,6 +20,7 @@ import '../providers/cook_history_provider.dart';
 import '../providers/recipe_progress_provider.dart';
 import '../providers/discover_provider.dart';
 import '../providers/unit_system_provider.dart';
+import '../utils/pantry_match.dart';
 import '../utils/unit_converter.dart';
 import '../l10n/recipe_localization.dart';
 import 'cooking_mode_screen.dart';
@@ -33,11 +34,7 @@ class RecipeDetailScreen extends ConsumerStatefulWidget {
   ConsumerState<RecipeDetailScreen> createState() => _RecipeDetailScreenState();
 }
 
-bool _inPantry(Ingredient i, Set<String> have, String locale) => {
-      i.name.trim().toLowerCase(),
-      i.localizedName(locale).trim().toLowerCase(),
-      if (i.nameEn != null) i.nameEn!.trim().toLowerCase(),
-    }.any(have.contains);
+bool _inPantry(Ingredient i, Set<String> have, String locale) => ingredientInPantry(i, have, locale);
 
 class _RecipeDetailScreenState extends ConsumerState<RecipeDetailScreen> {
   late int _servings;
