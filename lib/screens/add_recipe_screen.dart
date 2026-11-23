@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../models/models.dart';
@@ -514,6 +515,7 @@ class _AddRecipeScreenState extends ConsumerState<AddRecipeScreen> {
                       child: TextFormField(
                         controller: _prepTimeController,
                         keyboardType: TextInputType.number,
+                        inputFormatters: [FilteringTextInputFormatter.digitsOnly, LengthLimitingTextInputFormatter(4)],
                         decoration: InputDecoration(
                           labelText: strings.prepTimeMinutes,
                           border: OutlineInputBorder(
@@ -531,6 +533,7 @@ class _AddRecipeScreenState extends ConsumerState<AddRecipeScreen> {
                       child: TextFormField(
                         controller: _cookTimeController,
                         keyboardType: TextInputType.number,
+                        inputFormatters: [FilteringTextInputFormatter.digitsOnly, LengthLimitingTextInputFormatter(4)],
                         decoration: InputDecoration(
                           labelText: strings.cookTimeMinutes,
                           border: OutlineInputBorder(
@@ -548,6 +551,7 @@ class _AddRecipeScreenState extends ConsumerState<AddRecipeScreen> {
                       child: TextFormField(
                         controller: _servingsController,
                         keyboardType: TextInputType.number,
+                        inputFormatters: [FilteringTextInputFormatter.digitsOnly, LengthLimitingTextInputFormatter(4)],
                         decoration: InputDecoration(
                           labelText: strings.servingsCount,
                           border: OutlineInputBorder(
@@ -812,6 +816,7 @@ class _AddRecipeScreenState extends ConsumerState<AddRecipeScreen> {
                               child: TextFormField(
                                 controller: _steps[i].timerController,
                                 keyboardType: TextInputType.number,
+                        inputFormatters: [FilteringTextInputFormatter.digitsOnly, LengthLimitingTextInputFormatter(4)],
                                 decoration: InputDecoration(
                                   hintText: strings.stepTimerOptional,
                                   border: OutlineInputBorder(

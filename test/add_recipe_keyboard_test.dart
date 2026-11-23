@@ -19,4 +19,18 @@ void main() {
     await tester.enterText(amount, '1/2');
     expect(find.text('1/2'), findsOneWidget);
   });
+
+  testWidgets('time and servings fields only keep digits', (tester) async {
+    SharedPreferences.setMockInitialValues({});
+    tester.view.physicalSize = const Size(800, 3000);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(tester.view.reset);
+    await tester.pumpWidget(const ProviderScope(child: MaterialApp(home: AddRecipeScreen())));
+    await tester.pumpAndSettle();
+    final numeric = find.byWidgetPredicate((w) => w is TextField && w.keyboardType == TextInputType.number);
+    expect(numeric, findsWidgets);
+    await tester.ensureVisible(numeric.first);
+    await tester.enterText(numeric.first, 'a1b-2.5');
+    expect(tester.widget<TextField>(numeric.first).controller!.text, '125');
+  });
 }
