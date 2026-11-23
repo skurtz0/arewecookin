@@ -1020,6 +1020,27 @@ class _RecipeCard extends ConsumerWidget {
                       ),
                     ),
                   ),
+                  Positioned(
+                    bottom: 8,
+                    right: 8,
+                    child: Consumer(builder: (context, ref, _) {
+                      final isSaved = ref.watch(savedRecipesProvider.select((s) => s.isSaved(recipe.id)));
+                      return Material(
+                        color: Colors.white.withValues(alpha: 0.95),
+                        shape: const CircleBorder(),
+                        child: IconButton(
+                          key: Key('card_save_${recipe.id}'),
+                          tooltip: isSaved ? strings.removeFavorite : strings.a11ySave,
+                          visualDensity: VisualDensity.compact,
+                          icon: Icon(
+                            isSaved ? Icons.bookmark_rounded : Icons.bookmark_border_rounded,
+                            color: isSaved ? const Color(0xFFFF5722) : const Color(0xFF64748B),
+                          ),
+                          onPressed: () => ref.read(savedRecipesProvider.notifier).toggleSave(recipe),
+                        ),
+                      );
+                    }),
+                  ),
                 ],
               ),
               Padding(

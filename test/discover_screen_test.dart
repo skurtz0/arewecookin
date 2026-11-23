@@ -223,6 +223,26 @@ void main() {
       expect(y(liked), lessThan(y(other)));
     });
 
+    testWidgets('card bookmark button saves and unsaves a recipe', (tester) async {
+      SharedPreferences.setMockInitialValues({});
+      final container = ProviderContainer();
+      addTearDown(container.dispose);
+      await tester.pumpWidget(UncontrolledProviderScope(
+        container: container,
+        child: const MaterialApp(home: Scaffold(body: DiscoverScreen())),
+      ));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 300));
+      final recipe = container.read(discoverProvider).recipes.first;
+      final btn = find.byKey(Key('card_save_${recipe.id}'));
+      await tester.tap(btn);
+      await tester.pump();
+      expect(container.read(savedRecipesProvider).isSaved(recipe.id), isTrue);
+      await tester.tap(btn);
+      await tester.pump();
+      expect(container.read(savedRecipesProvider).isSaved(recipe.id), isFalse);
+    });
+
     testWidgets('my rating shows on the recipe card', (tester) async {
       SharedPreferences.setMockInitialValues({});
       final container = ProviderContainer();
