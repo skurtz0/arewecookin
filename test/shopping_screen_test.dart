@@ -168,4 +168,34 @@ void main() {
     expect(c.read(pantryProvider).selectedKeys, {'eggs'});
     expect(find.text('1 ingredients added to pantry'), findsOneWidget);
   });
+
+  testWidgets('open items are grouped by source recipe once there are several sources', (tester) async {
+    SharedPreferences.setMockInitialValues({});
+    final c = ProviderContainer();
+    addTearDown(c.dispose);
+    c.read(shoppingListProvider.notifier).addAll(const [
+      ShoppingItem(name: 'Flour', recipeTitle: 'Bread'),
+      ShoppingItem(name: 'Tomato', recipeTitle: 'Soup'),
+      ShoppingItem(name: 'Salt', recipeTitle: 'Bread'),
+      ShoppingItem(name: 'Gum'),
+    ]);
+    await tester.pumpWidget(UncontrolledProviderScope(container: c, child: const MaterialApp(home: ShoppingListScreen())));
+    await tester.pumpAndSettle();
+    expect(find.byKey(const Key('shopping_group_Bread')), findsOneWidget);
+    expect(find.byKey(const Key('shopping_group_Soup')), findsOneWidget);
+    expect(find.byKey(const Key('shopping_group_Added by hand')), findsOneWidget);
+    double y(String t) => tester.getTopLeft(find.text(t)).dy;
+    expect(y('Salt'), lessThan(y('Tomato')));
+    expect(y('Flour'), lessThan(y('Salt')));
+  });
+
+  testWidgets('a single source shows no group headers', (tester) async {
+    SharedPreferences.setMockInitialValues({});
+    final c = ProviderContainer();
+    addTearDown(c.dispose);
+    c.read(shoppingListProvider.notifier).addAll(const [ShoppingItem(name: 'Flour'), ShoppingItem(name: 'Gum')]);
+    await tester.pumpWidget(UncontrolledProviderScope(container: c, child: const MaterialApp(home: ShoppingListScreen())));
+    await tester.pumpAndSettle();
+    expect(find.byKey(const Key('shopping_group_Added by hand')), findsNothing);
+  });
 }

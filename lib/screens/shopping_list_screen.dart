@@ -44,6 +44,26 @@ class _ShoppingListScreenState extends ConsumerState<ShoppingListScreen> {
         if (items[n].done) n,
     ];
 
+    // Open items are grouped under the recipe they came from once there is more than one source.
+    // Entries are either a header text or a stored-list index. Checked items stay in one group at the bottom.
+    final openIdx = [for (final n in order) if (!items[n].done) n];
+    final doneIdx = [for (final n in order) if (items[n].done) n];
+    final groups = <String, List<int>>{};
+    for (final n in openIdx) {
+      groups.putIfAbsent(items[n].recipeTitle, () => []).add(n);
+    }
+    final grouped = groups.length > 1;
+    final entries = <Object>[
+      if (grouped)
+        for (final g in groups.entries) ...[
+          g.key.isEmpty ? strings.shoppingManual : g.key,
+          ...g.value,
+        ]
+      else
+        ...openIdx,
+      ...doneIdx,
+    ];
+
     void clearWithUndo(void Function() clear) {
       final before = [...items];
       clear();
@@ -260,10 +280,28 @@ class _ShoppingListScreenState extends ConsumerState<ShoppingListScreen> {
                   )
                 : ListView.builder(
                     padding: const EdgeInsets.only(bottom: 24),
-                    itemCount: order.length,
+                    itemCount: entries.length,
                     itemBuilder: (context, pos) {
+                      final entry = entries[pos];
+                      if (entry is String) {
+                        return Semantics(
+                          header: true,
+                          child: Padding(
+                            key: Key('shopping_group_$entry'),
+                            padding: const EdgeInsets.fromLTRB(16, 12, 16, 2),
+                            child: Text(
+                              entry,
+                              style: const TextStyle(
+                                fontSize: 13,
+                                fontWeight: FontWeight.bold,
+                                color: Color(0xFFFF5722),
+                              ),
+                            ),
+                          ),
+                        );
+                      }
                       // Checked items sink to the bottom; `i` is the real index in the stored list.
-                      final i = order[pos];
+                      final i = entry as int;
                       final item = items[i];
                       final qty = [
                         item.amount,

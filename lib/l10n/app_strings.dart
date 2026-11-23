@@ -91,6 +91,7 @@ class AppStrings {
   String get timerSoundOn => _get('timerSoundOn', 'Timer sound on');
   String get timerSoundOff => _get('timerSoundOff', 'Timer sound off');
   String get cookedFilterEmpty => _get('cookedFilterEmpty', 'You have not cooked anything yet. Finish cooking mode and it shows up here.');
+  String get shoppingManual => _get('shoppingManual', 'Added by hand');
   String get shoppingClearAll => _get('shoppingClearAll', 'Clear list');
   String get shoppingClearAllConfirm => _get('shoppingClearAllConfirm', 'Remove all items from the shopping list?');
   String get shoppingEmptyTitle => _get('shoppingEmptyTitle', 'Your list is empty');
