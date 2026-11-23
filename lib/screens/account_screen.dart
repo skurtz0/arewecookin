@@ -35,6 +35,7 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
   final _nameController = TextEditingController();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
+  final _scrollController = ScrollController();
 
   // Phone form
   final _phoneController = TextEditingController();
@@ -49,6 +50,7 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
     _nameController.dispose();
     _emailController.dispose();
     _passwordController.dispose();
+    _scrollController.dispose();
     _phoneController.dispose();
     _otpController.dispose();
     _avoidedController.dispose();
@@ -299,6 +301,22 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
   @override
   Widget build(BuildContext context) {
     final authState = ref.watch(authProvider);
+    ref.listen(authProvider, (prev, next) {
+      // Çıkış/hesap silme sonrası eski şifre alanda kalmasın.
+      if (prev != null &&
+          prev.user.authProvider != 'guest' &&
+          next.user.authProvider == 'guest') {
+        _passwordController.clear();
+        _nameController.clear();
+      }
+      // Hata görünür olsun: sayfanın en üstüne kaydır.
+      if (next.errorMessage != null &&
+          next.errorMessage != prev?.errorMessage &&
+          _scrollController.hasClients) {
+        _scrollController.animateTo(0,
+            duration: const Duration(milliseconds: 250), curve: Curves.easeOut);
+      }
+    });
     final strings = ref.watch(appStringsProvider);
     final currentLocale = ref.watch(localeProvider);
     final savedState = ref.watch(savedRecipesProvider);
@@ -349,6 +367,7 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
         ),
       ),
       body: SingleChildScrollView(
+        controller: _scrollController,
         padding: const EdgeInsets.fromLTRB(16, 16, 16, 40),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
