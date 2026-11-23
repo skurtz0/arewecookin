@@ -50,6 +50,11 @@ class AuthNotifier extends Notifier<AuthState> {
 
   @override
   AuthState build() {
+    // The saved session is restored a moment after start-up (web in particular): follow it.
+    final sub = _authService.userChanges?.listen((user) {
+      state = state.copyWith(user: user ?? UserProfile.guest);
+    });
+    ref.onDispose(() => sub?.cancel());
     return AuthState(user: _authService.currentUser);
   }
 
@@ -69,7 +74,7 @@ class AuthNotifier extends Notifier<AuthState> {
     } catch (e) {
       state = state.copyWith(
         isLoading: false,
-        errorMessage: 'Google ile giriş başarısız: $e',
+        errorMessage: e.toString().replaceFirst('Exception: ', ''),
       );
     }
   }

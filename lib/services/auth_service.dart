@@ -1,9 +1,16 @@
+import 'dart:async';
+
 import 'package:firebase_auth/firebase_auth.dart' as fb;
+import 'package:flutter/foundation.dart' show kIsWeb;
 import '../models/user_profile.dart';
 
+/// Real Firebase accounts. A failed call is reported to the user as it is: there is no made-up
+/// session any more. Only when Firebase is not available at all (widget tests) the service
+/// keeps an in-memory session so the screens can still be exercised.
 class AuthService {
   fb.FirebaseAuth? _firebaseAuth;
   UserProfile? _simulatedUser;
+  fb.ConfirmationResult? _webConfirmation;
 
   AuthService({fb.FirebaseAuth? firebaseAuth}) {
     if (firebaseAuth != null) {
@@ -12,79 +19,130 @@ class AuthService {
       try {
         _firebaseAuth = fb.FirebaseAuth.instance;
       } catch (_) {
-        // In mock / test environment without Firebase native setup
+        // Test environment without Firebase.
       }
     }
+  }
+
+  bool get _offlineMock => _firebaseAuth == null;
+
+  UserProfile _profileOf(fb.User u, {String? provider, String? fallbackName}) {
+    return UserProfile(
+      id: u.uid,
+      email: u.email ?? '',
+      phoneNumber: u.phoneNumber,
+      displayName: (u.displayName != null && u.displayName!.trim().isNotEmpty)
+          ? u.displayName!
+          : (fallbackName ?? (u.email ?? u.phoneNumber ?? 'Şef').split('@').first),
+      photoUrl: u.photoURL,
+      authProvider: provider ??
+          (u.providerData.isNotEmpty ? u.providerData.first.providerId : 'password'),
+      isLoggedIn: true,
+      savedRecipesCount: 0,
+      cookedCount: 0,
+    );
   }
 
   UserProfile get currentUser {
-    if (_simulatedUser != null) {
-      return _simulatedUser!;
-    }
+    if (_simulatedUser != null) return _simulatedUser!;
     final fbUser = _firebaseAuth?.currentUser;
-    if (fbUser != null) {
-      return UserProfile(
-        id: fbUser.uid,
-        email: fbUser.email ?? 'kullanici@arewecookin.com',
-        phoneNumber: fbUser.phoneNumber,
-        displayName: fbUser.displayName ?? 'Şef Aşçı',
-        photoUrl: fbUser.photoURL,
-        authProvider: fbUser.providerData.isNotEmpty
-            ? fbUser.providerData.first.providerId
-            : 'password',
-        isLoggedIn: true,
-        savedRecipesCount: 4,
-        cookedCount: 2,
-      );
-    }
+    if (fbUser != null) return _profileOf(fbUser);
     return UserProfile.guest;
   }
 
-  /// Google ile tek tıkla otomatik giriş
-  Future<UserProfile> signInWithGoogle() async {
-    try {
-      if (_firebaseAuth != null) {
-        final googleProvider = fb.GoogleAuthProvider();
-        googleProvider.addScope('email');
-        googleProvider.addScope('profile');
-        final userCredential =
-            await _firebaseAuth!.signInWithProvider(googleProvider);
-        if (userCredential.user != null) {
-          final u = userCredential.user!;
-          final user = UserProfile(
-            id: u.uid,
-            email: u.email ?? 'google_user@arewecookin.com',
-            displayName: u.displayName ?? 'Google Şefi',
-            photoUrl: u.photoURL ??
-                'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=200&q=80',
-            authProvider: 'google',
-            isLoggedIn: true,
-            savedRecipesCount: 5,
-            cookedCount: 2,
-          );
-          _simulatedUser = user;
-          return user;
-        }
-      }
-    } catch (_) {
-      // In mobile environments without Google Play Services or during local testing,
-      // fallback to instant verified simulated Google one-tap session
-    }
+  /// Sign-in / sign-out events of the real account (null when there is no Firebase).
+  Stream<UserProfile?>? get userChanges {
+    final a = _firebaseAuth;
+    if (a == null) return null;
+    return a.userChanges().map((u) => u == null ? null : _profileOf(u));
+  }
 
-    // Instant One-Tap Google Account
-    final user = const UserProfile(
-      id: 'google_chef_001',
-      email: 'sef.ahmet@gmail.com',
-      displayName: 'Ahmet Şef (Google)',
-      photoUrl:
-          'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=200&q=80',
-      authProvider: 'google',
-      isLoggedIn: true,
-      savedRecipesCount: 5,
-      cookedCount: 2,
-    );
-    _simulatedUser = user;
-    return user;
+  /// Turns any error into one readable sentence (our own validation messages pass through).
+  Exception _friendly(Object e) {
+    if (e is fb.FirebaseAuthException) {
+      final msg = e.message ?? '';
+      switch (e.code) {
+        case 'email-already-in-use':
+          return Exception('Bu e-posta ile zaten bir hesap var. Giriş yapmayı deneyin.');
+        case 'invalid-email':
+          return Exception('Geçerli bir e-posta adresi giriniz.');
+        case 'weak-password':
+          return Exception('Şifre çok zayıf. En az 6 karakter kullanın.');
+        case 'user-not-found':
+        case 'wrong-password':
+        case 'invalid-credential':
+        case 'invalid-login-credentials':
+          return Exception('E-posta veya şifre hatalı.');
+        case 'user-disabled':
+          return Exception('Bu hesap devre dışı bırakılmış.');
+        case 'too-many-requests':
+          return Exception('Çok fazla deneme yapıldı. Biraz bekleyip tekrar deneyin.');
+        case 'network-request-failed':
+          return Exception('İnternet bağlantısı yok. Bağlantınızı kontrol edip tekrar deneyin.');
+        case 'operation-not-allowed':
+        case 'configuration-not-found':
+          return Exception('Bu giriş yöntemi henüz etkinleştirilmemiş (Firebase ayarı gerekli).');
+        case 'requires-recent-login':
+          return Exception('Güvenlik nedeniyle bu işlem için tekrar giriş yapmanız gerekiyor.');
+        case 'invalid-verification-code':
+          return Exception('Doğrulama kodu hatalı.');
+        case 'invalid-phone-number':
+          return Exception('Telefon numarası geçersiz. Ülke koduyla yazın (örn. +905551234567).');
+        case 'popup-closed-by-user':
+        case 'cancelled-popup-request':
+        case 'web-context-canceled':
+        case 'canceled':
+          return Exception('Giriş iptal edildi.');
+        case 'account-exists-with-different-credential':
+          return Exception('Bu e-posta başka bir giriş yöntemiyle kayıtlı.');
+        default:
+          if (msg.contains('CONFIGURATION_NOT_FOUND')) {
+            return Exception('Bu giriş yöntemi henüz etkinleştirilmemiş (Firebase ayarı gerekli).');
+          }
+          return Exception('İşlem başarısız (${e.code}).');
+      }
+    }
+    if (e is TimeoutException) {
+      return Exception('Zaman aşımı. İnternet bağlantınızı kontrol edip tekrar deneyin.');
+    }
+    if (e is Exception) return e;
+    return Exception('Beklenmeyen bir hata oluştu.');
+  }
+
+  String _checkedEmail(String email) {
+    final clean = email.trim().toLowerCase();
+    if (clean.isEmpty || !clean.contains('@') || !clean.contains('.')) {
+      throw Exception('Geçerli bir e-posta adresi giriniz.');
+    }
+    return clean;
+  }
+
+  /// Google ile giriş
+  Future<UserProfile> signInWithGoogle() async {
+    if (_offlineMock) {
+      return _simulatedUser = const UserProfile(
+        id: 'google_chef_001',
+        email: 'sef.ahmet@gmail.com',
+        displayName: 'Ahmet Şef (Google)',
+        authProvider: 'google',
+        isLoggedIn: true,
+        savedRecipesCount: 0,
+        cookedCount: 0,
+      );
+    }
+    try {
+      final provider = fb.GoogleAuthProvider()
+        ..addScope('email')
+        ..addScope('profile');
+      final cred = kIsWeb
+          ? await _firebaseAuth!.signInWithPopup(provider)
+          : await _firebaseAuth!.signInWithProvider(provider);
+      final u = cred.user;
+      if (u == null) throw Exception('Google ile giriş tamamlanamadı.');
+      return _profileOf(u, provider: 'google', fallbackName: 'Google Şefi');
+    } catch (e) {
+      throw _friendly(e);
+    }
   }
 
   /// E-posta ve şifre ile giriş yap
@@ -92,145 +150,127 @@ class AuthService {
     required String email,
     required String password,
   }) async {
-    final cleanEmail = email.trim().toLowerCase();
-    if (cleanEmail.isEmpty || !cleanEmail.contains('@')) {
-      throw Exception('Geçerli bir e-posta adresi giriniz.');
-    }
+    final cleanEmail = _checkedEmail(email);
     if (password.length < 6) {
       throw Exception('Şifre en az 6 karakter olmalıdır.');
     }
-
-    try {
-      if (_firebaseAuth != null) {
-        final cred = await _firebaseAuth!.signInWithEmailAndPassword(
-          email: cleanEmail,
-          password: password,
-        );
-        if (cred.user != null) {
-          final u = cred.user!;
-          final user = UserProfile(
-            id: u.uid,
-            email: u.email ?? cleanEmail,
-            displayName: u.displayName ?? cleanEmail.split('@').first,
-            photoUrl: u.photoURL,
-            authProvider: 'password',
-            isLoggedIn: true,
-            savedRecipesCount: 4,
-            cookedCount: 2,
-          );
-          _simulatedUser = user;
-          return user;
-        }
-      }
-    } catch (e) {
-      if (e.toString().contains('user-not-found') ||
-          e.toString().contains('wrong-password') ||
-          e.toString().contains('invalid-credential')) {
-        rethrow;
-      }
+    if (_offlineMock) {
+      final name = cleanEmail.split('@').first;
+      return _simulatedUser = UserProfile(
+        id: 'usr_${cleanEmail.hashCode.abs()}',
+        email: cleanEmail,
+        displayName: '${name[0].toUpperCase()}${name.substring(1)} Şef',
+        authProvider: 'password',
+        isLoggedIn: true,
+        savedRecipesCount: 0,
+        cookedCount: 0,
+      );
     }
-
-    final name = cleanEmail.split('@').first;
-    final formattedName = name.isNotEmpty
-        ? name[0].toUpperCase() + name.substring(1)
-        : 'Şef';
-    final user = UserProfile(
-      id: 'usr_${cleanEmail.hashCode.abs()}',
-      email: cleanEmail,
-      displayName: '$formattedName Şef',
-      authProvider: 'password',
-      isLoggedIn: true,
-      savedRecipesCount: 3,
-      cookedCount: 1,
-    );
-    _simulatedUser = user;
-    return user;
+    try {
+      final cred = await _firebaseAuth!
+          .signInWithEmailAndPassword(email: cleanEmail, password: password)
+          .timeout(const Duration(seconds: 20));
+      final u = cred.user;
+      if (u == null) throw Exception('Giriş tamamlanamadı.');
+      return _profileOf(u, provider: 'password', fallbackName: cleanEmail.split('@').first);
+    } catch (e) {
+      throw _friendly(e);
+    }
   }
 
-  /// Yeni e-posta ile kayıt ol
+  /// Yeni e-posta ile kayıt ol; doğrulama e-postası gönderilir.
   Future<UserProfile> registerWithEmail({
     required String email,
     required String password,
     required String displayName,
   }) async {
-    final cleanEmail = email.trim().toLowerCase();
-    if (cleanEmail.isEmpty || !cleanEmail.contains('@')) {
-      throw Exception('Geçerli bir e-posta adresi giriniz.');
-    }
+    final cleanEmail = _checkedEmail(email);
     if (password.length < 6) {
       throw Exception('Şifre en az 6 karakter olmalıdır.');
     }
     final cleanName =
         displayName.trim().isEmpty ? cleanEmail.split('@').first : displayName.trim();
-
+    if (_offlineMock) {
+      return _simulatedUser = UserProfile(
+        id: 'usr_${cleanEmail.hashCode.abs()}',
+        email: cleanEmail,
+        displayName: cleanName,
+        authProvider: 'password',
+        isLoggedIn: true,
+        savedRecipesCount: 0,
+        cookedCount: 0,
+      );
+    }
     try {
-      if (_firebaseAuth != null) {
-        final cred = await _firebaseAuth!.createUserWithEmailAndPassword(
-          email: cleanEmail,
-          password: password,
-        );
-        if (cred.user != null) {
-          await cred.user!.updateDisplayName(cleanName);
-          final user = UserProfile(
-            id: cred.user!.uid,
-            email: cleanEmail,
-            displayName: cleanName,
-            authProvider: 'password',
-            isLoggedIn: true,
-            savedRecipesCount: 0,
-            cookedCount: 0,
-          );
-          _simulatedUser = user;
-          return user;
-        }
-      }
-    } catch (_) {}
-
-    final user = UserProfile(
-      id: 'usr_${cleanEmail.hashCode.abs()}',
-      email: cleanEmail,
-      displayName: cleanName,
-      authProvider: 'password',
-      isLoggedIn: true,
-      savedRecipesCount: 0,
-      cookedCount: 0,
-    );
-    _simulatedUser = user;
-    return user;
+      final cred = await _firebaseAuth!
+          .createUserWithEmailAndPassword(email: cleanEmail, password: password)
+          .timeout(const Duration(seconds: 20));
+      final u = cred.user;
+      if (u == null) throw Exception('Hesap oluşturulamadı.');
+      try {
+        await u.updateDisplayName(cleanName);
+      } catch (_) {}
+      // The account exists now; a failing mail must not undo that.
+      try {
+        await u.sendEmailVerification();
+      } catch (_) {}
+      return _profileOf(u, provider: 'password', fallbackName: cleanName)
+          .copyWith(displayName: cleanName);
+    } catch (e) {
+      throw _friendly(e);
+    }
   }
 
-  /// Telefon numarasına doğrulama kodu gönder
+  /// "Şifremi unuttum": sends a reset link to the e-mail address.
+  Future<void> sendPasswordReset(String email) async {
+    final cleanEmail = _checkedEmail(email);
+    if (_offlineMock) return;
+    try {
+      await _firebaseAuth!.sendPasswordResetEmail(email: cleanEmail).timeout(const Duration(seconds: 20));
+    } catch (e) {
+      throw _friendly(e);
+    }
+  }
+
+  /// Telefon numarasına doğrulama kodu gönder. Returns the id the code is checked against.
   Future<String> sendPhoneVerificationCode(String rawPhoneNumber) async {
     final phone = rawPhoneNumber.replaceAll(RegExp(r'\s+'), '').trim();
-    if (phone.length < 9) {
-      throw Exception('Lütfen geçerli bir telefon numarası girin.');
+    if (phone.length < 9 || !phone.startsWith('+')) {
+      throw Exception('Telefon numarasını ülke koduyla yazın (örn. +905551234567).');
     }
-
+    if (_offlineMock) return 'mock_verification_${phone.hashCode.abs()}';
     try {
-      if (_firebaseAuth != null) {
-        String verificationIdResult = '';
-        await _firebaseAuth!.verifyPhoneNumber(
-          phoneNumber: phone,
-          verificationCompleted: (fb.PhoneAuthCredential credential) async {
-            await _firebaseAuth!.signInWithCredential(credential);
-          },
-          verificationFailed: (fb.FirebaseAuthException e) {
-            // Handled in catch
-          },
-          codeSent: (String verificationId, int? resendToken) {
-            verificationIdResult = verificationId;
-          },
-          codeAutoRetrievalTimeout: (String verificationId) {
-            verificationIdResult = verificationId;
-          },
-        );
-        if (verificationIdResult.isNotEmpty) {
-          return verificationIdResult;
-        }
+      if (kIsWeb) {
+        _webConfirmation = await _firebaseAuth!.signInWithPhoneNumber(phone);
+        return 'web_confirmation';
       }
-    } catch (_) {}
-
-    return 'mock_verification_${phone.hashCode.abs()}';
+      final done = Completer<String>();
+      await _firebaseAuth!.verifyPhoneNumber(
+        phoneNumber: phone,
+        timeout: const Duration(seconds: 60),
+        verificationCompleted: (fb.PhoneAuthCredential credential) async {
+          // Android may read the SMS itself and sign in without the user typing the code.
+          try {
+            await _firebaseAuth!.signInWithCredential(credential);
+            if (!done.isCompleted) done.complete('auto_verified');
+          } catch (e) {
+            if (!done.isCompleted) done.completeError(e);
+          }
+        },
+        verificationFailed: (fb.FirebaseAuthException e) {
+          if (!done.isCompleted) done.completeError(e);
+        },
+        codeSent: (String verificationId, int? resendToken) {
+          if (!done.isCompleted) done.complete(verificationId);
+        },
+        codeAutoRetrievalTimeout: (String verificationId) {
+          if (!done.isCompleted) done.complete(verificationId);
+        },
+      );
+      return await done.future.timeout(const Duration(seconds: 70));
+    } catch (e) {
+      throw _friendly(e);
+    }
   }
 
   /// SMS OTP Kodunu Doğrula ve Giriş Yap
@@ -243,47 +283,37 @@ class AuthService {
     if (cleanCode.length != 6) {
       throw Exception('Lütfen 6 haneli doğrulama kodunu girin.');
     }
-
+    if (_offlineMock || verificationId.startsWith('mock_')) {
+      final suffix = phoneNumber.length >= 4 ? phoneNumber.substring(phoneNumber.length - 4) : '0000';
+      return _simulatedUser = UserProfile(
+        id: 'usr_phone_${phoneNumber.hashCode.abs()}',
+        email: '',
+        phoneNumber: phoneNumber,
+        displayName: 'Aşçı #$suffix',
+        authProvider: 'phone',
+        isLoggedIn: true,
+        savedRecipesCount: 0,
+        cookedCount: 0,
+      );
+    }
     try {
-      if (_firebaseAuth != null && !verificationId.startsWith('mock_')) {
-        final credential = fb.PhoneAuthProvider.credential(
-          verificationId: verificationId,
-          smsCode: cleanCode,
-        );
-        final userCredential = await _firebaseAuth!.signInWithCredential(credential);
-        if (userCredential.user != null) {
-          final u = userCredential.user!;
-          final user = UserProfile(
-            id: u.uid,
-            email: '${phoneNumber.replaceAll('+', '')}@phone.arewecookin.com',
-            phoneNumber: phoneNumber,
-            displayName: 'Aşçı (${phoneNumber.substring(phoneNumber.length > 4 ? phoneNumber.length - 4 : 0)})',
-            authProvider: 'phone',
-            isLoggedIn: true,
-            savedRecipesCount: 2,
-            cookedCount: 1,
-          );
-          _simulatedUser = user;
-          return user;
-        }
+      fb.User? u;
+      if (verificationId == 'auto_verified') {
+        u = _firebaseAuth!.currentUser;
+      } else if (verificationId == 'web_confirmation') {
+        final result = await _webConfirmation?.confirm(cleanCode);
+        u = result?.user;
+      } else {
+        final credential =
+            fb.PhoneAuthProvider.credential(verificationId: verificationId, smsCode: cleanCode);
+        u = (await _firebaseAuth!.signInWithCredential(credential)).user;
       }
-    } catch (_) {}
-
-    final suffix = phoneNumber.length >= 4
-        ? phoneNumber.substring(phoneNumber.length - 4)
-        : '0000';
-    final user = UserProfile(
-      id: 'usr_phone_${phoneNumber.hashCode.abs()}',
-      email: '$suffix@phone.arewecookin.com',
-      phoneNumber: phoneNumber,
-      displayName: 'Aşçı #$suffix',
-      authProvider: 'phone',
-      isLoggedIn: true,
-      savedRecipesCount: 2,
-      cookedCount: 1,
-    );
-    _simulatedUser = user;
-    return user;
+      if (u == null) throw Exception('Doğrulama tamamlanamadı. Kodu yeniden isteyin.');
+      final tail = phoneNumber.length > 4 ? phoneNumber.substring(phoneNumber.length - 4) : phoneNumber;
+      return _profileOf(u, provider: 'phone', fallbackName: 'Aşçı ($tail)');
+    } catch (e) {
+      throw _friendly(e);
+    }
   }
 
   /// Şifre Değiştir
@@ -291,40 +321,30 @@ class AuthService {
     if (newPassword.length < 6) {
       throw Exception('Yeni şifre en az 6 karakter olmalıdır.');
     }
+    if (_offlineMock) return;
+    final user = _firebaseAuth!.currentUser;
+    if (user == null) throw Exception('Önce giriş yapmalısınız.');
     try {
-      if (_firebaseAuth?.currentUser != null) {
-        await _firebaseAuth!.currentUser!.updatePassword(newPassword);
-      }
+      await user.updatePassword(newPassword);
     } catch (e) {
-      // In firebase web/client, requires-recent-login might be thrown
-      if (e.toString().contains('requires-recent-login')) {
-        throw Exception('Güvenlik nedeniyle şifre değiştirmek için tekrar giriş yapmalısınız.');
-      }
+      throw _friendly(e);
     }
   }
 
-  /// E-posta Değiştir
+  /// E-posta Değiştir (the new address must be confirmed through the mail Firebase sends).
   Future<UserProfile> changeEmail({required String newEmail}) async {
-    final cleanEmail = newEmail.trim().toLowerCase();
-    if (cleanEmail.isEmpty || !cleanEmail.contains('@')) {
-      throw Exception('Geçerli bir e-posta adresi giriniz.');
+    final cleanEmail = _checkedEmail(newEmail);
+    if (_offlineMock) {
+      return _simulatedUser = currentUser.copyWith(email: cleanEmail);
     }
-
+    final user = _firebaseAuth!.currentUser;
+    if (user == null) throw Exception('Önce giriş yapmalısınız.');
     try {
-      if (_firebaseAuth?.currentUser != null) {
-        await _firebaseAuth!.currentUser!.verifyBeforeUpdateEmail(cleanEmail);
-      }
+      await user.verifyBeforeUpdateEmail(cleanEmail);
     } catch (e) {
-      if (e.toString().contains('requires-recent-login')) {
-        throw Exception('E-posta değiştirmek için tekrar giriş yapmanız gerekmektedir.');
-      }
+      throw _friendly(e);
     }
-
-    if (_simulatedUser != null) {
-      _simulatedUser = _simulatedUser!.copyWith(email: cleanEmail);
-      return _simulatedUser!;
-    }
-    return currentUser.copyWith(email: cleanEmail);
+    return currentUser;
   }
 
   /// Kullanıcı Adı Güncelle
@@ -333,32 +353,36 @@ class AuthService {
     if (cleanName.isEmpty) {
       throw Exception('İsim boş olamaz.');
     }
-
+    if (_offlineMock) {
+      return _simulatedUser = currentUser.copyWith(displayName: cleanName);
+    }
+    final user = _firebaseAuth!.currentUser;
+    if (user == null) throw Exception('Önce giriş yapmalısınız.');
     try {
-      if (_firebaseAuth?.currentUser != null) {
-        await _firebaseAuth!.currentUser!.updateDisplayName(cleanName);
-      }
-    } catch (_) {}
-
-    if (_simulatedUser != null) {
-      _simulatedUser = _simulatedUser!.copyWith(displayName: cleanName);
-      return _simulatedUser!;
+      await user.updateDisplayName(cleanName);
+      await user.reload();
+    } catch (e) {
+      throw _friendly(e);
     }
     return currentUser.copyWith(displayName: cleanName);
   }
 
   /// Hesabı Sil
   Future<void> deleteAccount() async {
-    try {
-      if (_firebaseAuth?.currentUser != null) {
-        await _firebaseAuth!.currentUser!.delete();
-      }
-    } catch (e) {
-      if (e.toString().contains('requires-recent-login')) {
-        throw Exception('Hesabınızı silmek için güvenlik amacıyla lütfen tekrar giriş yapın.');
-      }
-    } finally {
+    if (_offlineMock) {
       _simulatedUser = null;
+      return;
+    }
+    final user = _firebaseAuth!.currentUser;
+    if (user == null) {
+      _simulatedUser = null;
+      return;
+    }
+    try {
+      await user.delete();
+      _simulatedUser = null;
+    } catch (e) {
+      throw _friendly(e);
     }
   }
 

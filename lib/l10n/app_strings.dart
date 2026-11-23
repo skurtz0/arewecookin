@@ -341,6 +341,8 @@ class AppStrings {
   String get profileUpdated => _get('profileUpdated', 'Profile updated successfully.');
   String get passwordUpdated => _get('passwordUpdated', 'Password updated successfully.');
   String get emailUpdated => _get('emailUpdated', 'Email address updated.');
+  String get forgotPassword => _get('forgotPassword', 'Forgot password?');
+  String get resetLinkSent => _get('resetLinkSent', 'A password reset link was sent to your email.');
   String get accountDeleted => _get('accountDeleted', 'Account deleted successfully.');
 
   // Add Recipe & Recipe Management

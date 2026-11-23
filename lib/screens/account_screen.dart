@@ -68,6 +68,17 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
     }
   }
 
+  Future<void> _sendPasswordReset() async {
+    final strings = ref.read(appStringsProvider);
+    final messenger = ScaffoldMessenger.of(context);
+    try {
+      await ref.read(authServiceProvider).sendPasswordReset(_emailController.text);
+      messenger.showSnackBar(SnackBar(content: Text(strings.resetLinkSent)));
+    } catch (e) {
+      messenger.showSnackBar(SnackBar(content: Text(e.toString().replaceFirst('Exception: ', ''))));
+    }
+  }
+
   void _sendPhoneCode() {
     final phone = _phoneController.text.trim();
     if (phone.length < 9) {
@@ -1430,6 +1441,15 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
                       return null;
                     },
                   ),
+                  if (!_isSignUp)
+                    Align(
+                      alignment: AlignmentDirectional.centerEnd,
+                      child: TextButton(
+                        key: const Key('auth_forgot_password'),
+                        onPressed: authState.isLoading ? null : _sendPasswordReset,
+                        child: Text(strings.forgotPassword),
+                      ),
+                    ),
                   const SizedBox(height: 18),
                   SizedBox(
                     width: double.infinity,
