@@ -22,7 +22,7 @@ class PantryScreen extends ConsumerStatefulWidget {
   ConsumerState<PantryScreen> createState() => _PantryScreenState();
 }
 
-class _PantryScreenState extends ConsumerState<PantryScreen> {
+class _PantryScreenState extends ConsumerState<PantryScreen> with WidgetsBindingObserver {
   final TextEditingController _customIngredientController =
       TextEditingController();
 
@@ -94,7 +94,24 @@ class _PantryScreenState extends ConsumerState<PantryScreen> {
   };
 
   @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+  }
+
+  /// Coming back to the app after a failed search (usually no connection) tries again by itself.
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state != AppLifecycleState.resumed) return;
+    final p = ref.read(pantryProvider);
+    if (p.errorMessage != null && !p.isLoading) {
+      ref.read(pantryProvider.notifier).retry();
+    }
+  }
+
+  @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     _customIngredientController.dispose();
     super.dispose();
   }
