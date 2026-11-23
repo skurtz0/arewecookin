@@ -34,6 +34,16 @@ def wiki_image(title, cache):
     cache[title] = res
     return res
 
+def img_ok(url, wiki, title_en):
+    """Conservative: a photo file (jpg) whose file name names the dish. Diagrams, ingredient pictures and
+    generic images ('3_types_of_lentil.png' for 'Dal') are dropped; those recipes show the category artwork."""
+    if not url: return None
+    name = urllib.parse.unquote(url.split('/')[-1]).lower()
+    if not re.search(r'\.jpe?g(\?|$)', name.split('px-', 1)[-1]): return None
+    toks = {t for t in re.findall(r'[a-z]{4,}', unicodedata.normalize('NFKD', (wiki or '') + ' ' + (title_en or '')).encode('ascii', 'ignore').decode().lower())}
+    toks -= {'with', 'from', 'style', 'recipe', 'fried', 'baked', 'roasted', 'soup', 'salad', 'sauce', 'cake', 'bread', 'rice', 'chicken'}
+    return url if any(t in name for t in toks) else None
+
 def main():
     cache = json.load(open(PH)) if os.path.exists(PH) else {}
     os.makedirs(OUT, exist_ok=True)
@@ -44,7 +54,7 @@ def main():
         if not rows: continue
         recs = []
         for r in rows:
-            img = wiki_image(r['wiki'], cache) if r.get('wiki') else None
+            img = img_ok(wiki_image(r['wiki'], cache) if r.get('wiki') else None, r.get('wiki'), r['title_en'])
             ing = [dict(k=ascii_key(i['tr']), n=i['tr'], ne=i['en'], a=i['amount'], u=UN[i['unit']][0], ue=UN[i['unit']][1]) for i in r['ingredients']]
             st = [dict(o=k + 1, tool=s['tool'], sec=s['sec'], t=s['title_tr'], i=s['text_tr'], te=s['title_en'], ie=s['text_en'], p=s.get('tip_tr', ''), pe=s.get('tip_en', '')) for k, s in enumerate(r['steps'])]
             recs.append(dict(id=r['id'], c=r['country'], cat=r['category'], d=r['difficulty'], p=r['prep'], k=r['cook'], sv=r['servings'], tr=r['title_tr'], en=r['title_en'], img=img, ing=ing, st=st))
