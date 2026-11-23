@@ -104,7 +104,13 @@ class _PantryScreenState extends ConsumerState<PantryScreen> {
     final strings = ref.read(appStringsProvider);
     _customIngredientController.clear();
     final added = await notifier.addIngredients(text.split(RegExp(r'[,;\n]')));
-    if (!mounted || added == 0) return;
+    if (!mounted) return;
+    if (added == 0) {
+      ScaffoldMessenger.of(context)
+        ..hideCurrentSnackBar()
+        ..showSnackBar(SnackBar(content: Text(strings.pantryNothingNew)));
+      return;
+    }
     ScaffoldMessenger.of(context)
       ..hideCurrentSnackBar()
       ..showSnackBar(SnackBar(

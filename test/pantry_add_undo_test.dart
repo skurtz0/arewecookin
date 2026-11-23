@@ -28,4 +28,26 @@ void main() {
     await tester.pump(const Duration(milliseconds: 300));
     expect(c.read(pantryProvider).selectedKeys, isEmpty);
   });
+
+  testWidgets('typing something already in the pantry says nothing new was added', (tester) async {
+    SharedPreferences.setMockInitialValues({});
+    tester.view.physicalSize = const Size(1000, 2000);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(tester.view.reset);
+    final c = ProviderContainer();
+    addTearDown(c.dispose);
+    await c.read(pantryProvider.notifier).addIngredients(['misir']);
+    await tester.pumpWidget(UncontrolledProviderScope(
+      container: c,
+      child: const MaterialApp(home: PantryScreen()),
+    ));
+    await tester.pump(const Duration(milliseconds: 300));
+    await tester.enterText(find.byType(TextField), 'Misir');
+    await tester.testTextInput.receiveAction(TextInputAction.done);
+    await tester.pump(const Duration(milliseconds: 300));
+    await tester.pump(const Duration(seconds: 1));
+    expect(find.text('Already in your pantry'), findsOneWidget);
+    expect(find.byKey(const Key('pantry_add_undo')), findsNothing);
+    expect(c.read(pantryProvider).selectedKeys.length, 1);
+  });
 }
