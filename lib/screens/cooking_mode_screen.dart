@@ -1,3 +1,4 @@
+import '../widgets/readable_width.dart';
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -789,7 +790,7 @@ class _CookingModeScreenState extends ConsumerState<CookingModeScreen> {
           ),
         ),
       ),
-      body: PageView.builder(
+      body: ReadableWidth(child: PageView.builder(
         controller: _pageController,
         onPageChanged: _onPageChanged,
         itemCount: totalSteps,
@@ -1086,7 +1087,7 @@ class _CookingModeScreenState extends ConsumerState<CookingModeScreen> {
             ),
           );
         },
-      ),
+      )),
 
       // Navigation Bar at Bottom (Overflow-safe)
       bottomSheet: Container(

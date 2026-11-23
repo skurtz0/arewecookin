@@ -1,3 +1,4 @@
+import '../widgets/readable_width.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -410,7 +411,7 @@ class _AddRecipeScreenState extends ConsumerState<AddRecipeScreen> {
           ),
         ],
       ),
-      body: Form(
+      body: ReadableWidth(child: Form(
         key: _formKey,
         child: ListView(
           padding: const EdgeInsets.fromLTRB(16, 16, 16, 40),
@@ -862,7 +863,7 @@ class _AddRecipeScreenState extends ConsumerState<AddRecipeScreen> {
             ),
           ],
         ),
-      ),
+      )),
     ),
     );
   }

@@ -6,6 +6,7 @@ import '../providers/auth_provider.dart';
 import '../providers/locale_provider.dart';
 import '../providers/moderation_provider.dart';
 import '../providers/social_provider.dart';
+import '../widgets/readable_width.dart';
 
 /// Community tab: people share recipes as posts, others like and comment.
 class SocialScreen extends ConsumerWidget {
@@ -396,14 +397,16 @@ class AuthorScreen extends ConsumerWidget {
             ),
         ],
       ),
-      body: blocked
-          ? Center(child: Text(strings.socialBlockedNote))
-          : posts.isEmpty
-              ? Center(child: Text(strings.socialEmpty))
-              : ListView.builder(
-                  itemCount: posts.length,
-                  itemBuilder: (_, i) => _PostCard(post: posts[i]),
-                ),
+      body: ReadableWidth(
+        child: blocked
+            ? Center(child: Text(strings.socialBlockedNote))
+            : posts.isEmpty
+                ? Center(child: Text(strings.socialEmpty))
+                : ListView.builder(
+                    itemCount: posts.length,
+                    itemBuilder: (_, i) => _PostCard(post: posts[i]),
+                  ),
+      ),
     );
   }
 }
