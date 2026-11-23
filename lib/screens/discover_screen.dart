@@ -1303,7 +1303,7 @@ class _RecipeCard extends ConsumerWidget {
                                 _InfoBadge(
                                   key: const Key('cooked_badge'),
                                   icon: Icons.check_circle_outline_rounded,
-                                  label: strings.cookedDishes,
+                                  label: strings.cookedTimes(cookedCount),
                                 ),
                               AvoidedBadge(recipe: recipe),
                               if (hasNote)

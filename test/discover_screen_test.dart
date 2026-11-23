@@ -173,6 +173,10 @@ void main() {
       container.read(cookHistoryProvider.notifier).markCooked(recipe.id);
       await tester.pump();
       expect(find.byKey(const Key('cooked_badge')), findsOneWidget);
+      expect(find.descendant(of: find.byKey(const Key('cooked_badge')), matching: find.text('Cooked once')), findsOneWidget);
+      container.read(cookHistoryProvider.notifier).markCooked(recipe.id);
+      await tester.pump();
+      expect(find.descendant(of: find.byKey(const Key('cooked_badge')), matching: find.text('Cooked 2 times')), findsOneWidget);
     });
 
     testWidgets('reset chip appears with a filter and clears it', (tester) async {
