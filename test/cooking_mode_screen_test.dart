@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:arewecookin/models/models.dart';
@@ -223,6 +224,26 @@ void main() {
       await tester.tap(find.byIcon(Icons.arrow_forward_rounded).first);
       await tester.pumpAndSettle();
       expect(find.byKey(const Key('next_step_preview')), findsNothing);
+    });
+
+    testWidgets('starting a step timer gives a light tap', (tester) async {
+      SharedPreferences.setMockInitialValues({});
+      var taps = 0;
+      tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(SystemChannels.platform, (call) async {
+        if (call.method == 'HapticFeedback.vibrate') taps++;
+        return null;
+      });
+      addTearDown(() => tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(SystemChannels.platform, null));
+      await tester.pumpWidget(ProviderScope(
+        overrides: [localeProvider.overrideWith(() => FakeLocaleNotifier(const Locale('tr')))],
+        child: MaterialApp(home: CookingModeScreen(recipe: sampleRecipe)),
+      ));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Sayacı Başlat'));
+      await tester.pump();
+      expect(taps, greaterThan(0));
+      await tester.tap(find.text('Durdur'));
+      await tester.pump();
     });
 
     testWidgets('timer sound can be muted and the choice is remembered', (tester) async {

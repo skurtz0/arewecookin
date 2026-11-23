@@ -449,17 +449,20 @@ class _CookingModeScreenState extends ConsumerState<CookingModeScreen> {
   }
 
   void _startTimer() {
+    HapticFeedback.selectionClick();
     if (_remainingSeconds <= 0) return;
     setState(() => _runningSteps.add(_currentStepIndex));
     _ensureTicker();
   }
 
   void _pauseTimer() {
+    HapticFeedback.selectionClick();
     setState(() => _runningSteps.remove(_currentStepIndex));
   }
 
   /// Adds one minute to the current step's timer (works while it runs or is finished).
   void _addMinute() {
+    HapticFeedback.selectionClick();
     final i = _currentStepIndex;
     setState(() {
       _extraSeconds[i] = (_extraSeconds[i] ?? 0) + 60;
@@ -468,6 +471,7 @@ class _CookingModeScreenState extends ConsumerState<CookingModeScreen> {
   }
 
   void _resetTimer() {
+    HapticFeedback.selectionClick();
     setState(() {
       _runningSteps.remove(_currentStepIndex);
       _extraSeconds.remove(_currentStepIndex);
