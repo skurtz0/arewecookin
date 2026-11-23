@@ -14,6 +14,7 @@ import '../providers/recipe_progress_provider.dart';
 import '../providers/cook_history_provider.dart';
 import '../providers/unit_system_provider.dart';
 import '../providers/cook_text_size_provider.dart';
+import '../providers/timer_sound_provider.dart';
 import '../providers/recipe_notes_provider.dart';
 import '../utils/unit_converter.dart';
 import '../l10n/recipe_localization.dart';
@@ -305,7 +306,7 @@ class _CookingModeScreenState extends ConsumerState<CookingModeScreen> {
   void _alertTimerDone(int step) {
     try {
       HapticFeedback.heavyImpact();
-      SystemSound.play(SystemSoundType.alert);
+      if (ref.read(timerSoundProvider)) SystemSound.play(SystemSoundType.alert);
     } catch (_) {}
     final strings = ref.read(appStringsProvider);
     // Spoken for screen-reader users even if the snackbar is not looked at.
@@ -764,11 +765,28 @@ class _CookingModeScreenState extends ConsumerState<CookingModeScreen> {
 
                 Align(
                   alignment: AlignmentDirectional.centerEnd,
-                  child: IconButton(
-                    key: const Key('cook_text_size'),
-                    tooltip: strings.cookTextSize,
-                    icon: const Icon(Icons.text_increase_rounded, color: Color(0xFF94A3B8)),
-                    onPressed: () => ref.read(cookTextSizeProvider.notifier).cycle(),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Builder(builder: (context) {
+                        final soundOn = ref.watch(timerSoundProvider);
+                        return IconButton(
+                          key: const Key('timer_sound_toggle'),
+                          tooltip: soundOn ? strings.timerSoundOn : strings.timerSoundOff,
+                          icon: Icon(
+                            soundOn ? Icons.volume_up_rounded : Icons.volume_off_rounded,
+                            color: const Color(0xFF94A3B8),
+                          ),
+                          onPressed: () => ref.read(timerSoundProvider.notifier).toggle(),
+                        );
+                      }),
+                      IconButton(
+                        key: const Key('cook_text_size'),
+                        tooltip: strings.cookTextSize,
+                        icon: const Icon(Icons.text_increase_rounded, color: Color(0xFF94A3B8)),
+                        onPressed: () => ref.read(cookTextSizeProvider.notifier).cycle(),
+                      ),
+                    ],
                   ),
                 ),
 

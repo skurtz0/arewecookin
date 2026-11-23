@@ -88,6 +88,8 @@ class AppStrings {
   String get planFromSaved => _get('planFromSaved', 'Add from favorites');
   String get planFromSavedEmpty => _get('planFromSavedEmpty', 'Save a recipe to favorites first.');
   String get togglePassword => _get('togglePassword', 'Show / hide password');
+  String get timerSoundOn => _get('timerSoundOn', 'Timer sound on');
+  String get timerSoundOff => _get('timerSoundOff', 'Timer sound off');
   String get shoppingClearAll => _get('shoppingClearAll', 'Clear list');
   String get shoppingClearAllConfirm => _get('shoppingClearAllConfirm', 'Remove all items from the shopping list?');
   String get shoppingEmptyTitle => _get('shoppingEmptyTitle', 'Your list is empty');

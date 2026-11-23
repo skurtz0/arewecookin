@@ -5,6 +5,7 @@ import 'package:arewecookin/models/models.dart';
 import 'package:arewecookin/providers/locale_provider.dart';
 import 'package:arewecookin/providers/recipe_progress_provider.dart';
 import 'package:arewecookin/providers/recipe_notes_provider.dart';
+import 'package:arewecookin/providers/timer_sound_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:arewecookin/screens/cooking_mode_screen.dart';
 
@@ -158,6 +159,28 @@ void main() {
       await tester.tap(find.byIcon(Icons.arrow_forward_rounded).first);
       await tester.pumpAndSettle();
       expect(find.byKey(const Key('next_step_preview')), findsNothing);
+    });
+
+    testWidgets('timer sound can be muted and the choice is remembered', (tester) async {
+      SharedPreferences.setMockInitialValues({});
+      final container = ProviderContainer(overrides: [
+        localeProvider.overrideWith(() => FakeLocaleNotifier(const Locale('en'))),
+      ]);
+      addTearDown(container.dispose);
+      await tester.pumpWidget(UncontrolledProviderScope(
+        container: container,
+        child: MaterialApp(home: CookingModeScreen(recipe: sampleRecipe)),
+      ));
+      await tester.pumpAndSettle();
+      expect(find.byTooltip('Timer sound on'), findsOneWidget);
+      await tester.ensureVisible(find.byKey(const Key('timer_sound_toggle')));
+      await tester.tap(find.byKey(const Key('timer_sound_toggle')));
+      await tester.pumpAndSettle();
+      expect(container.read(timerSoundProvider), isFalse);
+      expect(find.byTooltip('Timer sound off'), findsOneWidget);
+      await tester.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 100)));
+      final prefs = await SharedPreferences.getInstance();
+      expect(prefs.getBool('timer_sound_v1'), isFalse);
     });
 
     testWidgets('renders step 1 with tool icon, instruction, pro tip, timer and navigates through wizard in Turkish', (tester) async {
