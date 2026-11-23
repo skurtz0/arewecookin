@@ -99,6 +99,7 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
         content: TextField(
           controller: controller,
           autofocus: true,
+          textCapitalization: TextCapitalization.words,
           decoration: InputDecoration(
             labelText: strings.fullName,
             border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
@@ -1338,6 +1339,7 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
                   if (_isSignUp) ...[
                     TextFormField(
                       controller: _nameController,
+                      textCapitalization: TextCapitalization.words,
                       decoration: InputDecoration(
                         labelText: strings.fullName,
                         prefixIcon: const Icon(Icons.badge_outlined, size: 20),

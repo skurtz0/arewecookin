@@ -35,6 +35,17 @@ void main() {
       expect(pass.autofillHints, contains(AutofillHints.password));
     });
 
+    testWidgets('sign-up name field capitalizes each word', (tester) async {
+      tester.platformDispatcher.localesTestValue = const [Locale('en')];
+      await tester.pumpWidget(const ProviderScope(child: MaterialApp(home: AccountScreen())));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Sign Up').first);
+      await tester.pumpAndSettle();
+      final name = tester.widgetList<TextField>(find.byType(TextField)).firstWhere(
+          (f) => f.decoration?.labelText == 'Full Name');
+      expect(name.textCapitalization, TextCapitalization.words);
+    });
+
     testWidgets('divider text follows the app language', (tester) async {
       tester.platformDispatcher.localesTestValue = const [Locale('en')];
       await tester.pumpWidget(const ProviderScope(child: MaterialApp(home: AccountScreen())));
