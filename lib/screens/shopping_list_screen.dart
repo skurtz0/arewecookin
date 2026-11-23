@@ -203,7 +203,20 @@ class _ShoppingListScreenState extends ConsumerState<ShoppingListScreen> {
                     ? Icons.remove_done_rounded
                     : Icons.done_all_rounded,
               ),
-              onPressed: notifier.toggleAll,
+              onPressed: () {
+                final before = List.of(ref.read(shoppingListProvider));
+                notifier.toggleAll();
+                ScaffoldMessenger.of(context)
+                  ..hideCurrentSnackBar()
+                  ..showSnackBar(SnackBar(
+                    content: Text(strings.shoppingToggleAll),
+                    action: SnackBarAction(
+                      key: const Key('toggle_all_undo'),
+                      label: strings.undoLabel,
+                      onPressed: () => notifier.restore(before),
+                    ),
+                  ));
+              },
             ),
           if (items.isNotEmpty)
             IconButton(

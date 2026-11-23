@@ -151,6 +151,9 @@ void main() {
     await tester.tap(find.byKey(const Key('shopping_toggle_all')));
     await tester.pumpAndSettle();
     expect(c.read(shoppingListProvider).any((e) => e.done), isFalse);
+    tester.widget<SnackBarAction>(find.byKey(const Key('toggle_all_undo'))).onPressed();
+    await tester.pump();
+    expect(c.read(shoppingListProvider).every((e) => e.done), isTrue);
   });
 
   testWidgets('checked items can be added to the pantry', (tester) async {
