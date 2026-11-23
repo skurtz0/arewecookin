@@ -451,6 +451,7 @@ class DiscoverScreenState extends ConsumerState<DiscoverScreen> {
 
   Widget _buildCuisineSelector(DiscoverState discoverState, AppStrings strings) {
     final savedCount = ref.watch(savedRecipesProvider.select((s) => s.recipes.length));
+    final cookedCount = ref.watch(cookHistoryProvider.select((m) => m.length));
     return Container(
       width: double.infinity,
       decoration: BoxDecoration(
@@ -579,7 +580,7 @@ class DiscoverScreenState extends ConsumerState<DiscoverScreen> {
                   child: FilterChip(
                     key: const Key('cooked_filter'),
                     avatar: const Icon(Icons.check_circle_outline_rounded, size: 16),
-                    label: Text(strings.cookedDishes),
+                    label: Text(cookedCount > 0 ? '${strings.cookedDishes} ($cookedCount)' : strings.cookedDishes),
                     selected: _onlyCooked,
                     selectedColor: const Color(0xFFFF5722).withValues(alpha: 0.18),
                     onSelected: (v) => setState(() {

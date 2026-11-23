@@ -296,6 +296,7 @@ void main() {
       await tester.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 50)));
       await tester.pumpAndSettle();
       expect(find.byKey(const Key('cooked_empty')), findsNothing);
+      expect(find.textContaining('(2)'), findsOneWidget);
       double y(r) => tester.getTopLeft(find.text(r.localizedTitle('en')).first).dy;
       expect(y(all[1]), lessThan(y(all[0])));
     });
