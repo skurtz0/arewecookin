@@ -216,7 +216,11 @@ class _MainNavigationScreenState extends ConsumerState<MainNavigationScreen> {
                         key: ValueKey(t.key),
                         icon: t.icon,
                         selectedIcon: t.selectedIcon,
-                        label: t.label,
+                        // Long multi-word labels wrap on a 360 dp phone: show the first word only.
+                        label: (t.label.length > 10 && t.label.contains(' '))
+                            ? t.label.split(' ').first
+                            : t.label,
+                        tooltip: t.label,
                       ),
                   ],
                 ),
