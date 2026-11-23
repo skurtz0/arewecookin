@@ -1905,7 +1905,11 @@ class _ProfileStat extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
+    return Semantics(
+      container: true,
+      excludeSemantics: true,
+      label: '$label: $count',
+      child: Column(
       children: [
         Icon(icon, size: 20, color: const Color(0xFFFF5722)),
         const SizedBox(height: 4),
@@ -1928,6 +1932,6 @@ class _ProfileStat extends StatelessWidget {
           ),
         ),
       ],
-    );
+    ));
   }
 }
