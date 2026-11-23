@@ -43,4 +43,31 @@ void main() {
     expect(find.bySemanticsLabel(RegExp(r'^[^:\n]+: 0$')), findsWidgets);
     handle.dispose();
   });
+
+  testWidgets('the Saved / My recipes tabs report which one is selected', (tester) async {
+    SharedPreferences.setMockInitialValues({});
+    tester.platformDispatcher.localesTestValue = const [Locale('en')];
+    addTearDown(tester.platformDispatcher.clearLocalesTestValue);
+    final handle = tester.ensureSemantics();
+    tester.view.physicalSize = const Size(1000, 3000);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(tester.view.reset);
+    final c = ProviderContainer();
+    addTearDown(c.dispose);
+    await c.read(authProvider.notifier).signInWithEmail('test@arewecookin.com', '123456');
+    await tester.pumpWidget(UncontrolledProviderScope(
+      container: c,
+      child: const MaterialApp(home: AccountScreen()),
+    ));
+    await tester.pumpAndSettle();
+    final counts = find.textContaining('(0)');
+    expect(counts, findsNWidgets(2));
+    bool selectedOf(Finder f) => tester
+        .widget<Semantics>(find.ancestor(of: f, matching: find.byWidgetPredicate((w) => w is Semantics && w.properties.selected != null)).first)
+        .properties
+        .selected!;
+    expect(selectedOf(counts.at(0)), isTrue);
+    expect(selectedOf(counts.at(1)), isFalse);
+    handle.dispose();
+  });
 }

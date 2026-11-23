@@ -1724,7 +1724,10 @@ class _SegmentTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return InkWell(
+    return Semantics(
+      button: true,
+      selected: isSelected,
+      child: InkWell(
       borderRadius: BorderRadius.circular(12),
       onTap: onTap,
       child: Container(
@@ -1756,7 +1759,7 @@ class _SegmentTab extends StatelessWidget {
           ],
         ),
       ),
-    );
+    ));
   }
 }
 
