@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../providers/locale_provider.dart';
+import '../providers/household_servings_provider.dart';
 import '../providers/meal_plan_provider.dart';
 import '../providers/shopping_list_provider.dart';
 import '../providers/user_recipes_provider.dart';
@@ -454,12 +455,21 @@ void _addToShopping(
   Iterable<Recipe> recipes,
 ) {
   final items = <ShoppingItem>[];
+  // With a default servings preference set, amounts are scaled to it (like the recipe screen does).
+  final household = ref.read(householdServingsProvider);
+  String scaled(Recipe r, String raw) {
+    final n = double.tryParse(raw.replaceAll(',', '.'));
+    if (household == null || n == null || r.servings <= 0) return raw;
+    final v = n * household / r.servings;
+    return v == v.toInt() ? v.toInt().toString() : v.toStringAsFixed(1);
+  }
+
   for (final r in recipes) {
     for (final i in r.ingredients.where((i) => !i.isOptional)) {
       items.add(
         ShoppingItem(
           name: i.localizedName(strings.locale),
-          amount: i.amount,
+          amount: scaled(r, i.amount),
           unit: i.localizedUnit(strings.locale),
           recipeTitle: r.localizedTitle(strings.locale),
         ),

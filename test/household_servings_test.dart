@@ -1,4 +1,7 @@
 import 'package:arewecookin/providers/household_servings_provider.dart';
+import 'package:arewecookin/providers/meal_plan_provider.dart';
+import 'package:arewecookin/providers/shopping_list_provider.dart';
+import 'package:arewecookin/screens/meal_plan_screen.dart';
 import 'package:arewecookin/providers/recipe_progress_provider.dart';
 import 'package:arewecookin/repositories/recipe_repository.dart';
 import 'package:arewecookin/screens/account_screen.dart';
@@ -76,5 +79,27 @@ void main() {
     await tester.pumpAndSettle();
     expect(c.read(householdServingsProvider), isNull);
     expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('the meal plan shopping button scales amounts to the household size', (tester) async {
+    SharedPreferences.setMockInitialValues({});
+    final recipes = (await RecipeRepository().getRecipes(limit: 50)).recipes;
+    final recipe = recipes.firstWhere((r) => r.servings > 0 && r.ingredients.any((i) => !i.isOptional && double.tryParse(i.amount.replaceAll(',', '.')) != null));
+    final ing = recipe.ingredients.firstWhere((i) => !i.isOptional && double.tryParse(i.amount.replaceAll(',', '.')) != null);
+    final c = ProviderContainer();
+    addTearDown(c.dispose);
+    c.read(householdServingsProvider.notifier).set(recipe.servings * 2);
+    c.read(mealPlanProvider.notifier).add(1, recipe);
+    await tester.pumpWidget(UncontrolledProviderScope(
+      container: c,
+      child: const MaterialApp(home: MealPlanScreen()),
+    ));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const Key('plan_day_to_list_1')));
+    await tester.pump(const Duration(seconds: 1));
+    final item = c.read(shoppingListProvider).firstWhere((e) => e.name == ing.localizedName('en'));
+    final base = double.parse(ing.amount.replaceAll(',', '.'));
+    final got = double.parse(item.amount.replaceAll(',', '.'));
+    expect(got, closeTo(base * 2, 0.06));
   });
 }
