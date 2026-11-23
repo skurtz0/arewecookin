@@ -6,6 +6,9 @@ import '../providers/auth_provider.dart';
 import '../providers/locale_provider.dart';
 import '../providers/moderation_provider.dart';
 import '../providers/social_provider.dart';
+import '../models/profile_doc.dart';
+import '../providers/profile_provider.dart';
+import '../widgets/profile_widgets.dart';
 import '../widgets/readable_width.dart';
 
 /// Community tab: people share recipes as posts, others like and comment.
@@ -33,7 +36,13 @@ class SocialScreen extends ConsumerWidget {
       final posts = next.asData?.value;
       if (posts != null) ref.read(socialProvider.notifier).loadLikes(posts.map((p) => p.id));
     });
-    final feed = ref.watch(feedProvider);
+    ref.listen(followingFeedProvider, (_, next) {
+      final posts = next.asData?.value;
+      if (posts != null) ref.read(socialProvider.notifier).loadLikes(posts.map((p) => p.id));
+    });
+    final following = ref.watch(feedModeProvider);
+    final feed = following ? ref.watch(followingFeedProvider) : ref.watch(feedProvider);
+    final tr = strings.isTurkish;
     return Scaffold(
       appBar: AppBar(title: Text(strings.tabSocial)),
       floatingActionButton: FloatingActionButton.extended(
@@ -42,27 +51,58 @@ class SocialScreen extends ConsumerWidget {
         icon: const Icon(Icons.add_a_photo_outlined),
         label: Text(strings.socialNewPost),
       ),
-      body: feed.when(
-        loading: () => Center(
-          child: Semantics(
-            label: strings.splashLoading,
-            child: const CircularProgressIndicator(),
-          ),
+      body: ReadableWidth(
+        child: Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(12, 8, 12, 0),
+              child: Align(
+                alignment: Alignment.centerLeft,
+                child: Wrap(
+                  key: const Key('feed_mode'),
+                  spacing: 8,
+                  runSpacing: 4,
+                  children: [
+                    ChoiceChip(
+                      label: Text(tr ? 'Herkes' : 'Everyone'),
+                      selected: !following,
+                      onSelected: (_) => ref.read(feedModeProvider.notifier).set(false),
+                    ),
+                    ChoiceChip(
+                      label: Text(tr ? 'Takip ettiklerim' : 'Following'),
+                      selected: following,
+                      onSelected: (_) => ref.read(feedModeProvider.notifier).set(true),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            Expanded(
+              child: feed.when(
+                loading: () => Center(
+                  child: Semantics(label: strings.splashLoading, child: const CircularProgressIndicator()),
+                ),
+                error: (_, _) => Center(child: Text(strings.socialUnavailable)),
+                data: (all) {
+                  final mod = ref.watch(moderationProvider);
+                  final posts = all
+                      .where((p) => !mod.blockedAuthors.contains(p.authorId) && !mod.hiddenPosts.contains(p.id))
+                      .toList();
+                  final emptyText = following
+                      ? (tr ? 'Henüz kimseyi takip etmiyorsun ya da takip ettiklerin paylaşım yapmadı.' : 'You follow nobody yet, or they have not posted.')
+                      : strings.socialEmpty;
+                  return posts.isEmpty
+                      ? Center(child: Padding(padding: const EdgeInsets.all(24), child: Text(emptyText, textAlign: TextAlign.center)))
+                      : ListView.builder(
+                          padding: const EdgeInsets.only(bottom: 96),
+                          itemCount: posts.length,
+                          itemBuilder: (_, i) => _PostCard(post: posts[i]),
+                        );
+                },
+              ),
+            ),
+          ],
         ),
-        error: (_, _) => Center(child: Text(strings.socialUnavailable)),
-        data: (all) {
-          final mod = ref.watch(moderationProvider);
-          final posts = all
-              .where((p) => !mod.blockedAuthors.contains(p.authorId) && !mod.hiddenPosts.contains(p.id))
-              .toList();
-          return posts.isEmpty
-              ? Center(child: Padding(padding: const EdgeInsets.all(24), child: Text(strings.socialEmpty, textAlign: TextAlign.center)))
-              : ListView.builder(
-                  padding: const EdgeInsets.only(bottom: 96),
-                  itemCount: posts.length,
-                  itemBuilder: (_, i) => _PostCard(post: posts[i]),
-                );
-        },
       ),
     );
   }
@@ -77,7 +117,6 @@ class _PostCard extends ConsumerWidget {
     final strings = ref.watch(appStringsProvider);
     final liked = ref.watch(socialProvider.select((s) => s.liked.contains(post.id)));
     final shownLikes = post.likeCount;
-    final initial = post.authorName.trim().isEmpty ? '?' : post.authorName.trim().characters.first.toUpperCase();
     return Card(
       margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       child: Column(
@@ -85,7 +124,7 @@ class _PostCard extends ConsumerWidget {
         children: [
           ListTile(
             key: Key('author_${post.id}'),
-            leading: ExcludeSemantics(child: CircleAvatar(child: Text(initial))),
+            leading: ProfileAvatar(uid: post.authorId, name: post.authorName),
             title: Text(post.authorName.isEmpty ? '—' : post.authorName),
             onTap: () => Navigator.of(context).push(MaterialPageRoute<void>(
               builder: (_) => AuthorScreen(authorId: post.authorId, authorName: post.authorName),
@@ -393,12 +432,33 @@ class _PostMenu extends ConsumerWidget {
             ..showSnackBar(SnackBar(content: Text(strings.socialReported)));
         } else if (v == 'block') {
           ref.read(moderationProvider.notifier).blockAuthor(post.authorId);
+        } else if (v == 'pin' || v == 'unpin') {
+          final tr = strings.isTurkish;
+          final pinned = ref.read(profileProvider(user.id)).asData?.value?.pinned ?? const <String>[];
+          if (v == 'pin' && pinned.length >= ProfileDoc.maxPinned) {
+            messenger.showSnackBar(SnackBar(content: Text(tr ? 'En çok ${ProfileDoc.maxPinned} gönderi sabitlenebilir.' : 'You can pin up to ${ProfileDoc.maxPinned} posts.')));
+          } else {
+            try {
+              await ref.read(profileServiceProvider).saveProfile(
+                    user.id,
+                    pinned: v == 'pin' ? [...pinned, post.id] : [for (final id in pinned) if (id != post.id) id],
+                  );
+            } catch (_) {
+              messenger.showSnackBar(SnackBar(content: Text(strings.socialUnavailable)));
+            }
+          }
         }
       },
       itemBuilder: (_) => [
-        if (mine)
-          PopupMenuItem(value: 'delete', child: Text(strings.socialDelete))
-        else ...[
+        if (mine) ...[
+          PopupMenuItem(
+            value: ref.read(profileProvider(user.id)).asData?.value?.pinned.contains(post.id) == true ? 'unpin' : 'pin',
+            child: Text(ref.read(profileProvider(user.id)).asData?.value?.pinned.contains(post.id) == true
+                ? (strings.isTurkish ? 'Sabitlemeyi kaldır' : 'Unpin from profile')
+                : (strings.isTurkish ? 'Profile sabitle' : 'Pin to profile')),
+          ),
+          PopupMenuItem(value: 'delete', child: Text(strings.socialDelete)),
+        ] else ...[
           PopupMenuItem(value: 'report', child: Text(strings.socialReport)),
           PopupMenuItem(value: 'block', child: Text(strings.socialBlock)),
         ],
@@ -420,13 +480,20 @@ class AuthorScreen extends ConsumerWidget {
     final blocked = mod.blockedAuthors.contains(authorId);
     final me = ref.watch(authProvider).user;
     final isMe = me.isLoggedIn && me.id == authorId;
-    final posts = ref.watch(feedProvider).asData?.value
-            .where((p) => p.authorId == authorId && !mod.hiddenPosts.contains(p.id))
-            .toList() ??
-        const <SocialPost>[];
+    final profile = ref.watch(profileProvider(authorId)).asData?.value;
+    final pinned = profile?.pinned ?? const <String>[];
+    final posts = (ref.watch(authorPostsProvider(authorId)).asData?.value ?? const <SocialPost>[])
+        .where((p) => !mod.hiddenPosts.contains(p.id))
+        .toList()
+      ..sort((a, b) {
+        final pa = pinned.contains(a.id), pb = pinned.contains(b.id);
+        if (pa != pb) return pa ? -1 : 1;
+        return b.createdAtMs.compareTo(a.createdAtMs);
+      });
+    final name = (profile?.displayName.isNotEmpty == true) ? profile!.displayName : authorName;
     return Scaffold(
       appBar: AppBar(
-        title: Text(authorName.isEmpty ? '—' : authorName),
+        title: Text(name.isEmpty ? '—' : name, maxLines: 1, overflow: TextOverflow.ellipsis),
         actions: [
           if (!isMe)
             TextButton(
@@ -435,19 +502,156 @@ class AuthorScreen extends ConsumerWidget {
                 final n = ref.read(moderationProvider.notifier);
                 blocked ? n.unblockAuthor(authorId) : n.blockAuthor(authorId);
               },
-              child: Text(blocked ? strings.socialUnblock : strings.socialBlock),
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 120),
+                child: Text(blocked ? strings.socialUnblock : strings.socialBlock, maxLines: 1, overflow: TextOverflow.ellipsis),
+              ),
             ),
         ],
       ),
       body: ReadableWidth(
         child: blocked
             ? Center(child: Text(strings.socialBlockedNote))
-            : posts.isEmpty
-                ? Center(child: Text(strings.socialEmpty))
-                : ListView.builder(
-                    itemCount: posts.length,
-                    itemBuilder: (_, i) => _PostCard(post: posts[i]),
+            : CustomScrollView(
+                slivers: [
+                  SliverToBoxAdapter(
+                    child: _ProfileHeader(authorId: authorId, name: name, profile: profile, isMe: isMe, postCount: posts.length),
                   ),
+                  if (posts.isEmpty)
+                    SliverToBoxAdapter(child: Padding(padding: const EdgeInsets.all(24), child: Center(child: Text(strings.socialEmpty))))
+                  else
+                    SliverPadding(
+                      padding: const EdgeInsets.all(4),
+                      sliver: SliverGrid(
+                        gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
+                          maxCrossAxisExtent: 180,
+                          mainAxisSpacing: 4,
+                          crossAxisSpacing: 4,
+                        ),
+                        delegate: SliverChildBuilderDelegate(
+                          (_, i) => _PostTile(post: posts[i], pinned: pinned.contains(posts[i].id)),
+                          childCount: posts.length,
+                        ),
+                      ),
+                    ),
+                  const SliverToBoxAdapter(child: SizedBox(height: 24)),
+                ],
+              ),
+      ),
+    );
+  }
+}
+
+class _ProfileHeader extends ConsumerWidget {
+  final String authorId;
+  final String name;
+  final ProfileDoc? profile;
+  final bool isMe;
+  final int postCount;
+  const _ProfileHeader({required this.authorId, required this.name, required this.profile, required this.isMe, required this.postCount});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final tr = ref.watch(appStringsProvider).isTurkish;
+    final me = ref.watch(authProvider).user;
+    final followers = ref.watch(followersProvider(authorId)).asData?.value ?? const <String>{};
+    final following = ref.watch(followingProvider(authorId)).asData?.value ?? const <String>{};
+    final iFollow = me.isLoggedIn && followers.contains(me.id);
+    Widget stat(String label, int n, {Key? key}) => Expanded(
+          child: Column(children: [
+            Text('$n', key: key, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
+            Text(label, maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(fontSize: 12)),
+          ]),
+        );
+    return Padding(
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(children: [
+            ProfileAvatar(uid: authorId, name: name, radius: 40),
+            const SizedBox(width: 16),
+            stat(tr ? 'Gönderi' : 'Posts', postCount, key: const Key('stat_posts')),
+            stat(tr ? 'Takipçi' : 'Followers', followers.length, key: const Key('stat_followers')),
+            stat(tr ? 'Takip' : 'Following', following.length, key: const Key('stat_following')),
+          ]),
+          const SizedBox(height: 12),
+          Text(name, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+          if (profile?.bio.isNotEmpty == true) Padding(padding: const EdgeInsets.only(top: 4), child: Text(profile!.bio)),
+          const SizedBox(height: 12),
+          SizedBox(
+            width: double.infinity,
+            child: isMe
+                ? OutlinedButton(
+                    key: const Key('profile_edit'),
+                    onPressed: () => showModalBottomSheet<void>(
+                      context: context,
+                      isScrollControlled: true,
+                      builder: (_) => EditProfileSheet(current: profile),
+                    ),
+                    child: Text(tr ? 'Profili düzenle' : 'Edit profile'),
+                  )
+                : (iFollow
+                    ? OutlinedButton(
+                        key: const Key('profile_follow'),
+                        onPressed: () => ref.read(profileServiceProvider).setFollow(me: me.id, target: authorId, follow: false),
+                        child: Text(tr ? 'Takibi bırak' : 'Unfollow'),
+                      )
+                    : FilledButton(
+                        key: const Key('profile_follow'),
+                        onPressed: () {
+                          if (!me.isLoggedIn) {
+                            ScaffoldMessenger.of(context)
+                              ..hideCurrentSnackBar()
+                              ..showSnackBar(SnackBar(content: Text(ref.read(appStringsProvider).socialSignInToShare)));
+                            return;
+                          }
+                          ref.read(profileServiceProvider).setFollow(me: me.id, target: authorId, follow: true);
+                        },
+                        child: Text(tr ? 'Takip et' : 'Follow'),
+                      )),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// One square in the profile grid: first photo (or the title for a text post). Tap opens the full post.
+class _PostTile extends StatelessWidget {
+  final SocialPost post;
+  final bool pinned;
+  const _PostTile({required this.post, required this.pinned});
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    return InkWell(
+      key: Key('tile_${post.id}'),
+      onTap: () => Navigator.of(context).push(MaterialPageRoute<void>(
+        builder: (_) => Scaffold(
+          appBar: AppBar(title: Text(post.title, maxLines: 1, overflow: TextOverflow.ellipsis)),
+          body: ReadableWidth(child: SingleChildScrollView(child: _PostCard(post: post))),
+        ),
+      )),
+      child: Stack(
+        fit: StackFit.expand,
+        children: [
+          if (post.photoUrl != null)
+            Image.network(post.photoUrl!, fit: BoxFit.cover, semanticLabel: post.title,
+                errorBuilder: (_, _, _) => ColoredBox(color: cs.surfaceContainerHighest, child: const Icon(Icons.broken_image_outlined)))
+          else
+            ColoredBox(
+              color: cs.surfaceContainerHighest,
+              child: Padding(
+                padding: const EdgeInsets.all(8),
+                child: Center(child: Text(post.title, maxLines: 4, overflow: TextOverflow.ellipsis, textAlign: TextAlign.center)),
+              ),
+            ),
+          if (pinned) const Positioned(top: 4, left: 4, child: Icon(Icons.push_pin, size: 18, color: Colors.white, shadows: [Shadow(blurRadius: 4)])),
+          if (post.photoUrls.length > 1)
+            const Positioned(top: 4, right: 4, child: Icon(Icons.collections, size: 18, color: Colors.white, shadows: [Shadow(blurRadius: 4)])),
+        ],
       ),
     );
   }

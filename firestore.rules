@@ -48,6 +48,34 @@ service cloud.firestore {
       allow create, delete: if signedIn() && request.auth.uid == uid && blockedUid != uid;
     }
 
+    // Public profile: only its owner writes, only these fields. Pinned posts: at most 3 ids.
+    match /profiles/{uid} {
+      allow read: if true;
+      allow create, update: if signedIn() && request.auth.uid == uid
+        && request.resource.data.keys().hasOnly(['displayName', 'bio', 'photoUrl', 'pinned'])
+        && validText(request.resource.data.get('displayName', ''), 40)
+        && validText(request.resource.data.get('bio', ''), 150)
+        && (!('photoUrl' in request.resource.data) || photoOk(request.resource.data.photoUrl))
+        && (!('pinned' in request.resource.data)
+            || (request.resource.data.pinned is list && request.resource.data.pinned.size() <= 3
+                && (request.resource.data.pinned.size() < 1 || validText(request.resource.data.pinned[0], 40))
+                && (request.resource.data.pinned.size() < 2 || validText(request.resource.data.pinned[1], 40))
+                && (request.resource.data.pinned.size() < 3 || validText(request.resource.data.pinned[2], 40))));
+      allow delete: if signedIn() && request.auth.uid == uid;
+    }
+
+    // Follow graph: one document per follow, id = <follower>_<followee>. Public like on Instagram.
+    match /follows/{followId} {
+      allow read: if true;
+      allow create: if signedIn()
+        && request.resource.data.keys().hasOnly(['followerId', 'followeeId', 'createdAtMs'])
+        && request.resource.data.followerId == request.auth.uid
+        && validText(request.resource.data.followeeId, 128)
+        && request.resource.data.followeeId != request.auth.uid
+        && followId == request.auth.uid + '_' + request.resource.data.followeeId;
+      allow delete: if signedIn() && resource.data.followerId == request.auth.uid;
+    }
+
     match /posts/{postId} {
       allow read: if true;
       allow create: if signedIn()

@@ -5,6 +5,8 @@ import '../models/social_post.dart';
 /// tests use an in-memory fake.
 abstract class SocialService {
   Stream<List<SocialPost>> watchFeed();
+  Stream<List<SocialPost>> watchPostsBy(String authorId);
+  Stream<List<SocialPost>> watchFollowingFeed(Set<String> authorIds);
   Future<void> createPost(SocialPost post);
   Future<Set<String>> likedPostIds(String uid, Iterable<String> postIds);
   Future<void> setLike({required String postId, required String uid, required bool liked});
@@ -26,6 +28,30 @@ class FirestoreSocialService implements SocialService {
           .limit(50)
           .snapshots()
           .map((s) => [for (final d in s.docs) SocialPost.fromMap(d.id, d.data())]);
+    } catch (e) {
+      return Stream.error(e);
+    }
+  }
+
+  List<SocialPost> _newestFirst(QuerySnapshot<Map<String, dynamic>> s) =>
+      [for (final d in s.docs) SocialPost.fromMap(d.id, d.data())]..sort((a, b) => b.createdAtMs.compareTo(a.createdAtMs));
+
+  // No orderBy here on purpose: where + orderBy on another field needs an index. We sort in the app.
+  @override
+  Stream<List<SocialPost>> watchPostsBy(String authorId) {
+    try {
+      return _posts.where('authorId', isEqualTo: authorId).limit(100).snapshots().map(_newestFirst);
+    } catch (e) {
+      return Stream.error(e);
+    }
+  }
+
+  @override
+  Stream<List<SocialPost>> watchFollowingFeed(Set<String> authorIds) {
+    if (authorIds.isEmpty) return Stream.value(const []);
+    try {
+      // Firestore allows at most 30 values in a whereIn.
+      return _posts.where('authorId', whereIn: authorIds.take(30).toList()).limit(100).snapshots().map(_newestFirst);
     } catch (e) {
       return Stream.error(e);
     }

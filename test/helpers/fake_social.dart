@@ -43,6 +43,18 @@ class FakeSocialService implements SocialService {
   }
 
   @override
+  Stream<List<SocialPost>> watchPostsBy(String authorId) async* {
+    yield [for (final p in posts) if (p.authorId == authorId) p];
+    yield* _feed.stream.map((l) => [for (final p in l) if (p.authorId == authorId) p]);
+  }
+
+  @override
+  Stream<List<SocialPost>> watchFollowingFeed(Set<String> authorIds) async* {
+    yield [for (final p in posts) if (authorIds.contains(p.authorId)) p];
+    yield* _feed.stream.map((l) => [for (final p in l) if (authorIds.contains(p.authorId)) p]);
+  }
+
+  @override
   Stream<List<SocialComment>> watchComments(String postId) async* {
     yield List.of(comments[postId] ?? []);
   }
