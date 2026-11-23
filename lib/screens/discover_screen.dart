@@ -891,9 +891,13 @@ class DiscoverScreenState extends ConsumerState<DiscoverScreen> with WidgetsBind
   /// Saved (bookmarked) recipes, narrowed by the search box. Works offline: they are stored on the device.
   Widget _buildSavedSliver(BuildContext context, AppStrings strings) {
     final query = RecipeRepository.normalizeSearch(_searchController.text).trim();
+    final maxMinutes = ref.watch(discoverProvider.select((d) => d.maxMinutes));
     final saved = ref.watch(savedRecipesProvider).recipes.where((r) {
+      // The time chips apply to the Saved list too.
+      if (maxMinutes != null && r.totalTime > maxMinutes) return false;
       if (query.isEmpty) return true;
-      return RecipeRepository.normalizeSearch(r.localizedTitle(strings.locale)).contains(query);
+      return RecipeRepository.normalizeSearch(r.localizedTitle(strings.locale)).contains(query) ||
+          r.ingredients.any((i) => RecipeRepository.normalizeSearch(i.localizedName(strings.locale)).contains(query));
     }).toList();
     final ratings = ref.watch(recipeNotesProvider);
     if (_savedTopRated) {

@@ -1,6 +1,7 @@
 import 'package:arewecookin/providers/meal_plan_provider.dart';
 import 'package:arewecookin/providers/cook_history_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:arewecookin/repositories/recipe_repository.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:arewecookin/screens/discover_screen.dart';
@@ -84,6 +85,35 @@ void main() {
       await tester.pumpAndSettle();
       expect(find.bySemanticsLabel(RegExp('${RegExp.escape(recipe.localizedTitle('en'))}, \\d+ min, .*4/5')), findsOneWidget);
       handle.dispose();
+    });
+
+    testWidgets('Saved view follows the time chip and also finds recipes by ingredient', (tester) async {
+      tester.view.physicalSize = const Size(1200, 6000);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(tester.view.reset);
+      SharedPreferences.setMockInitialValues({});
+      final container = ProviderContainer();
+      addTearDown(container.dispose);
+      final all = (await RecipeRepository().getRecipes(limit: 60)).recipes;
+      final quick = all.firstWhere((r) => r.totalTime <= 15);
+      final slow = all.firstWhere((r) => r.totalTime > 30);
+      await container.read(savedRecipesProvider.notifier).toggleSave(quick);
+      await container.read(savedRecipesProvider.notifier).toggleSave(slow);
+      await tester.pumpWidget(UncontrolledProviderScope(
+        container: container,
+        child: const MaterialApp(home: Scaffold(body: DiscoverScreen())),
+      ));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 300));
+      await tester.tap(find.byKey(const Key('saved_filter')));
+      await tester.pumpAndSettle();
+      expect(find.byKey(Key('card_save_${quick.id}')), findsOneWidget);
+      expect(find.byKey(Key('card_save_${slow.id}')), findsOneWidget);
+      container.read(discoverProvider.notifier).setMaxMinutes(15);
+      await tester.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 100)));
+      await tester.pumpAndSettle();
+      expect(find.byKey(Key('card_save_${quick.id}')), findsOneWidget);
+      expect(find.byKey(Key('card_save_${slow.id}')), findsNothing);
     });
 
     testWidgets('Saved filter shows only bookmarked recipes', (tester) async {
