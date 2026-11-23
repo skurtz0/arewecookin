@@ -468,7 +468,10 @@ class _ShoppingListScreenState extends ConsumerState<ShoppingListScreen> {
                             onLongPress: () => editItem(i, item),
                             child: CheckboxListTile(
                               value: item.done,
-                              onChanged: (_) => notifier.toggle(i),
+                              onChanged: (_) {
+                                HapticFeedback.selectionClick();
+                                notifier.toggle(i);
+                              },
                               controlAffinity: ListTileControlAffinity.leading,
                               activeColor: const Color(0xFF10B981),
                               title: Text(

@@ -121,6 +121,7 @@ class _RecipeDetailScreenState extends ConsumerState<RecipeDetailScreen> {
   }
 
   void _toggleIngredient(int index) {
+    HapticFeedback.selectionClick();
     setState(() {
       if (_checkedIngredientIndices.contains(index)) {
         _checkedIngredientIndices.remove(index);
