@@ -468,6 +468,7 @@ class _CookingModeScreenState extends ConsumerState<CookingModeScreen> {
   }
 
   void _onPageChanged(int index) {
+    HapticFeedback.selectionClick();
     setState(() {
       _currentStepIndex = index;
     });
