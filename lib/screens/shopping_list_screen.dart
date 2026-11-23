@@ -242,6 +242,8 @@ class _ShoppingListScreenState extends ConsumerState<ShoppingListScreen> {
                   for (final e in items)
                     if (e.done) e.name,
                 ];
+                final before = Set<String>.from(
+                    ref.read(pantryProvider).selectedKeys);
                 final added = await ref
                     .read(pantryProvider.notifier)
                     .addIngredients(names);
@@ -249,7 +251,18 @@ class _ShoppingListScreenState extends ConsumerState<ShoppingListScreen> {
                 ScaffoldMessenger.of(context)
                   ..hideCurrentSnackBar()
                   ..showSnackBar(
-                    SnackBar(content: Text(strings.pantryAdded(added))),
+                    SnackBar(
+                      content: Text(strings.pantryAdded(added)),
+                      action: added == 0
+                          ? null
+                          : SnackBarAction(
+                              key: const Key('shopping_to_pantry_undo'),
+                              label: strings.undoLabel,
+                              onPressed: () => ref
+                                  .read(pantryProvider.notifier)
+                                  .restoreSelection(before),
+                            ),
+                    ),
                   );
               },
             ),

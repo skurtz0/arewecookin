@@ -167,6 +167,9 @@ void main() {
     await tester.pumpAndSettle();
     expect(c.read(pantryProvider).selectedKeys, {'eggs'});
     expect(find.text('1 ingredients added to pantry'), findsOneWidget);
+    await tester.tap(find.byKey(const Key('shopping_to_pantry_undo')));
+    await tester.pumpAndSettle();
+    expect(c.read(pantryProvider).selectedKeys, isEmpty);
   });
 
   testWidgets('open items are grouped by source recipe once there are several sources', (tester) async {
