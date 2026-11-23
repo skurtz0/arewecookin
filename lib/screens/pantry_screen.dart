@@ -96,14 +96,25 @@ class _PantryScreenState extends ConsumerState<PantryScreen> {
     super.dispose();
   }
 
-  void _handleAddCustom() {
+  Future<void> _handleAddCustom() async {
     final text = _customIngredientController.text.trim();
-    if (text.isNotEmpty) {
-      ref
-          .read(pantryProvider.notifier)
-          .addIngredients(text.split(RegExp(r'[,;\n]')));
-      _customIngredientController.clear();
-    }
+    if (text.isEmpty) return;
+    final notifier = ref.read(pantryProvider.notifier);
+    final before = Set<String>.from(ref.read(pantryProvider).selectedKeys);
+    final strings = ref.read(appStringsProvider);
+    _customIngredientController.clear();
+    final added = await notifier.addIngredients(text.split(RegExp(r'[,;\n]')));
+    if (!mounted || added == 0) return;
+    ScaffoldMessenger.of(context)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(SnackBar(
+        content: Text(strings.pantryAdded(added)),
+        action: SnackBarAction(
+          key: const Key('pantry_add_undo'),
+          label: strings.undoLabel,
+          onPressed: () => notifier.restoreSelection(before),
+        ),
+      ));
   }
 
   @override
