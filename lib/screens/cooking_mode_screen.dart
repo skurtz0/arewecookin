@@ -23,7 +23,10 @@ import '../l10n/recipe_localization.dart';
 class CookingModeScreen extends ConsumerStatefulWidget {
   final Recipe recipe;
 
-  const CookingModeScreen({super.key, required this.recipe});
+  /// Step to open on (0-based). 0 = start, or resume where the user stopped last time.
+  final int initialStep;
+
+  const CookingModeScreen({super.key, required this.recipe, this.initialStep = 0});
 
   @override
   ConsumerState<CookingModeScreen> createState() => _CookingModeScreenState();
@@ -328,7 +331,12 @@ class _CookingModeScreenState extends ConsumerState<CookingModeScreen> {
   @override
   void initState() {
     super.initState();
-    _pageController = PageController();
+    final start = widget.initialStep > 0 && widget.initialStep < widget.recipe.steps.length ? widget.initialStep : 0;
+    _pageController = PageController(initialPage: start);
+    if (start > 0) {
+      _currentStepIndex = start;
+      _resumed = true;
+    }
     // Resume where the user stopped last time (stored step arrives asynchronously).
     ref.listenManual(recipeProgressProvider, (prev, next) {
       // Ingredient ticks are shared with the recipe detail screen.
@@ -353,7 +361,7 @@ class _CookingModeScreenState extends ConsumerState<CookingModeScreen> {
       }
     }, fireImmediately: true);
     _setKeepAwake(true);
-    _initTimerForStep(0);
+    _initTimerForStep(_currentStepIndex);
   }
 
   /// Keeps the screen on while cooking. Failures (unsupported platform, tests) are ignored.

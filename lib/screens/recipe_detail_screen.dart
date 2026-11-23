@@ -1181,8 +1181,17 @@ class _RecipeDetailScreenState extends ConsumerState<RecipeDetailScreen> {
                   strings.locale,
                 );
 
-                return Container(
-                  margin: const EdgeInsets.only(bottom: 10),
+                return Padding(
+                  padding: const EdgeInsets.only(bottom: 10),
+                  child: InkWell(
+                  key: Key('step_preview_$index'),
+                  borderRadius: BorderRadius.circular(14),
+                  onTap: () => Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (_) => CookingModeScreen(recipe: recipe, initialStep: index),
+                    ),
+                  ),
+                  child: Container(
                   padding: const EdgeInsets.all(14),
                   decoration: BoxDecoration(
                     color: Colors.white,
@@ -1357,7 +1366,7 @@ class _RecipeDetailScreenState extends ConsumerState<RecipeDetailScreen> {
                       ),
                     ],
                   ),
-                );
+                )));
               },
             ),
           ],
