@@ -136,4 +136,19 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.byKey(const Key('shopping_hint')), findsOneWidget);
   });
+
+  testWidgets('check-all toggles every item, and unchecks when all are checked', (tester) async {
+    SharedPreferences.setMockInitialValues({});
+    final c = ProviderContainer();
+    addTearDown(c.dispose);
+    c.read(shoppingListProvider.notifier).addAll(const [ShoppingItem(name: 'Alpha'), ShoppingItem(name: 'Beta')]);
+    await tester.pumpWidget(UncontrolledProviderScope(container: c, child: const MaterialApp(home: ShoppingListScreen())));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const Key('shopping_toggle_all')));
+    await tester.pumpAndSettle();
+    expect(c.read(shoppingListProvider).every((e) => e.done), isTrue);
+    await tester.tap(find.byKey(const Key('shopping_toggle_all')));
+    await tester.pumpAndSettle();
+    expect(c.read(shoppingListProvider).any((e) => e.done), isFalse);
+  });
 }

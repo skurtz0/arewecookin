@@ -191,6 +191,13 @@ class ShoppingListNotifier extends Notifier<List<ShoppingItem>> {
     _save();
   }
 
+  /// Checks every item, or unchecks all when everything is already checked.
+  void toggleAll() {
+    final allDone = state.isNotEmpty && state.every((e) => e.done);
+    state = [for (final e in state) e.copyWith(done: !allDone)];
+    _save();
+  }
+
   void clearDone() {
     state = state.where((e) => !e.done).toList();
     _save();

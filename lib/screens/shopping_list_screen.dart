@@ -137,6 +137,13 @@ class _ShoppingListScreenState extends ConsumerState<ShoppingListScreen> {
             ),
           if (items.isNotEmpty)
             IconButton(
+              key: const Key('shopping_toggle_all'),
+              tooltip: strings.shoppingToggleAll,
+              icon: Icon(doneCount == items.length ? Icons.remove_done_rounded : Icons.done_all_rounded),
+              onPressed: notifier.toggleAll,
+            ),
+          if (items.isNotEmpty)
+            IconButton(
               key: const Key('shopping_clear_all'),
               tooltip: strings.shoppingClearAll,
               icon: const Icon(Icons.delete_sweep_outlined),
