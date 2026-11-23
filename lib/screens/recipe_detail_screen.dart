@@ -87,6 +87,13 @@ class _RecipeDetailScreenState extends ConsumerState<RecipeDetailScreen> {
   }
 
   /// Plain-text recipe (title, scaled ingredients, steps) for pasting into notes or chats.
+  /// True when the ingredient's name contains one of the words the user avoids.
+  bool _isAvoided(Ingredient i, List<String> avoid) {
+    if (avoid.isEmpty) return false;
+    final name = RecipeRepository.normalizeSearch('${i.name} ${i.nameEn ?? ''}');
+    return avoid.any((w) => w.trim().isNotEmpty && name.contains(RecipeRepository.normalizeSearch(w)));
+  }
+
   String recipeAsText(String locale) {
     final r = widget.recipe;
     final b = StringBuffer(r.localizedTitle(locale))
@@ -744,6 +751,17 @@ class _RecipeDetailScreenState extends ConsumerState<RecipeDetailScreen> {
                               ),
                             ),
                           ),
+                          if (_isAvoided(ing, ref.watch(avoidedIngredientsProvider)))
+                            Padding(
+                              padding: const EdgeInsetsDirectional.only(end: 8),
+                              child: Icon(
+                                Icons.warning_amber_rounded,
+                                key: Key('ingredient_avoided_$index'),
+                                size: 16,
+                                color: const Color(0xFFDC2626),
+                                semanticLabel: strings.avoidedTitle,
+                              ),
+                            ),
                           if (havePantry)
                             Padding(
                               padding: const EdgeInsetsDirectional.only(end: 8),

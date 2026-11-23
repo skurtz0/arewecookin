@@ -110,6 +110,8 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.byKey(const Key('avoided_warning')), findsOneWidget);
     expect(find.textContaining(word.split(' ').first), findsWidgets);
+    // The matching ingredient row itself is marked too.
+    expect(find.byWidgetPredicate((w) => w.key is Key && '${w.key}'.contains('ingredient_avoided_')), findsWidgets);
   });
 
   testWidgets('meal plan rows show a badge for recipes with an avoided word', (tester) async {
