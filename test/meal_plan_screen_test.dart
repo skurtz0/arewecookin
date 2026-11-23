@@ -288,4 +288,27 @@ void main() {
     await tester.pump();
     expect(container.read(mealPlanProvider)[1]!.single.id, recipes[0].id);
   });
+
+  testWidgets('swiping a planned meal left removes it and offers undo', (tester) async {
+    SharedPreferences.setMockInitialValues({});
+    final recipe = (await RecipeRepository().getRecipes(limit: 1)).recipes.first;
+    final container = ProviderContainer();
+    addTearDown(container.dispose);
+    final day = DateTime.now().weekday;
+    container.read(mealPlanProvider.notifier).add(day, recipe);
+    await tester.pumpWidget(UncontrolledProviderScope(
+      container: container,
+      child: const MaterialApp(home: MealPlanScreen()),
+    ));
+    await tester.pumpAndSettle();
+    final f = find.byKey(ValueKey('plan_row_${day}_${recipe.id}'));
+    await tester.drag(f, const Offset(-500, 0));
+    await tester.pump();
+    await tester.pump(const Duration(seconds: 1));
+    await tester.pump(const Duration(seconds: 1));
+    expect(container.read(mealPlanProvider)[day] ?? const [], isEmpty);
+    tester.widget<SnackBarAction>(find.byKey(const Key('plan_swipe_undo'))).onPressed();
+    await tester.pump();
+    expect(container.read(mealPlanProvider)[day]!.single.id, recipe.id);
+  });
 }

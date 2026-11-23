@@ -336,7 +336,36 @@ class MealPlanScreen extends ConsumerWidget {
                       ),
                     ),
                     for (final r in plan[day]!)
-                      Card(
+                      Dismissible(
+                        key: ValueKey('plan_row_${day}_${r.id}'),
+                        direction: DismissDirection.endToStart,
+                        background: Container(
+                          margin: const EdgeInsets.only(bottom: 8),
+                          decoration: BoxDecoration(
+                            color: Colors.red.shade400,
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          alignment: AlignmentDirectional.centerEnd,
+                          padding: const EdgeInsetsDirectional.only(end: 20),
+                          child: const Icon(Icons.delete_outline, color: Colors.white),
+                        ),
+                        onDismissed: (_) {
+                          final notifier = ref.read(mealPlanProvider.notifier);
+                          notifier.remove(day, r.id);
+                          ScaffoldMessenger.of(context)
+                            ..hideCurrentSnackBar()
+                            ..showSnackBar(
+                              SnackBar(
+                                content: Text(strings.mealPlanRemove),
+                                action: SnackBarAction(
+                                  key: const Key('plan_swipe_undo'),
+                                  label: strings.undoLabel,
+                                  onPressed: () => notifier.add(day, r),
+                                ),
+                              ),
+                            );
+                        },
+                        child: Card(
                         margin: const EdgeInsets.only(bottom: 8),
                         child: ListTile(
                           leading: RecipeImage(
@@ -448,6 +477,7 @@ class MealPlanScreen extends ConsumerWidget {
                             ],
                           ),
                         ),
+                      ),
                       ),
                   ],
               ],
