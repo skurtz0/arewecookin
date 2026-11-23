@@ -832,7 +832,18 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
                         builder: (context) => RecipeDetailScreen(recipe: recipe),
                       ),
                     ),
-                    trailing: IconButton(
+                    trailing: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        IconButton(
+                          key: Key('edit_custom_${recipe.id}'),
+                          tooltip: ref.read(appStringsProvider).editRecipe,
+                          icon: const Icon(Icons.edit_outlined, size: 22),
+                          onPressed: () => Navigator.of(context).push(
+                            MaterialPageRoute(builder: (_) => AddRecipeScreen(recipe: recipe)),
+                          ),
+                        ),
+                        IconButton(
                       tooltip: ref.read(appStringsProvider).shoppingDeleteItem,
                       icon: const Icon(Icons.delete_outline_rounded,
                           color: Colors.red, size: 22),
@@ -852,6 +863,8 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
                             ),
                           ));
                       },
+                    ),
+                      ],
                     ),
                   );
                 },

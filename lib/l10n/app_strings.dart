@@ -306,6 +306,7 @@ class AppStrings {
 
   // Add Recipe & Recipe Management
   String get addRecipe => _get('addRecipe', 'Add Recipe');
+  String get editRecipe => _get('editRecipe', 'Edit recipe');
   String get newRecipe => _get('newRecipe', 'Share New Recipe');
   String get recipeTitle => _get('recipeTitle', 'Recipe Title');
   String get enterRecipeTitle => _get('enterRecipeTitle', "e.g. Grandma's Lentil Soup");

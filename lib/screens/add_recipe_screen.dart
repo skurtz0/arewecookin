@@ -6,7 +6,9 @@ import '../providers/locale_provider.dart';
 import '../providers/user_recipes_provider.dart';
 
 class AddRecipeScreen extends ConsumerStatefulWidget {
-  const AddRecipeScreen({super.key});
+  /// When set, the screen edits this (own) recipe instead of creating a new one.
+  final Recipe? recipe;
+  const AddRecipeScreen({super.key, this.recipe});
 
   @override
   ConsumerState<AddRecipeScreen> createState() => _AddRecipeScreenState();
@@ -90,11 +92,46 @@ class _AddRecipeScreenState extends ConsumerState<AddRecipeScreen> {
   @override
   void initState() {
     super.initState();
+    final r = widget.recipe;
+    if (r != null) {
+      _prefill(r);
+      return;
+    }
     // Pre-populate with 2 ingredients and 2 steps
     _addIngredient();
     _addIngredient();
     _addStep();
     _addStep();
+  }
+
+  void _prefill(Recipe r) {
+    _titleController.text = r.title;
+    _imageUrlController.text = r.imageUrl ?? '';
+    _prepTimeController.text = '${r.prepTime}';
+    _cookTimeController.text = '${r.cookTime}';
+    _servingsController.text = '${r.servings}';
+    if (!_categories.contains(r.category)) _categories.add(r.category);
+    if (!_cuisines.contains(r.cuisine)) _cuisines.add(r.cuisine);
+    if (!_difficulties.contains(r.difficulty)) _difficulties.add(r.difficulty);
+    _selectedCategory = r.category;
+    _selectedCuisine = r.cuisine;
+    _selectedDifficulty = r.difficulty;
+    for (final i in r.ingredients) {
+      final d = _IngredientDraft();
+      d.nameController.text = i.name;
+      d.amountController.text = i.amount;
+      if (!_units.contains(i.unit)) _units.add(i.unit);
+      d.unit = i.unit;
+      _ingredients.add(d);
+    }
+    for (final st in r.steps) {
+      final d = _StepDraft();
+      d.instructionController.text = st.instruction;
+      if (st.timerSeconds > 0) d.timerController.text = '${(st.timerSeconds / 60).ceil()}';
+      _steps.add(d);
+    }
+    if (_ingredients.isEmpty) _addIngredient();
+    if (_steps.isEmpty) _addStep();
   }
 
   void _addIngredient() {
@@ -285,7 +322,7 @@ class _AddRecipeScreenState extends ConsumerState<AddRecipeScreen> {
       return;
     }
 
-    final recipeId = 'custom_rec_${DateTime.now().millisecondsSinceEpoch}';
+    final recipeId = widget.recipe?.id ?? 'custom_rec_${DateTime.now().millisecondsSinceEpoch}';
     final newRecipe = Recipe(
       id: recipeId,
       title: title,
@@ -298,7 +335,7 @@ class _AddRecipeScreenState extends ConsumerState<AddRecipeScreen> {
       imageUrl: imageUrl,
       ingredientKeys: ingredientKeys,
       ingredients: parsedIngredients,
-      substitutions: const [],
+      substitutions: widget.recipe?.substitutions ?? const [],
       steps: parsedSteps,
     );
 
@@ -330,7 +367,7 @@ class _AddRecipeScreenState extends ConsumerState<AddRecipeScreen> {
         elevation: 0,
         surfaceTintColor: Colors.transparent,
         title: Text(
-          strings.newRecipe,
+          widget.recipe == null ? strings.newRecipe : strings.editRecipe,
           style: const TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.bold,
