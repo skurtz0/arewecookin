@@ -92,15 +92,7 @@ class _PostCard extends ConsumerWidget {
             )),
             trailing: _PostMenu(post: post),
           ),
-          if (post.photoUrl != null)
-            Image.network(
-              post.photoUrl!,
-              width: double.infinity,
-              height: 240,
-              fit: BoxFit.cover,
-              semanticLabel: post.title,
-              errorBuilder: (_, _, _) => const SizedBox.shrink(),
-            ),
+          if (post.photoUrls.isNotEmpty) _PhotoGallery(urls: post.photoUrls, label: post.title),
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
             child: Text(post.title, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
@@ -154,17 +146,14 @@ class _ComposeSheetState extends ConsumerState<_ComposeSheet> {
   final _title = TextEditingController();
   final _text = TextEditingController();
   bool _busy = false;
-  Uint8List? _photo;
-  String _photoType = 'image/jpeg';
+  final List<(Uint8List, String)> _photos = [];
 
   Future<void> _pick() async {
+    if (_photos.length >= SocialPost.maxPhotos) return;
     try {
       final x = await ref.read(photoPickerProvider)();
       if (x == null || !mounted) return;
-      setState(() {
-        _photo = x.$1;
-        _photoType = x.$2;
-      });
+      setState(() => _photos.add((x.$1, x.$2)));
     } catch (_) {}
   }
 
@@ -178,7 +167,7 @@ class _ComposeSheetState extends ConsumerState<_ComposeSheet> {
   Future<void> _publish() async {
     if (_busy || _title.text.trim().isEmpty) return;
     setState(() => _busy = true);
-    final ok = await ref.read(socialProvider.notifier).publish(title: _title.text, text: _text.text, photo: _photo, photoType: _photoType);
+    final ok = await ref.read(socialProvider.notifier).publish(title: _title.text, text: _text.text, photos: _photos);
     if (!mounted) return;
     if (ok) {
       Navigator.of(context).pop();
@@ -211,11 +200,37 @@ class _ComposeSheetState extends ConsumerState<_ComposeSheet> {
             maxLines: 4,
             decoration: InputDecoration(labelText: strings.socialPostTextHint),
           ),
-          if (_photo != null)
-            Padding(
-              padding: const EdgeInsets.only(bottom: 8),
-              child: ClipRRect(borderRadius: BorderRadius.circular(8), child: Image.memory(_photo!, height: 140, fit: BoxFit.cover, errorBuilder: (_, _, _) => const SizedBox(height: 140, child: Icon(Icons.broken_image_outlined)))),
+          if (_photos.isNotEmpty)
+            SizedBox(
+              height: 96,
+              child: ListView.separated(
+                scrollDirection: Axis.horizontal,
+                itemCount: _photos.length,
+                separatorBuilder: (_, _) => const SizedBox(width: 8),
+                itemBuilder: (_, i) => Stack(
+                  children: [
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(8),
+                      child: Image.memory(_photos[i].$1,
+                          width: 96, height: 96, fit: BoxFit.cover,
+                          errorBuilder: (_, _, _) => const SizedBox(width: 96, height: 96, child: Icon(Icons.broken_image_outlined))),
+                    ),
+                    Positioned(
+                      top: 0,
+                      right: 0,
+                      child: IconButton(
+                        key: Key('post_remove_photo_$i'),
+                        visualDensity: VisualDensity.compact,
+                        style: IconButton.styleFrom(backgroundColor: Colors.black54, foregroundColor: Colors.white),
+                        icon: const Icon(Icons.close, size: 16),
+                        onPressed: _busy ? null : () => setState(() => _photos.removeAt(i)),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
             ),
+          const SizedBox(height: 4),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -223,7 +238,7 @@ class _ComposeSheetState extends ConsumerState<_ComposeSheet> {
                 key: const Key('post_pick_photo'),
                 onPressed: _busy ? null : _pick,
                 icon: const Icon(Icons.add_photo_alternate_outlined),
-                label: Text(strings.socialAddPhoto),
+                label: Text(_photos.isEmpty ? strings.socialAddPhoto : '${strings.socialAddPhoto} (${_photos.length}/${SocialPost.maxPhotos})'),
               ),
               FilledButton(
               key: const Key('post_publish'),
@@ -433,6 +448,72 @@ class AuthorScreen extends ConsumerWidget {
                     itemCount: posts.length,
                     itemBuilder: (_, i) => _PostCard(post: posts[i]),
                   ),
+      ),
+    );
+  }
+}
+
+/// Swipeable photo gallery of a post with page dots. Square-ish, never taller than the screen allows.
+class _PhotoGallery extends StatefulWidget {
+  final List<String> urls;
+  final String label;
+  const _PhotoGallery({required this.urls, required this.label});
+
+  @override
+  State<_PhotoGallery> createState() => _PhotoGalleryState();
+}
+
+class _PhotoGalleryState extends State<_PhotoGallery> {
+  int _page = 0;
+
+  @override
+  Widget build(BuildContext context) {
+    final many = widget.urls.length > 1;
+    return AspectRatio(
+      aspectRatio: 4 / 3,
+      child: Stack(
+        children: [
+          PageView.builder(
+            key: const Key('post_gallery'),
+            itemCount: widget.urls.length,
+            onPageChanged: (i) => setState(() => _page = i),
+            itemBuilder: (_, i) => Image.network(
+              widget.urls[i],
+              width: double.infinity,
+              fit: BoxFit.cover,
+              semanticLabel: widget.label,
+              errorBuilder: (_, _, _) => const ColoredBox(color: Colors.black12, child: Center(child: Icon(Icons.broken_image_outlined))),
+            ),
+          ),
+          if (many)
+            Positioned(
+              bottom: 8,
+              left: 0,
+              right: 0,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  for (var i = 0; i < widget.urls.length; i++)
+                    Container(
+                      margin: const EdgeInsets.symmetric(horizontal: 3),
+                      width: i == _page ? 8 : 6,
+                      height: i == _page ? 8 : 6,
+                      decoration: BoxDecoration(shape: BoxShape.circle, color: i == _page ? Colors.white : Colors.white54),
+                    ),
+                ],
+              ),
+            ),
+          if (many)
+            Positioned(
+              top: 8,
+              right: 8,
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                decoration: BoxDecoration(color: Colors.black54, borderRadius: BorderRadius.circular(12)),
+                child: Text('${_page + 1}/${widget.urls.length}', style: const TextStyle(color: Colors.white, fontSize: 12)),
+              ),
+            ),
+        ],
       ),
     );
   }

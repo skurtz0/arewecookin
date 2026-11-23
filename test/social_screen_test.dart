@@ -208,6 +208,52 @@ void main() {
       }
     });
   }
+
+  testWidgets('a post can have several photos: add 3, remove 1, publish 2, gallery swipes', (tester) async {
+    SharedPreferences.setMockInitialValues({});
+    final fake = FakeSocialService();
+    final uploaded = <int>[];
+    await tester.pumpWidget(ProviderScope(
+      overrides: [
+        socialServiceProvider.overrideWithValue(fake),
+        authServiceProvider.overrideWithValue(FakeAuthService(signedInUser)),
+        photoPickerProvider.overrideWithValue(() async => (_png, 'image/png')),
+        photoUploaderProvider.overrideWithValue(_NumberedUploader(uploaded)),
+      ],
+      child: const MaterialApp(home: SocialScreen()),
+    ));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const Key('social_new_post')));
+    await tester.pumpAndSettle();
+    await tester.enterText(find.byKey(const Key('post_title')), 'Çok foto');
+    for (var i = 0; i < 3; i++) {
+      await tester.tap(find.byKey(const Key('post_pick_photo')));
+      await tester.pumpAndSettle();
+    }
+    expect(find.byKey(const Key('post_remove_photo_2')), findsOneWidget);
+    await tester.tap(find.byKey(const Key('post_remove_photo_1')));
+    await tester.pumpAndSettle();
+    expect(find.byKey(const Key('post_remove_photo_2')), findsNothing);
+    await tester.tap(find.byKey(const Key('post_publish')));
+    await tester.pumpAndSettle();
+    expect(fake.posts.single.photoUrls, ['https://photos.test/1.jpg', 'https://photos.test/2.jpg']);
+    expect(fake.posts.single.toMap()['photoUrl'], 'https://photos.test/1.jpg');
+    expect(find.byKey(const Key('post_gallery')), findsOneWidget);
+    expect(find.text('1/2'), findsOneWidget);
+    await tester.drag(find.byKey(const Key('post_gallery')), const Offset(-700, 0));
+    await tester.pumpAndSettle();
+    expect(find.text('2/2'), findsOneWidget);
+  });
+}
+
+class _NumberedUploader implements PhotoUploader {
+  final List<int> log;
+  _NumberedUploader(this.log);
+  @override
+  Future<String?> upload(Uint8List bytes, String contentType) async {
+    log.add(bytes.length);
+    return 'https://photos.test/${log.length}.jpg';
+  }
 }
 
 class _FakeUploader implements PhotoUploader {

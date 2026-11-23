@@ -6,6 +6,16 @@ service cloud.firestore {
   match /databases/{database}/documents {
     function signedIn() { return request.auth != null; }
     function validText(v, max) { return v is string && v.size() <= max; }
+    function photoOk(u) { return u is string && u.matches('https://arewecookin-photos[.]areyouskurtz[.]workers[.]dev/p/.*'); }
+    // Up to 10 photo URLs, each from our own photo worker (no iteration in rules, so check each slot).
+    function photosOk(l) {
+      return l is list && l.size() <= 10
+        && (l.size() < 1 || photoOk(l[0])) && (l.size() < 2 || photoOk(l[1]))
+        && (l.size() < 3 || photoOk(l[2])) && (l.size() < 4 || photoOk(l[3]))
+        && (l.size() < 5 || photoOk(l[4])) && (l.size() < 6 || photoOk(l[5]))
+        && (l.size() < 7 || photoOk(l[6])) && (l.size() < 8 || photoOk(l[7]))
+        && (l.size() < 9 || photoOk(l[8])) && (l.size() < 10 || photoOk(l[9]));
+    }
     // An admin is a signed-in user with a document at admins/<uid>, created by hand in the console.
     function isAdmin() {
       return signedIn() && exists(/databases/$(database)/documents/admins/$(request.auth.uid));
@@ -45,8 +55,8 @@ service cloud.firestore {
         && validText(request.resource.data.title, 80)
         && request.resource.data.title.size() > 0
         && validText(request.resource.data.text, 1000)
-        && (!('photoUrl' in request.resource.data)
-            || request.resource.data.photoUrl.matches('https://arewecookin-photos[.]areyouskurtz[.]workers[.]dev/p/.*'))
+        && (!('photoUrl' in request.resource.data) || photoOk(request.resource.data.photoUrl))
+        && (!('photoUrls' in request.resource.data) || photosOk(request.resource.data.photoUrls))
         && request.resource.data.likeCount == 0
         && request.resource.data.commentCount == 0;
       allow delete: if signedIn() && (resource.data.authorId == request.auth.uid || isAdmin());

@@ -71,14 +71,22 @@ class SocialNotifier extends Notifier<SocialState> {
     }
   }
 
-  Future<bool> publish({required String title, required String text, Uint8List? photo, String photoType = 'image/jpeg'}) async {
+  Future<bool> publish({
+    required String title,
+    required String text,
+    Uint8List? photo,
+    String photoType = 'image/jpeg',
+    List<(Uint8List, String)> photos = const [],
+  }) async {
     final user = ref.read(authProvider).user;
     if (!user.isLoggedIn || title.trim().isEmpty) return false;
     try {
-      String? photoUrl;
-      if (photo != null) {
-        photoUrl = await ref.read(photoUploaderProvider).upload(photo, photoType);
-        if (photoUrl == null) return false;
+      final all = [if (photo != null) (photo, photoType), ...photos].take(SocialPost.maxPhotos);
+      final urls = <String>[];
+      for (final (bytes, type) in all) {
+        final url = await ref.read(photoUploaderProvider).upload(bytes, type);
+        if (url == null) return false;
+        urls.add(url);
       }
       await _service.createPost(SocialPost(
         id: '',
@@ -86,7 +94,7 @@ class SocialNotifier extends Notifier<SocialState> {
         authorName: user.displayName,
         title: title.trim(),
         text: text.trim(),
-        photoUrl: photoUrl,
+        photoUrls: urls,
         createdAtMs: DateTime.now().millisecondsSinceEpoch,
       ));
       return true;
