@@ -40,6 +40,38 @@ class AmountFormat {
 
   static final _fractions = {0.25: '¼', 1 / 3: '⅓', 0.5: '½', 2 / 3: '⅔', 0.75: '¾'};
 
+  static const _glyphs = {'¼': 0.25, '⅓': 1 / 3, '½': 0.5, '⅔': 2 / 3, '¾': 0.75};
+
+  /// Reads an amount typed by a person: "2", "1,5", "1/2", "1 1/2", "½", "1½". Null for anything else.
+  static double? parse(String raw) {
+    var t = raw.trim();
+    if (t.isEmpty) return null;
+    var extra = 0.0;
+    for (final e in _glyphs.entries) {
+      if (t.endsWith(e.key)) {
+        extra = e.value;
+        t = t.substring(0, t.length - 1).trim();
+        break;
+      }
+    }
+    if (extra > 0) {
+      if (t.isEmpty) return extra;
+      final w = double.tryParse(t.replaceAll(',', '.'));
+      return w == null ? null : w + extra;
+    }
+    final mixed = RegExp(r'^(\d+)\s+(\d+)\s*/\s*(\d+)$').firstMatch(t);
+    if (mixed != null) {
+      final d = int.parse(mixed.group(3)!);
+      return d == 0 ? null : int.parse(mixed.group(1)!) + int.parse(mixed.group(2)!) / d;
+    }
+    final simple = RegExp(r'^(\d+)\s*/\s*(\d+)$').firstMatch(t);
+    if (simple != null) {
+      final d = int.parse(simple.group(2)!);
+      return d == 0 ? null : int.parse(simple.group(1)!) / d;
+    }
+    return double.tryParse(t.replaceAll(',', '.'));
+  }
+
   static String fraction(double v) {
     if (v < 0) return v.toString();
     final whole = v.floor();

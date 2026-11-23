@@ -1,3 +1,4 @@
+import '../utils/unit_converter.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -496,7 +497,7 @@ void _addToShopping(
   // With a default servings preference set, amounts are scaled to it (like the recipe screen does).
   final household = ref.read(householdServingsProvider);
   String scaled(Recipe r, String raw) {
-    final n = double.tryParse(raw.replaceAll(',', '.'));
+    final n = AmountFormat.parse(raw);
     if (household == null || n == null || r.servings <= 0) return raw;
     final v = n * household / r.servings;
     return v == v.toInt() ? v.toInt().toString() : v.toStringAsFixed(1);

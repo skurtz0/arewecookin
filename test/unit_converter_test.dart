@@ -56,4 +56,17 @@ void main() {
     expect(AmountFormat.fraction(2.98), '3');
     expect(AmountFormat.fraction(1.1), '1.1');
   });
+
+  test('AmountFormat.parse reads amounts people type', () {
+    expect(AmountFormat.parse('2'), 2);
+    expect(AmountFormat.parse(' 1,5 '), 1.5);
+    expect(AmountFormat.parse('1/2'), 0.5);
+    expect(AmountFormat.parse('1 1/2'), 1.5);
+    expect(AmountFormat.parse('½'), 0.5);
+    expect(AmountFormat.parse('1½'), 1.5);
+    expect(AmountFormat.parse('2 ¼'), 2.25);
+    expect(AmountFormat.parse('1/0'), isNull);
+    expect(AmountFormat.parse('bir tutam'), isNull);
+    expect(AmountFormat.parse(''), isNull);
+  });
 }

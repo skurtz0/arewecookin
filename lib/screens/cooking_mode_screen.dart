@@ -59,7 +59,7 @@ class _CookingModeScreenState extends ConsumerState<CookingModeScreen> {
     final chosen = ref.read(recipeProgressProvider)[widget.recipe.id]?.servings ??
         ref.read(householdServingsProvider);
     final base = widget.recipe.servings;
-    final original = double.tryParse(ing.amount.replaceAll(',', '.'));
+    final original = AmountFormat.parse(ing.amount);
     final imperial = ref.read(imperialUnitsProvider);
     if (original == null ||
         (chosen == null || base <= 0 || chosen == base) && !imperial) {

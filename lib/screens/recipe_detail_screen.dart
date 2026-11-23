@@ -176,7 +176,7 @@ class _RecipeDetailScreenState extends ConsumerState<RecipeDetailScreen> {
 
   /// Amount multiplied by the chosen servings, or null when the amount is not a plain number.
   double? _scaledNumber(String rawAmount) {
-    final original = double.tryParse(rawAmount.replaceAll(',', '.'));
+    final original = AmountFormat.parse(rawAmount);
     if (original == null || widget.recipe.servings <= 0) return null;
     return original * (_servings / widget.recipe.servings);
   }

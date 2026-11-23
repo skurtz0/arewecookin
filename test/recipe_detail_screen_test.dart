@@ -279,6 +279,31 @@ void main() {
       expect(find.textContaining('$n / $n'), findsOneWidget);
     });
 
+    testWidgets('amounts written as fractions scale with the servings', (tester) async {
+      final container = ProviderContainer(overrides: [
+        localeProvider.overrideWith(() => FakeLocaleNotifier(const Locale('tr'))),
+      ]);
+      addTearDown(container.dispose);
+      final recipe = sampleRecipe.copyWith(
+        servings: 2,
+        ingredients: const [Ingredient(name: 'Un', amount: '1/2', unit: 'su bardağı')],
+      );
+      await tester.pumpWidget(UncontrolledProviderScope(
+        container: container,
+        child: MaterialApp(home: RecipeDetailScreen(recipe: recipe)),
+      ));
+      await tester.pumpAndSettle();
+      final dbl = find.byKey(const Key('servings_double'));
+      await tester.ensureVisible(dbl);
+      await tester.tap(dbl);
+      await tester.pumpAndSettle();
+      final btn = find.byKey(const Key('add_to_shopping_list'));
+      await tester.ensureVisible(btn);
+      await tester.tap(btn);
+      await tester.pump();
+      expect(container.read(shoppingListProvider).single.amount, '1');
+    });
+
     testWidgets('ingredients in the pantry show a pantry marker', (tester) async {
       final container = ProviderContainer(overrides: [
         localeProvider.overrideWith(() => FakeLocaleNotifier(const Locale('tr'))),

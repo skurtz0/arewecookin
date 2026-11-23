@@ -1,3 +1,4 @@
+import '../utils/unit_converter.dart';
 import 'dart:convert';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -110,7 +111,7 @@ class ShoppingListNotifier extends Notifier<List<ShoppingItem>> {
     } catch (_) {}
   }
 
-  static double? _num(String v) => double.tryParse(v.trim().replaceAll(',', '.'));
+  static double? _num(String v) => AmountFormat.parse(v);
 
   static String _fmt(double v) {
     if (v == v.roundToDouble()) return v.round().toString();
