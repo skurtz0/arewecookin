@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
 import '../models/models.dart';
 import '../providers/locale_provider.dart';
 import '../providers/user_recipes_provider.dart';
@@ -259,12 +260,21 @@ class _AddRecipeScreenState extends ConsumerState<AddRecipeScreen> {
             child: ElevatedButton.icon(
               onPressed: _saveRecipe,
               icon: const Icon(Icons.check_rounded, size: 18),
-              label: Text(strings.publishRecipe),
+              label: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 110),
+                child: FittedBox(
+                  fit: BoxFit.scaleDown,
+                  child: Text(strings.publishRecipe),
+                ),
+              ),
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color(0xFFFF5722),
                 foregroundColor: Colors.white,
                 elevation: 0,
-                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 14,
+                  vertical: 8,
+                ),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
                 ),
@@ -289,26 +299,46 @@ class _AddRecipeScreenState extends ConsumerState<AddRecipeScreen> {
                     labelText: strings.recipeTitle,
                     hintText: strings.enterRecipeTitle,
                     prefixIcon: const Icon(Icons.title_rounded, size: 20),
-                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-                    contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: 14,
+                      vertical: 12,
+                    ),
                   ),
-                  validator: (v) =>
-                      (v == null || v.trim().isEmpty) ? 'Lütfen tarif adı girin' : null,
+                  validator: (v) => (v == null || v.trim().isEmpty)
+                      ? 'Lütfen tarif adı girin'
+                      : null,
                 ),
                 const SizedBox(height: 14),
                 Row(
                   children: [
                     Expanded(
                       child: DropdownButtonFormField<String>(
+                        isExpanded: true,
                         initialValue: _selectedCategory,
                         decoration: InputDecoration(
                           labelText: strings.recipeCategory,
-                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-                          contentPadding:
-                              const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          contentPadding: const EdgeInsets.symmetric(
+                            horizontal: 12,
+                            vertical: 8,
+                          ),
                         ),
                         items: _categories
-                            .map((c) => DropdownMenuItem(value: c, child: Text(c, style: const TextStyle(fontSize: 13))))
+                            .map(
+                              (c) => DropdownMenuItem(
+                                value: c,
+                                child: Text(
+                                  c,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: const TextStyle(fontSize: 13),
+                                ),
+                              ),
+                            )
                             .toList(),
                         onChanged: (v) {
                           if (v != null) setState(() => _selectedCategory = v);
@@ -318,15 +348,29 @@ class _AddRecipeScreenState extends ConsumerState<AddRecipeScreen> {
                     const SizedBox(width: 12),
                     Expanded(
                       child: DropdownButtonFormField<String>(
+                        isExpanded: true,
                         initialValue: _selectedCuisine,
                         decoration: InputDecoration(
                           labelText: strings.recipeCuisine,
-                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-                          contentPadding:
-                              const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          contentPadding: const EdgeInsets.symmetric(
+                            horizontal: 12,
+                            vertical: 8,
+                          ),
                         ),
                         items: _cuisines
-                            .map((c) => DropdownMenuItem(value: c, child: Text(c, style: const TextStyle(fontSize: 13))))
+                            .map(
+                              (c) => DropdownMenuItem(
+                                value: c,
+                                child: Text(
+                                  c,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: const TextStyle(fontSize: 13),
+                                ),
+                              ),
+                            )
                             .toList(),
                         onChanged: (v) {
                           if (v != null) setState(() => _selectedCuisine = v);
@@ -344,9 +388,13 @@ class _AddRecipeScreenState extends ConsumerState<AddRecipeScreen> {
                         keyboardType: TextInputType.number,
                         decoration: InputDecoration(
                           labelText: strings.prepTimeMinutes,
-                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-                          contentPadding:
-                              const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          contentPadding: const EdgeInsets.symmetric(
+                            horizontal: 12,
+                            vertical: 10,
+                          ),
                         ),
                       ),
                     ),
@@ -357,9 +405,13 @@ class _AddRecipeScreenState extends ConsumerState<AddRecipeScreen> {
                         keyboardType: TextInputType.number,
                         decoration: InputDecoration(
                           labelText: strings.cookTimeMinutes,
-                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-                          contentPadding:
-                              const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          contentPadding: const EdgeInsets.symmetric(
+                            horizontal: 12,
+                            vertical: 10,
+                          ),
                         ),
                       ),
                     ),
@@ -370,25 +422,42 @@ class _AddRecipeScreenState extends ConsumerState<AddRecipeScreen> {
                         keyboardType: TextInputType.number,
                         decoration: InputDecoration(
                           labelText: strings.servingsCount,
-                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-                          contentPadding:
-                              const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          contentPadding: const EdgeInsets.symmetric(
+                            horizontal: 12,
+                            vertical: 10,
+                          ),
                         ),
                       ),
                     ),
                   ],
                 ),
                 const SizedBox(height: 14),
-                Row(
+                Wrap(
+                  crossAxisAlignment: WrapCrossAlignment.center,
                   children: [
-                    const Text('Zorluk: ', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13)),
+                    const Text(
+                      'Zorluk: ',
+                      style: TextStyle(
+                        fontWeight: FontWeight.w600,
+                        fontSize: 13,
+                      ),
+                    ),
                     const SizedBox(width: 8),
                     ..._difficulties.map((diff) {
                       final isSelected = _selectedDifficulty == diff;
                       return Padding(
                         padding: const EdgeInsets.only(right: 6),
                         child: ChoiceChip(
-                          label: Text(diff, style: TextStyle(fontSize: 12, color: isSelected ? Colors.white : Colors.black87)),
+                          label: Text(
+                            diff,
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: isSelected ? Colors.white : Colors.black87,
+                            ),
+                          ),
                           selected: isSelected,
                           selectedColor: const Color(0xFFFF5722),
                           onSelected: (val) {
@@ -405,8 +474,13 @@ class _AddRecipeScreenState extends ConsumerState<AddRecipeScreen> {
                   decoration: InputDecoration(
                     labelText: strings.imageUrlOptional,
                     prefixIcon: const Icon(Icons.image_outlined, size: 20),
-                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-                    contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: 14,
+                      vertical: 12,
+                    ),
                   ),
                 ),
               ],
@@ -422,7 +496,9 @@ class _AddRecipeScreenState extends ConsumerState<AddRecipeScreen> {
                 onPressed: _addIngredient,
                 icon: const Icon(Icons.add, size: 16),
                 label: Text(strings.addIngredient),
-                style: TextButton.styleFrom(foregroundColor: const Color(0xFFFF5722)),
+                style: TextButton.styleFrom(
+                  foregroundColor: const Color(0xFFFF5722),
+                ),
               ),
               children: [
                 for (int i = 0; i < _ingredients.length; i++) ...[
@@ -435,8 +511,13 @@ class _AddRecipeScreenState extends ConsumerState<AddRecipeScreen> {
                           keyboardType: TextInputType.number,
                           decoration: InputDecoration(
                             hintText: 'Miktar',
-                            border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
-                            contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            contentPadding: const EdgeInsets.symmetric(
+                              horizontal: 8,
+                              vertical: 8,
+                            ),
                           ),
                         ),
                       ),
@@ -448,18 +529,25 @@ class _AddRecipeScreenState extends ConsumerState<AddRecipeScreen> {
                           isExpanded: true,
                           initialValue: _ingredients[i].unit,
                           decoration: InputDecoration(
-                            border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
-                            contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            contentPadding: const EdgeInsets.symmetric(
+                              horizontal: 8,
+                              vertical: 8,
+                            ),
                           ),
                           items: _units
-                              .map((u) => DropdownMenuItem(
-                                    value: u,
-                                    child: Text(
-                                      u,
-                                      style: const TextStyle(fontSize: 11),
-                                      overflow: TextOverflow.ellipsis,
-                                    ),
-                                  ))
+                              .map(
+                                (u) => DropdownMenuItem(
+                                  value: u,
+                                  child: Text(
+                                    u,
+                                    style: const TextStyle(fontSize: 11),
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ),
+                              )
                               .toList(),
                           onChanged: (v) {
                             if (v != null) {
@@ -474,15 +562,26 @@ class _AddRecipeScreenState extends ConsumerState<AddRecipeScreen> {
                           controller: _ingredients[i].nameController,
                           decoration: InputDecoration(
                             hintText: strings.ingredientName,
-                            border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
-                            contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            contentPadding: const EdgeInsets.symmetric(
+                              horizontal: 10,
+                              vertical: 8,
+                            ),
                           ),
                         ),
                       ),
                       if (_ingredients.length > 1)
                         IconButton(
-                          tooltip: ref.read(appStringsProvider).shoppingDeleteItem,
-                          icon: const Icon(Icons.close_rounded, size: 18, color: Colors.grey),
+                          tooltip: ref
+                              .read(appStringsProvider)
+                              .shoppingDeleteItem,
+                          icon: const Icon(
+                            Icons.close_rounded,
+                            size: 18,
+                            color: Colors.grey,
+                          ),
                           onPressed: () => _removeIngredient(i),
                         ),
                     ],
@@ -502,7 +601,9 @@ class _AddRecipeScreenState extends ConsumerState<AddRecipeScreen> {
                 onPressed: _addStep,
                 icon: const Icon(Icons.add, size: 16),
                 label: Text(strings.addStep),
-                style: TextButton.styleFrom(foregroundColor: const Color(0xFFFF5722)),
+                style: TextButton.styleFrom(
+                  foregroundColor: const Color(0xFFFF5722),
+                ),
               ),
               children: [
                 for (int i = 0; i < _steps.length; i++) ...[
@@ -533,13 +634,22 @@ class _AddRecipeScreenState extends ConsumerState<AddRecipeScreen> {
                             const SizedBox(width: 8),
                             Text(
                               '${strings.step} ${i + 1}',
-                              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
+                              style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 13,
+                              ),
                             ),
                             const Spacer(),
                             if (_steps.length > 1)
                               IconButton(
-                                tooltip: ref.read(appStringsProvider).shoppingDeleteItem,
-                                icon: const Icon(Icons.delete_outline, size: 18, color: Colors.red),
+                                tooltip: ref
+                                    .read(appStringsProvider)
+                                    .shoppingDeleteItem,
+                                icon: const Icon(
+                                  Icons.delete_outline,
+                                  size: 18,
+                                  color: Colors.red,
+                                ),
                                 onPressed: () => _removeStep(i),
                               ),
                           ],
@@ -550,14 +660,20 @@ class _AddRecipeScreenState extends ConsumerState<AddRecipeScreen> {
                           maxLines: 2,
                           decoration: InputDecoration(
                             hintText: strings.stepInstruction,
-                            border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(10),
+                            ),
                             contentPadding: const EdgeInsets.all(10),
                           ),
                         ),
                         const SizedBox(height: 8),
                         Row(
                           children: [
-                            const Icon(Icons.timer_outlined, size: 16, color: Colors.grey),
+                            const Icon(
+                              Icons.timer_outlined,
+                              size: 16,
+                              color: Colors.grey,
+                            ),
                             const SizedBox(width: 6),
                             SizedBox(
                               width: 140,
@@ -566,8 +682,13 @@ class _AddRecipeScreenState extends ConsumerState<AddRecipeScreen> {
                                 keyboardType: TextInputType.number,
                                 decoration: InputDecoration(
                                   hintText: strings.stepTimerOptional,
-                                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
-                                  contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                  contentPadding: const EdgeInsets.symmetric(
+                                    horizontal: 8,
+                                    vertical: 6,
+                                  ),
                                 ),
                               ),
                             ),
@@ -589,12 +710,17 @@ class _AddRecipeScreenState extends ConsumerState<AddRecipeScreen> {
                 backgroundColor: const Color(0xFFFF5722),
                 foregroundColor: Colors.white,
                 padding: const EdgeInsets.symmetric(vertical: 16),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(14),
+                ),
                 elevation: 0,
               ),
               child: Text(
                 strings.publishRecipe,
-                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
             ),
           ],
@@ -630,17 +756,25 @@ class _AddRecipeScreenState extends ConsumerState<AddRecipeScreen> {
             children: [
               Icon(icon, size: 20, color: const Color(0xFFFF5722)),
               const SizedBox(width: 8),
-              Text(
-                title,
-                style: const TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                  color: Color(0xFF1E293B),
+              Flexible(
+                child: Text(
+                  title,
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    color: Color(0xFF1E293B),
+                  ),
                 ),
               ),
               if (action != null) ...[
-                const Spacer(),
-                action,
+                const SizedBox(width: 8),
+                Flexible(
+                  child: FittedBox(
+                    fit: BoxFit.scaleDown,
+                    alignment: Alignment.centerRight,
+                    child: action,
+                  ),
+                ),
               ],
             ],
           ),
