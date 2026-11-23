@@ -233,6 +233,8 @@ class AppStrings {
   String get clearAll => _get('clearAll', 'Clear All');
   String get loadErrorTitle => _get('loadErrorTitle', 'Could not load recipes');
   String get retry => _get('retry', 'Try again');
+  String get discardRecipeTitle => _get('discardRecipeTitle', 'Discard this recipe draft?');
+  String get discardRecipeAction => _get('discardRecipeAction', 'Discard');
   String get searchTip => _get('searchTip', 'Tip: separate ingredients with commas (tomato, onion) and exclude one with a minus (-milk).');
   String get noRecipesFound => _get('noRecipesFound', 'No matching recipes found');
   String get pantryEmptyTitle => _get('pantryEmptyTitle', 'Your pantry looks empty');

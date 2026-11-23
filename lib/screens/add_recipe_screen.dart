@@ -103,6 +103,39 @@ class _AddRecipeScreenState extends ConsumerState<AddRecipeScreen> {
     });
   }
 
+  bool get _isDirty =>
+      _titleController.text.trim().isNotEmpty ||
+      _ingredients.any((i) => i.nameController.text.trim().isNotEmpty) ||
+      _steps.any((st) => st.instructionController.text.trim().isNotEmpty);
+
+  /// Leaving with typed-in content asks first, so a half-written recipe is not lost by a stray back tap.
+  Future<void> _confirmLeave(AppStrings strings) async {
+    if (!mounted) return;
+    if (!_isDirty) {
+      Navigator.of(context).pop();
+      return;
+    }
+    final leave = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(strings.discardRecipeTitle),
+        actions: [
+          TextButton(
+            key: const Key('discard_keep'),
+            onPressed: () => Navigator.of(ctx).pop(false),
+            child: Text(strings.cancel),
+          ),
+          TextButton(
+            key: const Key('discard_leave'),
+            onPressed: () => Navigator.of(ctx).pop(true),
+            child: Text(strings.discardRecipeAction),
+          ),
+        ],
+      ),
+    );
+    if (leave == true && mounted) Navigator.of(context).pop();
+  }
+
   // Removed rows stay alive (not disposed) until the screen closes so "Undo" can put them back.
   final List<Object> _removedDrafts = [];
 
@@ -284,7 +317,12 @@ class _AddRecipeScreenState extends ConsumerState<AddRecipeScreen> {
   Widget build(BuildContext context) {
     final strings = ref.watch(appStringsProvider);
 
-    return Scaffold(
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, _) {
+        if (!didPop) Future.microtask(() => _confirmLeave(strings));
+      },
+      child: Scaffold(
       backgroundColor: const Color(0xFFF9F9FB),
       appBar: AppBar(
         backgroundColor: Colors.white,
@@ -770,6 +808,7 @@ class _AddRecipeScreenState extends ConsumerState<AddRecipeScreen> {
           ],
         ),
       ),
+    ),
     );
   }
 
