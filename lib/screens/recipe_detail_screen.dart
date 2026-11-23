@@ -7,8 +7,10 @@ import '../utils/cooking_icons.dart';
 import '../widgets/recipe_image.dart';
 import '../providers/user_recipes_provider.dart';
 import '../providers/locale_provider.dart';
+import '../providers/avoided_ingredients_provider.dart';
 import '../providers/household_servings_provider.dart';
 import '../providers/pantry_provider.dart';
+import '../repositories/recipe_repository.dart';
 import '../providers/shopping_list_provider.dart';
 import '../providers/meal_plan_provider.dart';
 import '../providers/recent_recipes_provider.dart';
@@ -612,6 +614,35 @@ class _RecipeDetailScreenState extends ConsumerState<RecipeDetailScreen> {
 
             const SizedBox(height: 16),
 
+            Builder(builder: (_) {
+              final hits = [
+                for (final w in ref.watch(avoidedIngredientsProvider))
+                  if (RecipeRepository.mentionsWord(recipe, w)) w,
+              ];
+              if (hits.isEmpty) return const SizedBox.shrink();
+              return Container(
+                key: const Key('avoided_warning'),
+                margin: const EdgeInsets.only(bottom: 8),
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFFEF2F2),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: const Color(0xFFFCA5A5)),
+                ),
+                child: Row(
+                  children: [
+                    const Icon(Icons.warning_amber_rounded, color: Color(0xFFDC2626), size: 20),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        strings.avoidedWarning(hits.join(', ')),
+                        style: const TextStyle(fontSize: 13, color: Color(0xFF991B1B)),
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            }),
             Builder(builder: (_) {
               final have = recipe.ingredients
                   .where((i) => _inPantry(i, pantryKeys, strings.locale))

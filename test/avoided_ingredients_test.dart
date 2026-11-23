@@ -3,6 +3,7 @@ import 'package:arewecookin/providers/discover_provider.dart';
 import 'package:arewecookin/providers/pantry_provider.dart';
 import 'package:arewecookin/repositories/recipe_repository.dart';
 import 'package:arewecookin/screens/account_screen.dart';
+import 'package:arewecookin/screens/recipe_detail_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -89,5 +90,23 @@ void main() {
     await c.read(pantryProvider.notifier).addIngredient('zzzunique2');
     final matched = c.read(pantryProvider).matchedRecipes;
     expect(matched.any((r) => r.id == base.id), isFalse);
+  });
+
+  testWidgets('a recipe with an avoided word shows a warning on its page', (tester) async {
+    SharedPreferences.setMockInitialValues({});
+    final base = (await RecipeRepository().getRecipes(limit: 1)).recipes.first;
+    final word = RecipeRepository.normalizeSearch(base.ingredients.firstWhere((i) => i.name.trim().length > 3).name.trim());
+    final c = ProviderContainer();
+    addTearDown(c.dispose);
+    await tester.pumpWidget(UncontrolledProviderScope(
+      container: c,
+      child: MaterialApp(home: RecipeDetailScreen(recipe: base)),
+    ));
+    await tester.pumpAndSettle();
+    expect(find.byKey(const Key('avoided_warning')), findsNothing);
+    c.read(avoidedIngredientsProvider.notifier).add(word);
+    await tester.pumpAndSettle();
+    expect(find.byKey(const Key('avoided_warning')), findsOneWidget);
+    expect(find.textContaining(word.split(' ').first), findsWidgets);
   });
 }
