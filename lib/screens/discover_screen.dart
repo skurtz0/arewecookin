@@ -568,6 +568,21 @@ class DiscoverScreenState extends ConsumerState<DiscoverScreen> {
                     onSelected: (v) => setState(() => _onlySaved = v),
                   ),
                 ),
+                Padding(
+                  padding: const EdgeInsetsDirectional.only(end: 8),
+                  child: FilterChip(
+                    key: const Key('quick_easy'),
+                    avatar: const Icon(Icons.bolt_rounded, size: 16),
+                    label: Text(strings.quickEasy),
+                    selected: discoverState.maxMinutes == 30 && discoverState.difficulty == 'easy',
+                    selectedColor: const Color(0xFFFF5722).withValues(alpha: 0.18),
+                    onSelected: (v) {
+                      final n = ref.read(discoverProvider.notifier);
+                      n.setMaxMinutes(v ? 30 : null);
+                      n.setDifficulty(v ? 'easy' : null);
+                    },
+                  ),
+                ),
                 for (final g in const ['easy', 'medium', 'hard'])
                   Padding(
                     padding: const EdgeInsetsDirectional.only(end: 8),

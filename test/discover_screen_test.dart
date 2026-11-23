@@ -243,6 +243,30 @@ void main() {
       expect(container.read(savedRecipesProvider).isSaved(recipe.id), isFalse);
     });
 
+    testWidgets('Quick & easy chip sets both filters and clears them', (tester) async {
+      SharedPreferences.setMockInitialValues({});
+      final container = ProviderContainer();
+      addTearDown(container.dispose);
+      await tester.pumpWidget(UncontrolledProviderScope(
+        container: container,
+        child: const MaterialApp(home: Scaffold(body: DiscoverScreen())),
+      ));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 300));
+      final chip = find.byKey(const Key('quick_easy'));
+      await tester.ensureVisible(chip);
+      await tester.tap(chip);
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 300));
+      expect(container.read(discoverProvider).maxMinutes, 30);
+      expect(container.read(discoverProvider).difficulty, 'easy');
+      await tester.tap(chip);
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 300));
+      expect(container.read(discoverProvider).maxMinutes, isNull);
+      expect(container.read(discoverProvider).difficulty, isNull);
+    });
+
     testWidgets('my rating shows on the recipe card', (tester) async {
       SharedPreferences.setMockInitialValues({});
       final container = ProviderContainer();
