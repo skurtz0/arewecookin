@@ -10,9 +10,11 @@ import '../providers/locale_provider.dart';
 import '../providers/pantry_provider.dart';
 import '../utils/pantry_match.dart';
 import '../widgets/avoided_badge.dart';
+import '../providers/admin_provider.dart';
 import '../providers/user_recipes_provider.dart';
 import '../widgets/recipe_image.dart';
 import 'add_recipe_screen.dart';
+import 'moderation_screen.dart';
 import 'recipe_detail_screen.dart';
 
 class AccountScreen extends ConsumerStatefulWidget {
@@ -1208,6 +1210,16 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
                 size: 14, color: Colors.red),
             onTap: () => _showDeleteAccountDialog(context),
           ),
+          if (ref.watch(isAdminProvider).value == true)
+            ListTile(
+              contentPadding: EdgeInsets.zero,
+              leading: const Icon(Icons.flag_rounded),
+              title: Text(ref.watch(appStringsProvider).isTurkish ? 'Şikâyetler (yönetici)' : 'Reports (admin)'),
+              trailing: const Icon(Icons.arrow_forward_ios_rounded, size: 14),
+              onTap: () => Navigator.of(context).push(
+                MaterialPageRoute<void>(builder: (_) => const ModerationScreen()),
+              ),
+            ),
           const SizedBox(height: 16),
           // Sign Out Button
           SizedBox(

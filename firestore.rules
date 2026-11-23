@@ -6,6 +6,15 @@ service cloud.firestore {
   match /databases/{database}/documents {
     function signedIn() { return request.auth != null; }
     function validText(v, max) { return v is string && v.size() <= max; }
+    // An admin is a signed-in user with a document at admins/<uid>, created by hand in the console.
+    function isAdmin() {
+      return signedIn() && exists(/databases/$(database)/documents/admins/$(request.auth.uid));
+    }
+
+    // Nobody can write admins from the app. A user can only check their own entry.
+    match /admins/{uid} {
+      allow read: if signedIn() && request.auth.uid == uid;
+    }
 
     // Custom recipes synced from the app. Anyone (also guests) can add one, but an
     // existing recipe can only be changed or deleted by the signed-in user who owns it.
@@ -33,7 +42,7 @@ service cloud.firestore {
             || request.resource.data.photoUrl.matches('https://arewecookin-photos[.]areyouskurtz[.]workers[.]dev/p/.*'))
         && request.resource.data.likeCount == 0
         && request.resource.data.commentCount == 0;
-      allow delete: if signedIn() && resource.data.authorId == request.auth.uid;
+      allow delete: if signedIn() && (resource.data.authorId == request.auth.uid || isAdmin());
       // Only the counters can change, and only by 1.
       allow update: if signedIn()
         && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['likeCount', 'commentCount'])
@@ -50,12 +59,17 @@ service cloud.firestore {
           && request.resource.data.authorId == request.auth.uid
           && validText(request.resource.data.text, 500)
           && request.resource.data.text.size() > 0;
-        allow delete: if signedIn() && resource.data.authorId == request.auth.uid;
+        allow delete: if signedIn() && (resource.data.authorId == request.auth.uid || isAdmin());
       }
     }
 
-    // Reports: anyone signed in can file one about a post; nobody can read them from the app.
+    // Reports: anyone signed in can file one about a post. Only admins can read them
+    // and mark them handled (status only).
     match /reports/{reportId} {
+      allow read: if isAdmin();
+      allow update: if isAdmin()
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status'])
+        && request.resource.data.status in ['removed', 'dismissed'];
       allow create: if signedIn()
         && request.resource.data.reporterId == request.auth.uid
         && validText(request.resource.data.reason, 100);
