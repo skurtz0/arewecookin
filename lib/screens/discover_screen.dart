@@ -34,12 +34,14 @@ class DiscoverScreenState extends ConsumerState<DiscoverScreen> {
   String _cardLabel(Recipe recipe, AppStrings strings) {
     final rating = ref.watch(recipeNotesProvider.select((m) => m[recipe.id]?.rating ?? 0));
     final cooked = ref.watch(cookHistoryProvider.select((m) => (m[recipe.id]?.count ?? 0) > 0));
+    final hasNote = ref.watch(recipeNotesProvider.select((m) => (m[recipe.id]?.note ?? '').trim().isNotEmpty));
     return [
       recipe.localizedTitle(strings.locale),
       strings.minutesShort(recipe.totalTime),
       recipe.localizedDifficulty(strings),
       if (rating > 0) '$rating/5',
       if (cooked) strings.cookedDishes,
+      if (hasNote) strings.myNotes,
     ].join(', ');
   }
 
@@ -1136,6 +1138,7 @@ class _RecipeCard extends ConsumerWidget {
     final catColor = _categoryColor(recipe.category);
     final myRating = ref.watch(recipeNotesProvider.select((m) => m[recipe.id]?.rating ?? 0));
     final cookedCount = ref.watch(cookHistoryProvider.select((m) => m[recipe.id]?.count ?? 0));
+    final hasNote = ref.watch(recipeNotesProvider.select((m) => (m[recipe.id]?.note ?? '').trim().isNotEmpty));
 
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
@@ -1303,6 +1306,12 @@ class _RecipeCard extends ConsumerWidget {
                                   label: strings.cookedDishes,
                                 ),
                               AvoidedBadge(recipe: recipe),
+                              if (hasNote)
+                                _InfoBadge(
+                                  key: Key('note_badge_${recipe.id}'),
+                                  icon: Icons.sticky_note_2_outlined,
+                                  label: strings.myNotes,
+                                ),
                               if (myRating > 0)
                                 _InfoBadge(icon: Icons.star_rounded, label: '$myRating/5'),
                               _InfoBadge(

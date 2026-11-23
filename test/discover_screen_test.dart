@@ -331,6 +331,29 @@ void main() {
       expect((await SharedPreferences.getInstance()).getString('saved_sort_v1'), isNull);
     });
 
+    testWidgets('a recipe with a personal note shows a note badge on its card', (tester) async {
+      tester.view.physicalSize = const Size(1200, 6000);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(tester.view.reset);
+      SharedPreferences.setMockInitialValues({});
+      final container = ProviderContainer();
+      addTearDown(container.dispose);
+      await tester.pumpWidget(UncontrolledProviderScope(
+        container: container,
+        child: const MaterialApp(home: Scaffold(body: DiscoverScreen())),
+      ));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 300));
+      final first = container.read(discoverProvider).recipes.first;
+      expect(find.byKey(Key('note_badge_${first.id}')), findsNothing);
+      container.read(recipeNotesProvider.notifier).setNote(first.id, 'less salt next time');
+      await tester.pump(const Duration(milliseconds: 300));
+      expect(find.byKey(Key('note_badge_${first.id}')), findsOneWidget);
+      container.read(recipeNotesProvider.notifier).setNote(first.id, '   ');
+      await tester.pump(const Duration(milliseconds: 300));
+      expect(find.byKey(Key('note_badge_${first.id}')), findsNothing);
+    });
+
     testWidgets('Rated filter lists rated recipes, best first, and explains when empty', (tester) async {
       tester.view.physicalSize = const Size(1200, 6000);
       tester.view.devicePixelRatio = 1.0;
