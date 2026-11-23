@@ -182,9 +182,11 @@ class _ShoppingListScreenState extends ConsumerState<ShoppingListScreen> {
               },
             ),
           if (doneCount > 0)
-            TextButton(
+            IconButton(
+              key: const Key('shopping_clear_done'),
+              tooltip: strings.shoppingClearDone,
+              icon: const Icon(Icons.playlist_remove_rounded),
               onPressed: () => clearWithUndo(notifier.clearDone),
-              child: Text(strings.shoppingClearDone),
             ),
         ],
       ),

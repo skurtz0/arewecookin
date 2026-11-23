@@ -85,7 +85,7 @@ void main() {
     await tester.pumpAndSettle();
     await tester.tap(find.text('Alpha'));
     await tester.pumpAndSettle();
-    await tester.tap(find.text('Clear checked'));
+    await tester.tap(find.byKey(const Key('shopping_clear_done')));
     await tester.pumpAndSettle();
     expect(c.read(shoppingListProvider).map((e) => e.name), ['Beta']);
     await tester.tap(find.text('Undo'));
