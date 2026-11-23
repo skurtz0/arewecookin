@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:flutter/services.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -203,6 +204,7 @@ class DiscoverNotifier extends Notifier<DiscoverState> {
   }
 
   void setCuisine(String cuisine) {
+    HapticFeedback.selectionClick().catchError((_) {}); // no-op without a platform binding
     if (state.selectedCuisine == cuisine) return;
     _filtersTouched = true;
     state = state.copyWith(selectedCuisine: cuisine);
@@ -211,6 +213,7 @@ class DiscoverNotifier extends Notifier<DiscoverState> {
   }
 
   void setCategory(String category) {
+    HapticFeedback.selectionClick().catchError((_) {}); // no-op without a platform binding
     if (state.selectedCategory == category) return;
     _filtersTouched = true;
     state = state.copyWith(selectedCategory: category);
@@ -219,6 +222,7 @@ class DiscoverNotifier extends Notifier<DiscoverState> {
   }
 
   void setMaxMinutes(int? minutes) {
+    HapticFeedback.selectionClick().catchError((_) {}); // no-op without a platform binding
     if (state.maxMinutes == minutes) return;
     _filtersTouched = true;
     state = minutes == null ? state.copyWith(clearMaxMinutes: true) : state.copyWith(maxMinutes: minutes);
@@ -227,6 +231,7 @@ class DiscoverNotifier extends Notifier<DiscoverState> {
   }
 
   void setDifficulty(String? group) {
+    HapticFeedback.selectionClick().catchError((_) {}); // no-op without a platform binding
     if (state.difficulty == group) return;
     _filtersTouched = true;
     state = group == null ? state.copyWith(clearDifficulty: true) : state.copyWith(difficulty: group);

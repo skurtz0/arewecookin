@@ -1,3 +1,4 @@
+import 'package:arewecookin/providers/discover_provider.dart';
 import 'package:arewecookin/providers/meal_plan_provider.dart';
 import 'package:arewecookin/providers/user_recipes_provider.dart';
 import 'package:arewecookin/screens/meal_plan_screen.dart';
@@ -218,5 +219,20 @@ void main() {
     await tester.tap(find.byIcon(Icons.add_circle_outline_rounded).first);
     await tester.pump();
     expect(calls, isNotEmpty);
+  });
+  testWidgets('picking a Discover time filter gives a light tap', (tester) async {
+    SharedPreferences.setMockInitialValues({});
+    final calls = <String>[];
+    tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(SystemChannels.platform, (call) async {
+      if (call.method == 'HapticFeedback.vibrate') calls.add('${call.arguments}');
+      return null;
+    });
+    addTearDown(() => tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(SystemChannels.platform, null));
+    final c = ProviderContainer();
+    addTearDown(c.dispose);
+    c.read(discoverProvider.notifier).setMaxMinutes(30);
+    await tester.pump();
+    expect(calls, isNotEmpty);
+    expect(c.read(discoverProvider).maxMinutes, 30);
   });
 }
