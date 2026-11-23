@@ -806,6 +806,14 @@ class DiscoverScreenState extends ConsumerState<DiscoverScreen> {
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
               ),
             ),
+            const SizedBox(height: 8),
+            // Saved recipes live on the device, so they still open without a connection.
+            TextButton.icon(
+              key: const Key('error_open_saved'),
+              onPressed: () => setState(() => _onlySaved = true),
+              icon: const Icon(Icons.bookmark_rounded, size: 18),
+              label: Text(strings.savedOnly),
+            ),
           ],
         ),
       ),
